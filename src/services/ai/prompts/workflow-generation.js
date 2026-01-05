@@ -2,7 +2,7 @@
  * 工作流生成提示词模板
  */
 
-export const workflowGenerationPrompt = {
+const workflowGenerationPrompt = {
   system: `你是一个浏览器自动化专家,擅长分析网页结构并生成数据抓取工作流。
 
 你的任务是根据用户的需求和页面分析结果,生成一个详细的数据抓取步骤列表。
@@ -40,7 +40,8 @@ export const workflowGenerationPrompt = {
 - 如果有分页,使用 PAGINATION 操作
 - 最后一步必须是 EXPORT 操作`,
 
-  user: (userInput, pageAnalysis, dataSample) => `
+  user: function (userInput, pageAnalysis, dataSample) {
+    return `
 ## 用户需求:
 ${userInput}
 
@@ -53,10 +54,11 @@ ${userInput}
 ${JSON.stringify(dataSample, null, 2)}
 
 请根据以上信息,生成详细的数据抓取步骤。
-`,
+`;
+  },
 };
 
-export const selectorOptimizationPrompt = {
+const selectorOptimizationPrompt = {
   system: `你是一个 CSS 选择器优化专家。
 
 你的任务是根据元素信息,生成最稳定、最具体的 CSS 选择器。
@@ -75,15 +77,17 @@ export const selectorOptimizationPrompt = {
   "confidence": 0.9
 }`,
 
-  user: (elementInfo) => `
+  user: function (elementInfo) {
+    return `
 ## 元素信息:
 ${JSON.stringify(elementInfo, null, 2)}
 
 请生成最优的 CSS 选择器。
-`,
+`;
+  },
 };
 
-export const dataExtractionPrompt = {
+const dataExtractionPrompt = {
   system: `你是一个数据提取专家。
 
 你的任务是分析 HTML 结构,确定需要提取哪些字段以及如何提取。
@@ -106,7 +110,8 @@ export const dataExtractionPrompt = {
 - date - 转换为日期
 - url - 提取完整 URL`,
 
-  user: (dataSample, userRequirement) => `
+  user: function (dataSample, userRequirement) {
+    return `
 ## 数据样本:
 ${JSON.stringify(dataSample, null, 2)}
 
@@ -114,5 +119,8 @@ ${JSON.stringify(dataSample, null, 2)}
 ${userRequirement}
 
 请确定需要提取的字段和提取方法。
-`,
+`;
+  },
 };
+
+export { workflowGenerationPrompt, selectorOptimizationPrompt, dataExtractionPrompt };
