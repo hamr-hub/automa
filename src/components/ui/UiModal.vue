@@ -12,7 +12,7 @@
           :style="{ 'backdrop-filter': blur && 'blur(2px)' }"
         >
           <div
-            class="absolute h-full w-full bg-black bg-opacity-20 dark:bg-opacity-60"
+            class="absolute h-full w-full bg-black/20 dark:bg-black/60"
             style="z-index: -2"
             @click="closeModal"
           />

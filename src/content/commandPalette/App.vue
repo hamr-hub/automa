@@ -1,7 +1,7 @@
 <template>
   <div
     v-if="state.active"
-    class="fixed top-0 left-0 h-full w-full bg-black bg-opacity-50 p-4 text-black"
+    class="fixed top-0 left-0 h-full w-full bg-black/50 p-4 text-black"
     style="z-index: 99999999"
     @click.self="state.active = false"
   >

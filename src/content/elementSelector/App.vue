@@ -2,7 +2,7 @@
   <div
     :class="{
       'select-none': state.isDragging,
-      'bg-black bg-opacity-30': !state.hide,
+      'bg-black/30': !state.hide,
     }"
     class="root pointer-events-none fixed top-0 left-0 h-full w-full text-black"
     style="z-index: 99999999"
@@ -447,6 +447,6 @@ onBeforeUnmount(() => {
   padding: 0 !important;
 }
 .main-tab .ui-tab.is-active.fill {
-  @apply bg-accent text-white !important;
+  @apply bg-accent text-white!;
 }
 </style>

@@ -6,7 +6,7 @@
     :class="[
       active ? color : 'hoverable',
       small ? 'p-2' : 'py-2 px-4',
-      { 'pointer-events-none bg-opacity-75': disabled },
+      { 'pointer-events-none opacity-75': disabled },
     ]"
   >
     <slot></slot>
@@ -25,7 +25,7 @@ export default {
     color: {
       type: String,
       default:
-        'bg-primary text-primary dark:bg-secondary dark:text-secondary bg-opacity-10 dark:bg-opacity-10',
+        'bg-primary/10 text-primary dark:bg-secondary/10 dark:text-secondary',
     },
   },
 };

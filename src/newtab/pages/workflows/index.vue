@@ -636,7 +636,8 @@ onMounted(() => {
 </script>
 <style>
 .workflow-sort select {
-  @apply rounded-l-none !important;
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
 }
 .workflows-container {
   @apply grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4;

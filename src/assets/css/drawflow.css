@@ -74,7 +74,7 @@
 }
 
 .drawflow .drawflow-node .input {
-  @apply bg-accent !important;
+  @apply bg-accent!;
 }
 
 .drawflow .icon-ui {

@@ -131,7 +131,7 @@
         :class="[
           { 'cursor-default': isDataChanged },
           workflow.testingMode
-            ? 'bg-primary bg-opacity-20 text-primary'
+            ? 'bg-primary/20 text-primary'
             : 'hoverable',
         ]"
         class="rounded-lg p-2"
