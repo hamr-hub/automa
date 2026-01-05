@@ -11,6 +11,14 @@
       <h1 class="text-xl font-semibold text-white">Automa</h1>
       <div class="grow"></div>
       <ui-button
+        v-tooltip.group="t('home.aiGenerator.title')"
+        icon
+        class="mr-2"
+        @click="openAIGenerator"
+      >
+        <v-remixicon name="riRobotLine" />
+      </ui-button>
+      <ui-button
         v-tooltip.group="
           'Start recording by opening the dashboard. Click to learn more'
         "
@@ -292,6 +300,9 @@ function openDocs() {
     'https://docs.extension.automa.site/guide/quick-start.html#recording-actions',
     '_blank'
   );
+}
+function openAIGenerator() {
+  openDashboard('/ai-workflow-generator');
 }
 function closeSettingsPopup() {
   state.showSettingsPopup = false;

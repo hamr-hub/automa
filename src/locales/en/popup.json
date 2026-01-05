@@ -4,6 +4,9 @@
     "title": "Recording"
   },
   "home": {
+    "aiGenerator": {
+      "title": "AI Workflow Generator"
+    },
     "record": {
       "title": "Record workflow",
       "button": "Record",

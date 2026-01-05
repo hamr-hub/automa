@@ -17,6 +17,7 @@ import SettingsAbout from './pages/settings/SettingsAbout.vue';
 import SettingsShortcuts from './pages/settings/SettingsShortcuts.vue';
 import SettingsBackup from './pages/settings/SettingsBackup.vue';
 import SettingsEditor from './pages/settings/SettingsEditor.vue';
+import AIWorkflowGenerator from './pages/AIWorkflowGenerator.vue';
 
 const routes = [
   {
@@ -29,6 +30,11 @@ const routes = [
     name: 'welcome',
     path: '/welcome',
     component: Welcome,
+  },
+  {
+    name: 'ai-workflow-generator',
+    path: '/ai-workflow-generator',
+    component: AIWorkflowGenerator,
   },
   {
     name: 'packages',

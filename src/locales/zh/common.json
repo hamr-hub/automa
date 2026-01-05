@@ -47,6 +47,7 @@
     "password": "密码",
     "category": "分类",
     "optional": "可选",
+    "ai-generator": "AI 生成器",
     "0disable": "0 到禁用",
     "millisecond": "毫秒 | 毫秒"
   },

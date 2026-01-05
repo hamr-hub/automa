@@ -4,6 +4,9 @@
     "title": "录制中"
   },
   "home": {
+    "aiGenerator": {
+      "title": "AI 工作流生成器"
+    },
     "record": {
       "title": "录制工作流",
       "button": "录制",

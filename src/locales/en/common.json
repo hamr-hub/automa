@@ -38,6 +38,7 @@
     "fileName": "File name",
     "description": "Description",
     "disable": "Disable",
+    "ai-generator": "AI Generator",
     "disabled": "Disabled",
     "enable": "Enable",
     "fallback": "Fallback",

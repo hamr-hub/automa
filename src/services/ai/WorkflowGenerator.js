@@ -1,0 +1,450 @@
+/**
+ * 工作流生成器
+ * 将 AI 生成的抽象步骤转换为 Automa 工作流结构
+ */
+
+import { nanoid } from 'nanoid';
+
+class WorkflowGenerator {
+  constructor() {
+    // Automa Block 类型映射
+    this.blockTypeMap = {
+      NAVIGATE: 'new-tab',
+      WAIT: 'delay',
+      CLICK: 'event-click',
+      SCROLL: 'element-scroll',
+      EXTRACT: 'get-text',
+      EXTRACT_ATTRIBUTE: 'attribute-value',
+      LOOP: 'loop-data',
+      PAGINATION: 'loop-elements',
+      EXPORT: 'export-data',
+      INPUT: 'forms',
+      SELECT: 'forms',
+      SCREENSHOT: 'screenshot',
+      CONDITION: 'conditions',
+    };
+
+    // 默认节点位置配置
+    this.nodePosition = {
+      x: 50,
+      y: 50,
+      xOffset: 280,
+      yOffset: 150,
+      itemsPerRow: 4,
+    };
+  }
+
+  /**
+   * 生成完整的 Automa 工作流
+   * @param {Object} aiOutput - AI 生成的步骤和数据模式
+   * @param {string} userInput - 用户原始输入
+   * @param {string} targetUrl - 目标 URL
+   */
+  generateWorkflow(aiOutput, userInput, targetUrl) {
+    const { steps, dataSchema } = aiOutput;
+
+    // 生成工作流基本信息
+    const workflowId = nanoid();
+    const workflow = {
+      id: workflowId,
+      name: `AI生成: ${userInput}`,
+      description: `由 AI 自动生成的数据抓取工作流\n目标: ${userInput}\nURL: ${targetUrl}`,
+      icon: 'riRobotLine',
+      category: 'scrape',
+      version: '1.0.0',
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+      isDisabled: false,
+      settings: {
+        debugMode: true, // 默认开启调试模式
+        saveLog: true,
+        notification: true,
+        publicId: '',
+        onError: 'stop-workflow',
+        executedBlockOnWeb: false,
+        insertDefaultColumn: false,
+        inputAutocomplete: true,
+        blockDelay: 0,
+        reuseLastState: false,
+      },
+      drawflow: this.generateDrawflow(steps, dataSchema, targetUrl),
+      table: this.generateDataColumns(dataSchema),
+      dataColumns: this.generateDataColumns(dataSchema),
+    };
+
+    return workflow;
+  }
+
+  /**
+   * 生成 Drawflow 结构(节点和边)
+   */
+  generateDrawflow(steps, dataSchema, targetUrl) {
+    const nodes = [];
+    const edges = [];
+
+    // 重置节点位置
+    this.resetNodePosition();
+
+    // 1. 添加触发器节点
+    const triggerNode = this.createTriggerNode();
+    nodes.push(triggerNode);
+
+    let previousNodeId = triggerNode.id;
+
+    // 2. 添加导航节点(如果需要)
+    if (targetUrl) {
+      const navigateNode = this.createNavigateNode(targetUrl);
+      nodes.push(navigateNode);
+      edges.push(this.createEdge(previousNodeId, navigateNode.id));
+      previousNodeId = navigateNode.id;
+    }
+
+    // 3. 根据 AI 步骤生成节点
+    steps.forEach((step, index) => {
+      const node = this.createNodeFromStep(step, index);
+      if (node) {
+        nodes.push(node);
+        edges.push(this.createEdge(previousNodeId, node.id));
+        previousNodeId = node.id;
+      }
+    });
+
+    // 4. 添加导出节点(如果最后一步不是导出)
+    const lastStep = steps[steps.length - 1];
+    if (lastStep?.type !== 'EXPORT') {
+      const exportNode = this.createExportNode(dataSchema);
+      nodes.push(exportNode);
+      edges.push(this.createEdge(previousNodeId, exportNode.id));
+    }
+
+    return {
+      nodes,
+      edges,
+      viewport: { x: 0, y: 0, zoom: 1 },
+    };
+  }
+
+  /**
+   * 创建触发器节点
+   */
+  createTriggerNode() {
+    const position = this.getNextNodePosition();
+    return {
+      id: `trigger-${nanoid()}`,
+      type: 'BlockBasic',
+      label: 'trigger',
+      position,
+      data: {
+        type: 'manual',
+        description: '',
+        disableBlock: false,
+      },
+    };
+  }
+
+  /**
+   * 创建导航节点
+   */
+  createNavigateNode(url) {
+    const position = this.getNextNodePosition();
+    return {
+      id: `new-tab-${nanoid()}`,
+      type: 'BlockBasic',
+      label: 'new-tab',
+      position,
+      data: {
+        url,
+        active: true,
+        inGroup: false,
+        waitTabLoaded: true,
+        description: '导航到目标页面',
+        disableBlock: false,
+      },
+    };
+  }
+
+  /**
+   * 根据 AI 步骤创建节点
+   */
+  createNodeFromStep(step, index) {
+    const blockType = this.blockTypeMap[step.type];
+    if (!blockType) {
+      console.warn(`未知的步骤类型: ${step.type}`);
+      return null;
+    }
+
+    const position = this.getNextNodePosition();
+    const nodeId = `${blockType}-${nanoid()}`;
+
+    // 根据不同类型创建不同的节点数据
+    const nodeData = this.createNodeData(step, blockType);
+
+    return {
+      id: nodeId,
+      type: 'BlockBasic',
+      label: blockType,
+      position,
+      data: {
+        ...nodeData,
+        description: step.description || '',
+        disableBlock: false,
+      },
+    };
+  }
+
+  /**
+   * 创建节点数据
+   */
+  createNodeData(step, blockType) {
+    const dataCreators = {
+      'new-tab': () => ({
+        url: step.data?.url || '',
+        active: true,
+        waitTabLoaded: true,
+      }),
+
+      delay: () => ({
+        time: step.data?.time || 2000,
+      }),
+
+      'event-click': () => ({
+        selector: step.selector || '',
+        markEl: true,
+        multiple: false,
+        waitSelector: 5000,
+      }),
+
+      'element-scroll': () => ({
+        selector: step.selector || '',
+        scrollY: step.data?.scrollY || 0,
+        scrollX: step.data?.scrollX || 0,
+        smooth: true,
+        incY: step.data?.incY || false,
+        incX: step.data?.incX || false,
+      }),
+
+      'get-text': () => ({
+        selector: step.selector || '',
+        regex: '',
+        regexExp: '',
+        prefixText: '',
+        suffixText: '',
+        assignVariable: false,
+        variableName: '',
+        dataColumn: step.data?.columnName || 'column',
+        multiple: step.data?.multiple || false,
+        waitSelector: 5000,
+        markEl: true,
+      }),
+
+      'attribute-value': () => ({
+        selector: step.selector || '',
+        attributeName: step.data?.attribute || 'href',
+        dataColumn: step.data?.columnName || 'column',
+        multiple: step.data?.multiple || false,
+        waitSelector: 5000,
+        markEl: true,
+      }),
+
+      'loop-data': () => ({
+        loopId: nanoid(5),
+        loopThrough: 'numbers',
+        startIndex: 1,
+        endIndex: step.data?.count || 10,
+        maxLoop: step.data?.maxLoop || 0,
+        reverseLoop: false,
+      }),
+
+      'loop-elements': () => ({
+        loopId: nanoid(5),
+        elementSelector: step.selector || '',
+        max: step.data?.max || 0,
+        waitSelector: 5000,
+      }),
+
+      'export-data': () => ({
+        type: step.data?.type || 'json',
+        dataToExport: 'data-columns',
+        refKey: '',
+        name: step.data?.filename || 'automa-data',
+        description: '',
+        onConflict: 'uniquify',
+      }),
+
+      forms: () => ({
+        selector: step.selector || '',
+        value: step.data?.value || '',
+        clearValue: false,
+        selected: false,
+        delay: 0,
+        markEl: true,
+      }),
+
+      screenshot: () => ({
+        type: 'fullpage',
+        selector: '',
+        fileName: 'screenshot',
+        saveToColumn: false,
+        dataColumn: '',
+      }),
+
+      conditions: () => ({
+        conditions: step.data?.conditions || [],
+      }),
+    };
+
+    const creator = dataCreators[blockType];
+    return creator ? creator() : {};
+  }
+
+  /**
+   * 创建导出节点
+   */
+  createExportNode(dataSchema) {
+    const position = this.getNextNodePosition();
+    return {
+      id: `export-data-${nanoid()}`,
+      type: 'BlockBasic',
+      label: 'export-data',
+      position,
+      data: {
+        type: 'json',
+        dataToExport: 'data-columns',
+        name: 'automa-scraped-data',
+        description: '导出抓取的数据',
+        onConflict: 'uniquify',
+        disableBlock: false,
+      },
+    };
+  }
+
+  /**
+   * 创建边(连接)
+   */
+  createEdge(sourceId, targetId, outputIndex = 1) {
+    return {
+      id: `edge-${nanoid()}`,
+      source: sourceId,
+      target: targetId,
+      sourceHandle: `${sourceId}-output-${outputIndex}`,
+      targetHandle: `${targetId}-input`,
+      type: 'custom',
+    };
+  }
+
+  /**
+   * 生成数据列配置
+   */
+  generateDataColumns(dataSchema) {
+    if (!dataSchema) return [];
+
+    return Object.entries(dataSchema).map(([name, info]) => ({
+      id: nanoid(),
+      name,
+      type: this.mapDataType(info.type || 'string'),
+      description: info.description || '',
+    }));
+  }
+
+  /**
+   * 映射数据类型
+   */
+  mapDataType(type) {
+    const typeMap = {
+      string: 'string',
+      number: 'number',
+      boolean: 'boolean',
+      date: 'string',
+      url: 'string',
+      array: 'array',
+      object: 'object',
+    };
+
+    return typeMap[type] || 'string';
+  }
+
+  /**
+   * 获取下一个节点位置
+   */
+  getNextNodePosition() {
+    const { x, y, xOffset, yOffset, itemsPerRow } = this.nodePosition;
+    const position = { x, y };
+
+    // 计算下一个位置
+    this.nodePosition.currentIndex = (this.nodePosition.currentIndex || 0) + 1;
+    const index = this.nodePosition.currentIndex;
+
+    if (index % itemsPerRow === 0) {
+      // 换行
+      this.nodePosition.x = 50;
+      this.nodePosition.y += yOffset;
+    } else {
+      this.nodePosition.x += xOffset;
+    }
+
+    return position;
+  }
+
+  /**
+   * 重置节点位置
+   */
+  resetNodePosition() {
+    this.nodePosition.x = 50;
+    this.nodePosition.y = 50;
+    this.nodePosition.currentIndex = 0;
+  }
+
+  /**
+   * 优化工作流
+   * 合并重复步骤、优化选择器等
+   */
+  optimizeWorkflow(workflow) {
+    // TODO: 实现工作流优化逻辑
+    // 1. 合并连续的等待步骤
+    // 2. 移除不必要的步骤
+    // 3. 优化选择器
+    return workflow;
+  }
+
+  /**
+   * 验证工作流
+   * 检查工作流是否有效
+   */
+  validateWorkflow(workflow) {
+    const errors = [];
+
+    // 检查是否有触发器
+    const hasTrigger = workflow.drawflow.nodes.some(
+      (node) => node.label === 'trigger'
+    );
+    if (!hasTrigger) {
+      errors.push('工作流缺少触发器节点');
+    }
+
+    // 检查是否有导出节点
+    const hasExport = workflow.drawflow.nodes.some(
+      (node) => node.label === 'export-data'
+    );
+    if (!hasExport) {
+      errors.push('工作流缺少导出节点');
+    }
+
+    // 检查节点连接
+    const nodeIds = new Set(workflow.drawflow.nodes.map((n) => n.id));
+    workflow.drawflow.edges.forEach((edge) => {
+      if (!nodeIds.has(edge.source)) {
+        errors.push(`边的源节点不存在: ${edge.source}`);
+      }
+      if (!nodeIds.has(edge.target)) {
+        errors.push(`边的目标节点不存在: ${edge.target}`);
+      }
+    });
+
+    return {
+      valid: errors.length === 0,
+      errors,
+    };
+  }
+}
+
+export default WorkflowGenerator;
