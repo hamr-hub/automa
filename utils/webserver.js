@@ -31,11 +31,11 @@ const compiler = webpack(config);
 
 const server = new WebpackDevServer(
   {
-    https: false,
     hot: false,
     client: false,
     host: 'localhost',
     port: env.PORT,
+    server: 'http',
     static: {
       directory: path.join(__dirname, '../build'),
     },
