@@ -385,7 +385,11 @@ class PlaywrightTools {
     try {
       const results = await chrome.scripting.executeScript({
         target: { tabId },
-        func: new Function(`return ${code}`)(),
+        func: () => {
+          // 在页面上下文中执行代码
+          return eval(arguments[0]);
+        },
+        args: [code],
       });
 
       return results[0]?.result;
