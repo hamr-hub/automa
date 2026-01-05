@@ -565,6 +565,9 @@ async function checkOllamaStatus() {
   const isHealthy = await agent.ollama.checkHealth();
   state.ollamaStatus = isHealthy ? 'connected' : 'disconnected';
 
+  // 保存配置到 storage
+  await chrome.storage.local.set({ ollamaConfig: state.ollamaConfig });
+
   // 如果连接成功,自动加载模型列表
   if (isHealthy && state.availableModels.length === 0) {
     await loadAvailableModels();
@@ -617,6 +620,9 @@ async function startGeneration() {
     agent.ollama.model = state.ollamaConfig.model;
     agent.ollama.temperature = state.ollamaConfig.temperature;
     agent.ollama.maxTokens = state.ollamaConfig.maxTokens;
+
+    // 保存配置到 storage
+    await chrome.storage.local.set({ ollamaConfig: state.ollamaConfig });
 
     state.currentStep = 'analyzing';
     state.progressSteps = [];
@@ -759,6 +765,12 @@ function getBlockDescription(node) {
 
 // 初始化
 onMounted(async () => {
+  // 从 storage 加载保存的配置
+  const { ollamaConfig } = await chrome.storage.local.get('ollamaConfig');
+  if (ollamaConfig) {
+    Object.assign(state.ollamaConfig, ollamaConfig);
+  }
+
   await agent.initialize();
   await checkOllamaStatus();
 });
