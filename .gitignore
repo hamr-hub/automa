@@ -30,3 +30,4 @@ getPassKey.js
 /business/test
 
 .idea
+src/config/supabase.config.js

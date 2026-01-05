@@ -1,6 +1,171 @@
 import BrowserAPIService from '@/service/browser-api/BrowserAPIService';
 import secrets from 'secrets';
 import { isObject, parseJSON } from './helper';
+import supabaseClient from '@/services/supabase/SupabaseClient';
+import supabaseConfig from '@/config/supabase.config';
+
+// 初始化 Supabase 客户端
+let supabaseInitialized = false;
+async function ensureSupabaseInitialized() {
+  if (!supabaseInitialized) {
+    await supabaseClient.initialize(
+      supabaseConfig.supabaseUrl,
+      supabaseConfig.supabaseAnonKey
+    );
+    supabaseInitialized = true;
+  }
+}
+
+// ============================================
+// Supabase API 方法
+// ============================================
+
+/**
+ * 使用 Supabase 获取共享工作流
+ */
+export async function getSharedWorkflowsSupabase(useCache = true) {
+  return cacheApi(
+    'shared-workflows-supabase',
+    async () => {
+      try {
+        await ensureSupabaseInitialized();
+        const workflows = await supabaseClient.getSharedWorkflows();
+
+        const sharedWorkflows = workflows.reduce((acc, item) => {
+          const workflow = item.workflows;
+          workflow.drawflow =
+            typeof workflow.drawflow === 'string'
+              ? workflow.drawflow
+              : JSON.stringify(workflow.drawflow);
+          workflow.table = workflow.table_data || workflow.data_columns || [];
+          workflow.createdAt = new Date(
+            workflow.created_at || Date.now()
+          ).getTime();
+
+          acc[workflow.id] = workflow;
+          return acc;
+        }, {});
+
+        return sharedWorkflows;
+      } catch (error) {
+        console.error('Supabase getSharedWorkflows error:', error);
+        return {};
+      }
+    },
+    useCache
+  );
+}
+
+/**
+ * 使用 Supabase 获取用户工作流
+ */
+export async function getUserWorkflowsSupabase(useCache = true) {
+  return cacheApi(
+    'user-workflows-supabase',
+    async () => {
+      try {
+        await ensureSupabaseInitialized();
+        const workflows = await supabaseClient.getWorkflows();
+
+        const result = workflows.reduce(
+          (acc, workflow) => {
+            if (workflow.is_host) {
+              acc.hosted[workflow.id] = {
+                id: workflow.id,
+                hostId: workflow.host_id,
+              };
+            }
+
+            acc.backup.push(workflow);
+            return acc;
+          },
+          { hosted: {}, backup: [] }
+        );
+
+        result.cacheData = {
+          backup: [],
+          hosted: result.hosted,
+        };
+
+        return result;
+      } catch (error) {
+        console.error('Supabase getUserWorkflows error:', error);
+        return { hosted: {}, backup: [] };
+      }
+    },
+    useCache
+  );
+}
+
+/**
+ * 使用 Supabase 创建工作流
+ */
+export async function createWorkflowSupabase(workflow) {
+  try {
+    await ensureSupabaseInitialized();
+    return await supabaseClient.createWorkflow(workflow);
+  } catch (error) {
+    console.error('Supabase createWorkflow error:', error);
+    throw error;
+  }
+}
+
+/**
+ * 使用 Supabase 更新工作流
+ */
+export async function updateWorkflowSupabase(id, updates) {
+  try {
+    await ensureSupabaseInitialized();
+    return await supabaseClient.updateWorkflow(id, updates);
+  } catch (error) {
+    console.error('Supabase updateWorkflow error:', error);
+    throw error;
+  }
+}
+
+/**
+ * 使用 Supabase 删除工作流
+ */
+export async function deleteWorkflowSupabase(id) {
+  try {
+    await ensureSupabaseInitialized();
+    return await supabaseClient.deleteWorkflow(id);
+  } catch (error) {
+    console.error('Supabase deleteWorkflow error:', error);
+    throw error;
+  }
+}
+
+/**
+ * 使用 Supabase 获取工作流日志
+ */
+export async function getWorkflowLogsSupabase(options = {}) {
+  try {
+    await ensureSupabaseInitialized();
+    return await supabaseClient.getWorkflowLogs(options);
+  } catch (error) {
+    console.error('Supabase getWorkflowLogs error:', error);
+    return [];
+  }
+}
+
+/**
+ * 使用 Supabase 创建工作流日志
+ */
+export async function createWorkflowLogSupabase(log) {
+  try {
+    await ensureSupabaseInitialized();
+    return await supabaseClient.createWorkflowLog(log);
+  } catch (error) {
+    console.error('Supabase createWorkflowLog error:', error);
+    throw error;
+  }
+}
+
+// ============================================
+// 原有的 API 方法（保持向后兼容）
+// ============================================
+
 
 export async function fetchApi(path, options = {}) {
   const urlPath = path.startsWith('/') ? path : `/${path}`;
