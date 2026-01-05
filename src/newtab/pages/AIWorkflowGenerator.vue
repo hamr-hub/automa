@@ -468,6 +468,7 @@ import { reactive, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useToast } from 'vue-toastification';
 import { useWorkflowStore } from '@/stores/workflow';
+import browser from 'webextension-polyfill';
 import LangGraphAgent from '@/services/ai/LangGraphAgent';
 
 const router = useRouter();
@@ -566,7 +567,7 @@ async function checkOllamaStatus() {
   state.ollamaStatus = isHealthy ? 'connected' : 'disconnected';
 
   // 保存配置到 storage
-  await chrome.storage.local.set({ ollamaConfig: state.ollamaConfig });
+  await browser.storage.local.set({ ollamaConfig: state.ollamaConfig });
 
   // 如果连接成功,自动加载模型列表
   if (isHealthy && state.availableModels.length === 0) {
@@ -622,7 +623,7 @@ async function startGeneration() {
     agent.ollama.maxTokens = state.ollamaConfig.maxTokens;
 
     // 保存配置到 storage
-    await chrome.storage.local.set({ ollamaConfig: state.ollamaConfig });
+    await browser.storage.local.set({ ollamaConfig: state.ollamaConfig });
 
     state.currentStep = 'analyzing';
     state.progressSteps = [];
@@ -630,14 +631,14 @@ async function startGeneration() {
     // 获取当前标签页
     let tabId;
     if (!state.targetUrl) {
-      const [activeTab] = await chrome.tabs.query({
+      const [activeTab] = await browser.tabs.query({
         active: true,
         currentWindow: true,
       });
       tabId = activeTab.id;
     } else {
       // 打开新标签页
-      const newTab = await chrome.tabs.create({ url: state.targetUrl });
+      const newTab = await browser.tabs.create({ url: state.targetUrl });
       tabId = newTab.id;
       // 等待页面加载
       await new Promise((resolve) => {
@@ -766,7 +767,7 @@ function getBlockDescription(node) {
 // 初始化
 onMounted(async () => {
   // 从 storage 加载保存的配置
-  const { ollamaConfig } = await chrome.storage.local.get('ollamaConfig');
+  const { ollamaConfig } = await browser.storage.local.get('ollamaConfig');
   if (ollamaConfig) {
     Object.assign(state.ollamaConfig, ollamaConfig);
   }
