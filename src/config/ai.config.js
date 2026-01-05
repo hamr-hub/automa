@@ -3,11 +3,11 @@
  * 包含 Ollama、Playwright MCP、工作流执行等配置
  */
 
-export default {
+const aiConfig = {
   // Ollama 配置
   ollama: {
-    baseUrl: 'http://wsl.hamr.top:11434',
-    model: 'gemma3:12b', // 默认模型,可选: mistral, llama2, codellama
+    baseUrl: 'http://localhost:11434',
+    model: 'mistral', // 默认模型,可选: mistral, llama2, codellama
     temperature: 0.7,
     maxTokens: 2000,
     timeout: 60000, // 60秒超时
@@ -57,3 +57,5 @@ export default {
     language: 'zh-CN', // 默认语言
   },
 };
+
+export default aiConfig;

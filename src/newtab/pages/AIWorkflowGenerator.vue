@@ -108,11 +108,11 @@
             </label>
             <ui-input
               v-model="state.ollamaConfig.baseUrl"
-              placeholder="http://localhost:11434"
+              placeholder="http://wsl.hamr.top:11434"
               @blur="checkOllamaStatus"
             />
             <p class="mt-1 text-xs text-gray-500">
-              默认: http://localhost:11434
+              默认: http://wsl.hamr.top:11434
             </p>
           </div>
 
@@ -491,7 +491,7 @@ const state = reactive({
   editorKey: 0,
   // Ollama 配置
   ollamaConfig: {
-    baseUrl: 'http://localhost:11434',
+    baseUrl: 'http://wsl.hamr.top:11434',
     model: '',
     temperature: 0.7,
     maxTokens: 2000,
