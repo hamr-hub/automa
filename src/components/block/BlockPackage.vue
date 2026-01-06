@@ -178,6 +178,8 @@ onMounted(() => {
 });
 </script>
 <style>
+@reference "tailwindcss";
+
 .pkg-handle-container li {
   @apply h-8 flex items-center text-sm;
 

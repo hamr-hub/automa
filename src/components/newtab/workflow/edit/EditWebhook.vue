@@ -207,6 +207,8 @@ watch(
 );
 </script>
 <style scoped>
+@reference "tailwindcss";
+
 code {
   @apply bg-gray-900 text-sm text-white p-1 rounded-md;
 }

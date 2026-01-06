@@ -204,6 +204,8 @@ onMounted(() => {
 });
 </script>
 <style scoped>
+@reference "tailwindcss";
+
 table th,
 table,
 td {
@@ -212,6 +214,12 @@ td {
 }
 
 .to-do-type.is-active {
-  @apply bg-accent dark:text-black text-gray-100!;
+  background-color: var(--color-accent);
+  color: rgb(243 244 246);
+  @media (prefers-color-scheme: dark) {
+    & {
+      color: rgb(0 0 0);
+    }
+  }
 }
 </style>

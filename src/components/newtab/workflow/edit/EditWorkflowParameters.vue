@@ -238,6 +238,8 @@ watch(
 );
 </script>
 <style scoped>
+@reference "tailwindcss";
+
 table th,
 table td {
   @apply p-1 font-normal;

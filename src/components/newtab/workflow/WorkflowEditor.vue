@@ -332,6 +332,8 @@ onBeforeUnmount(() => {
 });
 </script>
 <style>
+@reference "tailwindcss";
+
 @import '@vue-flow/core/dist/style.css';
 @import '@vue-flow/core/dist/theme-default.css';
 

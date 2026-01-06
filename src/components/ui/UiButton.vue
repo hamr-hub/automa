@@ -66,7 +66,7 @@ export default {
       fill: {
         default: 'bg-input',
         accent:
-          'bg-accent hover:bg-gray-700 dark:bg-gray-100 dark:hover:bg-gray-200 dark:text-black text-white',
+          'bg-[var(--color-accent)] hover:bg-gray-700 dark:bg-gray-100 dark:hover:bg-gray-200 dark:text-black text-white',
         primary:
           'bg-primary text-white dark:bg-secondary dark:hover:bg-primary hover:bg-secondary',
         danger:

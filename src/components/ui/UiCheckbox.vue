@@ -66,6 +66,8 @@ export default {
 };
 </script>
 <style scoped>
+@reference "tailwindcss";
+
 .checkbox-ui__input:checked ~ .checkbox-ui__mark .v-remixicon,
 .checkbox-ui__input.indeterminate ~ .checkbox-ui__mark .v-remixicon {
   transform: scale(1) !important;
@@ -75,7 +77,8 @@ export default {
 }
 .checkbox-ui__input:checked ~ .checkbox-ui__mark,
 .checkbox-ui__input.indeterminate ~ .checkbox-ui__mark {
-  @apply bg-accent border-accent;
+  background-color: var(--color-accent);
+  border-color: var(--color-accent);
 }
 .checkbox-ui__mark {
   width: 100%;

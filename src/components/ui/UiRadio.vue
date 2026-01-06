@@ -50,9 +50,11 @@ export default {
 };
 </script>
 <style scoped>
+@reference "tailwindcss";
+
 .radio-ui__input:checked ~ .radio-ui__mark {
   border-width: 6px;
-  @apply border-accent;
+  border-color: var(--color-accent);
 }
 .radio-ui__mark {
   width: 100%;

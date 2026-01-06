@@ -210,6 +210,8 @@ onBeforeUnmount(() => {
 });
 </script>
 <style scoped>
+@reference "tailwindcss";
+
 kbd {
   min-width: 30px;
   text-align: center;

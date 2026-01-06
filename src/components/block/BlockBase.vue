@@ -136,12 +136,27 @@ function runWorkflow() {
 }
 </script>
 <style>
+@reference "tailwindcss";
+
 .block-menu {
-  @apply mb-1 bg-box-transparent-2 rounded-md;
+  margin-bottom: 0.25rem;
+  background-color: rgb(0 0 0 / 0.1);
+  border-radius: 0.375rem;
+  @media (prefers-color-scheme: dark) {
+    & {
+      background-color: rgb(229 231 235 / 0.1);
+    }
+  }
   button {
     padding-left: 6px;
     padding-right: 6px;
-    @apply focus:ring-0 py-1 hover:text-primary;
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+    &:hover {
+      color: var(--color-primary);
+    }
   }
 }
 </style>

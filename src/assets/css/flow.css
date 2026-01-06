@@ -1,13 +1,17 @@
+@reference "tailwindcss";
+
 .vue-flow__minimap {
 	@apply rounded-lg dark:bg-gray-800;
 }
 
 .vue-flow__node {
 	& > div {
-		@apply rounded-lg transition;
+		@apply rounded-lg;
 	}
 	&.selected .block-base__content {
-		@apply ring-2 ring-accent;
+		--tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 0 var(--tw-ring-offset-color);
+		--tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--color-accent);
+		box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
 	}
 	&:hover {
 		.block-menu-container {
@@ -22,11 +26,19 @@
 	.vue-flow__handle {
 		@apply h-4 w-4 rounded-full border-0;
 		&.target {
-			@apply bg-accent -ml-4;
+			background-color: var(--color-accent);
+			margin-left: -1rem;
 		}
 		&.source {
 			border-width: 3px;
-			@apply border-accent -mr-4 bg-white dark:bg-black;
+			border-color: var(--color-accent);
+			margin-right: -1rem;
+			background-color: white;
+			@media (prefers-color-scheme: dark) {
+				& {
+					background-color: black;
+				}
+			}
 		}
 	}
 }
@@ -37,26 +49,23 @@
 			pointer-events: none;
 		}
 	}
-	svg g.connected-edges path {
-		stroke:  theme('colors.primary');
+	svg g.connected-edges path {			stroke: var(--color-primary);
 	}
 }
 
 .vue-flow__edge {
 	cursor: pointer;
-	&.selected .vue-flow__edge-path {
-		stroke: theme('colors.green.300');
+	&.selected .vue-flow__edge-path {			stroke: rgb(134 239 172);
 	}
 }
 
 .dark .vue-flow__edge-path:hover {
-	stroke: theme('colors.yellow.400');
+	stroke: rgb(250 204 21);
 }
 .vue-flow__edge-path {
-  stroke: theme('colors.accent');
+  stroke: var(--color-accent);
   stroke-width: 4;
   transition: stroke 100ms ease;
-  &:hover {
-		stroke: theme('colors.yellow.500');
+  &:hover {			stroke: rgb(234 179 8);
   }
 }

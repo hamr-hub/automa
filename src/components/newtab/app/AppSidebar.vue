@@ -236,6 +236,8 @@ async function injectElementSelector() {
 }
 </script>
 <style scoped>
+@reference "tailwindcss";
+
 .tab.is-active:after {
   content: '';
   position: absolute;
@@ -243,6 +245,11 @@ async function injectElementSelector() {
   top: 0;
   height: 100%;
   width: 4px;
-  @apply bg-accent dark:bg-gray-100;
+  background-color: var(--color-accent);
+  @media (prefers-color-scheme: dark) {
+    & {
+      background-color: rgb(243 244 246);
+    }
+  }
 }
 </style>

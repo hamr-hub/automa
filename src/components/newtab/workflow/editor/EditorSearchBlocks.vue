@@ -187,11 +187,15 @@ function onItemSelected(event) {
 }
 </script>
 <style scoped>
+@reference "tailwindcss";
+
 input {
   transition: width 300ms ease;
 }
 </style>
 <style>
+@reference "tailwindcss";
+
 .search-select-node > div {
   @apply ring-4;
 }

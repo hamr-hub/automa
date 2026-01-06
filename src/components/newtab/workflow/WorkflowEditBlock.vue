@@ -147,7 +147,16 @@ function getBlockName() {
 }
 </script>
 <style>
+@reference "tailwindcss";
+
 #workflow-edit-block hr {
-  @apply dark:border-gray-700 dark:border-opacity-40 my-4;
+  border-color: rgb(55 65 81);
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  @media (prefers-color-scheme: dark) {
+    & {
+      border-color: rgb(55 65 81 / 0.4);
+    }
+  }
 }
 </style>

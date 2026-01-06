@@ -124,6 +124,8 @@ onMounted(() => {
 });
 </script>
 <style>
+@reference "tailwindcss";
+
 .info-icon {
   @apply text-gray-600 dark:text-gray-300 inline-block;
 }

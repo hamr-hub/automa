@@ -230,6 +230,8 @@ watch(
 );
 </script>
 <style>
+@reference "tailwindcss";
+
 .breakpoint-data .cm-editor {
   font-size: 13px;
   padding-bottom: 0;

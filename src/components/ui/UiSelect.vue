@@ -92,6 +92,8 @@ export default {
 };
 </script>
 <style>
+@reference "tailwindcss";
+
 .ui-select__arrow {
   top: 50%;
   transform: translateY(-50%) rotate(90deg);

@@ -428,6 +428,8 @@ onBeforeUnmount(() => {
 });
 </script>
 <style>
+@reference "tailwindcss";
+
 .root {
   font-size: 16px;
   z-index: 99999;
@@ -447,6 +449,7 @@ onBeforeUnmount(() => {
   padding: 0 !important;
 }
 .main-tab .ui-tab.is-active.fill {
-  @apply bg-accent text-white!;
+  background-color: var(--color-accent);
+  color: rgb(255 255 255) !important;
 }
 </style>

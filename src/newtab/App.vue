@@ -27,7 +27,7 @@
       v-if="isUpdated"
       class="fixed bottom-8 left-1/2 z-50 max-w-xl -translate-x-1/2 text-white dark:text-gray-900"
     >
-      <div class="flex items-center rounded-lg bg-accent p-4 shadow-2xl">
+      <div class="flex items-center rounded-lg bg-[var(--color-accent)] p-4 shadow-2xl">
         <v-remixicon name="riInformationLine" class="mr-3" />
         <p>
           {{ t('updateMessage.text1', { version: currentVersion }) }}
@@ -48,7 +48,7 @@
           <v-remixicon size="20" name="riCloseLine" />
         </button>
       </div>
-      <div class="mt-4 flex items-center rounded-lg bg-accent p-4 shadow-2xl">
+      <div class="mt-4 flex items-center rounded-lg bg-[var(--color-accent)] p-4 shadow-2xl">
         <v-remixicon name="riInformationLine" class="mr-3 shrink-0" />
         <p>
           Export your Automa workflows as a standalone extension using
@@ -67,7 +67,7 @@
     />
   </template>
   <div v-else class="py-8 text-center">
-    <ui-spinner color="text-accent" size="28" />
+    <ui-spinner color="text-[var(--color-accent)]" size="28" />
   </div>
 </template>
 <script setup>
@@ -397,6 +397,8 @@ watch(
 })();
 </script>
 <style>
+@reference "tailwindcss";
+
 html,
 body {
   @apply bg-gray-50 dark:bg-gray-900 text-black dark:text-gray-100;

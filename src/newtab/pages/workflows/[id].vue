@@ -1666,6 +1666,8 @@ onBeforeUnmount(() => {
 });
 </script>
 <style>
+@reference "tailwindcss";
+
 .vue-flow,
 .editor-tab {
   width: 100%;
@@ -1686,7 +1688,12 @@ onBeforeUnmount(() => {
 }
 .undo-redo {
   button:not(:disabled):hover {
-    @apply bg-box-transparent;
+    background-color: rgb(0 0 0 / 0.05);
+    @media (prefers-color-scheme: dark) {
+      & {
+        background-color: rgb(229 231 235 / 0.05);
+      }
+    }
   }
   button:disabled {
     @apply text-gray-500 dark:text-gray-400;

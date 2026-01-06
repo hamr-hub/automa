@@ -206,6 +206,8 @@ onBeforeUnmount(() => {
 });
 </script>
 <style>
+@reference "tailwindcss";
+
 .ProseMirror pre,
 .ProseMirror code {
   font-family: 'Source Code Pro', monospace;

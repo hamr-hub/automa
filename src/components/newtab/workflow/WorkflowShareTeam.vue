@@ -271,6 +271,8 @@ onMounted(() => {
 });
 </script>
 <style scoped>
+@reference "tailwindcss";
+
 .share-workflow {
   min-height: 500px;
   max-height: calc(100vh - 4rem);
@@ -280,6 +282,8 @@ onMounted(() => {
 }
 </style>
 <style>
+@reference "tailwindcss";
+
 .content-editor .ProseMirror {
   min-height: 200px;
 }

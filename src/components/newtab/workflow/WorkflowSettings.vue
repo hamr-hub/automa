@@ -100,6 +100,8 @@ onMounted(() => {
 });
 </script>
 <style>
+@reference "tailwindcss";
+
 .settings-content .ui-tab-panel {
   @apply space-y-4 space-y-4 divide-y dark:divide-gray-700 divide-gray-100;
 }

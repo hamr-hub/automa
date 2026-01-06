@@ -585,6 +585,8 @@ function jumpToError() {
 }
 </script>
 <style>
+@reference "tailwindcss";
+
 .ctx-data-table {
   thead td {
     padding: 0;

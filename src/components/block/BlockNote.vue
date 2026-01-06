@@ -131,6 +131,8 @@ function onMouseup({ target }) {
 }
 </script>
 <style>
+@reference "tailwindcss";
+
 .note-color .ui-popover__trigger {
   @apply flex items-center;
 }

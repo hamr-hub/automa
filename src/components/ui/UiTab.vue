@@ -37,6 +37,8 @@ const props = defineProps({
 const uiTabs = inject('ui-tabs', {});
 </script>
 <style scoped>
+@reference "tailwindcss";
+
 .ui-tab {
   z-index: 1;
   @apply py-3 px-2 border-b-2 border-transparent;
@@ -51,12 +53,17 @@ const uiTabs = inject('ui-tabs', {});
   @apply p-2;
 }
 .ui-tab.is-active {
-  @apply border-accent dark:border-gray-100 text-gray-800 dark:text-white;
+  border-color: var(--color-accent);
+  color: rgb(31 41 55);
+  @media (prefers-color-scheme: dark) {
+    & {
+      border-color: rgb(243 244 246);
+      color: rgb(255 255 255);
+    }
+  }
 }
 .ui-tab.is-active.fill {
   @apply bg-black/5 dark:bg-gray-200/5;
 }
-.ui-tab.is-active {
-  @apply border-accent dark:border-gray-100 text-gray-800 dark:text-white;
-}
+/* duplicate state cleaned: already defined above */
 </style>

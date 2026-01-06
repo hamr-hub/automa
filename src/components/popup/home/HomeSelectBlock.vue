@@ -120,6 +120,8 @@ onBeforeUnmount(() => {
 });
 </script>
 <style>
+@reference "tailwindcss";
+
 .selected-handle {
   @apply ring-4;
 }

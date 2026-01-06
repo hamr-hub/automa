@@ -110,6 +110,8 @@ onBeforeUnmount(() => {
 });
 </script>
 <style>
+@reference "tailwindcss";
+
 .cm-content {
   flex-basis: fit-content;
 }

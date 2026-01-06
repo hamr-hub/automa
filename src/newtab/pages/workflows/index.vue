@@ -635,6 +635,8 @@ onMounted(() => {
 });
 </script>
 <style>
+@reference "tailwindcss";
+
 .workflow-sort select {
   border-top-left-radius: 0 !important;
   border-bottom-left-radius: 0 !important;

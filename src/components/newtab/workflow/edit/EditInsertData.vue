@@ -316,6 +316,8 @@ watch(
 );
 </script>
 <style>
+@reference "tailwindcss";
+
 .insert-data-modal .modal-ui__content-header {
   @apply p-4;
 }

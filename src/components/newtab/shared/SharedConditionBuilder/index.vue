@@ -210,6 +210,8 @@ watch(
 );
 </script>
 <style scoped>
+@reference "tailwindcss";
+
 .and-text.add-line:before {
   content: '';
   position: absolute;

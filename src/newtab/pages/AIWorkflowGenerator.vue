@@ -8,7 +8,7 @@
     >
       <div class="flex items-center justify-between">
         <div class="flex items-center space-x-3">
-          <v-remixicon name="riRobotLine" size="32" class="text-accent" />
+          <v-remixicon name="riRobotLine" size="32" class="text-[var(--color-accent)]" />
           <div>
             <h1 class="text-2xl font-bold">AI 工作流生成器</h1>
             <p class="text-sm text-gray-600 dark:text-gray-400">
@@ -67,7 +67,7 @@
               v-if="index < steps.length - 1"
               :class="[
                 'mx-4 h-0.5 flex-1 transition-all',
-                isStepCompleted(step.id) ? 'bg-accent' : 'bg-gray-300',
+                isStepCompleted(step.id) ? 'bg-[var(--color-accent)]' : 'bg-gray-300',
               ]"
             ></div>
           </div>
@@ -278,7 +278,7 @@
             >
               <div
                 v-if="progress.status === 'loading'"
-                class="h-5 w-5 animate-spin rounded-full border-2 border-accent border-t-transparent"
+                class="h-5 w-5 animate-spin rounded-full border-2 border-[var(--color-accent)] border-t-transparent"
               ></div>
               <v-remixicon
                 v-else-if="progress.status === 'completed'"

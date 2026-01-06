@@ -233,6 +233,8 @@ onMounted(() => {
 });
 </script>
 <style>
+@reference "tailwindcss";
+
 .data-map {
   padding: 0 !important;
   .modal-ui__content-header {

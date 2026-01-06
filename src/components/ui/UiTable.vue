@@ -209,6 +209,8 @@ watch(
 );
 </script>
 <style>
+@reference "tailwindcss";
+
 .sort-icon svg {
   @apply text-gray-600 dark:text-gray-300 inline-block;
 }

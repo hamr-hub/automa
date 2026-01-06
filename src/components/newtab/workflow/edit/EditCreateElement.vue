@@ -204,6 +204,8 @@ watch(blockData, (newValue) => {
 });
 </script>
 <style>
+@reference "tailwindcss";
+
 .create-element-modal .modal-ui__content-header {
   @apply p-4 mb-0;
 }

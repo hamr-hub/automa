@@ -194,6 +194,8 @@ function stopSelectedWorkflow() {
 }
 </script>
 <style scoped>
+@reference "tailwindcss";
+
 .log-time svg {
   @apply mr-2;
 }

@@ -16,7 +16,7 @@
       <slot v-if="$slots.ball" name="ball"></slot>
     </div>
     <div
-      class="ui-switch__background absolute left-0 top-0 h-full w-full rounded-md bg-accent"
+      class="ui-switch__background absolute left-0 top-0 h-full w-full rounded-md"
     ></div>
   </div>
 </template>
@@ -43,6 +43,8 @@ export default {
 };
 </script>
 <style scoped>
+@reference "tailwindcss";
+
 .ui-switch {
   overflow: hidden;
   transition: all 250ms ease;
@@ -78,5 +80,6 @@ export default {
 
 .ui-switch input:checked ~ .ui-switch__background {
   margin-left: 0;
+  background-color: var(--color-accent);
 }
 </style>

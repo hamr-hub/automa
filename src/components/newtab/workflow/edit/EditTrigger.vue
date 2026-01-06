@@ -82,6 +82,8 @@ onMounted(() => {
 });
 </script>
 <style>
+@reference "tailwindcss";
+
 .trigger-item > button {
   @apply focus:ring-0;
   text-align: left;

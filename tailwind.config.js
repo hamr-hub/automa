@@ -1,4 +1,4 @@
-/* eslint-disable */
+/** @type {import('tailwindcss').Config} */
 const defaultTheme = require('tailwindcss/defaultTheme');
 const colors = require('tailwindcss/colors');
 
@@ -10,6 +10,7 @@ function withOpacityValue(variable) {
     return `rgb(var(${variable}) / ${opacityValue})`;
   };
 }
+
 function rem2px(input, fontSize = 16) {
   if (input == null) {
     return input;
