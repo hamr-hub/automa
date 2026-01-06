@@ -49,14 +49,10 @@
       class="ml-1 inline-block text-sm leading-tight"
     >
       Automa doesn't have access to the spreadsheet.
-      <a
-        href="https://docs.extension.automa.site/blocks/google-sheets.html#access-to-spreadsheet"
-        target="_blank"
-        rel="noopener"
-      >
+      <span>
         Click here to read more.
         <v-remixicon name="riInformationLine" size="18" class="inline" />
-      </a>
+      </span>
     </a>
     <edit-autocomplete v-if="!['create', 'add-sheet'].includes(data.type)">
       <ui-input
