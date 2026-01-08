@@ -625,60 +625,15 @@ async function startGeneration() {
     // 保存配置到 storage
     await browser.storage.local.set({ ollamaConfig: state.ollamaConfig });
 
+    // 进入生成状态（不再做页面注入/分析）
     state.currentStep = 'analyzing';
     state.progressSteps = [];
 
-    // 获取目标标签页（需为可注入的普通网页）
-    let tabId;
-    if (!state.targetUrl) {
-      const [activeTab] = await browser.tabs.query({
-        active: true,
-        currentWindow: true,
-      });
-      const activeUrl = activeTab?.url || '';
-      const isInjectable = /^https?:\/\//i.test(activeUrl);
-      if (!isInjectable) {
-        toast.error('当前标签页是扩展或系统页面，无法注入。请在普通网页打开后再点击生成，或在上方填写目标网站 URL。');
-        // 回退到输入步骤
-        state.currentStep = 'input';
-        return;
-      }
-      tabId = activeTab.id;
-    } else {
-      // 验证目标 URL 是否可注入
-      const targetUrl = state.targetUrl.trim();
-      const isTargetInjectable = /^https?:\/\//i.test(targetUrl);
-      if (!isTargetInjectable) {
-        toast.error('目标网站 URL 必须是普通网页 (http/https)，不能是扩展或系统页面。');
-        state.currentStep = 'input';
-        return;
-      }
-
-      // 打开新标签页
-      const newTab = await browser.tabs.create({ url: targetUrl });
-      tabId = newTab.id;
-      // 等待页面加载
-      await new Promise((resolve) => {
-        setTimeout(resolve, 3000);
-      });
-
-      // 加载后再次验证实际 URL（处理重定向等情况）
-      const loadedTab = await browser.tabs.get(tabId);
-      const loadedUrl = loadedTab?.url || '';
-      const isLoadedInjectable = /^https?:\/\//i.test(loadedUrl);
-      if (!isLoadedInjectable) {
-        toast.error(`页面加载后的 URL (${loadedUrl}) 不是可注入的普通网页。请检查目标网站。`);
-        state.currentStep = 'input';
-        return;
-      }
-    }
-
-    // 生成工作流
+    // 生成工作流（仅基于用户输入 + 目标 URL）
     const result = await agent.generateWorkflow(
       state.userInput,
-      tabId,
+      state.targetUrl,
       (progress) => {
-        // 更新进度
         const existingStep = state.progressSteps.find(
           (s) => s.step === progress.step
         );
@@ -691,11 +646,6 @@ async function startGeneration() {
           message: progress.message,
           status: 'loading',
         });
-
-        // 更新页面分析结果
-        if (progress.step === 'analyzing') {
-          state.pageAnalysis = agent.getState().pageAnalysis;
-        }
       }
     );
 
