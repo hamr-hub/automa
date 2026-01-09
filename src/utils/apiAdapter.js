@@ -41,6 +41,19 @@ class ApiAdapter {
     this.useSupabase = value;
   }
 
+  /**
+   * 获取当前用户信息
+   */
+  async getUser() {
+    if (this.useSupabase) {
+      await ensureSupabaseInitialized();
+      return supabaseClient.getUserProfile();
+    }
+    // 原有 API 实现
+    const response = await fetchApiOriginal('/me', { auth: true });
+    return response.json();
+  }
+
   // ============================================
   // Workflows 相关方法
   // ============================================
@@ -91,6 +104,24 @@ class ApiAdapter {
     }
     // 原有 API 实现
     const response = await fetchApiOriginal(`/workflows/${id}`, { auth: true });
+    return response.json();
+  }
+
+  /**
+   * 根据 ID 批量获取工作流
+   */
+  async getWorkflowsByIds(ids) {
+    if (this.useSupabase) {
+      await ensureSupabaseInitialized();
+      const workflows = await supabaseClient.getWorkflowsByIds(ids);
+      return workflows.map((w) => this._convertFromSupabaseFormat(w));
+    }
+    // 原有 API 实现 (POST /workflows/hosted)
+    const response = await fetchApiOriginal('/workflows/hosted', {
+      method: 'POST',
+      body: JSON.stringify({ hosts: ids }),
+      auth: true,
+    });
     return response.json();
   }
 
@@ -161,6 +192,18 @@ class ApiAdapter {
       body: JSON.stringify({ workflows }),
       auth: true,
     });
+    return response.json();
+  }
+
+  /**
+   * 获取用户的包
+   */
+  async getPackages() {
+    if (this.useSupabase) {
+      await ensureSupabaseInitialized();
+      return supabaseClient.getPackages();
+    }
+    const response = await fetchApiOriginal('/me/packages', { auth: true });
     return response.json();
   }
 

@@ -155,7 +155,8 @@ import { computed, reactive, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useToast } from 'vue-toastification';
 import browser from 'webextension-polyfill';
-import { fetchApi, cacheApi } from '@/utils/api';
+import { cacheApi } from '@/utils/api';
+import apiAdapter from '@/utils/apiAdapter';
 import { convertWorkflow } from '@/utils/workflowData';
 import { parseJSON } from '@/utils/helper';
 import { useUserStore } from '@/stores/user';
@@ -220,11 +221,8 @@ async function syncCloudToLocal(workflow) {
     backupState.uploading = true;
     backupState.workflowId = workflow.id;
 
-    const response = await fetchApi(`/me/workflows/${workflow.id}`, {
-      auth: true,
-    });
-    const data = await response.json();
-    if (!response.ok) throw new Error(data.message);
+    const data = await apiAdapter.getWorkflowById(workflow.id);
+    if (!data) throw new Error('Workflow not found');
 
     await workflowStore.insertOrUpdate([data]);
 
@@ -277,15 +275,9 @@ async function deleteBackup(workflowId) {
     if (workflowId) backupState.workflowId = workflowId;
 
     const ids = workflowId ? [workflowId] : state.deleteIds;
-    const response = await fetchApi(
-      `/me/workflows?id=${ids.join(',')}&type=backup`,
-      {
-        auth: true,
-        method: 'DELETE',
-      }
-    );
-
-    if (!response.ok) throw new Error(response.statusText);
+    
+    // Supabase delete is one by one in current implementation
+    await Promise.all(ids.map(id => apiAdapter.deleteWorkflow(id)));
 
     ids.forEach((id) => {
       const index = state.cloudWorkflows.findIndex((item) => item.id === id);
@@ -409,18 +401,10 @@ async function backupWorkflowsToCloud(workflowId) {
       return acc;
     }, []);
 
-    const response = await fetchApi('/me/workflows/backup', {
-      auth: true,
-      method: 'POST',
-      body: JSON.stringify({ workflows: workflowsPayload }),
-    });
-    const result = await response.json();
-
-    if (!response.ok) {
-      throw new Error(result.message);
-    }
-
-    const { lastBackup, data, ids } = result;
+    const data = await apiAdapter.batchInsertWorkflows(workflowsPayload);
+    // Construct IDs from input because Supabase batch insert returns data but we need to match original logic
+    const ids = data.map(w => w.id);
+    const lastBackup = Date.now(); // Supabase doesn't return server time easily, use local
 
     backupState.uploading = false;
     backupState.workflowId = '';

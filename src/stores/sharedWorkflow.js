@@ -42,23 +42,8 @@ export const useSharedWorkflowStore = defineStore('shared-workflows', {
         'shared-workflows',
         async () => {
           try {
-            const response = await fetchApi('/me/workflows/shared?data=all', {
-              auth: true,
-            });
-
-            if (response.status !== 200) throw new Error(response.statusText);
-
-            const result = await response.json();
-            const sharedWorkflows = result.reduce((acc, item) => {
-              item.table = item.table || item.dataColumns || [];
-              item.createdAt = new Date(item.createdAt || Date.now()).getTime();
-
-              acc[item.id] = item;
-
-              return acc;
-            }, {});
-
-            return sharedWorkflows;
+            const result = await apiAdapter.getSharedWorkflows();
+            return result;
           } catch (error) {
             console.error(error);
             return {};

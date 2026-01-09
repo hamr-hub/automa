@@ -261,15 +261,7 @@ export const useWorkflowStore = defineStore('workflow', {
       const backupIndex = userStore.backupIds.indexOf(id);
 
       if (hostedWorkflow || backupIndex !== -1) {
-        const response = await fetchApi(`/me/workflows?id=${id}`, {
-          auth: true,
-          method: 'DELETE',
-        });
-        const result = await response.json();
-
-        if (!response.ok) {
-          throw new Error(result.message);
-        }
+        await apiAdapter.deleteWorkflow(id);
 
         if (backupIndex !== -1) {
           userStore.backupIds.splice(backupIndex, 1);

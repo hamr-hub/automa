@@ -50,10 +50,12 @@ class LangGraphAgent {
     this.ollama = new OllamaClient(config.ollama || aiConfig.ollama);
     this.workflowGenerator = new WorkflowGenerator();
 
+    this.history = [];
     this.state = {
       status: 'idle',
       error: null,
       lastAiOutput: null,
+      currentWorkflow: null,
     };
   }
 
@@ -71,38 +73,82 @@ class LangGraphAgent {
   }
 
   /**
-   * 生成工作流(主入口)
-   * @param {string} userInput
-   * @param {string} targetUrl
-   * @param {(progress: {step: string, message: string}) => void} onProgress
+   * 发送消息并获取回复（支持多轮对话）
+   * @param {string} userInput 用户输入
+   * @param {string} targetUrl 目标 URL (可选)
+   * @param {(progress: {step: string, message: string}) => void} onProgress 进度回调
    */
-  async generateWorkflow(userInput, targetUrl = '', onProgress) {
+  async chat(userInput, targetUrl = '', onProgress) {
     try {
       this.state.status = 'generating';
       this.state.error = null;
+      
+      onProgress?.({ step: 'ai', message: 'AI 正在思考...' });
 
-      onProgress?.({ step: 'ai', message: 'AI 正在生成工作流...' });
+      // 构建用户消息
+      let content = userInput;
+      if (targetUrl && this.history.length === 0) {
+        content += `\n目标 URL: ${targetUrl}`;
+      }
 
-      const aiOutput = await this.generateWorkflowSteps(userInput, targetUrl);
-      this.state.lastAiOutput = aiOutput;
+      // 如果是第一条消息，添加系统提示词
+      if (this.history.length === 0) {
+        this.history.push({
+          role: 'system',
+          content: workflowGenerationPrompt.system
+        });
+      }
 
-      onProgress?.({ step: 'build', message: '正在构建 Automa 工作流...' });
-      const workflow = this.workflowGenerator.generateWorkflow(
-        aiOutput,
-        userInput,
-        targetUrl
-      );
+      this.history.push({ role: 'user', content });
 
-      const validation = this.workflowGenerator.validateWorkflow(workflow);
-      if (!validation.valid) {
-        throw new Error(`工作流验证失败: ${validation.errors.join(', ')}`);
+      // 调用 Ollama
+      const res = await this.ollama.chat(this.history);
+      const aiResponse = res?.message?.content || '';
+
+      // 添加 AI 回复到历史
+      this.history.push({ role: 'assistant', content: aiResponse });
+
+      // 尝试提取 JSON 生成工作流
+      const json = extractJsonFromText(aiResponse);
+      let workflow = null;
+
+      if (json && Array.isArray(json.steps)) {
+        onProgress?.({ step: 'build', message: '正在构建工作流...' });
+        
+        // 记录 AI 输出结构
+        this.state.lastAiOutput = {
+            steps: json.steps,
+            dataSchema: json.dataSchema || {}
+        };
+
+        // 生成工作流
+        workflow = this.workflowGenerator.generateWorkflow(
+          this.state.lastAiOutput,
+          userInput, // 使用当前输入作为名称一部分
+          targetUrl
+        );
+
+        // 验证
+        const validation = this.workflowGenerator.validateWorkflow(workflow);
+        if (!validation.valid) {
+             console.warn(`工作流验证警告: ${validation.errors.join(', ')}`);
+             // 不抛出错误，而是让用户在 UI 上看到警告或继续
+        }
+        
+        this.state.currentWorkflow = workflow;
       }
 
       this.state.status = 'completed';
-      return { success: true, workflow };
+      
+      return {
+        success: true,
+        message: aiResponse,
+        workflow: workflow, // 如果生成了工作流，这里会有值
+        isWorkflowUpdate: !!workflow
+      };
+
     } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error('生成工作流失败:', error);
+      console.error('AI 对话失败:', error);
       this.state.status = 'error';
       this.state.error = error?.message || String(error);
       return { success: false, error: this.state.error };
@@ -110,43 +156,14 @@ class LangGraphAgent {
   }
 
   /**
-   * 调用 Ollama 生成抽象步骤(不依赖页面分析)
+   * 重置会话
    */
-  async generateWorkflowSteps(userInput, targetUrl = '') {
-    const system = workflowGenerationPrompt.system;
-
-    // 兼容旧 prompt 的 user 参数签名：user(userInput, pageAnalysis, dataSample)
-    let user;
-    if (typeof workflowGenerationPrompt.user === 'function') {
-      user = workflowGenerationPrompt.user(userInput, { title: '', url: targetUrl, elementStats: {} }, []);
-    } else {
-      user = `用户需求: ${userInput}\n目标URL: ${targetUrl}`;
-    }
-
-    const res = await this.ollama.chat([
-      { role: 'system', content: system },
-      { role: 'user', content: user },
-    ]);
-
-    const text = res?.message?.content || '';
-    const json = extractJsonFromText(text);
-
-    if (!json || !Array.isArray(json.steps)) {
-      throw new Error(
-        'AI 返回格式不正确，期望 JSON 且包含 steps 数组。请尝试更明确描述要抓取的字段与页面结构。'
-      );
-    }
-
-    return {
-      steps: json.steps,
-      dataSchema: json.dataSchema || {},
-    };
-  }
-
   reset() {
+    this.history = [];
     this.state.status = 'idle';
     this.state.error = null;
     this.state.lastAiOutput = null;
+    this.state.currentWorkflow = null;
   }
 
   getState() {

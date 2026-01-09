@@ -92,11 +92,7 @@ export const usePackageStore = defineStore('packages', {
       try {
         if (this.sharedRetrieved) return;
 
-        const response = await fetchApi('/me/packages', { auth: true });
-        const result = await response.json();
-
-        if (!response.ok) throw new Error(result.message);
-
+        const result = await apiAdapter.getPackages();
         this.sharedPkgs = result;
         this.sharedRetrieved = true;
       } catch (error) {

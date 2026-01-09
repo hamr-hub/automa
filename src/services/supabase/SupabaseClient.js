@@ -61,40 +61,16 @@ class SupabaseClient {
    * 获取用户的所有工作流
    */
   async getWorkflows() {
-    const query = `
-      query GetWorkflows {
-        workflowsCollection {
-          edges {
-            node {
-              id
-              name
-              icon
-              folderId
-              description
-              content
-              connectedTable
-              drawflow
-              tableData
-              dataColumns
-              trigger
-              settings
-              globalData
-              version
-              isDisabled
-              isProtected
-              isHost
-              hostId
-              teamId
-              createdAt
-              updatedAt
-            }
-          }
-        }
-      }
-    `;
+    const user = await this.getCurrentUser();
+    if (!user) throw new Error('User not authenticated');
 
-    const result = await this.graphql(query);
-    return result.data.workflowsCollection.edges.map((edge) => edge.node);
+    const { data, error } = await this.client
+      .from('workflows')
+      .select('*')
+      .eq('user_id', user.id);
+
+    if (error) throw error;
+    return data;
   }
 
   /**
@@ -107,6 +83,20 @@ class SupabaseClient {
       .select('*')
       .eq('id', id)
       .single();
+
+    if (error) throw error;
+    return data;
+  }
+
+  /**
+   * 根据 ID 批量获取工作流
+   * @param {array} ids - 工作流 ID 数组
+   */
+  async getWorkflowsByIds(ids) {
+    const { data, error } = await this.client
+      .from('workflows')
+      .select('*')
+      .in('id', ids);
 
     if (error) throw error;
     return data;

@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import browser from 'webextension-polyfill';
-import { fetchApi } from '@/utils/api';
+import apiAdapter from '@/utils/apiAdapter';
 import {
   registerWorkflowTrigger,
   cleanWorkflowTriggers,
@@ -59,36 +59,50 @@ export const useHostedWorkflowStore = defineStore('hosted-workflows', {
     async fetchWorkflows(ids) {
       if (!ids || ids.length === 0) return null;
 
-      const response = await fetchApi('/workflows/hosted', {
-        auth: true,
-        method: 'POST',
-        body: JSON.stringify({ hosts: ids }),
-      });
-      const result = await response.json();
+      try {
+        const result = await apiAdapter.getWorkflowsByIds(ids);
 
-      if (!response.ok) throw new Error(result.message);
+        const dataToReturn = [];
 
-      const dataToReturn = [];
+        result.forEach((data) => {
+          // Supabase doesn't return 'status' field like the old API presumably did.
+          // We assume if it's returned, it exists.
+          // The old API logic handled 'deleted' and 'updated'.
+          // With Supabase, we just get the current state.
+          // If a workflow is missing from result but present in ids, it might be deleted.
 
-      result.forEach(({ hostId, status, data }) => {
-        if (status === 'deleted') {
-          delete this.workflows[hostId];
-          cleanWorkflowTriggers(hostId);
-          return;
-        }
-        if (status === 'updated') {
-          const triggerBlock = findTriggerBlock(data.drawflow);
-          registerWorkflowTrigger(hostId, triggerBlock);
-        }
+          // For now, let's map the result directly.
+          // But wait, the store logic relies on `hostId`.
+          // In Supabase, `hostId` is a column.
+          const hostId = data.hostId || data.id; // Fallback
 
-        data.hostId = hostId;
-        dataToReturn.push(data);
-        this.workflows[hostId] = data;
-      });
+          // Replicate update logic if needed, but for now just load data.
+          if (data.drawflow) {
+             const triggerBlock = findTriggerBlock(data.drawflow);
+             registerWorkflowTrigger(hostId, triggerBlock);
+          }
 
-      await this.saveToStorage('workflows');
+          data.hostId = hostId;
+          dataToReturn.push(data);
+          this.workflows[hostId] = data;
+        });
 
-      return dataToReturn;
+        // Handle deleted workflows (ids requested but not returned)
+        const returnedIds = result.map(w => w.hostId || w.id);
+        ids.forEach(id => {
+           if (!returnedIds.includes(id)) {
+              delete this.workflows[id];
+              cleanWorkflowTriggers(id);
+           }
+        });
+
+        await this.saveToStorage('workflows');
+
+        return dataToReturn;
+      } catch (error) {
+        console.error(error);
+        throw error;
+      }
     },
   },
 });
