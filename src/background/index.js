@@ -23,36 +23,51 @@ try {
   // noop
 }
 
-browser.alarms.onAlarm.addListener(BackgroundEventsListeners.onAlarms);
+if (browser?.alarms?.onAlarm) {
+  browser.alarms.onAlarm.addListener(BackgroundEventsListeners.onAlarms);
+}
 
-browser.commands.onCommand.addListener(BackgroundEventsListeners.onCommand);
+if (browser?.commands?.onCommand) {
+  browser.commands.onCommand.addListener(BackgroundEventsListeners.onCommand);
+}
 
-(browser.action || browser.browserAction).onClicked.addListener(
-  BackgroundEventsListeners.onActionClicked
-);
+const browserAction = browser?.action || browser?.browserAction;
+if (browserAction?.onClicked) {
+  browserAction.onClicked.addListener(BackgroundEventsListeners.onActionClicked);
+}
 
-browser.runtime.onStartup.addListener(
-  BackgroundEventsListeners.onRuntimeStartup
-);
-browser.runtime.onInstalled.addListener(
-  BackgroundEventsListeners.onRuntimeInstalled
-);
+if (browser?.runtime?.onStartup) {
+  browser.runtime.onStartup.addListener(
+    BackgroundEventsListeners.onRuntimeStartup
+  );
+}
 
-browser.webNavigation.onCompleted.addListener(
-  BackgroundEventsListeners.onWebNavigationCompleted
-);
-browser.webNavigation.onHistoryStateUpdated.addListener(
-  BackgroundEventsListeners.onHistoryStateUpdated
-);
+if (browser?.runtime?.onInstalled) {
+  browser.runtime.onInstalled.addListener(
+    BackgroundEventsListeners.onRuntimeInstalled
+  );
+}
 
-const contextMenu = IS_FIREFOX ? browser.menus : browser.contextMenus;
+if (browser?.webNavigation?.onCompleted) {
+  browser.webNavigation.onCompleted.addListener(
+    BackgroundEventsListeners.onWebNavigationCompleted
+  );
+}
+
+if (browser?.webNavigation?.onHistoryStateUpdated) {
+  browser.webNavigation.onHistoryStateUpdated.addListener(
+    BackgroundEventsListeners.onHistoryStateUpdated
+  );
+}
+
+const contextMenu = IS_FIREFOX ? browser?.menus : browser?.contextMenus;
 if (contextMenu && contextMenu.onClicked) {
   contextMenu.onClicked.addListener(
     BackgroundEventsListeners.onContextMenuClicked
   );
 }
 
-if (browser.notifications && browser.notifications.onClicked) {
+if (browser?.notifications && browser.notifications.onClicked) {
   browser.notifications.onClicked.addListener(
     BackgroundEventsListeners.onNotificationClicked
   );

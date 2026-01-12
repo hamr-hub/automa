@@ -19,13 +19,16 @@ const hostedWorkflowStore = useHostedWorkflowStore();
 
 const retrieved = ref(false);
 
-browser.storage.local.get('isRecording').then(({ isRecording }) => {
-  if (!isRecording) return;
+if (browser?.storage?.local) {
+  browser.storage.local.get('isRecording').then(({ isRecording }) => {
+    if (!isRecording) return;
 
-  sendMessage('open:dashboard', '/recording', 'background').then(() => {
-    window.close();
+    sendMessage('open:dashboard', '/recording', 'background').then(() => {
+      window.close();
+    });
   });
-});
+}
+
 
 onMounted(async () => {
   try {

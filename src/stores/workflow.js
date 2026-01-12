@@ -113,6 +113,8 @@ export const useWorkflowStore = defineStore('workflow', {
   },
   actions: {
     async loadData() {
+      if (!browser?.storage?.local) return;
+
       const { workflows, isFirstTime } = await browser.storage.local.get([
         'workflows',
         'isFirstTime',

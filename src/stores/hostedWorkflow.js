@@ -21,6 +21,8 @@ export const useHostedWorkflowStore = defineStore('hosted-workflows', {
   },
   actions: {
     async loadData() {
+      if (!browser?.storage?.local) return;
+
       const { workflowHosts } = await browser.storage.local.get(
         'workflowHosts'
       );

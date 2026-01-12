@@ -41,6 +41,7 @@ export const useStore = defineStore('main', {
   }),
   actions: {
     loadSettings() {
+      if (!browser?.storage?.local) return Promise.resolve();
       return browser.storage.local.get('settings').then(({ settings }) => {
         this.settings = defu(settings || {}, this.settings);
         this.retrieved = true;
