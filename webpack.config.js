@@ -15,8 +15,14 @@ const alias = {
   '@': path.resolve(__dirname, 'src/'),
   secrets: path.join(__dirname, 'secrets.blank.js'),
   '@business': path.resolve(__dirname, 'business/dev'),
-  // 'webextension-polyfill': path.resolve(__dirname, 'src/utils/mockBrowser.js'),
 };
+
+if (process.env.APP_TARGET === 'web') {
+  alias['webextension-polyfill'] = path.resolve(
+    __dirname,
+    'src/utils/mockBrowser.js'
+  );
+}
 
 // load the secrets
 const secretsPath = path.join(__dirname, `secrets.${env.NODE_ENV}.js`);

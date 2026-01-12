@@ -14,6 +14,7 @@
     "build:prod-chrome": "npm run build && npm run build:zip",
     "build:prod-firefox": "npm run build:firefox && cross-env BROWSER=firefox npm run build:zip",
     "dev": "node utils/webserver.js",
+    "dev:web": "cross-env APP_TARGET=web npm run dev",
     "dev:firefox": "cross-env BROWSER=firefox npm run dev",
     "prettier": "prettier --write '**/*.{js,jsx,css,html}'",
     "lint": "eslint ."

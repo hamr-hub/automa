@@ -2,10 +2,41 @@ const browser = {
   runtime: {
     getManifest: () => ({ version: '1.29.12' }),
     getURL: (path) => path,
+    getContexts: () => Promise.resolve([]),
     onMessage: { addListener: () => {} },
+    onStartup: { addListener: () => {} },
+    onInstalled: { addListener: () => {} },
     sendMessage: () => Promise.resolve({}),
   },
+  offscreen: {
+    createDocument: () => Promise.resolve(),
+    Reason: {
+      BLOBS: 'BLOBS',
+      CLIPBOARD: 'CLIPBOARD',
+      IFRAME_SCRIPTING: 'IFRAME_SCRIPTING',
+      DOM_SCRAPING: 'DOM_SCRAPING',
+    },
+  },
+  alarms: {
+    onAlarm: { addListener: () => {} },
+    create: () => {},
+    clear: () => Promise.resolve(),
+  },
+  commands: {
+    onCommand: { addListener: () => {} },
+  },
+  contextMenus: {
+    onClicked: { addListener: () => {} },
+    create: () => {},
+    removeAll: () => Promise.resolve(),
+  },
+  menus: {
+    onClicked: { addListener: () => {} },
+    create: () => {},
+    removeAll: () => Promise.resolve(),
+  },
   storage: {
+    onChanged: { addListener: () => {} },
     local: {
       get: (keys) => {
         const data = {
@@ -51,6 +82,7 @@ const browser = {
     onRemoved: { addListener: () => {} },
   },
   action: {
+    onClicked: { addListener: () => {} },
     setBadgeText: () => Promise.resolve(),
     setBadgeBackgroundColor: () => Promise.resolve(),
   },
@@ -61,6 +93,8 @@ const browser = {
   webNavigation: {
     onCreatedNavigationTarget: { addListener: () => {} },
     onErrorOccurred: { addListener: () => {} },
+    onCompleted: { addListener: () => {} },
+    onHistoryStateUpdated: { addListener: () => {} },
     getAllFrames: () => Promise.resolve([]),
   },
   proxy: {
@@ -94,6 +128,7 @@ const browser = {
   },
   notifications: {
     create: () => Promise.resolve(),
+    onClicked: { addListener: () => {} },
   },
   extension: {
     isAllowedFileSchemeAccess: () => Promise.resolve(false),
