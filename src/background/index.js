@@ -17,7 +17,11 @@ import BackgroundOffscreen from './BackgroundOffscreen';
 import BackgroundUtils from './BackgroundUtils';
 import BackgroundWorkflowUtils from './BackgroundWorkflowUtils';
 
-BackgroundOffscreen.instance.sendMessage('halo');
+try {
+  BackgroundOffscreen.instance.sendMessage('halo').catch(() => {});
+} catch (e) {
+  // noop
+}
 
 browser.alarms.onAlarm.addListener(BackgroundEventsListeners.onAlarms);
 
