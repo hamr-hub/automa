@@ -5,8 +5,10 @@ import supabaseAdapter from '@/utils/apiAdapter';
 import supabaseConfig from '@/config/supabase.config';
 
 // Global switch for Supabase usage
-// In a real app, this might come from settings or env
-const USE_SUPABASE = true;
+// 默认：只有在 secrets 里配置了 supabaseUrl/supabaseAnonKey 才启用；否则自动降级到原有 API。
+const USE_SUPABASE = Boolean(
+  supabaseConfig?.supabaseUrl && supabaseConfig?.supabaseAnonKey
+);
 
 /**
  * Check if Supabase should be used
