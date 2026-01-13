@@ -935,6 +935,8 @@ function cleanupDownloadListeners() {
 setInterval(cleanupDownloadListeners, 60 * 60 * 1000);
 
 async function registerBackgroundDownloadListeners() {
+  if (!browser?.downloads) return;
+
   try {
     if (browser.downloads.onCreated.hasListener(handleDownloadCreated)) {
       browser.downloads.onCreated.removeListener(handleDownloadCreated);
@@ -1057,4 +1059,6 @@ message.on('downloads:watch-changed', async ({ downloadId, onComplete }) => {
 
 automa('background', message);
 
-browser.runtime.onMessage.addListener(message.listener);
+if (browser?.runtime?.onMessage) {
+  browser.runtime.onMessage.addListener(message.listener);
+}
