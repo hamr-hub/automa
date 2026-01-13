@@ -12,6 +12,7 @@ import {
 } from './api';
 
 
+// 离线优先：未登录/断网时仍可使用本地工作流；联网且已登录后再尝试与 Supabase 同步。
 const USE_SUPABASE = true;
 
 // 初始化 Supabase 客户端
@@ -25,10 +26,19 @@ async function ensureSupabaseInitialized() {
       );
       supabaseInitialized = true;
     } catch (error) {
-      console.warn('Supabase initialization failed, will use fallback API:', error.message);
+      console.warn(
+        'Supabase initialization failed, will use fallback API:',
+        error.message
+      );
       supabaseInitialized = false;
     }
   }
+}
+
+// 供离线同步服务使用：避免在各处重复引入 supabaseClient/supabaseConfig
+// 注意：这不是稳定的公共 API，只在本仓库内部使用
+function __ensureSupabase() {
+  return ensureSupabaseInitialized();
 }
 
 /**
@@ -82,15 +92,22 @@ class ApiAdapter {
    * 获取用户工作流
    */
   async getUserWorkflows(useCache = true) {
-    if (this.useSupabase && supabaseInitialized) {
-      try {
-        await ensureSupabaseInitialized();
-        const workflows = await supabaseClient.getWorkflows();
-        return this._formatWorkflowsResponse(workflows);
-      } catch (error) {
-        console.warn('Supabase getUserWorkflows failed, using fallback:', error.message);
+    if (this.useSupabase) {
+      await ensureSupabaseInitialized();
+
+      if (supabaseInitialized) {
+        try {
+          const workflows = await supabaseClient.getWorkflows();
+          return this._formatWorkflowsResponse(workflows);
+        } catch (error) {
+          console.warn(
+            'Supabase getUserWorkflows failed, using fallback:',
+            error.message
+          );
+        }
       }
     }
+
     return getUserWorkflowsOriginal(useCache);
   }
 
@@ -98,15 +115,22 @@ class ApiAdapter {
    * 获取共享工作流
    */
   async getSharedWorkflows(useCache = true) {
-    if (this.useSupabase && supabaseInitialized) {
-      try {
-        await ensureSupabaseInitialized();
-        const workflows = await supabaseClient.getSharedWorkflows();
-        return this._formatSharedWorkflowsResponse(workflows);
-      } catch (error) {
-        console.warn('Supabase getSharedWorkflows failed, using fallback:', error.message);
+    if (this.useSupabase) {
+      await ensureSupabaseInitialized();
+
+      if (supabaseInitialized) {
+        try {
+          const sharedWorkflows = await supabaseClient.getSharedWorkflows();
+          return this._formatSharedWorkflowsResponse(sharedWorkflows);
+        } catch (error) {
+          console.warn(
+            'Supabase getSharedWorkflows failed, using fallback:',
+            error.message
+          );
+        }
       }
     }
+
     return getSharedWorkflowsOriginal(useCache);
   }
 
@@ -458,5 +482,8 @@ class ApiAdapter {
 
 // 创建单例实例
 const apiAdapter = new ApiAdapter();
+
+// 内部导出：给离线同步服务使用
+apiAdapter.__ensureSupabase = __ensureSupabase;
 
 export default apiAdapter;

@@ -166,6 +166,21 @@ export const useWorkflowStore = defineStore('workflow', {
 
       await this.saveToStorage('workflows');
 
+      // 离线优先：记录待同步（联网且已登录时由同步器推送到远端）
+      try {
+        const { default: WorkflowSyncService } = await import(
+          '@/services/workflowSync/WorkflowSyncService'
+        );
+        await Promise.all(
+          Object.keys(insertedWorkflows).map((id) =>
+            WorkflowSyncService.markPending('upsert', id)
+          )
+        );
+      } catch (error) {
+        // 同步服务不可用不影响本地使用
+        console.warn('WorkflowSyncService.markPending(insert) failed:', error);
+      }
+
       return insertedWorkflows;
     },
     async update({ id, data = {}, deep = false }) {
@@ -213,6 +228,24 @@ export const useWorkflowStore = defineStore('workflow', {
 
       await this.saveToStorage('workflows');
 
+      // 离线优先：记录待同步（联网且已登录时由同步器推送到远端）
+      try {
+        const { default: WorkflowSyncService } = await import(
+          '@/services/workflowSync/WorkflowSyncService'
+        );
+        if (isFunction) {
+          await Promise.all(
+            Object.keys(updatedWorkflows).map((wid) =>
+              WorkflowSyncService.markPending('upsert', wid)
+            )
+          );
+        } else {
+          await WorkflowSyncService.markPending('upsert', id);
+        }
+      } catch (error) {
+        console.warn('WorkflowSyncService.markPending(update) failed:', error);
+      }
+
       return updatedWorkflows;
     },
     async insertOrUpdate(
@@ -248,35 +281,56 @@ export const useWorkflowStore = defineStore('workflow', {
       return insertedData;
     },
     async delete(id) {
-      if (Array.isArray(id)) {
-        id.forEach((workflowId) => {
-          delete this.workflows[workflowId];
-        });
-      } else {
-        delete this.workflows[id];
-      }
+      const ids = Array.isArray(id) ? id : [id];
+
+      ids.forEach((workflowId) => {
+        delete this.workflows[workflowId];
+      });
 
       await cleanWorkflowTriggers(id);
 
-      const userStore = useUserStore();
-
-      const hostedWorkflow = userStore.hostedWorkflows[id];
-      const backupIndex = userStore.backupIds.indexOf(id);
-
-      if (hostedWorkflow || backupIndex !== -1) {
-        await apiAdapter.deleteWorkflow(id);
-
-        if (backupIndex !== -1) {
-          userStore.backupIds.splice(backupIndex, 1);
-          await browser.storage.local.set({ backupIds: userStore.backupIds });
-        }
+      // 离线优先：先记录待同步 delete（不依赖登录/网络）
+      try {
+        const { default: WorkflowSyncService } = await import(
+          '@/services/workflowSync/WorkflowSyncService'
+        );
+        await Promise.all(
+          ids.map((wid) => WorkflowSyncService.markPending('delete', wid))
+        );
+      } catch (error) {
+        console.warn('WorkflowSyncService.markPending(delete) failed:', error);
       }
 
-      await browser.storage.local.remove([
-        `state:${id}`,
-        `draft:${id}`,
-        `draft-team:${id}`,
-      ]);
+      const userStore = useUserStore();
+
+      // 旧逻辑：已登录且有 hosted/backup 才会远端删除
+      // 这里保留，但失败不阻断本地删除
+      await Promise.all(
+        ids.map(async (workflowId) => {
+          const hostedWorkflow = userStore.hostedWorkflows[workflowId];
+          const backupIndex = userStore.backupIds.indexOf(workflowId);
+
+          if (hostedWorkflow || backupIndex !== -1) {
+            try {
+              await apiAdapter.deleteWorkflow(workflowId);
+            } catch (error) {
+              console.warn('apiAdapter.deleteWorkflow failed (offline?):', error);
+            }
+
+            if (backupIndex !== -1) {
+              userStore.backupIds.splice(backupIndex, 1);
+              await browser.storage.local.set({ backupIds: userStore.backupIds });
+            }
+          }
+
+          await browser.storage.local.remove([
+            `state:${workflowId}`,
+            `draft:${workflowId}`,
+            `draft-team:${workflowId}`,
+          ]);
+        })
+      );
+
       await this.saveToStorage('workflows');
 
       const { pinnedWorkflows } = await browser.storage.local.get(

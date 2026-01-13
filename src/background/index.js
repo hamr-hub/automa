@@ -16,6 +16,7 @@ import BackgroundEventsListeners from './BackgroundEventsListeners';
 import BackgroundOffscreen from './BackgroundOffscreen';
 import BackgroundUtils from './BackgroundUtils';
 import BackgroundWorkflowUtils from './BackgroundWorkflowUtils';
+import WorkflowSyncService from '@/services/workflowSync/WorkflowSyncService';
 
 try {
   BackgroundOffscreen.instance.sendMessage('halo').catch(() => {});
@@ -37,15 +38,29 @@ if (browserAction?.onClicked) {
 }
 
 if (browser?.runtime?.onStartup) {
-  browser.runtime.onStartup.addListener(
-    BackgroundEventsListeners.onRuntimeStartup
-  );
+  browser.runtime.onStartup.addListener(async () => {
+    BackgroundEventsListeners.onRuntimeStartup();
+
+    // 启动时尝试同步一次（未登录/离线会自动跳过）
+    try {
+      await WorkflowSyncService.syncOnce();
+    } catch (error) {
+      console.warn('WorkflowSyncService.syncOnce(onStartup) failed:', error);
+    }
+  });
 }
 
 if (browser?.runtime?.onInstalled) {
-  browser.runtime.onInstalled.addListener(
-    BackgroundEventsListeners.onRuntimeInstalled
-  );
+  browser.runtime.onInstalled.addListener(async (details) => {
+    await BackgroundEventsListeners.onRuntimeInstalled(details);
+
+    // 安装/升级后也尝试同步一次
+    try {
+      await WorkflowSyncService.syncOnce();
+    } catch (error) {
+      console.warn('WorkflowSyncService.syncOnce(onInstalled) failed:', error);
+    }
+  });
 }
 
 if (browser?.webNavigation?.onCompleted) {
@@ -229,6 +244,12 @@ message.on('workflow:breakpoint', (id) => {
 message.on('get:user-id', async () => {
   const userStore = useUserStore();
   return { userId: userStore.user?.id };
+});
+
+// 手动触发同步（UI/调试使用）
+message.on('workflow:sync', async () => {
+  const result = await WorkflowSyncService.syncOnce();
+  return result;
 });
 
 message.on(
