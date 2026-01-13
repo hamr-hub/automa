@@ -27,10 +27,16 @@ class SupabaseClient {
         },
       });
 
-      // 测试连接
-      await this.client.from('users').select('count').limit(1);
+      // 测试连接：使用 HEAD 请求探测 REST endpoint，避免触发表查询导致噪声/权限问题
+      // 注意：Supabase URL 可能是自建网关（如 kong:8000），此处只做可达性探测
+      try {
+        const healthUrl = `${supabaseUrl.replace(/\/$/, '')}/rest/v1/`;
+        await fetch(healthUrl, { method: 'HEAD' });
+      } catch (e) {
+        // ignore：后续调用仍可能成功（例如被 CORS/HEAD 限制）
+      }
+
       this.initialized = true;
-      console.log('Supabase connected successfully');
     } catch (error) {
       console.warn('Supabase initialization failed:', error.message);
       this.client = null;

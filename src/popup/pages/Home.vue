@@ -412,7 +412,10 @@ onMounted(async () => {
 
   let activeTab = localStorage.getItem('popup-tab') || 'local';
 
-  await automa('app');
+  // business/dev/index.js 默认导出是对象，不是函数；避免运行时 TypeError
+  if (typeof automa === 'function') {
+    await automa('app');
+  }
 
   if (activeTab === 'team' && !userStore.user?.teams) activeTab = 'local';
   else if (activeTab === 'host' && hostedWorkflowStore.toArray.length < 1)
