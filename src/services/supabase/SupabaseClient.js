@@ -49,6 +49,8 @@ class SupabaseClient {
    * 获取当前用户
    */
   async getCurrentUser() {
+    if (!this.client) return null;
+
     const {
       data: { user },
     } = await this.client.auth.getUser();
@@ -61,6 +63,8 @@ class SupabaseClient {
    * @param {object} variables - 查询变量
    */
   async graphql(query, variables = {}) {
+    if (!this.client) throw new Error('Supabase not connected');
+
     const { data, error } = await this.client.functions.invoke('graphql', {
       body: { query, variables },
     });
