@@ -50,14 +50,25 @@ class ApiAdapter {
    * 获取当前用户信息
    */
   async getUser() {
-    if (this.useSupabase && supabaseInitialized) {
-      try {
-        await ensureSupabaseInitialized();
-        return await supabaseClient.getUserProfile();
-      } catch (error) {
-        console.warn('Supabase getUser failed, using fallback:', error.message);
+    // 说明：Supabase 初始化失败时，supabaseInitialized 仍为 false。
+    // 这里如果仅用 supabaseInitialized 做前置判断，会导致永远不会尝试初始化。
+    // 因此每次都先 ensureSupabaseInitialized()，再根据最终状态决定走哪条分支。
+
+    if (this.useSupabase) {
+      await ensureSupabaseInitialized();
+
+      if (supabaseInitialized) {
+        try {
+          // SupabaseClient 中目前实际实现的是 getCurrentUser()
+          // 这里统一映射为「用户信息」返回值；若没有登录，则返回 null
+          const user = await supabaseClient.getCurrentUser();
+          return user;
+        } catch (error) {
+          console.warn('Supabase getUser failed, using fallback:', error.message);
+        }
       }
     }
+
     // 原有 API 实现
     const response = await fetchApiOriginal('/me', { auth: true });
     return response.json();

@@ -20,7 +20,8 @@
     "lint": "eslint ."
   },
   "engines": {
-    "node": ">=14.18.1"
+    pnpm build
+"node": ">=14.18.1"
   },
   "simple-git-hooks": {
     "pre-commit": "npx lint-staged"
