@@ -1,54 +1,77 @@
 import BrowserAPIService from '@/service/browser-api/BrowserAPIService';
 import secrets from 'secrets';
 import { isObject, parseJSON } from './helper';
-import supabaseClient from '@/services/supabase/SupabaseClient';
+import supabaseAdapter from '@/utils/apiAdapter';
 import supabaseConfig from '@/config/supabase.config';
 
-// 初始化 Supabase 客户端
-let supabaseInitialized = false;
-async function ensureSupabaseInitialized() {
-  if (!supabaseInitialized) {
-    await supabaseClient.initialize(
-      supabaseConfig.supabaseUrl,
-      supabaseConfig.supabaseAnonKey
-    );
-    supabaseInitialized = true;
-  }
+// Global switch for Supabase usage
+// In a real app, this might come from settings or env
+const USE_SUPABASE = true;
+
+/**
+ * Check if Supabase should be used
+ */
+export function shouldUseSupabase() {
+  return USE_SUPABASE;
 }
 
 // ============================================
-// Supabase API 方法
+// API Methods (Smart Switch)
 // ============================================
 
 /**
- * 使用 Supabase 获取共享工作流
+ * Get User Workflows
  */
-export async function getSharedWorkflowsSupabase(useCache = true) {
+export async function getUserWorkflows(useCache = true) {
+  if (shouldUseSupabase()) {
+    try {
+      return await supabaseAdapter.getUserWorkflows(useCache);
+    } catch (error) {
+      console.warn('Supabase getUserWorkflows failed, falling back:', error);
+      // Fallback proceeds below
+    }
+  }
+
+  // Original API Logic
   return cacheApi(
-    'shared-workflows-supabase',
+    'user-workflows',
     async () => {
       try {
-        await ensureSupabaseInitialized();
-        const workflows = await supabaseClient.getSharedWorkflows();
+        const { lastBackup } = await BrowserAPIService.storage.local.get(
+          'lastBackup'
+        );
+        const response = await fetchApi(
+          `/me/workflows?lastBackup=${(useCache && lastBackup) || null}`,
+          { auth: true }
+        );
 
-        const sharedWorkflows = workflows.reduce((acc, item) => {
-          const workflow = item.workflows;
-          workflow.drawflow =
-            typeof workflow.drawflow === 'string'
-              ? workflow.drawflow
-              : JSON.stringify(workflow.drawflow);
-          workflow.table = workflow.table_data || workflow.data_columns || [];
-          workflow.createdAt = new Date(
-            workflow.created_at || Date.now()
-          ).getTime();
+        if (!response.ok) throw new Error(response.statusText);
 
-          acc[workflow.id] = workflow;
-          return acc;
-        }, {});
+        const result = await response.json();
+        const workflows = result.reduce(
+          (acc, workflow) => {
+            if (workflow.isHost) {
+              acc.hosted[workflow.id] = {
+                id: workflow.id,
+                hostId: workflow.hostId,
+              };
+            }
 
-        return sharedWorkflows;
+            acc.backup.push(workflow);
+
+            return acc;
+          },
+          { hosted: {}, backup: [] }
+        );
+
+        workflows.cacheData = {
+          backup: [],
+          hosted: workflows.hosted,
+        };
+
+        return workflows;
       } catch (error) {
-        console.error('Supabase getSharedWorkflows error:', error);
+        console.error(error);
         return {};
       }
     },
@@ -57,40 +80,40 @@ export async function getSharedWorkflowsSupabase(useCache = true) {
 }
 
 /**
- * 使用 Supabase 获取用户工作流
+ * Get Shared Workflows
  */
-export async function getUserWorkflowsSupabase(useCache = true) {
+export async function getSharedWorkflows(useCache = true) {
+  if (shouldUseSupabase()) {
+    try {
+      return await supabaseAdapter.getSharedWorkflows(useCache);
+    } catch (error) {
+      console.warn('Supabase getSharedWorkflows failed, falling back:', error);
+    }
+  }
+
   return cacheApi(
-    'user-workflows-supabase',
+    'shared-workflows',
     async () => {
       try {
-        await ensureSupabaseInitialized();
-        const workflows = await supabaseClient.getWorkflows();
+        const response = await fetchApi('/me/workflows/shared?data=all');
 
-        const result = workflows.reduce(
-          (acc, workflow) => {
-            if (workflow.is_host) {
-              acc.hosted[workflow.id] = {
-                id: workflow.id,
-                hostId: workflow.host_id,
-              };
-            }
+        if (response.status !== 200) throw new Error(response.statusText);
 
-            acc.backup.push(workflow);
-            return acc;
-          },
-          { hosted: {}, backup: [] }
-        );
+        const result = await response.json();
+        const sharedWorkflows = result.reduce((acc, item) => {
+          item.drawflow = JSON.stringify(item.drawflow);
+          item.table = item.table || item.dataColumns || [];
+          item.createdAt = new Date(item.createdAt || Date.now()).getTime();
 
-        result.cacheData = {
-          backup: [],
-          hosted: result.hosted,
-        };
+          acc[item.id] = item;
 
-        return result;
+          return acc;
+        }, {});
+
+        return sharedWorkflows;
       } catch (error) {
-        console.error('Supabase getUserWorkflows error:', error);
-        return { hosted: {}, backup: [] };
+        console.error(error);
+        return {};
       }
     },
     useCache
@@ -98,74 +121,103 @@ export async function getUserWorkflowsSupabase(useCache = true) {
 }
 
 /**
- * 使用 Supabase 创建工作流
+ * Get Workflow By ID
  */
-export async function createWorkflowSupabase(workflow) {
-  try {
-    await ensureSupabaseInitialized();
-    return await supabaseClient.createWorkflow(workflow);
-  } catch (error) {
-    console.error('Supabase createWorkflow error:', error);
-    throw error;
+export async function getWorkflowById(id) {
+  if (shouldUseSupabase()) {
+    try {
+      return await supabaseAdapter.getWorkflowById(id);
+    } catch (error) {
+      console.warn('Supabase getWorkflowById failed, falling back:', error);
+    }
   }
+
+  const response = await fetchApi(`/workflows/${id}`, { auth: true });
+  return response.json();
 }
 
 /**
- * 使用 Supabase 更新工作流
+ * Create Workflow
  */
-export async function updateWorkflowSupabase(id, updates) {
-  try {
-    await ensureSupabaseInitialized();
-    return await supabaseClient.updateWorkflow(id, updates);
-  } catch (error) {
-    console.error('Supabase updateWorkflow error:', error);
-    throw error;
+export async function createWorkflow(workflow) {
+  if (shouldUseSupabase()) {
+    try {
+      return await supabaseAdapter.createWorkflow(workflow);
+    } catch (error) {
+      console.warn('Supabase createWorkflow failed, falling back:', error);
+    }
   }
+
+  const response = await fetchApi('/workflows', {
+    method: 'POST',
+    body: JSON.stringify(workflow),
+    auth: true,
+  });
+  return response.json();
 }
 
 /**
- * 使用 Supabase 删除工作流
+ * Update Workflow
  */
-export async function deleteWorkflowSupabase(id) {
-  try {
-    await ensureSupabaseInitialized();
-    return await supabaseClient.deleteWorkflow(id);
-  } catch (error) {
-    console.error('Supabase deleteWorkflow error:', error);
-    throw error;
+export async function updateWorkflow(id, updates) {
+  if (shouldUseSupabase()) {
+    try {
+      return await supabaseAdapter.updateWorkflow(id, updates);
+    } catch (error) {
+      console.warn('Supabase updateWorkflow failed, falling back:', error);
+    }
   }
+
+  const response = await fetchApi(`/workflows/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(updates),
+    auth: true,
+  });
+  return response.json();
 }
 
 /**
- * 使用 Supabase 获取工作流日志
+ * Delete Workflow
  */
-export async function getWorkflowLogsSupabase(options = {}) {
-  try {
-    await ensureSupabaseInitialized();
-    return await supabaseClient.getWorkflowLogs(options);
-  } catch (error) {
-    console.error('Supabase getWorkflowLogs error:', error);
-    return [];
+export async function deleteWorkflow(id) {
+  if (shouldUseSupabase()) {
+    try {
+      return await supabaseAdapter.deleteWorkflow(id);
+    } catch (error) {
+      console.warn('Supabase deleteWorkflow failed, falling back:', error);
+    }
   }
+
+  const response = await fetchApi(`/workflows/${id}`, {
+    method: 'DELETE',
+    auth: true,
+  });
+  return response.json();
 }
 
 /**
- * 使用 Supabase 创建工作流日志
+ * Batch Insert Workflows
  */
-export async function createWorkflowLogSupabase(log) {
-  try {
-    await ensureSupabaseInitialized();
-    return await supabaseClient.createWorkflowLog(log);
-  } catch (error) {
-    console.error('Supabase createWorkflowLog error:', error);
-    throw error;
+export async function batchInsertWorkflows(workflows) {
+  if (shouldUseSupabase()) {
+    try {
+      return await supabaseAdapter.batchInsertWorkflows(workflows);
+    } catch (error) {
+      console.warn('Supabase batchInsertWorkflows failed, falling back:', error);
+    }
   }
+
+  const response = await fetchApi('/workflows/batch', {
+    method: 'POST',
+    body: JSON.stringify({ workflows }),
+    auth: true,
+  });
+  return response.json();
 }
 
 // ============================================
-// 原有的 API 方法（保持向后兼容）
+// Core Fetch Logic
 // ============================================
-
 
 export async function fetchApi(path, options = {}) {
   const urlPath = path.startsWith('/') ? path : `/${path}`;
@@ -239,85 +291,6 @@ export async function cacheApi(key, callback, useCache = true) {
   options.storage.setItem(key, JSON.stringify(cacheData));
 
   return result;
-}
-
-export async function getSharedWorkflows(useCache = true) {
-  return cacheApi(
-    'shared-workflows',
-    async () => {
-      try {
-        const response = await fetchApi('/me/workflows/shared?data=all');
-
-        if (response.status !== 200) throw new Error(response.statusText);
-
-        const result = await response.json();
-        const sharedWorkflows = result.reduce((acc, item) => {
-          item.drawflow = JSON.stringify(item.drawflow);
-          item.table = item.table || item.dataColumns || [];
-          item.createdAt = new Date(item.createdAt || Date.now()).getTime();
-
-          acc[item.id] = item;
-
-          return acc;
-        }, {});
-
-        return sharedWorkflows;
-      } catch (error) {
-        console.error(error);
-
-        return {};
-      }
-    },
-    useCache
-  );
-}
-
-export async function getUserWorkflows(useCache = true) {
-  return cacheApi(
-    'user-workflows',
-    async () => {
-      try {
-        const { lastBackup } = await BrowserAPIService.storage.local.get(
-          'lastBackup'
-        );
-        const response = await fetchApi(
-          `/me/workflows?lastBackup=${(useCache && lastBackup) || null}`,
-          { auth: true }
-        );
-
-        if (!response.ok) throw new Error(response.statusText);
-
-        const result = await response.json();
-        const workflows = result.reduce(
-          (acc, workflow) => {
-            if (workflow.isHost) {
-              acc.hosted[workflow.id] = {
-                id: workflow.id,
-                hostId: workflow.hostId,
-              };
-            }
-
-            acc.backup.push(workflow);
-
-            return acc;
-          },
-          { hosted: {}, backup: [] }
-        );
-
-        workflows.cacheData = {
-          backup: [],
-          hosted: workflows.hosted,
-        };
-
-        return workflows;
-      } catch (error) {
-        console.error(error);
-
-        return {};
-      }
-    },
-    useCache
-  );
 }
 
 export function validateOauthToken() {

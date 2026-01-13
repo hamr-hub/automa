@@ -1,24 +1,16 @@
 /**
- * Supabase API 适配器
- * 提供统一的 API 接口，可以在 Supabase 和原有 API 之间切换
+ * Supabase API Adapter
+ * Handles data conversion and interaction with SupabaseClient
  */
 
 import supabaseClient from '@/services/supabase/SupabaseClient';
 import supabaseConfig from '@/config/supabase.config';
-import {
-  fetchApi as fetchApiOriginal,
-  getSharedWorkflows as getSharedWorkflowsOriginal,
-  getUserWorkflows as getUserWorkflowsOriginal,
-} from './api';
 
-
-// 离线优先：未登录/断网时仍可使用本地工作流；联网且已登录后再尝试与 Supabase 同步。
-const USE_SUPABASE = true;
-
-// 初始化 Supabase 客户端
+// Initialize Supabase Client
 let supabaseInitialized = false;
+
 async function ensureSupabaseInitialized() {
-  if (!supabaseInitialized && USE_SUPABASE) {
+  if (!supabaseInitialized) {
     try {
       await supabaseClient.initialize(
         supabaseConfig.supabaseUrl,
@@ -26,353 +18,127 @@ async function ensureSupabaseInitialized() {
       );
       supabaseInitialized = true;
     } catch (error) {
-      console.warn(
-        'Supabase initialization failed, will use fallback API:',
-        error.message
-      );
-      supabaseInitialized = false;
+      console.warn('Supabase initialization failed:', error.message);
+      throw error;
     }
   }
 }
 
-// 供离线同步服务使用：避免在各处重复引入 supabaseClient/supabaseConfig
-// 注意：这不是稳定的公共 API，只在本仓库内部使用
-function __ensureSupabase() {
-  return ensureSupabaseInitialized();
-}
-
-/**
- * 统一的 API 适配器类
- */
-class ApiAdapter {
-  constructor() {
-    this.useSupabase = USE_SUPABASE;
-  }
-
+class SupabaseAdapter {
   /**
-   * 设置是否使用 Supabase
-   */
-  setUseSupabase(value) {
-    this.useSupabase = value;
-  }
-
-  /**
-   * 获取当前用户信息
+   * Get current user info
    */
   async getUser() {
-    // 说明：Supabase 初始化失败时，supabaseInitialized 仍为 false。
-    // 这里如果仅用 supabaseInitialized 做前置判断，会导致永远不会尝试初始化。
-    // 因此每次都先 ensureSupabaseInitialized()，再根据最终状态决定走哪条分支。
-
-    if (this.useSupabase) {
-      await ensureSupabaseInitialized();
-
-      if (supabaseInitialized) {
-        try {
-          // SupabaseClient 中目前实际实现的是 getCurrentUser()
-          // 这里统一映射为「用户信息」返回值；若没有登录，则返回 null
-          const user = await supabaseClient.getCurrentUser();
-          return user;
-        } catch (error) {
-          console.warn('Supabase getUser failed, using fallback:', error.message);
-        }
-      }
-    }
-
-    // 原有 API 实现
-    const response = await fetchApiOriginal('/me', { auth: true });
-    return response.json();
+    await ensureSupabaseInitialized();
+    return supabaseClient.getCurrentUser();
   }
 
   // ============================================
-  // Workflows 相关方法
+  // Workflows
   // ============================================
 
-  /**
-   * 获取用户工作流
-   */
-  async getUserWorkflows(useCache = true) {
-    if (this.useSupabase) {
-      await ensureSupabaseInitialized();
-
-      if (supabaseInitialized) {
-        try {
-          const workflows = await supabaseClient.getWorkflows();
-          return this._formatWorkflowsResponse(workflows);
-        } catch (error) {
-          console.warn(
-            'Supabase getUserWorkflows failed, using fallback:',
-            error.message
-          );
-        }
-      }
-    }
-
-    return getUserWorkflowsOriginal(useCache);
+  async getUserWorkflows() {
+    await ensureSupabaseInitialized();
+    const workflows = await supabaseClient.getWorkflows();
+    return this._formatWorkflowsResponse(workflows);
   }
 
-  /**
-   * 获取共享工作流
-   */
-  async getSharedWorkflows(useCache = true) {
-    if (this.useSupabase) {
-      await ensureSupabaseInitialized();
-
-      if (supabaseInitialized) {
-        try {
-          const sharedWorkflows = await supabaseClient.getSharedWorkflows();
-          return this._formatSharedWorkflowsResponse(sharedWorkflows);
-        } catch (error) {
-          console.warn(
-            'Supabase getSharedWorkflows failed, using fallback:',
-            error.message
-          );
-        }
-      }
-    }
-
-    return getSharedWorkflowsOriginal(useCache);
+  async getSharedWorkflows() {
+    await ensureSupabaseInitialized();
+    const sharedWorkflows = await supabaseClient.getSharedWorkflows();
+    return this._formatSharedWorkflowsResponse(sharedWorkflows);
   }
 
-  /**
-   * 根据 ID 获取工作流
-   */
   async getWorkflowById(id) {
-    if (this.useSupabase) {
-      await ensureSupabaseInitialized();
-      return supabaseClient.getWorkflowById(id);
-    }
-    // 原有 API 实现
-    const response = await fetchApiOriginal(`/workflows/${id}`, { auth: true });
-    return response.json();
+    await ensureSupabaseInitialized();
+    return supabaseClient.getWorkflowById(id);
   }
 
-  /**
-   * 根据 ID 批量获取工作流
-   */
   async getWorkflowsByIds(ids) {
-    if (this.useSupabase) {
-      await ensureSupabaseInitialized();
-      const workflows = await supabaseClient.getWorkflowsByIds(ids);
-      return workflows.map((w) => this._convertFromSupabaseFormat(w));
-    }
-    // 原有 API 实现 (POST /workflows/hosted)
-    const response = await fetchApiOriginal('/workflows/hosted', {
-      method: 'POST',
-      body: JSON.stringify({ hosts: ids }),
-      auth: true,
-    });
-    return response.json();
+    await ensureSupabaseInitialized();
+    const workflows = await supabaseClient.getWorkflowsByIds(ids);
+    return workflows.map((w) => this._convertFromSupabaseFormat(w));
   }
 
-  /**
-   * 创建工作流
-   */
   async createWorkflow(workflow) {
-    if (this.useSupabase) {
-      await ensureSupabaseInitialized();
-      return supabaseClient.createWorkflow(this._convertToSupabaseFormat(workflow));
-    }
-    // 原有 API 实现
-    const response = await fetchApiOriginal('/workflows', {
-      method: 'POST',
-      body: JSON.stringify(workflow),
-      auth: true,
-    });
-    return response.json();
+    await ensureSupabaseInitialized();
+    return supabaseClient.createWorkflow(this._convertToSupabaseFormat(workflow));
   }
 
-  /**
-   * 更新工作流
-   */
   async updateWorkflow(id, updates) {
-    if (this.useSupabase) {
-      await ensureSupabaseInitialized();
-      return supabaseClient.updateWorkflow(id, this._convertToSupabaseFormat(updates));
-    }
-    // 原有 API 实现
-    const response = await fetchApiOriginal(`/workflows/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(updates),
-      auth: true,
-    });
-    return response.json();
+    await ensureSupabaseInitialized();
+    return supabaseClient.updateWorkflow(id, this._convertToSupabaseFormat(updates));
   }
 
-  /**
-   * 删除工作流
-   */
   async deleteWorkflow(id) {
-    if (this.useSupabase) {
-      await ensureSupabaseInitialized();
-      return supabaseClient.deleteWorkflow(id);
-    }
-    // 原有 API 实现
-    const response = await fetchApiOriginal(`/workflows/${id}`, {
-      method: 'DELETE',
-      auth: true,
-    });
-    return response.json();
+    await ensureSupabaseInitialized();
+    return supabaseClient.deleteWorkflow(id);
   }
 
-  /**
-   * 批量插入工作流
-   */
   async batchInsertWorkflows(workflows) {
-    if (this.useSupabase) {
-      await ensureSupabaseInitialized();
-      const formattedWorkflows = workflows.map((w) =>
-        this._convertToSupabaseFormat(w)
-      );
-      return supabaseClient.batchInsertWorkflows(formattedWorkflows);
-    }
-    // 原有 API 实现
-    const response = await fetchApiOriginal('/workflows/batch', {
-      method: 'POST',
-      body: JSON.stringify({ workflows }),
-      auth: true,
-    });
-    return response.json();
+    await ensureSupabaseInitialized();
+    const formattedWorkflows = workflows.map((w) =>
+      this._convertToSupabaseFormat(w)
+    );
+    return supabaseClient.batchInsertWorkflows(formattedWorkflows);
   }
 
-  /**
-   * 获取用户的包
-   */
   async getPackages() {
-    if (this.useSupabase) {
-      await ensureSupabaseInitialized();
-      return supabaseClient.getPackages();
-    }
-    const response = await fetchApiOriginal('/me/packages', { auth: true });
-    return response.json();
+    await ensureSupabaseInitialized();
+    return supabaseClient.getPackages();
   }
 
   // ============================================
-  // Logs 相关方法
+  // Logs
   // ============================================
 
-  /**
-   * 获取工作流日志
-   */
   async getWorkflowLogs(options = {}) {
-    if (this.useSupabase) {
-      await ensureSupabaseInitialized();
-      return supabaseClient.getWorkflowLogs(options);
-    }
-    // 原有 API 实现
-    const params = new URLSearchParams(options).toString();
-    const response = await fetchApiOriginal(`/logs?${params}`, { auth: true });
-    return response.json();
+    await ensureSupabaseInitialized();
+    return supabaseClient.getWorkflowLogs(options);
   }
 
-  /**
-   * 创建工作流日志
-   */
   async createWorkflowLog(log) {
-    if (this.useSupabase) {
-      await ensureSupabaseInitialized();
-      return supabaseClient.createWorkflowLog(log);
-    }
-    // 原有 API 实现
-    const response = await fetchApiOriginal('/logs', {
-      method: 'POST',
-      body: JSON.stringify(log),
-      auth: true,
-    });
-    return response.json();
+    await ensureSupabaseInitialized();
+    return supabaseClient.createWorkflowLog(log);
   }
 
-  /**
-   * 删除工作流日志
-   */
   async deleteWorkflowLog(id) {
-    if (this.useSupabase) {
-      await ensureSupabaseInitialized();
-      return supabaseClient.deleteWorkflowLog(id);
-    }
-    // 原有 API 实现
-    const response = await fetchApiOriginal(`/logs/${id}`, {
-      method: 'DELETE',
-      auth: true,
-    });
-    return response.json();
+    await ensureSupabaseInitialized();
+    return supabaseClient.deleteWorkflowLog(id);
   }
 
   // ============================================
-  // Storage 相关方法
+  // Storage
   // ============================================
 
-  /**
-   * 获取存储表
-   */
   async getStorageTables() {
-    if (this.useSupabase) {
-      await ensureSupabaseInitialized();
-      return supabaseClient.getStorageTables();
-    }
-    // 原有 API 实现
-    const response = await fetchApiOriginal('/storage/tables', { auth: true });
-    return response.json();
+    await ensureSupabaseInitialized();
+    return supabaseClient.getStorageTables();
   }
 
-  /**
-   * 创建存储表
-   */
   async createStorageTable(table) {
-    if (this.useSupabase) {
-      await ensureSupabaseInitialized();
-      return supabaseClient.createStorageTable(table);
-    }
-    // 原有 API 实现
-    const response = await fetchApiOriginal('/storage/tables', {
-      method: 'POST',
-      body: JSON.stringify(table),
-      auth: true,
-    });
-    return response.json();
+    await ensureSupabaseInitialized();
+    return supabaseClient.createStorageTable(table);
   }
 
   // ============================================
-  // Variables 相关方法
+  // Variables
   // ============================================
 
-  /**
-   * 获取所有变量
-   */
   async getVariables() {
-    if (this.useSupabase) {
-      await ensureSupabaseInitialized();
-      return supabaseClient.getVariables();
-    }
-    // 原有 API 实现
-    const response = await fetchApiOriginal('/variables', { auth: true });
-    return response.json();
+    await ensureSupabaseInitialized();
+    return supabaseClient.getVariables();
   }
 
-  /**
-   * 创建或更新变量
-   */
   async upsertVariable(name, value) {
-    if (this.useSupabase) {
-      await ensureSupabaseInitialized();
-      return supabaseClient.upsertVariable(name, value);
-    }
-    // 原有 API 实现
-    const response = await fetchApiOriginal('/variables', {
-      method: 'PUT',
-      body: JSON.stringify({ name, value }),
-      auth: true,
-    });
-    return response.json();
+    await ensureSupabaseInitialized();
+    return supabaseClient.upsertVariable(name, value);
   }
 
   // ============================================
-  // 辅助方法
+  // Helpers
   // ============================================
 
-  /**
-   * 将工作流数据转换为 Supabase 格式
-   */
   _convertToSupabaseFormat(workflow) {
     return {
       id: workflow.id,
@@ -404,9 +170,6 @@ class ApiAdapter {
     };
   }
 
-  /**
-   * 将 Supabase 格式转换为应用格式
-   */
   _convertFromSupabaseFormat(workflow) {
     return {
       id: workflow.id,
@@ -439,9 +202,6 @@ class ApiAdapter {
     };
   }
 
-  /**
-   * 格式化工作流响应
-   */
   _formatWorkflowsResponse(workflows) {
     const result = workflows.reduce(
       (acc, workflow) => {
@@ -468,9 +228,6 @@ class ApiAdapter {
     return result;
   }
 
-  /**
-   * 格式化共享工作流响应
-   */
   _formatSharedWorkflowsResponse(sharedWorkflows) {
     return sharedWorkflows.reduce((acc, item) => {
       const workflow = this._convertFromSupabaseFormat(item.workflows);
@@ -480,10 +237,9 @@ class ApiAdapter {
   }
 }
 
-// 创建单例实例
-const apiAdapter = new ApiAdapter();
+const supabaseAdapter = new SupabaseAdapter();
 
-// 内部导出：给离线同步服务使用
-apiAdapter.__ensureSupabase = __ensureSupabase;
+// Internal method for background services
+supabaseAdapter.__ensureSupabase = ensureSupabaseInitialized;
 
-export default apiAdapter;
+export default supabaseAdapter;

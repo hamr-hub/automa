@@ -1,5 +1,4 @@
-import { fetchApi } from '@/utils/api';
-import apiAdapter from '@/utils/apiAdapter';
+import { fetchApi, deleteWorkflow } from '@/utils/api';
 import firstWorkflows from '@/utils/firstWorkflows';
 import { tasks } from '@/utils/shared';
 import {
@@ -312,9 +311,9 @@ export const useWorkflowStore = defineStore('workflow', {
 
           if (hostedWorkflow || backupIndex !== -1) {
             try {
-              await apiAdapter.deleteWorkflow(workflowId);
+              await deleteWorkflow(workflowId);
             } catch (error) {
-              console.warn('apiAdapter.deleteWorkflow failed (offline?):', error);
+              console.warn('deleteWorkflow failed (offline?):', error);
             }
 
             if (backupIndex !== -1) {
