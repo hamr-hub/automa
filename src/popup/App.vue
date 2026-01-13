@@ -32,16 +32,30 @@ if (browser?.storage?.local) {
 
 onMounted(async () => {
   try {
+    console.log('[Popup] 开始初始化 popup');
+    
+    console.log('[Popup] 加载设置...');
     await store.loadSettings();
+    console.log('[Popup] 设置加载完成:', store.settings);
+    
+    console.log('[Popup] 加载国际化文件...');
     await loadLocaleMessages(store.settings.locale, 'popup');
     await setI18nLanguage(store.settings.locale);
+    console.log('[Popup] 国际化配置完成');
 
+    console.log('[Popup] 加载工作流数据...');
     await workflowStore.loadData();
+    console.log('[Popup] 工作流数据加载完成');
+    
+    console.log('[Popup] 加载托管工作流数据...');
     await hostedWorkflowStore.loadData();
+    console.log('[Popup] 托管工作流数据加载完成');
 
     retrieved.value = true;
+    console.log('[Popup] 初始化完成');
   } catch (error) {
-    console.error(error);
+    console.error('[Popup] 初始化失败:', error);
+    console.error('[Popup] 错误堆栈:', error.stack);
     retrieved.value = true;
   }
 });

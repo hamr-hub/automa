@@ -1,4 +1,5 @@
 import { cacheApi, fetchApi } from '@/utils/api';
+import apiAdapter from '@/utils/apiAdapter';
 import { defineStore } from 'pinia';
 import browser from 'webextension-polyfill';
 
@@ -30,11 +31,10 @@ export const useUserStore = defineStore('user', {
           'user-profile',
           async () => {
             try {
+              // 离线/未登录模式：getUser() 可能返回 null，这不应该阻断 popup/newtab 正常使用本地工作流
               const result = await apiAdapter.getUser();
 
-              if (!result) throw new Error('User not found');
-
-              return result;
+              return result || null;
             } catch (error) {
               console.error(error);
               return null;

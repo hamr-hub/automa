@@ -11,19 +11,34 @@ import {
   getUserWorkflows as getUserWorkflowsOriginal,
 } from './api';
 
-// 配置：是否使用 Supabase
-const USE_SUPABASE = process.env.USE_SUPABASE === 'true' || false;
+
+// 离线优先：未登录/断网时仍可使用本地工作流；联网且已登录后再尝试与 Supabase 同步。
+const USE_SUPABASE = true;
 
 // 初始化 Supabase 客户端
 let supabaseInitialized = false;
 async function ensureSupabaseInitialized() {
   if (!supabaseInitialized && USE_SUPABASE) {
-    await supabaseClient.initialize(
-      supabaseConfig.supabaseUrl,
-      supabaseConfig.supabaseAnonKey
-    );
-    supabaseInitialized = true;
+    try {
+      await supabaseClient.initialize(
+        supabaseConfig.supabaseUrl,
+        supabaseConfig.supabaseAnonKey
+      );
+      supabaseInitialized = true;
+    } catch (error) {
+      console.warn(
+        'Supabase initialization failed, will use fallback API:',
+        error.message
+      );
+      supabaseInitialized = false;
+    }
   }
+}
+
+// 供离线同步服务使用：避免在各处重复引入 supabaseClient/supabaseConfig
+// 注意：这不是稳定的公共 API，只在本仓库内部使用
+function __ensureSupabase() {
+  return ensureSupabaseInitialized();
 }
 
 /**
@@ -45,10 +60,25 @@ class ApiAdapter {
    * 获取当前用户信息
    */
   async getUser() {
+    // 说明：Supabase 初始化失败时，supabaseInitialized 仍为 false。
+    // 这里如果仅用 supabaseInitialized 做前置判断，会导致永远不会尝试初始化。
+    // 因此每次都先 ensureSupabaseInitialized()，再根据最终状态决定走哪条分支。
+
     if (this.useSupabase) {
       await ensureSupabaseInitialized();
-      return supabaseClient.getUserProfile();
+
+      if (supabaseInitialized) {
+        try {
+          // SupabaseClient 中目前实际实现的是 getCurrentUser()
+          // 这里统一映射为「用户信息」返回值；若没有登录，则返回 null
+          const user = await supabaseClient.getCurrentUser();
+          return user;
+        } catch (error) {
+          console.warn('Supabase getUser failed, using fallback:', error.message);
+        }
+      }
     }
+
     // 原有 API 实现
     const response = await fetchApiOriginal('/me', { auth: true });
     return response.json();
@@ -64,15 +94,20 @@ class ApiAdapter {
   async getUserWorkflows(useCache = true) {
     if (this.useSupabase) {
       await ensureSupabaseInitialized();
-      try {
-        const workflows = await supabaseClient.getWorkflows();
-        return this._formatWorkflowsResponse(workflows);
-      } catch (error) {
-        console.error('Supabase getUserWorkflows error:', error);
-        // 降级到原有 API
-        return getUserWorkflowsOriginal(useCache);
+
+      if (supabaseInitialized) {
+        try {
+          const workflows = await supabaseClient.getWorkflows();
+          return this._formatWorkflowsResponse(workflows);
+        } catch (error) {
+          console.warn(
+            'Supabase getUserWorkflows failed, using fallback:',
+            error.message
+          );
+        }
       }
     }
+
     return getUserWorkflowsOriginal(useCache);
   }
 
@@ -82,15 +117,20 @@ class ApiAdapter {
   async getSharedWorkflows(useCache = true) {
     if (this.useSupabase) {
       await ensureSupabaseInitialized();
-      try {
-        const workflows = await supabaseClient.getSharedWorkflows();
-        return this._formatSharedWorkflowsResponse(workflows);
-      } catch (error) {
-        console.error('Supabase getSharedWorkflows error:', error);
-        // 降级到原有 API
-        return getSharedWorkflowsOriginal(useCache);
+
+      if (supabaseInitialized) {
+        try {
+          const sharedWorkflows = await supabaseClient.getSharedWorkflows();
+          return this._formatSharedWorkflowsResponse(sharedWorkflows);
+        } catch (error) {
+          console.warn(
+            'Supabase getSharedWorkflows failed, using fallback:',
+            error.message
+          );
+        }
       }
     }
+
     return getSharedWorkflowsOriginal(useCache);
   }
 
@@ -442,5 +482,8 @@ class ApiAdapter {
 
 // 创建单例实例
 const apiAdapter = new ApiAdapter();
+
+// 内部导出：给离线同步服务使用
+apiAdapter.__ensureSupabase = __ensureSupabase;
 
 export default apiAdapter;

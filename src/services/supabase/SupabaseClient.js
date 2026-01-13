@@ -19,14 +19,30 @@ class SupabaseClient {
   async initialize(supabaseUrl, supabaseKey) {
     if (this.initialized) return;
 
-    this.client = createClient(supabaseUrl, supabaseKey, {
-      auth: {
-        autoRefreshToken: true,
-        persistSession: true,
-      },
-    });
+    try {
+      this.client = createClient(supabaseUrl, supabaseKey, {
+        auth: {
+          autoRefreshToken: true,
+          persistSession: true,
+        },
+      });
 
-    this.initialized = true;
+      // 测试连接：使用 HEAD 请求探测 REST endpoint，避免触发表查询导致噪声/权限问题
+      // 注意：Supabase URL 可能是自建网关（如 kong:8000），此处只做可达性探测
+      try {
+        const healthUrl = `${supabaseUrl.replace(/\/$/, '')}/rest/v1/`;
+        await fetch(healthUrl, { method: 'HEAD' });
+      } catch (e) {
+        // ignore：后续调用仍可能成功（例如被 CORS/HEAD 限制）
+      }
+
+      this.initialized = true;
+    } catch (error) {
+      console.warn('Supabase initialization failed:', error.message);
+      this.client = null;
+      this.initialized = false;
+      // 不抛出错误,允许降级到原有 API
+    }
   }
 
   /**
@@ -61,16 +77,23 @@ class SupabaseClient {
    * 获取用户的所有工作流
    */
   async getWorkflows() {
-    const user = await this.getCurrentUser();
-    if (!user) throw new Error('User not authenticated');
+    if (!this.client) return [];
+    
+    try {
+      const user = await this.getCurrentUser();
+      if (!user) return [];
 
-    const { data, error } = await this.client
-      .from('workflows')
-      .select('*')
-      .eq('user_id', user.id);
+      const { data, error } = await this.client
+        .from('workflows')
+        .select('*')
+        .eq('user_id', user.id);
 
-    if (error) throw error;
-    return data;
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.warn('Supabase getWorkflows failed:', error.message);
+      return [];
+    }
   }
 
   /**
@@ -78,14 +101,21 @@ class SupabaseClient {
    * @param {string} id - 工作流 ID
    */
   async getWorkflowById(id) {
-    const { data, error } = await this.client
-      .from('workflows')
-      .select('*')
-      .eq('id', id)
-      .single();
+    if (!this.client) throw new Error('Supabase not connected');
+    
+    try {
+      const { data, error } = await this.client
+        .from('workflows')
+        .select('*')
+        .eq('id', id)
+        .single();
 
-    if (error) throw error;
-    return data;
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.warn('Supabase getWorkflowById failed:', error.message);
+      throw error;
+    }
   }
 
   /**
@@ -93,13 +123,20 @@ class SupabaseClient {
    * @param {array} ids - 工作流 ID 数组
    */
   async getWorkflowsByIds(ids) {
-    const { data, error } = await this.client
-      .from('workflows')
-      .select('*')
-      .in('id', ids);
+    if (!this.client) return [];
+    
+    try {
+      const { data, error } = await this.client
+        .from('workflows')
+        .select('*')
+        .in('id', ids);
 
-    if (error) throw error;
-    return data;
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.warn('Supabase getWorkflowsByIds failed:', error.message);
+      return [];
+    }
   }
 
   /**
@@ -107,22 +144,29 @@ class SupabaseClient {
    * @param {object} workflow - 工作流数据
    */
   async createWorkflow(workflow) {
-    const user = await this.getCurrentUser();
-    if (!user) throw new Error('User not authenticated');
+    if (!this.client) throw new Error('Supabase not connected');
+    
+    try {
+      const user = await this.getCurrentUser();
+      if (!user) throw new Error('User not authenticated');
 
-    const { data, error } = await this.client
-      .from('workflows')
-      .insert([
-        {
-          ...workflow,
-          user_id: user.id,
-        },
-      ])
-      .select()
-      .single();
+      const { data, error } = await this.client
+        .from('workflows')
+        .insert([
+          {
+            ...workflow,
+            user_id: user.id,
+          },
+        ])
+        .select()
+        .single();
 
-    if (error) throw error;
-    return data;
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.warn('Supabase createWorkflow failed:', error.message);
+      throw error;
+    }
   }
 
   /**
@@ -131,15 +175,22 @@ class SupabaseClient {
    * @param {object} updates - 更新的数据
    */
   async updateWorkflow(id, updates) {
-    const { data, error } = await this.client
-      .from('workflows')
-      .update(updates)
-      .eq('id', id)
-      .select()
-      .single();
+    if (!this.client) throw new Error('Supabase not connected');
+    
+    try {
+      const { data, error } = await this.client
+        .from('workflows')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
 
-    if (error) throw error;
-    return data;
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.warn('Supabase updateWorkflow failed:', error.message);
+      throw error;
+    }
   }
 
   /**
@@ -147,10 +198,17 @@ class SupabaseClient {
    * @param {string} id - 工作流 ID
    */
   async deleteWorkflow(id) {
-    const { error } = await this.client.from('workflows').delete().eq('id', id);
+    if (!this.client) throw new Error('Supabase not connected');
+    
+    try {
+      const { error } = await this.client.from('workflows').delete().eq('id', id);
 
-    if (error) throw error;
-    return { success: true };
+      if (error) throw error;
+      return { success: true };
+    } catch (error) {
+      console.warn('Supabase deleteWorkflow failed:', error.message);
+      throw error;
+    }
   }
 
   /**
@@ -667,21 +725,28 @@ class SupabaseClient {
    * 获取共享给我的工作流
    */
   async getSharedWorkflows() {
-    const user = await this.getCurrentUser();
-    if (!user) throw new Error('User not authenticated');
+    if (!this.client) return [];
+    
+    try {
+      const user = await this.getCurrentUser();
+      if (!user) return [];
 
-    const { data, error } = await this.client
-      .from('shared_workflows')
-      .select(
+      const { data, error } = await this.client
+        .from('shared_workflows')
+        .select(
+          `
+          *,
+          workflows (*)
         `
-        *,
-        workflows (*)
-      `
-      )
-      .eq('shared_with', user.id);
+        )
+        .eq('shared_with', user.id);
 
-    if (error) throw error;
-    return data;
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.warn('Supabase getSharedWorkflows failed:', error.message);
+      return [];
+    }
   }
 
   /**

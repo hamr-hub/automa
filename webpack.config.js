@@ -91,6 +91,11 @@ const options = {
     path: path.resolve(__dirname, 'build'),
     filename: '[name].bundle.js',
     publicPath: ASSET_PATH,
+    // 关闭 webpack 的体积提示（这些不是构建失败，只是 web 性能建议；扩展场景可接受）
+    assetModuleFilename: '[name][ext]',
+  },
+  performance: {
+    hints: false,
   },
   module: {
     rules: [
@@ -153,6 +158,10 @@ const options = {
     new VueLoaderPlugin(),
     new webpack.DefinePlugin({
       BROWSER_TYPE: JSON.stringify(env.BROWSER),
+      // 为浏览器环境提供 process 对象（避免 @supabase/supabase-js 等依赖报错）
+      'process.env.NODE_ENV': JSON.stringify(env.NODE_ENV || 'development'),
+      'process.version': JSON.stringify(''),
+      'process.browser': JSON.stringify(true),
     }),
     new webpack.ProgressPlugin(),
     // clean the build folder
@@ -160,7 +169,14 @@ const options = {
       verbose: false,
     }),
     // expose and write the allowed env vars on the compiled bundle
-    new webpack.EnvironmentPlugin(['NODE_ENV']),
+    new webpack.EnvironmentPlugin({
+      NODE_ENV: 'development',
+      USE_SUPABASE: 'false',
+      SUPABASE_URL: '',
+      SUPABASE_ANON_KEY: '',
+      SUPABASE_SERVICE_KEY: '',
+      SUPABASE_GRAPHQL_ENDPOINT: '',
+    }),
     new CopyWebpackPlugin({
       patterns: [
         {

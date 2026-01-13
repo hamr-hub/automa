@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { fetchApi, cacheApi } from '@/utils/api';
+import apiAdapter from '@/utils/apiAdapter';
 import { useUserStore } from './user';
 
 export const useSharedWorkflowStore = defineStore('shared-workflows', {
