@@ -153,6 +153,10 @@ const options = {
     new VueLoaderPlugin(),
     new webpack.DefinePlugin({
       BROWSER_TYPE: JSON.stringify(env.BROWSER),
+      // 为浏览器环境提供 process.env
+      'process.env': JSON.stringify({
+        NODE_ENV: env.NODE_ENV || 'development',
+      }),
     }),
     new webpack.ProgressPlugin(),
     // clean the build folder
@@ -160,7 +164,14 @@ const options = {
       verbose: false,
     }),
     // expose and write the allowed env vars on the compiled bundle
-    new webpack.EnvironmentPlugin(['NODE_ENV']),
+    new webpack.EnvironmentPlugin({
+      NODE_ENV: 'development',
+      USE_SUPABASE: 'false',
+      SUPABASE_URL: '',
+      SUPABASE_ANON_KEY: '',
+      SUPABASE_SERVICE_KEY: '',
+      SUPABASE_GRAPHQL_ENDPOINT: '',
+    }),
     new CopyWebpackPlugin({
       patterns: [
         {
