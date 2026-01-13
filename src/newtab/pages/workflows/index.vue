@@ -482,8 +482,16 @@ function addWorkflow() {
       description: addWorkflowModal.description,
     })
     .then((workflows) => {
+      console.log('Workflow created:', workflows);
       const workflowId = Object.keys(workflows)[0];
+      if (!workflowId) {
+        console.error('Workflow ID not found in result:', workflows);
+        return;
+      }
       router.push(`/workflows/${workflowId}`);
+    })
+    .catch((error) => {
+      console.error('Failed to create workflow:', error);
     })
     .finally(clearAddWorkflowModal);
 }

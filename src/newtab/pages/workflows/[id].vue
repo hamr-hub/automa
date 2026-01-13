@@ -1639,10 +1639,19 @@ onMounted(() => {
   state.sidebarState = sidebarState;
 
   if (!isPackage) {
-    const convertedData = convertWorkflowData(workflow.value);
-    updateWorkflow({ drawflow: convertedData.drawflow }).then(() => {
+    const drawflow =
+      typeof workflow.value.drawflow === 'string'
+        ? parseJSON(workflow.value.drawflow, {})
+        : workflow.value.drawflow;
+
+    if (drawflow?.drawflow) {
+      const convertedData = convertWorkflowData(workflow.value);
+      updateWorkflow({ drawflow: convertedData.drawflow }).then(() => {
+        state.workflowConverted = true;
+      });
+    } else {
       state.workflowConverted = true;
-    });
+    }
   } else {
     state.workflowConverted = true;
   }
