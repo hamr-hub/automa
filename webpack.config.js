@@ -91,6 +91,11 @@ const options = {
     path: path.resolve(__dirname, 'build'),
     filename: '[name].bundle.js',
     publicPath: ASSET_PATH,
+    // 关闭 webpack 的体积提示（这些不是构建失败，只是 web 性能建议；扩展场景可接受）
+    assetModuleFilename: '[name][ext]',
+  },
+  performance: {
+    hints: false,
   },
   module: {
     rules: [
@@ -153,10 +158,10 @@ const options = {
     new VueLoaderPlugin(),
     new webpack.DefinePlugin({
       BROWSER_TYPE: JSON.stringify(env.BROWSER),
-      // 为浏览器环境提供 process.env
-      'process.env': JSON.stringify({
-        NODE_ENV: env.NODE_ENV || 'development',
-      }),
+      // 为浏览器环境提供 process 对象（避免 @supabase/supabase-js 等依赖报错）
+      'process.env.NODE_ENV': JSON.stringify(env.NODE_ENV || 'development'),
+      'process.version': JSON.stringify(''),
+      'process.browser': JSON.stringify(true),
     }),
     new webpack.ProgressPlugin(),
     // clean the build folder
@@ -255,9 +260,6 @@ const options = {
     new webpack.DefinePlugin({
       __VUE_OPTIONS_API__: true,
       __VUE_PROD_DEVTOOLS__: false,
-      'process.env': JSON.stringify({}),
-      'process.version': JSON.stringify(''),
-      'process.browser': JSON.stringify(true),
     }),
     // Fix i18n warning
     new webpack.DefinePlugin({
