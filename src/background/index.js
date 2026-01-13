@@ -43,7 +43,13 @@ if (browser?.runtime?.onStartup) {
 
     // 启动时尝试同步一次（未登录/离线会自动跳过）
     try {
-      await WorkflowSyncService.syncOnce();
+      // 仅在 online 且确实存在待同步数据时才触发
+      if (navigator.onLine && (await WorkflowSyncService.getPendingCount()) > 0) {
+        // 仅在 online 且确实存在待同步数据时才触发
+      if (navigator.onLine && (await WorkflowSyncService.getPendingCount()) > 0) {
+        await WorkflowSyncService.syncOnce();
+      }
+      }
     } catch (error) {
       console.warn('WorkflowSyncService.syncOnce(onStartup) failed:', error);
     }
@@ -248,6 +254,11 @@ message.on('get:user-id', async () => {
 
 // 手动触发同步（UI/调试使用）
 message.on('workflow:sync', async () => {
+  // UI/调试手动触发：也遵守 online 与 pending 条件
+  if (!navigator.onLine) return { synced: 0, skipped: 0, reason: 'offline' };
+  if ((await WorkflowSyncService.getPendingCount()) === 0)
+    return { synced: 0, skipped: 0, reason: 'no-pending' };
+
   const result = await WorkflowSyncService.syncOnce();
   return result;
 });

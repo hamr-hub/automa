@@ -365,7 +365,10 @@ watch(
     await dataMigration();
     await userStore.loadUser({ useCache: false, ttl: 2 });
 
-    await automa('app');
+    // 仅在业务模块提供可调用函数时执行，避免运行时 TypeError
+    if (typeof automa === 'function') {
+      await automa('app');
+    }
 
     retrieved.value = true;
 
