@@ -1,29 +1,62 @@
--- Automa Supabase Database Schema
--- 此文件包含所有必要的表、索引、RLS 策略和函数
+-- Automa Supabase Database Schema (Rebuild)
+-- 说明：
+-- 1) 本脚本会 DROP 并重建所有 Automa 业务表（会清空数据）。
+-- 2) 用户体系使用 Supabase Auth 的 auth.users，不在 public 新建 users 表。
+-- 3) 脚本包含：表/索引/RLS policy/触发器/函数/视图，以及每张表的 COMMENT 描述。
+
+BEGIN;
 
 -- ============================================
--- 1. 用户表 (Users)
+-- Extensions
 -- ============================================
-CREATE TABLE IF NOT EXISTS public.users (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  username TEXT UNIQUE NOT NULL,
-  email TEXT UNIQUE NOT NULL,
-  avatar_url TEXT,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW(),
-  metadata JSONB DEFAULT '{}'::jsonb
-);
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
--- 用户表索引
-CREATE INDEX IF NOT EXISTS idx_users_username ON public.users(username);
-CREATE INDEX IF NOT EXISTS idx_users_email ON public.users(email);
+-- ============================================
+-- Drop views/functions first (depend on tables)
+-- ============================================
+DROP VIEW IF EXISTS public.workflow_execution_summary;
+
+DROP FUNCTION IF EXISTS public.get_user_workflows(UUID);
+DROP FUNCTION IF EXISTS public.get_workflow_stats(TEXT);
+DROP FUNCTION IF EXISTS public.delete_logs_before_date(TIMESTAMPTZ, UUID);
+-- 注意：当前数据库中已有其他业务表也复用 public.update_updated_at_column()
+-- （例如 categories/blog_posts/instruments 等），因此这里不要 DROP 该函数，避免影响其它表。
+-- 我们仅删除并重建 Automa 自己的触发器即可。
+DROP TRIGGER IF EXISTS update_workflows_updated_at ON public.workflows;
+DROP TRIGGER IF EXISTS update_folders_updated_at ON public.folders;
+DROP TRIGGER IF EXISTS update_storage_tables_updated_at ON public.storage_tables;
+DROP TRIGGER IF EXISTS update_storage_tables_data_updated_at ON public.storage_tables_data;
+DROP TRIGGER IF EXISTS update_variables_updated_at ON public.variables;
+DROP TRIGGER IF EXISTS update_credentials_updated_at ON public.credentials;
+DROP TRIGGER IF EXISTS update_teams_updated_at ON public.teams;
+DROP TRIGGER IF EXISTS update_packages_updated_at ON public.packages;
+
+
+-- ============================================
+-- Drop tables (CASCADE will remove dependent policies, triggers, indexes)
+-- Drop order: children -> parents to be explicit
+-- ============================================
+DROP TABLE IF EXISTS public.shared_workflows CASCADE;
+DROP TABLE IF EXISTS public.team_members CASCADE;
+DROP TABLE IF EXISTS public.teams CASCADE;
+DROP TABLE IF EXISTS public.credentials CASCADE;
+DROP TABLE IF EXISTS public.variables CASCADE;
+DROP TABLE IF EXISTS public.storage_tables_data CASCADE;
+DROP TABLE IF EXISTS public.storage_tables CASCADE;
+DROP TABLE IF EXISTS public.logs_data CASCADE;
+DROP TABLE IF EXISTS public.log_ctx_data CASCADE;
+DROP TABLE IF EXISTS public.log_histories CASCADE;
+DROP TABLE IF EXISTS public.workflow_logs CASCADE;
+DROP TABLE IF EXISTS public.folders CASCADE;
+DROP TABLE IF EXISTS public.packages CASCADE;
+DROP TABLE IF EXISTS public.workflows CASCADE;
 
 -- ============================================
 -- 2. 工作流表 (Workflows)
 -- ============================================
-CREATE TABLE IF NOT EXISTS public.workflows (
+CREATE TABLE public.workflows (
   id TEXT PRIMARY KEY,
-  user_id UUID REFERENCES public.users(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
   icon TEXT DEFAULT 'riGlobalLine',
   folder_id TEXT,
@@ -61,35 +94,38 @@ CREATE TABLE IF NOT EXISTS public.workflows (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 工作流表索引
-CREATE INDEX IF NOT EXISTS idx_workflows_user_id ON public.workflows(user_id);
-CREATE INDEX IF NOT EXISTS idx_workflows_folder_id ON public.workflows(folder_id);
-CREATE INDEX IF NOT EXISTS idx_workflows_team_id ON public.workflows(team_id);
-CREATE INDEX IF NOT EXISTS idx_workflows_created_at ON public.workflows(created_at DESC);
-CREATE INDEX IF NOT EXISTS idx_workflows_name ON public.workflows USING gin(to_tsvector('english', name));
+COMMENT ON TABLE public.workflows IS 'Automa 工作流定义表：保存工作流基础信息、drawflow 图结构、设置项等。user_id 关联 auth.users.id。';
+
+-- 索引
+CREATE INDEX idx_workflows_user_id ON public.workflows(user_id);
+CREATE INDEX idx_workflows_folder_id ON public.workflows(folder_id);
+CREATE INDEX idx_workflows_team_id ON public.workflows(team_id);
+CREATE INDEX idx_workflows_created_at ON public.workflows(created_at DESC);
+CREATE INDEX idx_workflows_name ON public.workflows USING gin(to_tsvector('english', name));
 
 -- ============================================
 -- 3. 文件夹表 (Folders)
 -- ============================================
-CREATE TABLE IF NOT EXISTS public.folders (
+CREATE TABLE public.folders (
   id TEXT PRIMARY KEY,
-  user_id UUID REFERENCES public.users(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
   parent_id TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 文件夹表索引
-CREATE INDEX IF NOT EXISTS idx_folders_user_id ON public.folders(user_id);
-CREATE INDEX IF NOT EXISTS idx_folders_parent_id ON public.folders(parent_id);
+COMMENT ON TABLE public.folders IS 'Automa 工作流文件夹：用于组织用户的工作流层级结构（可选 parent_id）。';
+
+CREATE INDEX idx_folders_user_id ON public.folders(user_id);
+CREATE INDEX idx_folders_parent_id ON public.folders(parent_id);
 
 -- ============================================
--- 4. 执行日志表 (Logs)
+-- 4. 执行日志表 (Workflow Logs)
 -- ============================================
-CREATE TABLE IF NOT EXISTS public.workflow_logs (
+CREATE TABLE public.workflow_logs (
   id TEXT PRIMARY KEY,
-  user_id UUID REFERENCES public.users(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
   workflow_id TEXT REFERENCES public.workflows(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
   status TEXT NOT NULL CHECK (status IN ('success', 'error', 'stopped')),
@@ -102,71 +138,76 @@ CREATE TABLE IF NOT EXISTS public.workflow_logs (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 日志表索引
-CREATE INDEX IF NOT EXISTS idx_logs_user_id ON public.workflow_logs(user_id);
-CREATE INDEX IF NOT EXISTS idx_logs_workflow_id ON public.workflow_logs(workflow_id);
-CREATE INDEX IF NOT EXISTS idx_logs_status ON public.workflow_logs(status);
-CREATE INDEX IF NOT EXISTS idx_logs_ended_at ON public.workflow_logs(ended_at DESC);
+COMMENT ON TABLE public.workflow_logs IS '工作流执行日志主表：记录每次执行的概览信息（状态、开始/结束时间等）。';
+
+CREATE INDEX idx_logs_user_id ON public.workflow_logs(user_id);
+CREATE INDEX idx_logs_workflow_id ON public.workflow_logs(workflow_id);
+CREATE INDEX idx_logs_status ON public.workflow_logs(status);
+CREATE INDEX idx_logs_ended_at ON public.workflow_logs(ended_at DESC);
 
 -- ============================================
 -- 5. 日志历史数据表 (Log Histories)
 -- ============================================
-CREATE TABLE IF NOT EXISTS public.log_histories (
+CREATE TABLE public.log_histories (
   id BIGSERIAL PRIMARY KEY,
   log_id TEXT REFERENCES public.workflow_logs(id) ON DELETE CASCADE,
   data JSONB NOT NULL DEFAULT '[]'::jsonb,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 日志历史索引
-CREATE INDEX IF NOT EXISTS idx_log_histories_log_id ON public.log_histories(log_id);
+COMMENT ON TABLE public.log_histories IS '日志历史数据：保存执行过程中的历史快照/步骤数据（JSONB 数组）。';
+
+CREATE INDEX idx_log_histories_log_id ON public.log_histories(log_id);
 
 -- ============================================
 -- 6. 日志上下文数据表 (Log Context Data)
 -- ============================================
-CREATE TABLE IF NOT EXISTS public.log_ctx_data (
+CREATE TABLE public.log_ctx_data (
   id BIGSERIAL PRIMARY KEY,
   log_id TEXT REFERENCES public.workflow_logs(id) ON DELETE CASCADE,
   data JSONB NOT NULL DEFAULT '{}'::jsonb,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 日志上下文数据索引
-CREATE INDEX IF NOT EXISTS idx_log_ctx_data_log_id ON public.log_ctx_data(log_id);
+COMMENT ON TABLE public.log_ctx_data IS '日志上下文数据：保存执行上下文（变量、环境等）JSONB 对象。';
+
+CREATE INDEX idx_log_ctx_data_log_id ON public.log_ctx_data(log_id);
 
 -- ============================================
 -- 7. 日志数据表 (Logs Data)
 -- ============================================
-CREATE TABLE IF NOT EXISTS public.logs_data (
+CREATE TABLE public.logs_data (
   id BIGSERIAL PRIMARY KEY,
   log_id TEXT REFERENCES public.workflow_logs(id) ON DELETE CASCADE,
   data JSONB NOT NULL DEFAULT '{}'::jsonb,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 日志数据索引
-CREATE INDEX IF NOT EXISTS idx_logs_data_log_id ON public.logs_data(log_id);
+COMMENT ON TABLE public.logs_data IS '日志附加数据：保存执行产生的额外数据（JSONB 对象）。';
+
+CREATE INDEX idx_logs_data_log_id ON public.logs_data(log_id);
 
 -- ============================================
--- 8. 存储表项表 (Storage Tables Items)
+-- 8. 存储表项表 (Storage Tables)
 -- ============================================
-CREATE TABLE IF NOT EXISTS public.storage_tables (
+CREATE TABLE public.storage_tables (
   id BIGSERIAL PRIMARY KEY,
-  user_id UUID REFERENCES public.users(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
   rows_count INTEGER DEFAULT 0,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   modified_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 存储表项索引
-CREATE INDEX IF NOT EXISTS idx_storage_tables_user_id ON public.storage_tables(user_id);
-CREATE INDEX IF NOT EXISTS idx_storage_tables_name ON public.storage_tables(name);
+COMMENT ON TABLE public.storage_tables IS 'Automa 内置表格存储（表元数据）：记录用户自定义数据表名称、行数等。';
+
+CREATE INDEX idx_storage_tables_user_id ON public.storage_tables(user_id);
+CREATE INDEX idx_storage_tables_name ON public.storage_tables(name);
 
 -- ============================================
 -- 9. 存储表数据表 (Storage Tables Data)
 -- ============================================
-CREATE TABLE IF NOT EXISTS public.storage_tables_data (
+CREATE TABLE public.storage_tables_data (
   id BIGSERIAL PRIMARY KEY,
   table_id BIGINT REFERENCES public.storage_tables(id) ON DELETE CASCADE,
   items JSONB DEFAULT '[]'::jsonb,
@@ -175,15 +216,16 @@ CREATE TABLE IF NOT EXISTS public.storage_tables_data (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 存储表数据索引
-CREATE INDEX IF NOT EXISTS idx_storage_tables_data_table_id ON public.storage_tables_data(table_id);
+COMMENT ON TABLE public.storage_tables_data IS 'Automa 内置表格存储（表数据）：items 存储行数据，columns_index 存储列索引/映射。';
+
+CREATE INDEX idx_storage_tables_data_table_id ON public.storage_tables_data(table_id);
 
 -- ============================================
 -- 10. 变量表 (Variables)
 -- ============================================
-CREATE TABLE IF NOT EXISTS public.variables (
+CREATE TABLE public.variables (
   id BIGSERIAL PRIMARY KEY,
-  user_id UUID REFERENCES public.users(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
   value JSONB,
   created_at TIMESTAMPTZ DEFAULT NOW(),
@@ -191,16 +233,17 @@ CREATE TABLE IF NOT EXISTS public.variables (
   UNIQUE(user_id, name)
 );
 
--- 变量表索引
-CREATE INDEX IF NOT EXISTS idx_variables_user_id ON public.variables(user_id);
-CREATE INDEX IF NOT EXISTS idx_variables_name ON public.variables(name);
+COMMENT ON TABLE public.variables IS '用户变量存储：用于保存用户级变量（name/value），name 在 user 范围内唯一。';
+
+CREATE INDEX idx_variables_user_id ON public.variables(user_id);
+CREATE INDEX idx_variables_name ON public.variables(name);
 
 -- ============================================
 -- 11. 凭证表 (Credentials)
 -- ============================================
-CREATE TABLE IF NOT EXISTS public.credentials (
+CREATE TABLE public.credentials (
   id BIGSERIAL PRIMARY KEY,
-  user_id UUID REFERENCES public.users(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
   value JSONB,
   created_at TIMESTAMPTZ DEFAULT NOW(),
@@ -208,14 +251,15 @@ CREATE TABLE IF NOT EXISTS public.credentials (
   UNIQUE(user_id, name)
 );
 
--- 凭证表索引
-CREATE INDEX IF NOT EXISTS idx_credentials_user_id ON public.credentials(user_id);
-CREATE INDEX IF NOT EXISTS idx_credentials_name ON public.credentials(name);
+COMMENT ON TABLE public.credentials IS '用户凭证/密钥存储：保存用户配置的第三方账号/令牌等敏感信息（建议加密 value）。';
+
+CREATE INDEX idx_credentials_user_id ON public.credentials(user_id);
+CREATE INDEX idx_credentials_name ON public.credentials(name);
 
 -- ============================================
 -- 12. 团队表 (Teams)
 -- ============================================
-CREATE TABLE IF NOT EXISTS public.teams (
+CREATE TABLE public.teams (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name TEXT NOT NULL,
   description TEXT,
@@ -223,45 +267,49 @@ CREATE TABLE IF NOT EXISTS public.teams (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+COMMENT ON TABLE public.teams IS '团队信息表：用于多人协作与资源共享。';
+
 -- ============================================
 -- 13. 团队成员表 (Team Members)
 -- ============================================
-CREATE TABLE IF NOT EXISTS public.team_members (
+CREATE TABLE public.team_members (
   id BIGSERIAL PRIMARY KEY,
   team_id UUID REFERENCES public.teams(id) ON DELETE CASCADE,
-  user_id UUID REFERENCES public.users(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
   access JSONB DEFAULT '[]'::jsonb,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   UNIQUE(team_id, user_id)
 );
 
--- 团队成员索引
-CREATE INDEX IF NOT EXISTS idx_team_members_team_id ON public.team_members(team_id);
-CREATE INDEX IF NOT EXISTS idx_team_members_user_id ON public.team_members(user_id);
+COMMENT ON TABLE public.team_members IS '团队成员表：记录用户在团队内的成员关系与权限集合（access）。';
+
+CREATE INDEX idx_team_members_team_id ON public.team_members(team_id);
+CREATE INDEX idx_team_members_user_id ON public.team_members(user_id);
 
 -- ============================================
 -- 14. 共享工作流表 (Shared Workflows)
 -- ============================================
-CREATE TABLE IF NOT EXISTS public.shared_workflows (
+CREATE TABLE public.shared_workflows (
   id TEXT PRIMARY KEY,
   workflow_id TEXT REFERENCES public.workflows(id) ON DELETE CASCADE,
-  shared_by UUID REFERENCES public.users(id) ON DELETE CASCADE,
-  shared_with UUID REFERENCES public.users(id) ON DELETE CASCADE,
+  shared_by UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  shared_with UUID REFERENCES auth.users(id) ON DELETE CASCADE,
   permissions JSONB DEFAULT '["read"]'::jsonb,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 共享工作流索引
-CREATE INDEX IF NOT EXISTS idx_shared_workflows_workflow_id ON public.shared_workflows(workflow_id);
-CREATE INDEX IF NOT EXISTS idx_shared_workflows_shared_by ON public.shared_workflows(shared_by);
-CREATE INDEX IF NOT EXISTS idx_shared_workflows_shared_with ON public.shared_workflows(shared_with);
+COMMENT ON TABLE public.shared_workflows IS '工作流共享关系表：记录某工作流由谁共享给谁，以及共享权限（permissions）。';
+
+CREATE INDEX idx_shared_workflows_workflow_id ON public.shared_workflows(workflow_id);
+CREATE INDEX idx_shared_workflows_shared_by ON public.shared_workflows(shared_by);
+CREATE INDEX idx_shared_workflows_shared_with ON public.shared_workflows(shared_with);
 
 -- ============================================
 -- 15. 包表 (Packages)
 -- ============================================
-CREATE TABLE IF NOT EXISTS public.packages (
+CREATE TABLE public.packages (
   id TEXT PRIMARY KEY,
-  user_id UUID REFERENCES public.users(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
   description TEXT,
   version TEXT,
@@ -270,16 +318,14 @@ CREATE TABLE IF NOT EXISTS public.packages (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 包表索引
-CREATE INDEX IF NOT EXISTS idx_packages_user_id ON public.packages(user_id);
-CREATE INDEX IF NOT EXISTS idx_packages_name ON public.packages(name);
+COMMENT ON TABLE public.packages IS '扩展包/共享包表：用于保存用户创建/共享的 package 内容（JSONB）。';
+
+CREATE INDEX idx_packages_user_id ON public.packages(user_id);
+CREATE INDEX idx_packages_name ON public.packages(name);
 
 -- ============================================
--- RLS (Row Level Security) 策略
+-- RLS (Row Level Security)
 -- ============================================
-
--- 启用 RLS
-ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.workflows ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.folders ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.workflow_logs ENABLE ROW LEVEL SECURITY;
@@ -295,36 +341,25 @@ ALTER TABLE public.team_members ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.shared_workflows ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.packages ENABLE ROW LEVEL SECURITY;
 
--- Users 表策略
-CREATE POLICY "Users can view own profile" ON public.users
-  FOR SELECT USING (auth.uid() = id);
-
-CREATE POLICY "Users can update own profile" ON public.users
-  FOR UPDATE USING (auth.uid() = id);
-
--- Workflows 表策略
+-- Workflows
 CREATE POLICY "Users can view own workflows" ON public.workflows
   FOR SELECT USING (
-    auth.uid() = user_id 
+    auth.uid() = user_id
     OR id IN (
-      SELECT workflow_id FROM public.shared_workflows 
+      SELECT workflow_id FROM public.shared_workflows
       WHERE shared_with = auth.uid()
     )
   );
-
 CREATE POLICY "Users can insert own workflows" ON public.workflows
   FOR INSERT WITH CHECK (auth.uid() = user_id);
-
 CREATE POLICY "Users can update own workflows" ON public.workflows
   FOR UPDATE USING (auth.uid() = user_id);
-
 CREATE POLICY "Users can delete own workflows" ON public.workflows
   FOR DELETE USING (auth.uid() = user_id);
 
--- Folders 表策略
+-- Folders
 CREATE POLICY "Users can view own folders" ON public.folders
   FOR SELECT USING (auth.uid() = user_id);
-
 CREATE POLICY "Users can insert own folders" ON public.folders
   FOR INSERT WITH CHECK (auth.uid() = user_id);
 
@@ -334,176 +369,126 @@ CREATE POLICY "Users can update own folders" ON public.folders
 CREATE POLICY "Users can delete own folders" ON public.folders
   FOR DELETE USING (auth.uid() = user_id);
 
--- Workflow Logs 表策略
+-- Workflow Logs
 CREATE POLICY "Users can view own logs" ON public.workflow_logs
   FOR SELECT USING (auth.uid() = user_id);
-
 CREATE POLICY "Users can insert own logs" ON public.workflow_logs
   FOR INSERT WITH CHECK (auth.uid() = user_id);
-
 CREATE POLICY "Users can delete own logs" ON public.workflow_logs
   FOR DELETE USING (auth.uid() = user_id);
 
--- Log Histories 表策略
+-- Log Histories
 CREATE POLICY "Users can view own log histories" ON public.log_histories
   FOR SELECT USING (
-    log_id IN (
-      SELECT id FROM public.workflow_logs WHERE user_id = auth.uid()
-    )
+    log_id IN (SELECT id FROM public.workflow_logs WHERE user_id = auth.uid())
   );
-
 CREATE POLICY "Users can insert own log histories" ON public.log_histories
   FOR INSERT WITH CHECK (
-    log_id IN (
-      SELECT id FROM public.workflow_logs WHERE user_id = auth.uid()
-    )
+    log_id IN (SELECT id FROM public.workflow_logs WHERE user_id = auth.uid())
   );
 
--- Log Context Data 表策略
+-- Log Context Data
 CREATE POLICY "Users can view own log context data" ON public.log_ctx_data
   FOR SELECT USING (
-    log_id IN (
-      SELECT id FROM public.workflow_logs WHERE user_id = auth.uid()
-    )
+    log_id IN (SELECT id FROM public.workflow_logs WHERE user_id = auth.uid())
   );
-
 CREATE POLICY "Users can insert own log context data" ON public.log_ctx_data
   FOR INSERT WITH CHECK (
-    log_id IN (
-      SELECT id FROM public.workflow_logs WHERE user_id = auth.uid()
-    )
+    log_id IN (SELECT id FROM public.workflow_logs WHERE user_id = auth.uid())
   );
 
--- Logs Data 表策略
+-- Logs Data
 CREATE POLICY "Users can view own logs data" ON public.logs_data
   FOR SELECT USING (
-    log_id IN (
-      SELECT id FROM public.workflow_logs WHERE user_id = auth.uid()
-    )
+    log_id IN (SELECT id FROM public.workflow_logs WHERE user_id = auth.uid())
   );
-
 CREATE POLICY "Users can insert own logs data" ON public.logs_data
   FOR INSERT WITH CHECK (
-    log_id IN (
-      SELECT id FROM public.workflow_logs WHERE user_id = auth.uid()
-    )
+    log_id IN (SELECT id FROM public.workflow_logs WHERE user_id = auth.uid())
   );
 
--- Storage Tables 表策略
+-- Storage Tables
 CREATE POLICY "Users can view own storage tables" ON public.storage_tables
   FOR SELECT USING (auth.uid() = user_id);
-
 CREATE POLICY "Users can insert own storage tables" ON public.storage_tables
   FOR INSERT WITH CHECK (auth.uid() = user_id);
-
 CREATE POLICY "Users can update own storage tables" ON public.storage_tables
   FOR UPDATE USING (auth.uid() = user_id);
-
 CREATE POLICY "Users can delete own storage tables" ON public.storage_tables
   FOR DELETE USING (auth.uid() = user_id);
 
--- Storage Tables Data 表策略
+-- Storage Tables Data
 CREATE POLICY "Users can view own storage tables data" ON public.storage_tables_data
   FOR SELECT USING (
-    table_id IN (
-      SELECT id FROM public.storage_tables WHERE user_id = auth.uid()
-    )
+    table_id IN (SELECT id FROM public.storage_tables WHERE user_id = auth.uid())
   );
-
 CREATE POLICY "Users can insert own storage tables data" ON public.storage_tables_data
   FOR INSERT WITH CHECK (
-    table_id IN (
-      SELECT id FROM public.storage_tables WHERE user_id = auth.uid()
-    )
+    table_id IN (SELECT id FROM public.storage_tables WHERE user_id = auth.uid())
   );
-
 CREATE POLICY "Users can update own storage tables data" ON public.storage_tables_data
   FOR UPDATE USING (
-    table_id IN (
-      SELECT id FROM public.storage_tables WHERE user_id = auth.uid()
-    )
+    table_id IN (SELECT id FROM public.storage_tables WHERE user_id = auth.uid())
   );
-
 CREATE POLICY "Users can delete own storage tables data" ON public.storage_tables_data
   FOR DELETE USING (
-    table_id IN (
-      SELECT id FROM public.storage_tables WHERE user_id = auth.uid()
-    )
+    table_id IN (SELECT id FROM public.storage_tables WHERE user_id = auth.uid())
   );
 
--- Variables 表策略
+-- Variables
 CREATE POLICY "Users can view own variables" ON public.variables
   FOR SELECT USING (auth.uid() = user_id);
-
 CREATE POLICY "Users can insert own variables" ON public.variables
   FOR INSERT WITH CHECK (auth.uid() = user_id);
-
 CREATE POLICY "Users can update own variables" ON public.variables
   FOR UPDATE USING (auth.uid() = user_id);
-
 CREATE POLICY "Users can delete own variables" ON public.variables
   FOR DELETE USING (auth.uid() = user_id);
 
--- Credentials 表策略
+-- Credentials
 CREATE POLICY "Users can view own credentials" ON public.credentials
   FOR SELECT USING (auth.uid() = user_id);
-
 CREATE POLICY "Users can insert own credentials" ON public.credentials
   FOR INSERT WITH CHECK (auth.uid() = user_id);
-
 CREATE POLICY "Users can update own credentials" ON public.credentials
   FOR UPDATE USING (auth.uid() = user_id);
-
 CREATE POLICY "Users can delete own credentials" ON public.credentials
   FOR DELETE USING (auth.uid() = user_id);
 
--- Teams 表策略
+-- Teams
 CREATE POLICY "Team members can view their teams" ON public.teams
   FOR SELECT USING (
-    id IN (
-      SELECT team_id FROM public.team_members WHERE user_id = auth.uid()
-    )
+    id IN (SELECT team_id FROM public.team_members WHERE user_id = auth.uid())
   );
 
--- Team Members 表策略
+-- Team Members
 CREATE POLICY "Team members can view team members" ON public.team_members
   FOR SELECT USING (
-    team_id IN (
-      SELECT team_id FROM public.team_members WHERE user_id = auth.uid()
-    )
+    team_id IN (SELECT team_id FROM public.team_members WHERE user_id = auth.uid())
   );
 
--- Shared Workflows 表策略
+-- Shared Workflows
 CREATE POLICY "Users can view workflows shared with them" ON public.shared_workflows
-  FOR SELECT USING (
-    shared_with = auth.uid() OR shared_by = auth.uid()
-  );
-
+  FOR SELECT USING (shared_with = auth.uid() OR shared_by = auth.uid());
 CREATE POLICY "Users can share their workflows" ON public.shared_workflows
   FOR INSERT WITH CHECK (auth.uid() = shared_by);
-
 CREATE POLICY "Users can unshare their workflows" ON public.shared_workflows
   FOR DELETE USING (auth.uid() = shared_by);
 
--- Packages 表策略
+-- Packages
 CREATE POLICY "Users can view own packages" ON public.packages
   FOR SELECT USING (auth.uid() = user_id);
-
 CREATE POLICY "Users can insert own packages" ON public.packages
   FOR INSERT WITH CHECK (auth.uid() = user_id);
-
 CREATE POLICY "Users can update own packages" ON public.packages
   FOR UPDATE USING (auth.uid() = user_id);
-
 CREATE POLICY "Users can delete own packages" ON public.packages
   FOR DELETE USING (auth.uid() = user_id);
 
 -- ============================================
--- 触发器函数
+-- Functions & Triggers
 -- ============================================
-
--- 更新 updated_at 时间戳的函数
-CREATE OR REPLACE FUNCTION update_updated_at_column()
+CREATE OR REPLACE FUNCTION public.update_updated_at_column()
 RETURNS TRIGGER AS $$
 BEGIN
   NEW.updated_at = NOW();
@@ -511,40 +496,42 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- 为需要的表添加 updated_at 触发器
-CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON public.users
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
+DROP TRIGGER IF EXISTS update_workflows_updated_at ON public.workflows;
 CREATE TRIGGER update_workflows_updated_at BEFORE UPDATE ON public.workflows
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_folders_updated_at ON public.folders;
 CREATE TRIGGER update_folders_updated_at BEFORE UPDATE ON public.folders
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_storage_tables_updated_at ON public.storage_tables;
 CREATE TRIGGER update_storage_tables_updated_at BEFORE UPDATE ON public.storage_tables
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_storage_tables_data_updated_at ON public.storage_tables_data;
 CREATE TRIGGER update_storage_tables_data_updated_at BEFORE UPDATE ON public.storage_tables_data
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_variables_updated_at ON public.variables;
 CREATE TRIGGER update_variables_updated_at BEFORE UPDATE ON public.variables
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_credentials_updated_at ON public.credentials;
 CREATE TRIGGER update_credentials_updated_at BEFORE UPDATE ON public.credentials
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_teams_updated_at ON public.teams;
 CREATE TRIGGER update_teams_updated_at BEFORE UPDATE ON public.teams
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_packages_updated_at ON public.packages;
 CREATE TRIGGER update_packages_updated_at BEFORE UPDATE ON public.packages
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 
 -- ============================================
--- GraphQL 自定义函数
+-- Helper functions
 -- ============================================
-
--- 获取用户的所有工作流（包括共享的）
-CREATE OR REPLACE FUNCTION get_user_workflows(user_uuid UUID)
+CREATE OR REPLACE FUNCTION public.get_user_workflows(user_uuid UUID)
 RETURNS SETOF public.workflows AS $$
 BEGIN
   RETURN QUERY
@@ -557,8 +544,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- 获取工作流执行统计
-CREATE OR REPLACE FUNCTION get_workflow_stats(workflow_uuid TEXT)
+CREATE OR REPLACE FUNCTION public.get_workflow_stats(workflow_uuid TEXT)
 RETURNS TABLE(
   total_executions BIGINT,
   success_count BIGINT,
@@ -579,26 +565,23 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- 批量删除日志
-CREATE OR REPLACE FUNCTION delete_logs_before_date(before_date TIMESTAMPTZ, user_uuid UUID)
+CREATE OR REPLACE FUNCTION public.delete_logs_before_date(before_date TIMESTAMPTZ, user_uuid UUID)
 RETURNS INTEGER AS $$
 DECLARE
   deleted_count INTEGER;
 BEGIN
   DELETE FROM public.workflow_logs
   WHERE user_id = user_uuid AND ended_at < before_date;
-  
+
   GET DIAGNOSTICS deleted_count = ROW_COUNT;
   RETURN deleted_count;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- ============================================
--- 视图
+-- Views
 -- ============================================
-
--- 工作流执行摘要视图
-CREATE OR REPLACE VIEW workflow_execution_summary AS
+CREATE OR REPLACE VIEW public.workflow_execution_summary AS
 SELECT 
   w.id as workflow_id,
   w.name as workflow_name,
@@ -612,22 +595,5 @@ FROM public.workflows w
 LEFT JOIN public.workflow_logs l ON w.id = l.workflow_id
 GROUP BY w.id, w.name, w.user_id;
 
--- ============================================
--- 初始化数据
--- ============================================
+COMMIT;
 
--- 插入示例用户（可选，用于测试）
--- INSERT INTO public.users (id, username, email) 
--- VALUES ('00000000-0000-0000-0000-000000000000', 'demo_user', 'demo@example.com')
--- ON CONFLICT (id) DO NOTHING;
-
--- ============================================
--- 完成
--- ============================================
--- Schema 创建完成！
--- 
--- 使用说明：
--- 1. 在 Supabase Dashboard 中执行此 SQL 文件
--- 2. 确保启用了 GraphQL API
--- 3. 配置好认证策略
--- 4. 在应用中使用 Supabase Client 连接
