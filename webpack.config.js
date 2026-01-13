@@ -255,6 +255,9 @@ const options = {
     new webpack.DefinePlugin({
       __VUE_OPTIONS_API__: true,
       __VUE_PROD_DEVTOOLS__: false,
+      'process.env': JSON.stringify({}),
+      'process.version': JSON.stringify(''),
+      'process.browser': JSON.stringify(true),
     }),
     // Fix i18n warning
     new webpack.DefinePlugin({

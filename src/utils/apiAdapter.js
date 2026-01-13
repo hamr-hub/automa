@@ -11,8 +11,8 @@ import {
   getUserWorkflows as getUserWorkflowsOriginal,
 } from './api';
 
-// 配置:是否使用 Supabase
-const USE_SUPABASE = false;
+
+const USE_SUPABASE = true;
 
 // 初始化 Supabase 客户端
 let supabaseInitialized = false;
