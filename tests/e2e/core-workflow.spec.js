@@ -219,8 +219,18 @@ test.describe('Automa Core Workflow Features', () => {
     await page.waitForTimeout(2000);
     
     // 6. Verify Logs
+    console.log('Navigating to Logs...');
     const logsUrl = `chrome-extension://${extensionId}/newtab.html#/logs`;
     await page.goto(logsUrl);
+    await page.waitForTimeout(1000);
+    
+    console.log('Current URL:', page.url());
+    
+    // If explicitly redirected or not there, try sidebar
+    if (!page.url().includes('/logs')) {
+        await page.locator('a[href="#/logs"]').click();
+        await expect(page).toHaveURL(/.*\/logs/);
+    }
     
     // Ensure no modals are blocking
     await page.keyboard.press('Escape');
@@ -229,6 +239,8 @@ test.describe('Automa Core Workflow Features', () => {
     await expect(page.getByText(workflowName)).toBeVisible();
     
     // Click it to see details
+    // Ensure we are clicking the log item, not the dashboard item if we are on wrong page
+    // Log item usually has status icon
     await page.getByText(workflowName).first().click({ force: true });
     
     // Check status
