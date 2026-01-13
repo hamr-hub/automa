@@ -328,6 +328,7 @@ watch(
     );
     workflowStore.states = Object.values(workflowStates || {});
 
+    /*
     const tabs = await browser.tabs.query({
       url: browser.runtime.getURL('/newtab.html'),
     });
@@ -346,6 +347,7 @@ watch(
       await browser.tabs.remove(tabs.map((tab) => tab.id));
       return;
     }
+    */
 
     const { isFirstTime } = await browser.storage.local.get('isFirstTime');
     isUpdated.value = !isFirstTime && compare(currentVersion, prevVersion, '>');

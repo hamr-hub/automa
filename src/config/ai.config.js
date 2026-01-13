@@ -6,7 +6,7 @@
 const aiConfig = {
   // Ollama 配置
   ollama: {
-    baseUrl: 'http://wsl.hamr.top:11434', // 默认值，实际使用时会从 storage 读取
+    baseUrl: 'http://localhost:11434', // 默认值，实际使用时会从 storage 读取
     model: 'mistral', // 默认模型,可选: mistral, llama2, codellama
     temperature: 0.7,
     maxTokens: 2000,

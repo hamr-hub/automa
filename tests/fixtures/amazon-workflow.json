@@ -1,0 +1,77 @@
+{
+  "name": "Amazon Laptop Scraper",
+  "icon": "riGlobalLine",
+  "description": "Scrapes laptop titles from Amazon search results",
+  "version": "1.0.0",
+  "extVersion": "1.28.27",
+  "globalData": "{}",
+  "settings": {
+    "blockDelay": 1000,
+    "saveLog": true,
+    "debugMode": false,
+    "onError": "stop-workflow",
+    "execContext": "popup"
+  },
+  "drawflow": {
+    "nodes": [
+      {
+        "id": "trigger-1",
+        "label": "trigger",
+        "position": { "x": 100, "y": 100 },
+        "data": {
+          "type": "manual"
+        }
+      },
+      {
+        "id": "new-tab-2",
+        "label": "new-tab",
+        "position": { "x": 400, "y": 100 },
+        "data": {
+          "url": "https://www.amazon.com/s?k=laptop",
+          "active": true,
+          "updatePrevTab": false
+        }
+      },
+      {
+        "id": "get-text-3",
+        "label": "get-text",
+        "position": { "x": 700, "y": 100 },
+        "data": {
+          "selector": "h2 a span",
+          "multiple": true,
+          "regex": "",
+          "regexExp": [],
+          "prefixText": "",
+          "suffixText": "",
+          "useTextContent": false,
+          "includeTags": false,
+          "description": "Get product titles",
+          "saveData": true,
+          "dataColumn": "titles"
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "trigger-1",
+        "target": "new-tab-2",
+        "sourceHandle": "output-1",
+        "targetHandle": "input-1"
+      },
+      {
+        "source": "new-tab-2",
+        "target": "get-text-3",
+        "sourceHandle": "output-1",
+        "targetHandle": "input-1"
+      }
+    ],
+    "zoom": 1
+  },
+  "table": [
+    {
+      "name": "titles",
+      "id": "col-titles",
+      "type": "text"
+    }
+  ]
+}

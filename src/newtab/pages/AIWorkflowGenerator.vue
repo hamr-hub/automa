@@ -9,6 +9,45 @@
         <h1 class="text-lg font-bold">AI 工作流助手</h1>
       </div>
       <div class="flex items-center space-x-2">
+         <!-- 新增工具栏按钮 -->
+        <ui-button
+          variant="secondary"
+          title="录制新操作"
+          class="mr-1"
+          @click="recordWorkflow"
+        >
+          <v-remixicon name="riRecordCircleLine" class="text-red-500 mr-2" />
+          录制
+        </ui-button>
+        
+        <div class="h-6 w-px bg-gray-300 dark:bg-gray-600 mx-2"></div>
+
+        <ui-button
+          variant="secondary"
+          title="导入工作流"
+          @click="importJSON"
+        >
+          <v-remixicon name="riUploadLine" />
+        </ui-button>
+         <ui-button
+          v-if="state.generatedWorkflow"
+          variant="secondary"
+          title="导出 JSON"
+          @click="exportJSON"
+        >
+          <v-remixicon name="riDownloadLine" />
+        </ui-button>
+         <ui-button
+          v-if="state.generatedWorkflow"
+          variant="secondary"
+          title="复制到剪贴板"
+          @click="copyJSON"
+        >
+          <v-remixicon name="riFileCopyLine" />
+        </ui-button>
+
+        <div class="h-6 w-px bg-gray-300 dark:bg-gray-600 mx-2"></div>
+
         <ui-button
           variant="secondary"
           class="mr-2"
@@ -37,7 +76,7 @@
           @click="saveWorkflow"
         >
           <v-remixicon name="riSaveLine" class="mr-2" />
-          保存工作流
+          保存
         </ui-button>
       </div>
     </header>
@@ -119,13 +158,18 @@
         <div v-if="!state.generatedWorkflow" class="flex h-full flex-col items-center justify-center text-gray-400">
           <v-remixicon name="riFlowChart" size="64" class="mb-4 opacity-50" />
           <p>在左侧输入需求，AI 将为您生成工作流</p>
+          <p class="mt-2 text-sm">或者点击“导入”加载现有工作流</p>
         </div>
 
         <div v-else class="flex h-full flex-col">
           <!-- 工作流头部信息 -->
           <div class="border-b border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
-            <h2 class="text-lg font-semibold">{{ state.generatedWorkflow.name }}</h2>
-            <p class="text-sm text-gray-500">{{ state.generatedWorkflow.description }}</p>
+            <div class="flex justify-between items-start">
+                <div>
+                    <h2 class="text-lg font-semibold">{{ state.generatedWorkflow.name }}</h2>
+                    <p class="text-sm text-gray-500">{{ state.generatedWorkflow.description }}</p>
+                </div>
+            </div>
             
             <!-- 数据列预览 -->
              <div v-if="state.generatedWorkflow.table?.length" class="mt-3 flex flex-wrap gap-2">
@@ -165,26 +209,91 @@
                 <div
                   class="ml-4 flex-1 rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md dark:border-gray-700 dark:bg-gray-800"
                 >
-                  <div class="mb-1 flex items-center justify-between">
-                    <span class="font-semibold text-gray-900 dark:text-gray-100">
-                      {{ getBlockLabel(node.label) }}
-                    </span>
-                    <span class="text-xs text-gray-400 font-mono">{{ node.label }}</span>
+                  <!-- 正常显示模式 -->
+                  <div v-if="state.editingNodeId !== node.id">
+                      <div class="mb-1 flex items-center justify-between">
+                        <span class="font-semibold text-gray-900 dark:text-gray-100">
+                          {{ getBlockLabel(node.label) }}
+                        </span>
+                        <div class="flex items-center space-x-1 opacity-0 transition-opacity group-hover:opacity-100">
+                             <!-- 操作按钮 -->
+                             <button 
+                                v-if="node.label !== 'trigger' && index > 1"
+                                class="p-1 hover:text-accent" 
+                                title="上移"
+                                @click="moveNode(index, -1)"
+                             >
+                                <v-remixicon name="riArrowUpLine" size="16" />
+                             </button>
+                             <button 
+                                v-if="node.label !== 'trigger' && index < sortedNodes.length - 1"
+                                class="p-1 hover:text-accent" 
+                                title="下移"
+                                @click="moveNode(index, 1)"
+                             >
+                                <v-remixicon name="riArrowDownLine" size="16" />
+                             </button>
+                             <button 
+                                class="p-1 hover:text-accent" 
+                                title="编辑"
+                                @click="startEditNode(node)"
+                             >
+                                <v-remixicon name="riPencilLine" size="16" />
+                             </button>
+                             <button 
+                                v-if="node.label !== 'trigger'"
+                                class="p-1 hover:text-red-500" 
+                                title="删除"
+                                @click="deleteNode(index)"
+                             >
+                                <v-remixicon name="riDeleteBinLine" size="16" />
+                             </button>
+                        </div>
+                      </div>
+                      <p class="text-sm text-gray-600 dark:text-gray-400">
+                        {{ node.data.description || getBlockDescription(node) }}
+                      </p>
+                      
+                      <!-- 参数预览 -->
+                      <div class="mt-2 text-xs text-gray-500">
+                        <div v-if="node.data.selector" class="flex items-center mt-1">
+                          <v-remixicon name="riFocus3Line" size="12" class="mr-1" />
+                          <span class="font-mono bg-gray-100 dark:bg-gray-700 px-1 rounded truncate max-w-md">{{ node.data.selector }}</span>
+                        </div>
+                         <div v-if="node.data.url" class="flex items-center mt-1">
+                          <v-remixicon name="riLinkM" size="12" class="mr-1" />
+                          <span class="truncate max-w-md">{{ node.data.url }}</span>
+                        </div>
+                      </div>
                   </div>
-                  <p class="text-sm text-gray-600 dark:text-gray-400">
-                    {{ node.data.description || getBlockDescription(node) }}
-                  </p>
-                  
-                  <!-- 参数预览 -->
-                  <div class="mt-2 text-xs text-gray-500">
-                    <div v-if="node.data.selector" class="flex items-center mt-1">
-                      <v-remixicon name="riFocus3Line" size="12" class="mr-1" />
-                      <span class="font-mono bg-gray-100 dark:bg-gray-700 px-1 rounded">{{ node.data.selector }}</span>
-                    </div>
-                     <div v-if="node.data.url" class="flex items-center mt-1">
-                      <v-remixicon name="riLinkM" size="12" class="mr-1" />
-                      <span class="truncate max-w-md">{{ node.data.url }}</span>
-                    </div>
+
+                  <!-- 编辑模式 -->
+                  <div v-else class="space-y-3">
+                      <div class="flex items-center justify-between border-b pb-2 dark:border-gray-700">
+                          <span class="font-semibold">编辑步骤</span>
+                      </div>
+                      <!-- 根据不同类型显示不同输入框 -->
+                      <div v-if="state.editData.url !== undefined">
+                          <label class="block text-xs font-medium text-gray-500 mb-1">URL</label>
+                          <ui-input v-model="state.editData.url" class="w-full text-sm" />
+                      </div>
+                      <div v-if="state.editData.selector !== undefined">
+                          <label class="block text-xs font-medium text-gray-500 mb-1">CSS 选择器</label>
+                          <ui-input v-model="state.editData.selector" class="w-full text-sm" />
+                      </div>
+                      <div v-if="state.editData.value !== undefined">
+                          <label class="block text-xs font-medium text-gray-500 mb-1">值</label>
+                          <ui-input v-model="state.editData.value" class="w-full text-sm" />
+                      </div>
+                       <div v-if="state.editData.description !== undefined">
+                          <label class="block text-xs font-medium text-gray-500 mb-1">描述</label>
+                          <ui-textarea v-model="state.editData.description" rows="2" class="w-full text-sm" />
+                      </div>
+                      
+                      <div class="flex justify-end space-x-2 pt-2">
+                          <ui-button size="sm" @click="cancelEdit">取消</ui-button>
+                          <ui-button size="sm" variant="accent" @click="saveEditNode">保存</ui-button>
+                      </div>
                   </div>
                 </div>
               </div>
@@ -227,6 +336,8 @@ import { reactive, onMounted, ref, computed, nextTick } from 'vue';
 import { useRouter } from 'vue-router';
 import { useToast } from 'vue-toastification';
 import { useWorkflowStore } from '@/stores/workflow';
+import { nanoid } from 'nanoid';
+import { exportWorkflow, importWorkflow } from '@/utils/workflowData';
 import browser from 'webextension-polyfill';
 import LangGraphAgent from '@/services/ai/LangGraphAgent';
 import RendererWorkflowService from '@/service/renderer/RendererWorkflowService';
@@ -250,6 +361,8 @@ const state = reactive({
     model: '',
     temperature: 0.7,
   },
+  editingNodeId: null,
+  editData: {},
 });
 
 const chatHistory = ref([]);
@@ -258,15 +371,12 @@ const chatHistory = ref([]);
 const sortedNodes = computed(() => {
   if (!state.generatedWorkflow?.drawflow?.nodes) return [];
   
-  // 简单的拓扑排序模拟，实际上 WorkflowGenerator 生成的是线性的
-  // 这里直接按边连接顺序排序
   const nodes = state.generatedWorkflow.drawflow.nodes;
   const edges = state.generatedWorkflow.drawflow.edges;
   
   if (nodes.length === 0) return [];
   
   const result = [];
-  // 找到起始节点 (trigger)
   let current = nodes.find(n => n.label === 'trigger');
   
   while (current) {
@@ -279,7 +389,6 @@ const sortedNodes = computed(() => {
     }
   }
   
-  // 如果断链了，把剩下的补上（为了防止显示不全）
   const remaining = nodes.filter(n => !result.find(r => r.id === n.id));
   return [...result, ...remaining];
 });
@@ -291,14 +400,12 @@ async function sendMessage() {
   state.userInput = '';
   state.isGenerating = true;
 
-  // 添加用户消息到 UI 历史 (Agent 内部也会维护一份)
   chatHistory.value.push({ role: 'user', content });
   
   scrollToBottom();
 
   try {
     const result = await agent.chat(content, '', (progress) => {
-        // 可以显示进度条，这里简化处理
     });
 
     if (result.success) {
@@ -334,7 +441,7 @@ async function runWorkflow() {
     
     try {
         await RendererWorkflowService.executeWorkflow(state.generatedWorkflow, {
-            checkParams: false // 跳过参数检查直接运行
+            checkParams: false 
         });
         toast.success('工作流已开始运行');
     } catch (e) {
@@ -349,6 +456,127 @@ async function saveWorkflow() {
         router.push(`/workflows/${state.generatedWorkflow.id}`);
     } catch (e) {
         toast.error(`保存失败: ${e.message}`);
+    }
+}
+
+function recordWorkflow() {
+    // 使用 Automa 现有的录制页面
+    // 可以在新标签页打开
+    const url = browser.runtime.getURL('/newtab.html#/recording');
+    browser.tabs.create({ url });
+}
+
+// --- 编辑功能 ---
+
+function startEditNode(node) {
+    state.editingNodeId = node.id;
+    // 复制需要编辑的数据
+    state.editData = {
+        description: node.data.description,
+        url: node.data.url,
+        selector: node.data.selector,
+        value: node.data.value
+    };
+    // 清理 undefined
+    Object.keys(state.editData).forEach(key => state.editData[key] === undefined && delete state.editData[key]);
+}
+
+function cancelEdit() {
+    state.editingNodeId = null;
+    state.editData = {};
+}
+
+function saveEditNode() {
+    const node = state.generatedWorkflow.drawflow.nodes.find(n => n.id === state.editingNodeId);
+    if (node) {
+        Object.assign(node.data, state.editData);
+        // 如果是 URL 节点，更新描述
+        if (node.label === 'new-tab' && state.editData.url) {
+            node.data.url = state.editData.url;
+        }
+    }
+    state.editingNodeId = null;
+    state.editData = {};
+}
+
+function deleteNode(index) {
+    // index 是在 sortedNodes 中的索引
+    const nodes = [...sortedNodes.value];
+    nodes.splice(index, 1);
+    
+    updateWorkflowFromList(nodes);
+}
+
+function moveNode(index, direction) {
+    const nodes = [...sortedNodes.value];
+    const newIndex = index + direction;
+    
+    if (newIndex < 0 || newIndex >= nodes.length) return;
+    
+    // 交换
+    [nodes[index], nodes[newIndex]] = [nodes[newIndex], nodes[index]];
+    
+    updateWorkflowFromList(nodes);
+}
+
+function updateWorkflowFromList(nodesList) {
+    // 重建边
+    const edges = [];
+    for (let i = 0; i < nodesList.length - 1; i++) {
+        const source = nodesList[i];
+        const target = nodesList[i+1];
+        edges.push({
+            id: `edge-${nanoid()}`,
+            source: source.id,
+            target: target.id,
+            sourceHandle: `${source.id}-output-1`,
+            targetHandle: `${target.id}-input`,
+            type: 'default',
+        });
+    }
+    
+    state.generatedWorkflow.drawflow.nodes = nodesList;
+    state.generatedWorkflow.drawflow.edges = edges;
+}
+
+// --- 导入导出 ---
+
+function exportJSON() {
+    if (!state.generatedWorkflow) return;
+    exportWorkflow(state.generatedWorkflow);
+}
+
+async function importJSON() {
+    try {
+        const result = await importWorkflow();
+        // importWorkflow 返回的是插入数据库后的对象
+        // 我们取第一个导入的工作流
+        const imported = Array.isArray(result) ? result[0] : Object.values(result)[0];
+        
+        if (imported) {
+            state.generatedWorkflow = imported;
+            toast.success('工作流导入成功');
+            // 将导入的消息添加到聊天记录，作为上下文
+            chatHistory.value.push({ 
+                role: 'system', 
+                content: `已加载外部工作流: ${imported.name}` 
+            });
+            // 还需要更新 Agent 的上下文，这里暂时略过，Agent 会基于新的对话继续
+            agent.state.currentWorkflow = imported;
+        }
+    } catch (e) {
+        console.error(e);
+        toast.error('导入失败');
+    }
+}
+
+async function copyJSON() {
+    if (!state.generatedWorkflow) return;
+    try {
+        await navigator.clipboard.writeText(JSON.stringify(state.generatedWorkflow, null, 2));
+        toast.success('已复制到剪贴板');
+    } catch (e) {
+        toast.error('复制失败');
     }
 }
 
