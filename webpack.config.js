@@ -176,6 +176,9 @@ const options = {
       SUPABASE_ANON_KEY: '',
       SUPABASE_SERVICE_KEY: '',
       SUPABASE_GRAPHQL_ENDPOINT: '',
+      VUE_APP_API_BASE_URL: '',
+      VUE_APP_SUPABASE_URL: '',
+      VUE_APP_SUPABASE_ANON_KEY: '',
     }),
     new CopyWebpackPlugin({
       patterns: [
