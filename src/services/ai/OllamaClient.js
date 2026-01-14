@@ -190,6 +190,7 @@ class OllamaClient {
       
       await this.request(url, {
         method: 'GET',
+        mode: 'cors',
         signal: AbortSignal.timeout(5000),
       });
       return true;
@@ -205,7 +206,11 @@ class OllamaClient {
   async listModels() {
     try {
       const url = this.normalizeUrl(`${this.baseUrl}/api/tags`);
-      const data = await this.request(url, { method: 'GET' }, 'json');
+      const response = await fetch(url, {
+        method: 'GET',
+        mode: 'cors',
+      });
+      const data = await response.json();
       return data.models || [];
     } catch (error) {
       console.warn('获取模型列表失败:', error);
@@ -237,7 +242,11 @@ class OllamaClient {
       
       const data = await this.request(url, {
         method: 'POST',
-        body: requestBody,
+        mode: 'cors',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
         signal: controller.signal,
       }, 'json');
 
@@ -316,6 +325,7 @@ class OllamaClient {
       const url = this.normalizeUrl(`${this.baseUrl}/api/generate`);
       const response = await fetch(url, {
         method: 'POST',
+        mode: 'cors',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -381,6 +391,7 @@ class OllamaClient {
       const url = this.normalizeUrl(`${this.baseUrl}/api/chat`);
       const response = await fetch(url, {
         method: 'POST',
+        mode: 'cors',
         headers: {
           'Content-Type': 'application/json',
         },
