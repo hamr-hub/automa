@@ -3,7 +3,7 @@
  * 用于与本地 Ollama 服务通信,支持流式和非流式响应
  */
 
-import aiConfig from '@/config/ai.config';
+import aiConfig from '../../config/ai.config.js';
 
 class OllamaClient {
   constructor(config = {}) {

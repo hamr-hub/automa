@@ -16,7 +16,9 @@ class WorkflowGenerator {
       EXTRACT: 'get-text',
       EXTRACT_ATTRIBUTE: 'attribute-value',
       LOOP: 'loop-data',
-      PAGINATION: 'loop-elements',
+      LOOP_ELEMENTS: 'loop-elements',
+      PAGINATION: 'while-loop', // Pagination using While Loop (check next button)
+      LOOP_END: 'loop-end', // Virtual type for ending loops
       EXPORT: 'export-data',
       INPUT: 'forms',
       SELECT: 'forms',
@@ -60,11 +62,11 @@ class WorkflowGenerator {
         saveLog: true,
         notification: true,
         publicId: '',
-        onError: 'stop-workflow',
+        onError: 'bypass', // Change to bypass to allow continuing on error
         executedBlockOnWeb: false,
         insertDefaultColumn: false,
         inputAutocomplete: true,
-        blockDelay: 0,
+        blockDelay: 1000, // Add explicit delay
         reuseLastState: false,
       },
       drawflow: this.generateDrawflow(steps, dataSchema, targetUrl),
@@ -81,6 +83,9 @@ class WorkflowGenerator {
   generateDrawflow(steps, dataSchema, targetUrl) {
     const nodes = [];
     const edges = [];
+    
+    // Stack to track active loops: { id: string, type: string }
+    const loopStack = [];
 
     // 重置节点位置
     this.resetNodePosition();
@@ -90,31 +95,64 @@ class WorkflowGenerator {
     nodes.push(triggerNode);
 
     let previousNodeId = triggerNode.id;
+    let previousNodeOutputHandle = 'output-1';
 
     // 2. 添加导航节点(如果需要)
     if (targetUrl) {
       const navigateNode = this.createNavigateNode(targetUrl);
       nodes.push(navigateNode);
-      edges.push(this.createEdge(previousNodeId, navigateNode.id));
+      edges.push(this.createEdge(previousNodeId, navigateNode.id, previousNodeOutputHandle));
       previousNodeId = navigateNode.id;
     }
 
     // 3. 根据 AI 步骤生成节点
     steps.forEach((step, index) => {
+      // Handle Loop End
+      if (step.type === 'LOOP_END') {
+        if (loopStack.length > 0) {
+          const finishedLoop = loopStack.pop();
+          // The flow continues from the "Done" output (output-2 usually) of the loop block
+          // But wait, in Automa, blocks *inside* the loop don't connect to "Done".
+          // The "Done" path starts from the Loop block itself.
+          
+          // So, if we have steps AFTER the loop, they should connect to the Loop Block's output-2.
+          // We update previousNodeId to the Loop Block ID.
+          previousNodeId = finishedLoop.id;
+          
+          // For loop-data and loop-elements, output-2 is "Done/Fallback"
+          // For while-loop, output-2 is "Fallback" (Condition False)
+          previousNodeOutputHandle = 'output-2'; 
+        }
+        return;
+      }
+
       const node = this.createNodeFromStep(step, index);
       if (node) {
         nodes.push(node);
-        edges.push(this.createEdge(previousNodeId, node.id));
+        
+        // Connect previous node to current node
+        edges.push(this.createEdge(previousNodeId, node.id, previousNodeOutputHandle));
+        
         previousNodeId = node.id;
+        previousNodeOutputHandle = 'output-1'; // Default for next connection
+
+        // If this is a loop block, push to stack
+        if (['loop-data', 'loop-elements', 'while-loop'].includes(node.label)) {
+           loopStack.push({ id: node.id, type: node.label });
+           // The next block will connect to output-1 (Loop Body)
+           previousNodeOutputHandle = 'output-1';
+        }
       }
     });
 
     // 4. 添加导出节点(如果最后一步不是导出)
+    // Only add if not already present and we are not inside a loop (or maybe we are?)
+    // Usually export is the last step.
     const lastStep = steps[steps.length - 1];
     if (lastStep?.type !== 'EXPORT') {
       const exportNode = this.createExportNode(dataSchema);
       nodes.push(exportNode);
-      edges.push(this.createEdge(previousNodeId, exportNode.id));
+      edges.push(this.createEdge(previousNodeId, exportNode.id, previousNodeOutputHandle));
     }
 
     return {
@@ -172,6 +210,8 @@ class WorkflowGenerator {
       console.warn(`未知的步骤类型: ${step.type}`);
       return null;
     }
+    
+    if (blockType === 'loop-end') return null; // Should be handled in generateDrawflow
 
     const position = this.getNextNodePosition();
     const nodeId = `${blockType}-${nanoid()}`;
@@ -262,6 +302,37 @@ class WorkflowGenerator {
         waitSelector: 5000,
       }),
 
+      'while-loop': () => {
+         // Create conditions for "Next Button Exists"
+         const conditions = [
+            {
+                id: nanoid(),
+                conditions: [
+                    {
+                        id: nanoid(),
+                        items: [
+                            {
+                                id: nanoid(),
+                                category: 'value',
+                                type: 'element-selector',
+                                data: { selector: step.selector || '' }
+                            },
+                            {
+                                id: nanoid(),
+                                category: 'compare',
+                                type: 'itr' // Is True (Exists)
+                            }
+                        ]
+                    }
+                ]
+            }
+         ];
+         return {
+            loopId: nanoid(5),
+            conditions,
+         };
+      },
+
       'export-data': () => ({
         type: step.data?.type || 'json',
         dataToExport: 'data-columns',
@@ -321,12 +392,12 @@ class WorkflowGenerator {
   /**
    * 创建边(连接)
    */
-  createEdge(sourceId, targetId, outputIndex = 1) {
+  createEdge(sourceId, targetId, sourceOutput = 'output-1') {
     return {
       id: `edge-${nanoid()}`,
       source: sourceId,
       target: targetId,
-      sourceHandle: `${sourceId}-output-${outputIndex}`,
+      sourceHandle: `${sourceId}-${sourceOutput}`,
       targetHandle: `${targetId}-input`,
       type: 'custom',
     };

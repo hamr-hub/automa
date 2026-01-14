@@ -291,6 +291,7 @@ import { countDuration, fileSaver } from '@/utils/helper';
 import { dataExportTypes, messageHasReferences } from '@/utils/shared';
 import objectPath from 'object-path';
 import Papa from 'papaparse';
+import * as XLSX from 'xlsx';
 import {
   computed,
   defineAsyncComponent,
@@ -332,6 +333,10 @@ const files = {
   csv: {
     mime: 'text/csv',
     ext: '.csv',
+  },
+  xlsx: {
+    mime: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    ext: '.xlsx',
   },
 };
 const logsType = {
@@ -386,7 +391,9 @@ const filteredLog = computed(() => {
   return translatedLog.value.filter(
     (log) =>
       log.name.toLocaleLowerCase().includes(query) ||
-      log.description?.toLocaleLowerCase().includes(query)
+      log.description?.toLocaleLowerCase().includes(query) ||
+      log.type?.toLocaleLowerCase().includes(query) ||
+      dayjs(log.timestamp).format('DD MMM YYYY HH:mm:ss').toLowerCase().includes(query)
   );
 });
 const history = computed(() =>
@@ -483,8 +490,23 @@ function exportLogs(type) {
 
       data.push(item);
     },
+    xlsx: (item, index) => {
+      if (index === 0) {
+        data.unshift([
+          'Timestamp',
+          'Status',
+          'Name',
+          'Description',
+          'Message',
+          'Data',
+        ]);
+      }
+
+      item[item.length - 1] = JSON.stringify(item[item.length - 1]);
+      data.push(item);
+    },
   };
-  translatedLog.value.forEach((item, index) => {
+  filteredLog.value.forEach((item, index) => {
     let logData = props.ctxData;
     if (logData.ctxData) logData = logData.ctxData;
 
@@ -515,6 +537,14 @@ function exportLogs(type) {
     case 'json':
       data = [JSON.stringify(data, null, 2)];
       break;
+    case 'xlsx': {
+      const ws = XLSX.utils.aoa_to_sheet(data);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Logs');
+      const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+      data = [wbout];
+      break;
+    }
     default:
   }
 

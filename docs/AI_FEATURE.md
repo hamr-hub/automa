@@ -84,6 +84,12 @@ To support new Automa blocks in AI generation:
 1. Modify `src/services/ai/prompts/workflow-generation.js` to include the new block type in the system prompt.
 2. Update `src/services/ai/WorkflowGenerator.js` to map the new type to Automa's block ID and default data.
 
+## Latest Improvements (2026-01-14)
+- **Nested Loops Support**: The AI can now generate nested loops (e.g., Loop Pages -> Loop Products).
+- **Pagination**: Improved support for pagination using `while-loop` (checking for "Next" button).
+- **Loop Management**: Added `LOOP_END` type to explicitly close loops.
+- **Error Handling**: Changed default `onError` to `bypass` to improve stability during scraping.
+
 ### Troubleshooting
 - **Connection Refused**: Ensure Ollama is running and CORS is allowed (if necessary). Automa extension usually has permissions to access localhost.
 - **JSON Parse Error**: The AI might generate invalid JSON. Try using a more capable model (e.g., `llama3` or `mistral-instruct`).

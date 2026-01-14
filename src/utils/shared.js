@@ -1575,6 +1575,7 @@ export const eventList = [
 export const dataExportTypes = [
   { name: 'JSON', id: 'json' },
   { name: 'CSV', id: 'csv' },
+  { name: 'Excel', id: 'xlsx' },
   { name: 'Plain text', id: 'plain-text' },
 ];
 

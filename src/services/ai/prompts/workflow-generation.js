@@ -13,9 +13,11 @@ const workflowGenerationPrompt = {
 3. CLICK - 点击元素
 4. SCROLL - 滚动页面
 5. EXTRACT - 提取数据（文本、属性、链接等）
-6. LOOP - 循环处理列表数据
-7. PAGINATION - 处理分页
-8. EXPORT - 导出数据
+6. LOOP - 循环处理列表数据（数字或固定次数）
+7. LOOP_ELEMENTS - 循环处理页面元素（如商品列表）
+8. PAGINATION - 处理分页（点击下一页按钮）
+9. LOOP_END - 结束当前循环
+10. EXPORT - 导出数据
 
 ## 输出格式要求:
 请以 JSON 格式输出，包含以下字段:
@@ -36,10 +38,10 @@ const workflowGenerationPrompt = {
 ## 注意事项:
 - 选择器要尽可能具体和稳定（优先使用 ID、data-* 属性、有意义的 class）
 - 考虑页面加载时间，适当添加 WAIT 步骤（建议 1000-3000ms）
-- 对于列表数据，使用 LOOP 操作
-- 如果有分页，使用 PAGINATION 操作
-- 最后一步必须是 EXPORT 操作
-- 如果用户没有提供目标 URL，可以在 NAVIGATE 步骤中使用占位符`,
+- 嵌套循环结构：使用 LOOP/LOOP_ELEMENTS 开始，使用 LOOP_END 结束
+- 分页处理：通常使用 PAGINATION (While Loop) 包裹抓取步骤
+- 错误处理：脚本默认会忽略错误继续执行
+- 最后一步通常是 EXPORT 操作`,
 
   user: function (userInput, targetUrl = '') {
     let prompt = `## 用户需求:\n${userInput}\n`;

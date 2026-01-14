@@ -1,4 +1,5 @@
 import Papa from 'papaparse';
+import * as XLSX from 'xlsx';
 import { fileSaver } from './helper';
 
 export const files = {
@@ -13,6 +14,10 @@ export const files = {
   csv: {
     mime: 'text/csv',
     ext: '.csv',
+  },
+  xlsx: {
+    mime: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    ext: '.xlsx',
   },
 };
 
@@ -43,13 +48,19 @@ export default function (
 ) {
   let result = data;
 
-  if (type === 'csv' || type === 'json') {
+  if (type === 'csv' || type === 'json' || type === 'xlsx') {
     const jsonData = converted ? data : generateJSON(Object.keys(data), data);
 
-    result =
-      type === 'csv'
-        ? Papa.unparse(jsonData, csvOptions || {})
-        : JSON.stringify(jsonData, null, 2);
+    if (type === 'csv') {
+      result = Papa.unparse(jsonData, csvOptions || {});
+    } else if (type === 'json') {
+      result = JSON.stringify(jsonData, null, 2);
+    } else if (type === 'xlsx') {
+      const ws = XLSX.utils.json_to_sheet(jsonData);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Data');
+      result = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+    }
   } else if (type === 'plain-text') {
     const extractObj = (obj) => {
       if (typeof obj !== 'object') return [obj];

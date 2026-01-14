@@ -1,0 +1,312 @@
+{
+  "id": "qyAoLxK-TlY9knO5yawUx",
+  "name": "AI生成: AI Generated Test",
+  "description": "由 AI 自动生成的数据抓取工作流\n目标: AI Generated Test\nURL: https://www.amazon.co.jp",
+  "icon": "riRobotLine",
+  "category": "scrape",
+  "version": "1.0.0",
+  "createdAt": 1768354054275,
+  "updatedAt": 1768354054275,
+  "isDisabled": false,
+  "settings": {
+    "debugMode": true,
+    "saveLog": true,
+    "notification": true,
+    "publicId": "",
+    "onError": "bypass",
+    "executedBlockOnWeb": false,
+    "insertDefaultColumn": false,
+    "inputAutocomplete": true,
+    "blockDelay": 1000,
+    "reuseLastState": false
+  },
+  "drawflow": {
+    "nodes": [
+      {
+        "id": "trigger-a--4ZQjJ1DrrgQPc7iEj-",
+        "type": "BlockBasic",
+        "label": "trigger",
+        "position": {
+          "x": 50,
+          "y": 50
+        },
+        "data": {
+          "type": "manual",
+          "description": "",
+          "disableBlock": false
+        }
+      },
+      {
+        "id": "new-tab-WlWLARgweU1iEKrA7iQU8",
+        "type": "BlockBasic",
+        "label": "new-tab",
+        "position": {
+          "x": 330,
+          "y": 50
+        },
+        "data": {
+          "url": "https://www.amazon.co.jp",
+          "active": true,
+          "inGroup": false,
+          "waitTabLoaded": true,
+          "description": "导航到目标页面",
+          "disableBlock": false
+        }
+      },
+      {
+        "id": "new-tab-xTQ8MYAQFYbq7dYfb1BGi",
+        "type": "BlockBasic",
+        "label": "new-tab",
+        "position": {
+          "x": 610,
+          "y": 50
+        },
+        "data": {
+          "url": "https://www.amazon.co.jp/s?k=camera",
+          "active": true,
+          "waitTabLoaded": true,
+          "description": "Go to Amazon JP",
+          "disableBlock": false
+        }
+      },
+      {
+        "id": "while-loop-p9wWFN1WA0cmTiWS5jwtW",
+        "type": "BlockBasic",
+        "label": "while-loop",
+        "position": {
+          "x": 890,
+          "y": 50
+        },
+        "data": {
+          "loopId": "KO_xn",
+          "conditions": [
+            {
+              "id": "5rboZT3sbF149J6-o4Hid",
+              "conditions": [
+                {
+                  "id": "oqmaP-BCp6VG7wrdrDggI",
+                  "items": [
+                    {
+                      "id": "xggNqXCcqu8SD6dLu8rqC",
+                      "category": "value",
+                      "type": "element-selector",
+                      "data": {
+                        "selector": "a.s-pagination-next"
+                      }
+                    },
+                    {
+                      "id": "Qm5MWejQtZrcqgc5tApwK",
+                      "category": "compare",
+                      "type": "itr"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "description": "Pagination",
+          "disableBlock": false
+        }
+      },
+      {
+        "id": "loop-elements-CWWO5WxDYzzoWMQAswhwu",
+        "type": "BlockBasic",
+        "label": "loop-elements",
+        "position": {
+          "x": 50,
+          "y": 200
+        },
+        "data": {
+          "loopId": "r8zk-",
+          "elementSelector": "div.s-result-item",
+          "max": 0,
+          "waitSelector": 5000,
+          "description": "Loop Products",
+          "disableBlock": false
+        }
+      },
+      {
+        "id": "get-text-UpP1k5kKwuGyPPW1KOP6g",
+        "type": "BlockBasic",
+        "label": "get-text",
+        "position": {
+          "x": 330,
+          "y": 200
+        },
+        "data": {
+          "selector": "h2 span",
+          "regex": "",
+          "regexExp": "",
+          "prefixText": "",
+          "suffixText": "",
+          "assignVariable": false,
+          "variableName": "",
+          "dataColumn": "Title",
+          "multiple": false,
+          "waitSelector": 5000,
+          "markEl": true,
+          "description": "Get Title",
+          "disableBlock": false
+        }
+      },
+      {
+        "id": "get-text-m50jEr9B5IbAHBxP2yYqw",
+        "type": "BlockBasic",
+        "label": "get-text",
+        "position": {
+          "x": 610,
+          "y": 200
+        },
+        "data": {
+          "selector": ".a-price-whole",
+          "regex": "",
+          "regexExp": "",
+          "prefixText": "",
+          "suffixText": "",
+          "assignVariable": false,
+          "variableName": "",
+          "dataColumn": "Price",
+          "multiple": false,
+          "waitSelector": 5000,
+          "markEl": true,
+          "description": "Get Price",
+          "disableBlock": false
+        }
+      },
+      {
+        "id": "event-click-broRISosj7Tb-GSc4rbyF",
+        "type": "BlockBasic",
+        "label": "event-click",
+        "position": {
+          "x": 890,
+          "y": 200
+        },
+        "data": {
+          "selector": "a.s-pagination-next",
+          "markEl": true,
+          "multiple": false,
+          "waitSelector": 5000,
+          "description": "Next Page",
+          "disableBlock": false
+        }
+      },
+      {
+        "id": "export-data--adX8xhSJWVPLgPXrOWw_",
+        "type": "BlockBasic",
+        "label": "export-data",
+        "position": {
+          "x": 50,
+          "y": 350
+        },
+        "data": {
+          "type": "xlsx",
+          "dataToExport": "data-columns",
+          "refKey": "",
+          "name": "cameras",
+          "description": "Export",
+          "onConflict": "uniquify",
+          "disableBlock": false
+        }
+      }
+    ],
+    "edges": [
+      {
+        "id": "edge-InllK68xYTeYG0U3gixQY",
+        "source": "trigger-a--4ZQjJ1DrrgQPc7iEj-",
+        "target": "new-tab-WlWLARgweU1iEKrA7iQU8",
+        "sourceHandle": "trigger-a--4ZQjJ1DrrgQPc7iEj--output-1",
+        "targetHandle": "new-tab-WlWLARgweU1iEKrA7iQU8-input",
+        "type": "custom"
+      },
+      {
+        "id": "edge-OKzVlXB7SkVDeaerPwq51",
+        "source": "new-tab-WlWLARgweU1iEKrA7iQU8",
+        "target": "new-tab-xTQ8MYAQFYbq7dYfb1BGi",
+        "sourceHandle": "new-tab-WlWLARgweU1iEKrA7iQU8-output-1",
+        "targetHandle": "new-tab-xTQ8MYAQFYbq7dYfb1BGi-input",
+        "type": "custom"
+      },
+      {
+        "id": "edge-k8UX_Hv4mhv8TUH7QSiVz",
+        "source": "new-tab-xTQ8MYAQFYbq7dYfb1BGi",
+        "target": "while-loop-p9wWFN1WA0cmTiWS5jwtW",
+        "sourceHandle": "new-tab-xTQ8MYAQFYbq7dYfb1BGi-output-1",
+        "targetHandle": "while-loop-p9wWFN1WA0cmTiWS5jwtW-input",
+        "type": "custom"
+      },
+      {
+        "id": "edge-e39kvTiJPF050dGOtzcQW",
+        "source": "while-loop-p9wWFN1WA0cmTiWS5jwtW",
+        "target": "loop-elements-CWWO5WxDYzzoWMQAswhwu",
+        "sourceHandle": "while-loop-p9wWFN1WA0cmTiWS5jwtW-output-1",
+        "targetHandle": "loop-elements-CWWO5WxDYzzoWMQAswhwu-input",
+        "type": "custom"
+      },
+      {
+        "id": "edge-7o7oaqvJK3Cl62gUq1jX9",
+        "source": "loop-elements-CWWO5WxDYzzoWMQAswhwu",
+        "target": "get-text-UpP1k5kKwuGyPPW1KOP6g",
+        "sourceHandle": "loop-elements-CWWO5WxDYzzoWMQAswhwu-output-1",
+        "targetHandle": "get-text-UpP1k5kKwuGyPPW1KOP6g-input",
+        "type": "custom"
+      },
+      {
+        "id": "edge-ov8YcJbffoBZNYkobsttW",
+        "source": "get-text-UpP1k5kKwuGyPPW1KOP6g",
+        "target": "get-text-m50jEr9B5IbAHBxP2yYqw",
+        "sourceHandle": "get-text-UpP1k5kKwuGyPPW1KOP6g-output-1",
+        "targetHandle": "get-text-m50jEr9B5IbAHBxP2yYqw-input",
+        "type": "custom"
+      },
+      {
+        "id": "edge-cCer9dFtQz5c1If5IenAJ",
+        "source": "loop-elements-CWWO5WxDYzzoWMQAswhwu",
+        "target": "event-click-broRISosj7Tb-GSc4rbyF",
+        "sourceHandle": "loop-elements-CWWO5WxDYzzoWMQAswhwu-output-2",
+        "targetHandle": "event-click-broRISosj7Tb-GSc4rbyF-input",
+        "type": "custom"
+      },
+      {
+        "id": "edge-3h_tbUw5I6Y0_gESn_J2H",
+        "source": "while-loop-p9wWFN1WA0cmTiWS5jwtW",
+        "target": "export-data--adX8xhSJWVPLgPXrOWw_",
+        "sourceHandle": "while-loop-p9wWFN1WA0cmTiWS5jwtW-output-2",
+        "targetHandle": "export-data--adX8xhSJWVPLgPXrOWw_-input",
+        "type": "custom"
+      }
+    ],
+    "viewport": {
+      "x": 0,
+      "y": 0,
+      "zoom": 1
+    }
+  },
+  "table": [
+    {
+      "id": "Uki12VCpcBEFBPoiEi6F0",
+      "name": "Title",
+      "type": "string",
+      "description": ""
+    },
+    {
+      "id": "117vgTJOZ_JbYyKcXo0EV",
+      "name": "Price",
+      "type": "string",
+      "description": ""
+    }
+  ],
+  "dataColumns": [
+    {
+      "id": "cdZ2ON2VS0lyL_-7gMfbf",
+      "name": "Title",
+      "type": "string",
+      "description": ""
+    },
+    {
+      "id": "sDIdTo2PWUYBUtV6ymQH7",
+      "name": "Price",
+      "type": "string",
+      "description": ""
+    }
+  ]
+}
