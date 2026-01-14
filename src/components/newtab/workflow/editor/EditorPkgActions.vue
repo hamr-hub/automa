@@ -102,8 +102,8 @@ import { usePackageStore } from '@/stores/package';
 import { useUserStore } from '@/stores/user';
 import {
   createPackage,
-  deletePackage as deletePackageApi,
-  updatePackage as updatePackageApi,
+  deletePackage as deletePackageApiFunc,
+  updatePackage as updatePackageApiFunc,
 } from '@/utils/api';
 import { computed, onMounted, reactive } from 'vue';
 import { useI18n } from 'vue-i18n';

@@ -340,7 +340,7 @@ import { useWorkflowStore } from '@/stores/workflow';
 import {
   createWorkflow,
   deleteWorkflow as deleteWorkflowApi,
-  updateWorkflow as updateWorkflowApi,
+  updateWorkflow as updateWorkflowApiFunc,
   getWorkflowById,
 } from '@/utils/api';
 import convertWorkflowData from '@/utils/convertWorkflowData';
