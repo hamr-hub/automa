@@ -44,12 +44,29 @@ class SupabaseAdapter {
 
   async getUserWorkflows() {
     await ensureSupabaseInitialized();
+    
+    // 检查用户是否已登录
+    const user = await supabaseClient.getCurrentUser();
+    if (!user) {
+      // 未登录，返回空数据，不抛出错误
+      console.log('[API] User not logged in, returning empty workflows');
+      return { hosted: {}, backup: [], cacheData: { backup: [], hosted: {} } };
+    }
+    
     const workflows = await supabaseClient.getWorkflows();
     return this._formatWorkflowsResponse(workflows);
   }
 
   async getSharedWorkflows() {
     await ensureSupabaseInitialized();
+    
+    // 检查用户是否已登录
+    const user = await supabaseClient.getCurrentUser();
+    if (!user) {
+      console.log('[API] User not logged in, returning empty shared workflows');
+      return {};
+    }
+    
     const sharedWorkflows = await supabaseClient.getSharedWorkflows();
     return this._formatSharedWorkflowsResponse(sharedWorkflows);
   }
