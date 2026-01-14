@@ -1,0 +1,58 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - generic:
+    - complementary [ref=e2]:
+      - img "v1.29.12" [ref=e3]
+      - generic [ref=e4]:
+        - link [ref=e6] [cursor=pointer]:
+          - /url: "#/workflows"
+          - img [ref=e8]
+        - link [active] [ref=e12] [cursor=pointer]:
+          - /url: "#/ai-workflow-generator"
+          - img [ref=e14]
+        - link [ref=e18] [cursor=pointer]:
+          - /url: "#/packages"
+          - img [ref=e20]
+        - link [ref=e24] [cursor=pointer]:
+          - /url: "#/schedule"
+          - img [ref=e26]
+        - link [ref=e30] [cursor=pointer]:
+          - /url: "#/storage"
+          - img [ref=e32]
+        - link [ref=e36] [cursor=pointer]:
+          - /url: "#"
+          - img [ref=e38]
+        - link [ref=e42] [cursor=pointer]:
+          - /url: "#/settings"
+          - img [ref=e44]
+      - separator [ref=e48]
+      - button [ref=e49]:
+        - img [ref=e50]
+      - link [ref=e54] [cursor=pointer]:
+        - /url: "#/login"
+        - img [ref=e55]
+      - img [ref=e61]
+      - link [ref=e65] [cursor=pointer]:
+        - /url: "#/about"
+        - img [ref=e66]
+    - main
+    - generic [ref=e70]:
+      - generic [ref=e71]:
+        - img [ref=e72]
+        - paragraph [ref=e76]: Automa has been updated to v1.29.12,
+        - link "see what's new." [ref=e77] [cursor=pointer]:
+          - /url: https://github.com/AutomaApp/automa/releases/latest
+        - button [ref=e78]:
+          - img [ref=e79]
+      - generic [ref=e83]:
+        - img [ref=e84]
+        - paragraph [ref=e88]:
+          - text: Export your Automa workflows as a standalone extension using
+          - link "Automa Chrome Extension Builder" [ref=e89] [cursor=pointer]:
+            - /url: https://docs.extension.automa.site/extension-builder/
+  - generic:
+    - tooltip "AI Generator":
+      - generic: AI Generator
+```
