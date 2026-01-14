@@ -19,8 +19,16 @@ import SettingsBackup from './pages/settings/SettingsBackup.vue';
 import SettingsDriveMigration from './pages/settings/SettingsDriveMigration.vue';
 import SettingsEditor from './pages/settings/SettingsEditor.vue';
 import AIWorkflowGenerator from './pages/AIWorkflowGenerator.vue';
+import Login from './pages/Login.vue';
+import supabaseClient from '@/services/supabase/SupabaseClient';
 
 const routes = [
+  {
+    name: 'login',
+    path: '/login',
+    component: Login,
+    meta: { public: true }, // 不需要认证
+  },
   {
     name: 'home',
     path: '/',
@@ -117,7 +125,35 @@ const routes = [
   },
 ];
 
-export default createRouter({
+const router = createRouter({
   routes,
   history: createWebHashHistory(),
 });
+
+// 全局导航守卫 - 检查认证状态
+router.beforeEach(async (to, from, next) => {
+  // 公开路由,无需认证
+  if (to.meta.public) {
+    return next();
+  }
+
+  // 检查是否已登录
+  try {
+    const session = await supabaseClient.getSession();
+    
+    if (!session) {
+      // 未登录,重定向到登录页
+      console.log('[Router] No session found, redirecting to login');
+      return next('/login');
+    }
+    
+    // 已登录,允许访问
+    next();
+  } catch (error) {
+    console.error('[Router] Auth check failed:', error);
+    // 认证检查失败,重定向到登录页
+    next('/login');
+  }
+});
+
+export default router;

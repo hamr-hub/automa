@@ -93,6 +93,7 @@ import { getUserWorkflows } from '@/utils/api';
 import dataMigration from '@/utils/dataMigration';
 import { MessageListener } from '@/utils/message';
 import { getWorkflowPermissions } from '@/utils/workflowData';
+import { onAuthStateChange } from '@/utils/auth';
 import automa from '@business';
 import { useHead } from '@vueuse/head';
 import { compare } from 'compare-versions';
@@ -123,6 +124,18 @@ const sharedWorkflowStore = useSharedWorkflowStore();
 const hostedWorkflowStore = useHostedWorkflowStore();
 
 theme.init();
+
+// 设置认证状态监听
+onAuthStateChange((event, session) => {
+  if (event === 'SIGNED_OUT') {
+    // 用户登出,重定向到登录页
+    router.push('/login');
+  } else if (event === 'SIGNED_IN') {
+    console.log('[App] User signed in:', session?.user?.email);
+  } else if (event === 'TOKEN_REFRESHED') {
+    console.log('[App] Token refreshed');
+  }
+});
 
 const retrieved = ref(false);
 const isUpdated = ref(false);

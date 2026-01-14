@@ -72,7 +72,7 @@
           />
         </span>
       </template>
-      <div class="w-44">
+      <div class="w-44 space-y-2">
         <div class="flex items-center">
           <p class="text-overflow flex-1">
             {{ userStore.user.username }}
@@ -85,6 +85,14 @@
             {{ userStore.user.subscription }}
           </span>
         </div>
+        <hr />
+        <button
+          class="w-full rounded-md bg-red-50 px-3 py-2 text-left text-sm text-red-600 hover:bg-red-100 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/30"
+          @click="handleSignOut"
+        >
+          <v-remixicon name="riLogoutBoxLine" class="mr-2 inline-block" />
+          {{ t('auth.signOut', '退出登录') }}
+        </button>
       </div>
     </ui-popover>
     <ui-popover trigger="mouseenter" placement="right" class="my-4">
@@ -124,6 +132,7 @@ import { useShortcut, getShortcut } from '@/composable/shortcut';
 import { useGroupTooltip } from '@/composable/groupTooltip';
 import { communities } from '@/utils/shared';
 import { initElementSelector } from '@/newtab/utils/elementSelector';
+import { signOut } from '@/utils/auth';
 import emitter from '@/lib/mitt';
 
 useGroupTooltip();
@@ -234,6 +243,18 @@ async function injectElementSelector() {
     console.error(error);
   }
 }
+
+async function handleSignOut() {
+  try {
+    await signOut();
+    // 登出成功后,路由守卫会自动重定向到登录页
+    toast.success(t('auth.signOutSuccess', '退出登录成功'));
+  } catch (error) {
+    console.error('Sign out error:', error);
+    toast.error(t('auth.signOutFailed', '退出登录失败'));
+  }
+}
+
 </script>
 <style scoped>
 @reference "tailwindcss";

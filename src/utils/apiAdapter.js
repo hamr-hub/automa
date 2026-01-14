@@ -16,6 +16,11 @@ async function ensureSupabaseInitialized() {
         supabaseConfig.supabaseUrl,
         supabaseConfig.supabaseAnonKey
       );
+      
+      // 仅初始化 Supabase 客户端,不自动登录
+      // 用户需要通过登录页面进行认证
+      console.log('[Supabase] Client initialized, waiting for user authentication');
+      
       supabaseInitialized = true;
     } catch (error) {
       console.warn('Supabase initialization failed:', error.message);
