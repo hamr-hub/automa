@@ -148,12 +148,19 @@ const options = {
     ],
   },
   resolve: {
-    alias,
+    alias: {
+      ...alias,
+      'node:async_hooks': path.resolve(__dirname, 'src/utils/mockAsyncHooks.js'),
+      async_hooks: path.resolve(__dirname, 'src/utils/mockAsyncHooks.js'),
+    },
     extensions: fileExtensions
       .map((extension) => `.${extension}`)
       .concat(['.js', '.vue', '.css']),
   },
   plugins: [
+    new webpack.NormalModuleReplacementPlugin(/^node:/, (resource) => {
+      resource.request = resource.request.replace(/^node:/, '');
+    }),
     new MiniCssExtractPlugin(),
     new VueLoaderPlugin(),
     new webpack.DefinePlugin({
