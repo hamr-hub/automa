@@ -100,7 +100,7 @@ import { useDialog } from '@/composable/dialog';
 import { getShortcut, useShortcut } from '@/composable/shortcut';
 import { usePackageStore } from '@/stores/package';
 import { useUserStore } from '@/stores/user';
-import { fetchApi } from '@/utils/api';
+import { createPackage, deletePackage, updatePackage } from '@/utils/api';
 import { computed, onMounted, reactive } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
@@ -199,26 +199,11 @@ async function toggleSharePackage() {
         payload[key] = props.data[key];
       });
 
-      const response = await fetchApi('/packages', {
-        auth: true,
-        method: 'POST',
-        body: JSON.stringify({
-          package: payload,
-        }),
-      });
-      const data = await response.json();
-
-      if (!response.ok) throw new Error(data.message);
+      const data = await createPackage(payload);
 
       packageStore.insertShared(props.data.id);
     } else {
-      const response = await fetchApi(`/packages/${props.data.id}`, {
-        auth: true,
-        method: 'DELETE',
-      });
-      const result = await response.json();
-
-      if (!response.ok) throw new Error(result.message);
+      await deletePackage(props.data.id);
 
       packageStore.deleteShared(props.data.id);
     }
@@ -249,14 +234,7 @@ async function updateSharedPackage() {
       payload[key] = props.data[key];
     });
 
-    const response = await fetchApi(`/packages/${props.data.id}`, {
-      auth: true,
-      method: 'PATCH',
-      body: JSON.stringify({ package: payload }),
-    });
-    const result = await response.json();
-
-    if (!response.ok) throw new Error(result.message);
+    await updatePackage(props.data.id, payload);
   } catch (error) {
     console.error(error);
     toast.error('Something went wrong!');

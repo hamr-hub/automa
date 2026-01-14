@@ -140,7 +140,7 @@
 import SharedWysiwyg from '@/components/newtab/shared/SharedWysiwyg.vue';
 import { useTeamWorkflowStore } from '@/stores/teamWorkflow';
 import { useUserStore } from '@/stores/user';
-import { fetchApi } from '@/utils/api';
+import { createWorkflow } from '@/utils/api';
 import { debounce, parseJSON } from '@/utils/helper';
 import { workflowCategories } from '@/utils/shared';
 import { convertWorkflow } from '@/utils/workflowData';
@@ -186,19 +186,8 @@ async function publishWorkflow() {
 
     delete workflow.extVersion;
 
-    const response = await fetchApi(`/teams/${state.activeTeam}/workflows`, {
-      auth: true,
-      method: 'POST',
-      body: JSON.stringify({ workflow }),
-    });
-    const result = await response.json();
-
-    if (!response.ok) {
-      const error = new Error(response.statusText);
-      error.data = result.data;
-
-      throw error;
-    }
+    workflow.teamId = state.activeTeam;
+    const result = await createWorkflow(workflow);
 
     workflow.id = result.id;
     workflow.teamId = result.teamId;

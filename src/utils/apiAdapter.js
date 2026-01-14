@@ -51,7 +51,8 @@ class SupabaseAdapter {
 
   async getWorkflowById(id) {
     await ensureSupabaseInitialized();
-    return supabaseClient.getWorkflowById(id);
+    const workflow = await supabaseClient.getWorkflowById(id);
+    return this._convertFromSupabaseFormat(workflow);
   }
 
   async getWorkflowsByIds(ids) {
@@ -62,12 +63,19 @@ class SupabaseAdapter {
 
   async createWorkflow(workflow) {
     await ensureSupabaseInitialized();
-    return supabaseClient.createWorkflow(this._convertToSupabaseFormat(workflow));
+    const result = await supabaseClient.createWorkflow(
+      this._convertToSupabaseFormat(workflow)
+    );
+    return this._convertFromSupabaseFormat(result);
   }
 
   async updateWorkflow(id, updates) {
     await ensureSupabaseInitialized();
-    return supabaseClient.updateWorkflow(id, this._convertToSupabaseFormat(updates));
+    const result = await supabaseClient.updateWorkflow(
+      id,
+      this._convertToSupabaseFormat(updates)
+    );
+    return this._convertFromSupabaseFormat(result);
   }
 
   async deleteWorkflow(id) {
@@ -80,12 +88,36 @@ class SupabaseAdapter {
     const formattedWorkflows = workflows.map((w) =>
       this._convertToSupabaseFormat(w)
     );
-    return supabaseClient.batchInsertWorkflows(formattedWorkflows);
+    const result = await supabaseClient.batchInsertWorkflows(formattedWorkflows);
+    return result.map((w) => this._convertFromSupabaseFormat(w));
   }
 
   async getPackages() {
     await ensureSupabaseInitialized();
-    return supabaseClient.getPackages();
+    const packages = await supabaseClient.getPackages();
+    return packages.map((pkg) => this._convertPackageFromSupabase(pkg));
+  }
+
+  async createPackage(pkg) {
+    await ensureSupabaseInitialized();
+    const result = await supabaseClient.createPackage(
+      this._convertPackageToSupabase(pkg)
+    );
+    return this._convertPackageFromSupabase(result);
+  }
+
+  async updatePackage(id, updates) {
+    await ensureSupabaseInitialized();
+    const result = await supabaseClient.updatePackage(
+      id,
+      this._convertPackageToSupabase(updates)
+    );
+    return this._convertPackageFromSupabase(result);
+  }
+
+  async deletePackage(id) {
+    await ensureSupabaseInitialized();
+    return supabaseClient.deletePackage(id);
   }
 
   // ============================================
@@ -234,6 +266,40 @@ class SupabaseAdapter {
       acc[workflow.id] = workflow;
       return acc;
     }, {});
+  }
+
+  _convertPackageToSupabase(pkg) {
+    return {
+      id: pkg.id,
+      name: pkg.name,
+      description: pkg.description,
+      icon: pkg.icon,
+      content: typeof pkg.content === 'string' ? JSON.parse(pkg.content) : pkg.content,
+      is_external: pkg.isExtenal,
+      inputs: pkg.inputs,
+      outputs: pkg.outputs,
+      variable: pkg.variable,
+      settings: pkg.settings,
+      data: pkg.data,
+    };
+  }
+
+  _convertPackageFromSupabase(pkg) {
+    return {
+      id: pkg.id,
+      name: pkg.name,
+      description: pkg.description,
+      icon: pkg.icon,
+      content: typeof pkg.content === 'string' ? pkg.content : JSON.stringify(pkg.content),
+      isExtenal: pkg.is_external,
+      inputs: pkg.inputs,
+      outputs: pkg.outputs,
+      variable: pkg.variable,
+      settings: pkg.settings,
+      data: pkg.data,
+      createdAt: new Date(pkg.created_at).getTime(),
+      updatedAt: new Date(pkg.updated_at).getTime(),
+    };
   }
 }
 

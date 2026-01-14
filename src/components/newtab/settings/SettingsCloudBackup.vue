@@ -157,11 +157,11 @@ import { useToast } from 'vue-toastification';
 import browser from 'webextension-polyfill';
 import {
   cacheApi,
-  fetchApi,
   getWorkflowById,
   deleteWorkflow,
   batchInsertWorkflows,
   updateWorkflow,
+  getUserWorkflows,
 } from '@/utils/api';
 import { convertWorkflow } from '@/utils/workflowData';
 import { parseJSON } from '@/utils/helper';
@@ -314,15 +314,8 @@ async function fetchCloudWorkflows() {
 
   try {
     const data = await cacheApi('backup-workflows', async () => {
-      const response = await fetchApi('/me/workflows?type=backup', {
-        auth: true,
-      });
-
-      if (!response.ok) throw new Error(response.statusText);
-
-      const result = await response.json();
-
-      return result;
+      const result = await getUserWorkflows(false);
+      return result.backup || [];
     });
 
     state.cloudWorkflows = data.map((item) => {

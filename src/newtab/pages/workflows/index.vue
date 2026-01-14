@@ -381,7 +381,7 @@ import { useHostedWorkflowStore } from '@/stores/hostedWorkflow';
 import { useTeamWorkflowStore } from '@/stores/teamWorkflow';
 import { useUserStore } from '@/stores/user';
 import { useWorkflowStore } from '@/stores/workflow';
-import { fetchApi } from '@/utils/api';
+import { getWorkflowById } from '@/utils/api';
 import { findTriggerBlock, isWhitespace } from '@/utils/helper';
 import { getWorkflowPermissions, importWorkflow } from '@/utils/workflowData';
 import { registerWorkflowTrigger } from '@/utils/workflowTrigger';
@@ -532,21 +532,9 @@ function addHostedWorkflow() {
         );
         if (isTheUserHost) throw new Error('exist');
 
-        const response = await fetchApi('/workflows/hosted', {
-          auth: true,
-          method: 'POST',
-          body: JSON.stringify({ hostId }),
-        });
-        const result = await response.json();
+        const result = await getWorkflowById(hostId);
 
-        if (!response.ok) {
-          const error = new Error(result.message);
-          error.data = result.data;
-
-          throw error;
-        }
-
-        if (result === null) throw new Error('not-found');
+        if (!result) throw new Error('not-found');
 
         result.hostId = `${hostId}`;
         result.createdAt = Date.now();

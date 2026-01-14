@@ -337,7 +337,12 @@ import { useSharedWorkflowStore } from '@/stores/sharedWorkflow';
 import { useTeamWorkflowStore } from '@/stores/teamWorkflow';
 import { useUserStore } from '@/stores/user';
 import { useWorkflowStore } from '@/stores/workflow';
-import { fetchApi } from '@/utils/api';
+import {
+  createWorkflow,
+  deleteWorkflow,
+  updateWorkflow,
+  getWorkflowById,
+} from '@/utils/api';
 import convertWorkflowData from '@/utils/convertWorkflowData';
 import { findTriggerBlock, parseJSON } from '@/utils/helper';
 import { tagColors } from '@/utils/shared';
@@ -521,11 +526,6 @@ async function setAsHostWorkflow(isHost) {
   state.isUploadingHost = true;
 
   try {
-    let url = '/me/workflows';
-    let payload = {
-      auth: true,
-    };
-
     if (isHost) {
       const workflowPaylod = convertWorkflow(props.workflow, ['id']);
       workflowPaylod.drawflow = parseJSON(
@@ -534,32 +534,18 @@ async function setAsHostWorkflow(isHost) {
       );
       delete workflowPaylod.extVersion;
 
-      url += `/host`;
-      payload = {
-        auth: true,
-        method: 'POST',
-        body: JSON.stringify({
-          workflow: workflowPaylod,
-        }),
-      };
-    } else {
-      url += `?id=${props.workflow.id}&type=host`;
-      payload.method = 'DELETE';
-    }
+      // Add host specific fields
+      workflowPaylod.isHost = true;
+      workflowPaylod.hostId = props.workflow.id;
 
-    const response = await fetchApi(url, payload);
-    const result = await response.json();
+      const result = await createWorkflow(workflowPaylod);
 
-    if (!response.ok) {
-      const error = new Error(result.message);
-      error.data = result.data;
-
-      throw error;
-    }
-
-    if (isHost) {
       userStore.hostedWorkflows[props.workflow.id] = result;
     } else {
+      const hostedInfo = userStore.hostedWorkflows[props.workflow.id];
+      if (hostedInfo && hostedInfo.id) {
+        await deleteWorkflow(hostedInfo.id);
+      }
       delete userStore.hostedWorkflows[props.workflow.id];
     }
 
@@ -604,14 +590,7 @@ function deleteFromTeam() {
     body: `Are you sure want to delete the "${props.workflow.name}" workflow from this team?`,
     onConfirm: async () => {
       try {
-        const response = await fetchApi(
-          `/teams/${teamId}/workflows/${props.workflow.id}`,
-          { method: 'DELETE', auth: true }
-        );
-        const result = await response.json();
-
-        if (!response.ok && response.status !== 404)
-          throw new Error(result.message);
+        await deleteWorkflow(props.workflow.id);
 
         await teamWorkflowStore.delete(teamId, props.workflow.id);
         router.replace(`/workflows?active=team&teamId=${teamId}`);
@@ -651,25 +630,7 @@ async function publishWorkflow() {
   state.isPublishing = true;
 
   try {
-    const response = await fetchApi(
-      `/teams/${teamId}/workflows/${props.workflow.id}`,
-      {
-        auth: true,
-        method: 'PATCH',
-        body: JSON.stringify({ workflow: workflowPaylod }),
-      }
-    );
-    const result = await response.json();
-
-    if (!response.ok) {
-      if (response.status === 404) {
-        await teamWorkflowStore.delete(teamId, props.workflow.id);
-        router.replace('/');
-        return;
-      }
-
-      throw new Error(result.message);
-    }
+    await updateWorkflow(props.workflow.id, workflowPaylod);
   } catch (error) {
     console.error(error);
     toast.error('Something went wrong');
@@ -732,18 +693,13 @@ async function retrieveTriggerText() {
 }
 async function fetchSyncWorkflow() {
   try {
-    const response = await fetchApi(
-      `/teams/${teamId}/workflows/${props.workflow.id}`,
-      { auth: true }
-    );
-    const result = await response.json();
+    const result = await getWorkflowById(props.workflow.id);
 
-    if (response.status === 404) {
+    if (!result) {
       await teamWorkflowStore.delete(teamId, props.workflow.id);
       router.replace(`/workflows?active=team&teamId=${teamId}`);
       return;
     }
-    if (!response.ok) throw new Error(result.message);
 
     await teamWorkflowStore.update({
       teamId,
