@@ -6,8 +6,15 @@ import path from 'path';
 async function runWorkflow(workflowPath) {
   console.log(`Loading workflow from: ${workflowPath}`);
   const workflow = JSON.parse(fs.readFileSync(workflowPath, 'utf8'));
-  const nodes = workflow.drawflow.nodes;
-  const edges = workflow.drawflow.edges;
+  
+  // Parse drawflow if it's a string (from Automa export format)
+  let drawflow = workflow.drawflow;
+  if (typeof drawflow === 'string') {
+    drawflow = JSON.parse(drawflow);
+  }
+  
+  const nodes = drawflow.nodes;
+  const edges = drawflow.edges;
   
   // Create a map of nodes for easy lookup
   const nodeMap = new Map(nodes.map(n => [n.id, n]));
@@ -226,5 +233,5 @@ async function runWorkflow(workflowPath) {
 }
 
 // Run it
-// runWorkflow('./amazon_jp_workflow_ai_gen.json');
-runWorkflow('./test_ollama_workflow.json');
+const workflowPath = process.argv[2] || './test_ollama_workflow.json';
+runWorkflow(workflowPath);
