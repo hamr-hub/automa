@@ -24,6 +24,8 @@ class WorkflowGenerator {
       SELECT: 'forms',
       SCREENSHOT: 'screenshot',
       CONDITION: 'conditions',
+      GO_BACK: 'go-back',
+      CLOSE_TAB: 'close-tab',
     };
 
     // 默认节点位置配置
@@ -337,7 +339,7 @@ class WorkflowGenerator {
       },
 
       'export-data': () => ({
-        type: step.data?.type || 'json',
+        type: (step.data?.type === 'excel' ? 'csv' : (step.data?.type || 'json')),
         dataToExport: 'data-columns',
         refKey: '',
         name: step.data?.filename || 'automa-data',
@@ -362,8 +364,49 @@ class WorkflowGenerator {
         dataColumn: '',
       }),
 
-      conditions: () => ({
-        conditions: step.data?.conditions || [],
+      conditions: () => {
+        // Handle simplified AI output for "exists" condition
+        if (step.data?.selector && step.data?.condition === 'exists') {
+             return {
+                conditions: [
+                    {
+                        id: nanoid(),
+                        name: 'Element Exists',
+                        conditions: [
+                            {
+                                id: nanoid(),
+                                items: [
+                                    {
+                                        id: nanoid(),
+                                        category: 'value',
+                                        type: 'element-selector',
+                                        data: { selector: step.data.selector }
+                                    },
+                                    {
+                                        id: nanoid(),
+                                        category: 'compare',
+                                        type: 'itr' // Is True (Exists)
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+             };
+        }
+
+        return {
+          conditions: step.data?.conditions || [],
+        };
+      },
+
+      'go-back': () => ({
+        description: '返回上一页',
+      }),
+
+      'close-tab': () => ({
+        active: true,
+        description: '关闭当前标签页',
       }),
     };
 

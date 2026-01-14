@@ -31,6 +31,7 @@ class LangGraphService {
       messages: [],
       userInput: '',
       targetUrl: '',
+      pageContext: '', // DOM string
       generatedJson: null,
       workflow: null,
       error: null,
@@ -47,6 +48,7 @@ class LangGraphService {
         messages: { value: (x, y) => x.concat(y), default: () => [] },
         userInput: { value: (x, y) => y || x, default: () => '' },
         targetUrl: { value: (x, y) => y || x, default: () => '' },
+        pageContext: { value: (x, y) => y || x, default: () => '' },
         generatedJson: { value: (x, y) => y, default: () => null },
         workflow: { value: (x, y) => y, default: () => null },
         error: { value: (x, y) => y, default: () => null },
@@ -92,7 +94,7 @@ class LangGraphService {
   async inputProcessingNode(state) {
     console.log('[LangGraph] Processing Input:', state.userInput);
     
-    const systemPrompt = `You are an Automa workflow generator. 
+    let systemPrompt = `You are an Automa workflow generator. 
     Convert user requests into Automa workflow JSON format.
     Return ONLY the JSON. No markdown, no explanations.
     
@@ -101,10 +103,32 @@ class LangGraphService {
       "steps": [
         { "type": "NAVIGATE", "data": { "url": "..." } },
         { "type": "CLICK", "selector": "..." },
-        { "type": "EXTRACT", "selector": "...", "data": { "columnName": "..." } }
+        { "type": "INPUT", "selector": "...", "data": { "value": "..." } },
+        { "type": "EXTRACT", "selector": "...", "data": { "columnName": "..." } },
+        { "type": "LOOP_ELEMENTS", "selector": "..." },
+        { "type": "LOOP_END" },
+        { "type": "GO_BACK" },
+        { "type": "CLOSE_TAB" },
+        { "type": "EXPORT", "data": { "type": "json" } } // type: json, csv (for excel)
       ],
       "dataSchema": { ... }
-    }`;
+    }
+    
+    BEST PRACTICES:
+    1. For LIST -> DETAIL extraction:
+       - Use LOOP_ELEMENTS on the list item selector.
+       - Inside loop: CLICK (link to detail) -> WAIT (2000ms) -> EXTRACT fields -> GO_BACK (to list).
+       - Ensure GO_BACK is inside the loop.
+    2. Amazon Specifics:
+       - Products often have 'data-component-type="s-search-result"' or class 's-result-item'.
+       - Use specific selectors for Price (e.g., '.a-price .a-offscreen'), Title ('#productTitle').
+    3. Always end with EXPORT if data is extracted.
+    `;
+
+    // Inject DOM Context if available
+    if (state.pageContext) {
+        systemPrompt += `\n\nCURRENT PAGE DOM CONTEXT:\n${state.pageContext}\n\nUse the CSS Selectors from the DOM above.`;
+    }
 
     // Add initial messages if empty
     if (state.messages.length === 0) {
@@ -208,11 +232,12 @@ class LangGraphService {
   /**
    * Execute the graph
    */
-  async run(userInput, targetUrl = '', history = []) {
+  async run(userInput, targetUrl = '', history = [], pageContext = '') {
     const initialState = {
       ...this.getInitialState(),
       userInput,
       targetUrl,
+      pageContext,
       messages: history.length > 0 ? history : []
     };
 
