@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import defu from 'defu';
 import browser from 'webextension-polyfill';
 import deepmerge from 'lodash.merge';
-import { fetchGapi, fetchApi } from '@/utils/api';
+import { fetchGapi } from '@/utils/api';
 
 export const useStore = defineStore('main', {
   storageMap: {
@@ -66,21 +66,23 @@ export const useStore = defineStore('main', {
         );
 
         if (!isIntegrated && sessionToken?.refresh && retryCount < 3) {
-          const response = await fetchApi(
-            `/me/refresh-session?token=${sessionToken.refresh}`,
-            { auth: true }
-          );
-          const refreshResult = await response.json();
-          if (!response.ok) throw new Error(refreshResult.message);
+          // Legacy backend refresh logic - deprecated with Supabase migration
+          // const response = await fetchApi(
+          //   `/me/refresh-session?token=${sessionToken.refresh}`,
+          //   { auth: true }
+          // );
+          // const refreshResult = await response.json();
+          // if (!response.ok) throw new Error(refreshResult.message);
 
-          await browser.storage.local.set({
-            sessionToken: {
-              ...sessionToken,
-              access: refreshResult.token,
-            },
-          });
-          await this.checkGDriveIntegration(force, retryCount + 1);
+          // await browser.storage.local.set({
+          //   sessionToken: {
+          //     ...sessionToken,
+          //     access: refreshResult.token,
+          //   },
+          // });
+          // await this.checkGDriveIntegration(force, retryCount + 1);
 
+          console.warn('Google Drive token refresh is not supported in the current backend version.');
           return;
         }
 

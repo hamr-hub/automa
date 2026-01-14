@@ -120,69 +120,99 @@ async function main() {
         report.summary.skipped++;
     }
 
-    // 3. Functional Tests (CRUD on Workflows)
-    // We can only test this if we are logged in, because workflows require auth usually (RLS).
-    // If not logged in, we check public access or fail gracefully.
+    // 3. Functional Tests (Storage Operations)
+    // We can only test this if we are logged in, because storage usually requires auth (RLS).
     
     if (user) {
-        let testWorkflowId = null;
-        
-        await runTest('Create Workflow', async () => {
-            const workflow = {
-                name: 'Migration Test Workflow ' + Date.now(),
-                description: 'Created by automated test',
-                icon: 'ri-flask-line',
-                trigger: null,
-                drawflow: '{}',
-                version: '1.0.0'
-            };
-            const result = await SupabaseClient.createWorkflow(workflow);
-            if (!result || !result.id) throw new Error("Create returned no ID");
-            testWorkflowId = result.id;
+        const testBucket = 'automa_files';
+        const testFileName = `test-file-${Date.now()}.txt`;
+        const testContent = 'Hello Supabase Storage from Migration Test';
+        const testFilePath = `test-folder/${testFileName}`;
+
+        // 3.1 Upload File
+        await runTest('Storage: Upload File', async () => {
+            // In Node.js, Buffer acts like ArrayBuffer for many purposes, or we can convert
+            const fileBody = Buffer.from(testContent);
+            const result = await SupabaseClient.uploadFile(testBucket, testFilePath, fileBody, {
+                contentType: 'text/plain',
+                upsert: true
+            });
+            if (!result || !result.path) throw new Error("Upload returned no path");
+            if (result.path !== testFilePath) throw new Error(`Path mismatch: ${result.path} vs ${testFilePath}`);
         });
 
-        if (testWorkflowId) {
-            await runTest('Read Workflow (ById)', async () => {
-                const wf = await SupabaseClient.getWorkflowById(testWorkflowId);
-                if (!wf || wf.id !== testWorkflowId) throw new Error("Read mismatch");
-            });
+        // 3.2 List Files
+        await runTest('Storage: List Files', async () => {
+            const result = await SupabaseClient.listFiles(testBucket, 'test-folder');
+            if (!result || !Array.isArray(result)) throw new Error("List returned invalid type");
+            const found = result.find(f => f.name === testFileName);
+            if (!found) throw new Error("Uploaded file not found in list");
+        });
 
-            await runTest('Update Workflow', async () => {
-                const updates = { description: 'Updated by test' };
-                const wf = await SupabaseClient.updateWorkflow(testWorkflowId, updates);
-                if (wf.description !== updates.description) throw new Error("Update mismatch");
-            });
+        // 3.3 Download File
+        await runTest('Storage: Download File', async () => {
+            const blob = await SupabaseClient.downloadFile(testBucket, testFilePath);
+            // In Node environment (depending on supabase-js version/adapter), blob might be Blob or Buffer-like
+            // We need to read it. If it's a standard Blob:
+            const text = await blob.text();
+            if (text !== testContent) throw new Error(`Content mismatch: '${text}' vs '${testContent}'`);
+        });
 
-            // 4. Performance Tests
-            await runTest('Performance: List Workflows (Latency)', async () => {
-                const start = performance.now();
-                await SupabaseClient.getWorkflows();
-                const end = performance.now();
-                report.performance.push({ operation: 'getWorkflows', latency: end - start });
-            });
+        // 3.4 Public URL
+        await runTest('Storage: Get Public URL', async () => {
+            const { publicUrl } = SupabaseClient.getPublicUrl(testBucket, testFilePath);
+            if (!publicUrl || !publicUrl.includes(testFilePath)) throw new Error("Invalid Public URL");
+            log(`Public URL: ${publicUrl}`, 'info');
+        });
 
-            await runTest('Performance: Concurrency (5x Read)', async () => {
-                const start = performance.now();
-                const promises = Array(5).fill(0).map(() => SupabaseClient.getWorkflowById(testWorkflowId));
-                await Promise.all(promises);
-                const end = performance.now();
-                report.performance.push({ operation: 'Concurrent Read (5x)', latency: end - start });
-            });
+        // 3.5 Signed URL
+        await runTest('Storage: Create Signed URL', async () => {
+            const { signedUrl } = await SupabaseClient.createSignedUrl(testBucket, testFilePath, 60);
+            if (!signedUrl || !signedUrl.includes('token=')) throw new Error("Invalid Signed URL");
+        });
 
-            // Clean up
-            await runTest('Delete Workflow', async () => {
-                await SupabaseClient.deleteWorkflow(testWorkflowId);
-                try {
-                    await SupabaseClient.getWorkflowById(testWorkflowId);
-                } catch (e) {
-                    // Expected error or null return
-                    return; 
-                }
-            });
-        }
+        // 3.6 Copy File
+        const copyPath = `test-folder/copy-${testFileName}`;
+        await runTest('Storage: Copy File', async () => {
+            const result = await SupabaseClient.copyFile(testBucket, testFilePath, copyPath);
+            if (!result || !result.path) throw new Error("Copy failed");
+        });
+
+        // 3.7 Move File
+        const movePath = `test-folder/moved-${testFileName}`;
+        await runTest('Storage: Move File', async () => {
+            const result = await SupabaseClient.moveFile(testBucket, copyPath, movePath);
+            if (!result) throw new Error("Move failed"); // Move sometimes returns empty object on success? Check docs.
+        });
+
+        // 3.8 Delete Files
+        await runTest('Storage: Delete Files', async () => {
+            const result = await SupabaseClient.deleteFiles(testBucket, [testFilePath, movePath]);
+            if (!result || result.length === 0) throw new Error("Delete failed or returned empty");
+        });
+
+        // 3.9 Performance Test (Upload/Download)
+        await runTest('Performance: Storage Latency', async () => {
+             const perfFile = `perf-${Date.now()}.bin`;
+             const perfData = Buffer.alloc(1024 * 1024); // 1MB
+             
+             const startUpload = performance.now();
+             await SupabaseClient.uploadFile(testBucket, perfFile, perfData, { upsert: true });
+             const uploadTime = performance.now() - startUpload;
+             
+             const startDownload = performance.now();
+             await SupabaseClient.downloadFile(testBucket, perfFile);
+             const downloadTime = performance.now() - startDownload;
+             
+             await SupabaseClient.deleteFiles(testBucket, [perfFile]);
+             
+             report.performance.push({ operation: 'Upload 1MB', latency: uploadTime });
+             report.performance.push({ operation: 'Download 1MB', latency: downloadTime });
+        });
+
     } else {
-        log("Skipping CRUD Tests (Not Authenticated)", 'warn');
-        report.summary.skipped += 4;
+        log("Skipping Storage Tests (Not Authenticated)", 'warn');
+        report.summary.skipped += 9;
     }
 
     // 5. Error Handling

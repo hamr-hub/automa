@@ -94,7 +94,7 @@ class SupabaseClient {
       return data || [];
     } catch (error) {
       console.warn('Supabase getWorkflows failed:', error.message);
-      return [];
+      throw error;
     }
   }
 
@@ -137,13 +137,15 @@ class SupabaseClient {
       return data || [];
     } catch (error) {
       console.warn('Supabase getWorkflowsByIds failed:', error.message);
-      return [];
+      throw error;
     }
   }
 
   /**
    * 创建工作流
    * @param {object} workflow - 工作流数据
+   * Note: Client explicitly sets user_id. Ensure RLS policies on 'workflows' table
+   * enforce that user_id matches auth.uid() to prevent privilege escalation.
    */
   async createWorkflow(workflow) {
     if (!this.client) throw new Error('Supabase not connected');
@@ -881,7 +883,7 @@ class SupabaseClient {
       return data || [];
     } catch (error) {
       console.warn('Supabase getSharedWorkflows failed:', error.message);
-      return [];
+      throw error;
     }
   }
 

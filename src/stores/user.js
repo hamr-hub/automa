@@ -1,4 +1,4 @@
-import { cacheApi, fetchApi } from '@/utils/api';
+import { cacheApi } from '@/utils/api';
 import apiAdapter from '@/utils/apiAdapter';
 import { defineStore } from 'pinia';
 import browser from 'webextension-polyfill';
