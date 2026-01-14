@@ -4,7 +4,7 @@
  */
 
 import aiConfig from '../../config/ai.config.js';
-import { sendMessage } from '../../utils/message';
+import { sendMessage } from '../../utils/message.js';
 
 class OllamaClient {
   constructor(config = {}) {
@@ -14,12 +14,44 @@ class OllamaClient {
     this.maxTokens = config.maxTokens || aiConfig.ollama.maxTokens;
     this.timeout = config.timeout || aiConfig.ollama.timeout;
     this.headers = config.headers || {};
+    
+    // Performance & Monitoring
+    this.cache = new Map();
+    this.metrics = {
+      requests: 0,
+      errors: 0,
+      totalLatency: 0,
+      cacheHits: 0,
+    };
+  }
+
+  /**
+   * 获取调用指标
+   */
+  getMetrics() {
+    return {
+      ...this.metrics,
+      avgLatency: this.metrics.requests ? Math.round(this.metrics.totalLatency / this.metrics.requests) : 0,
+    };
   }
 
   /**
    * 通用请求方法，支持直接 fetch 和 Background 代理
    */
   async request(url, options = {}, responseType = 'json') {
+    const startTime = Date.now();
+    const cacheKey = `${url}:${JSON.stringify(options.body)}`;
+
+    // Check Cache (Only for GET or specific POSTs if needed, but for now let's be careful with POST)
+    // For AI generation, we might cache based on prompt if temperature is 0, but usually not.
+    // Let's implement explicit caching support via options.
+    if (options.cache && this.cache.has(cacheKey)) {
+      this.metrics.cacheHits++;
+      return this.cache.get(cacheKey);
+    }
+
+    this.metrics.requests++;
+
     const fetchOptions = {
       ...options,
       headers: {
@@ -30,12 +62,12 @@ class OllamaClient {
     };
 
     try {
+      let result;
       // 1. 尝试直接 fetch
       const response = await fetch(url, fetchOptions);
       
       if (!response.ok) {
-        // 如果是 403 Forbidden，可能是 CORS 问题，尝试通过 Background 代理
-        // 或者如果是其他网络错误
+        // ... (Error handling logic)
         if (response.status === 403) {
            console.warn('Direct fetch returned 403, trying background proxy...');
            throw new Error('403_FORBIDDEN');
@@ -43,15 +75,23 @@ class OllamaClient {
         throw new Error(`Ollama API 错误: ${response.status}`);
       }
 
-      return await response[responseType]();
+      result = await response[responseType]();
+      
+      // Update Metrics & Cache
+      this.metrics.totalLatency += (Date.now() - startTime);
+      if (options.cache) {
+        this.cache.set(cacheKey, result);
+      }
+      
+      return result;
     } catch (error) {
-      // 如果是 AbortError (超时)，直接抛出
+      this.metrics.errors++;
+      
+      // ... (Proxy logic)
       if (error.name === 'AbortError') {
         throw new Error('请求超时,请检查 Ollama 服务是否正常运行');
       }
 
-      // 2. 尝试通过 Background 代理 (解决 CORS / 403 问题)
-      // 只有在非 AbortError 时才尝试
       try {
         console.log('Falling back to background fetch proxy for:', url);
         const result = await sendMessage('fetch', {
@@ -59,29 +99,48 @@ class OllamaClient {
           resource: {
             url,
             ...fetchOptions,
-            // body 需要是字符串
             body: typeof fetchOptions.body === 'object' ? JSON.stringify(fetchOptions.body) : fetchOptions.body
           }
         }, 'background');
         
+        this.metrics.totalLatency += (Date.now() - startTime);
+        if (options.cache) {
+          this.cache.set(cacheKey, result);
+        }
         return result;
       } catch (proxyError) {
-        // 如果代理也失败了
-        console.error('Background proxy failed:', proxyError);
-        
-        // 如果原始错误是 403，抛出详细建议
-        if (error.message === '403_FORBIDDEN' || proxyError.message.includes('403') || proxyError.message.includes('Forbidden')) {
-             throw new Error(`Ollama API 拒绝访问 (403)。\n可能原因：\n1. 跨域限制：请在 Ollama 服务器设置环境变量 OLLAMA_ORIGINS="*" \n2. 认证失败：请检查是否需要 API Key\n3. 防火墙拦截`);
-        }
+         console.error('Background proxy failed:', proxyError);
+         
+         if (error.message === '403_FORBIDDEN' || proxyError.message.includes('403') || proxyError.message.includes('Forbidden')) {
+              throw new Error(`Ollama API 拒绝访问 (403)。\n可能原因：\n1. 跨域限制：请在 Ollama 服务器设置环境变量 OLLAMA_ORIGINS="*" \n2. 认证失败：请检查是否需要 API Key\n3. 防火墙拦截`);
+         }
 
-        // 如果是 TypeError (通常是 CORS 导致的 Network Error)
-        if (error.name === 'TypeError' && error.message.includes('fetch')) {
-             throw new Error(`连接失败 (CORS/Network)。请确保 Ollama 允许跨域 (OLLAMA_ORIGINS="*") 且服务可访问。`);
-        }
-        
-        throw error;
+         if (error.name === 'TypeError' && error.message.includes('fetch')) {
+              throw new Error(`连接失败 (CORS/Network)。请确保 Ollama 允许跨域 (OLLAMA_ORIGINS="*") 且服务可访问。`);
+         }
+         
+         throw error;
       }
     }
+  }
+
+  /**
+   * 批量生成 (并发控制)
+   * @param {Array<string>} prompts 提示词列表
+   * @param {Object} options 
+   */
+  async batchGenerate(prompts, options = {}) {
+    const concurrency = options.concurrency || 3;
+    const results = [];
+    
+    for (let i = 0; i < prompts.length; i += concurrency) {
+      const batch = prompts.slice(i, i + concurrency);
+      const promises = batch.map(prompt => this.generate(prompt, options));
+      const batchResults = await Promise.all(promises);
+      results.push(...batchResults);
+    }
+    
+    return results;
   }
 
   /**

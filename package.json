@@ -39,6 +39,8 @@
     "@codemirror/state": "^6.5.3",
     "@codemirror/theme-one-dark": "^6.1.3",
     "@codemirror/view": "^6.39.8",
+    "@langchain/core": "^1.1.13",
+    "@langchain/langgraph": "^1.0.15",
     "@medv/finder": "^4.0.2",
     "@n8n_io/riot-tmpl": "^4.0.1",
     "@supabase/supabase-js": "^2.89.0",

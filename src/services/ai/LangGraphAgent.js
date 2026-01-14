@@ -7,48 +7,12 @@
 
 import aiConfig from '@/config/ai.config';
 import OllamaClient from './OllamaClient';
-import WorkflowGenerator from './WorkflowGenerator';
-import { workflowGenerationPrompt } from './prompts/workflow-generation';
-
-function extractJsonFromText(text) {
-  if (!text) return null;
-
-  // 尝试直接解析
-  try {
-    return JSON.parse(text);
-  } catch (e) {
-    // ignore
-  }
-
-  // 尝试从代码块中提取
-  const fenced = text.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
-  if (fenced?.[1]) {
-    try {
-      return JSON.parse(fenced[1]);
-    } catch (e) {
-      // ignore
-    }
-  }
-
-  // 尝试从第一个 { 到最后一个 }
-  const first = text.indexOf('{');
-  const last = text.lastIndexOf('}');
-  if (first !== -1 && last !== -1 && last > first) {
-    const maybe = text.slice(first, last + 1);
-    try {
-      return JSON.parse(maybe);
-    } catch (e) {
-      // ignore
-    }
-  }
-
-  return null;
-}
+import LangGraphService from './LangGraphService';
 
 class LangGraphAgent {
   constructor(config = {}) {
     this.ollama = new OllamaClient(config.ollama || aiConfig.ollama);
-    this.workflowGenerator = new WorkflowGenerator();
+    this.langGraphService = new LangGraphService(config);
 
     this.history = [];
     this.state = {
@@ -83,91 +47,52 @@ class LangGraphAgent {
       this.state.status = 'generating';
       this.state.error = null;
       
-      onProgress?.({ step: 'ai', message: 'AI 正在思考...' });
+      onProgress?.({ step: 'ai', message: 'AI 正在思考 (LangGraph)...' });
 
-      // 构建用户消息
-      let content = userInput;
-      if (targetUrl && this.history.length === 0) {
-        content += `\n目标 URL: ${targetUrl}`;
-      }
+      // Add user message to history
+      this.history.push({ role: 'user', content: userInput });
 
-      // 如果是第一条消息，添加系统提示词
-      if (this.history.length === 0) {
-        this.history.push({
-          role: 'system',
-          content: workflowGenerationPrompt.system
-        });
-      }
+      // Execute LangGraph Workflow Generation
+      // We pass the history so the AI knows the context
+      const workflow = await this.langGraphService.run(userInput, targetUrl, this.history);
 
-      this.history.push({ role: 'user', content });
-
-      // 调用 Ollama
-      const res = await this.ollama.chat(this.history);
-      const aiResponse = res?.message?.content || '';
-
-      // 添加 AI 回复到历史
-      this.history.push({ role: 'assistant', content: aiResponse });
-
-      // 尝试提取 JSON 生成工作流
-      const json = extractJsonFromText(aiResponse);
-      let workflow = null;
-
-      if (json && Array.isArray(json.steps)) {
-        onProgress?.({ step: 'build', message: '正在构建工作流...' });
+      if (workflow) {
+        const aiResponse = `已为您生成工作流: ${workflow.name}`;
+        this.history.push({ role: 'assistant', content: aiResponse });
         
-        // 记录 AI 输出结构
-        this.state.lastAiOutput = {
-            steps: json.steps,
-            dataSchema: json.dataSchema || {}
-        };
-
-        // 生成工作流
-        workflow = this.workflowGenerator.generateWorkflow(
-          this.state.lastAiOutput,
-          userInput, // 使用当前输入作为名称一部分
-          targetUrl
-        );
-
-        // 验证
-        const validation = this.workflowGenerator.validateWorkflow(workflow);
-        if (!validation.valid) {
-             console.warn(`工作流验证警告: ${validation.errors.join(', ')}`);
-             // 不抛出错误，而是让用户在 UI 上看到警告或继续
-        }
-        
+        this.state.status = 'idle';
         this.state.currentWorkflow = workflow;
-      }
 
-      this.state.status = 'completed';
-      
-      return {
-        success: true,
-        message: aiResponse,
-        workflow: workflow, // 如果生成了工作流，这里会有值
-        isWorkflowUpdate: !!workflow
-      };
+        return {
+          success: true,
+          message: aiResponse,
+          workflow: workflow,
+          isWorkflowUpdate: false // TODO: Detect update vs new
+        };
+      } else {
+        throw new Error('未能生成有效的工作流');
+      }
 
     } catch (error) {
-      console.error('AI 对话失败:', error);
+      console.error('LangGraph Agent Error:', error);
       this.state.status = 'error';
-      this.state.error = error?.message || String(error);
-      return { success: false, error: this.state.error };
+      this.state.error = error.message;
+      
+      this.history.push({ role: 'assistant', content: `错误: ${error.message}` });
+
+      return {
+        success: false,
+        error: error.message
+      };
     }
   }
 
   /**
-   * 重置会话
+   * 清除历史
    */
-  reset() {
+  clearHistory() {
     this.history = [];
-    this.state.status = 'idle';
-    this.state.error = null;
-    this.state.lastAiOutput = null;
     this.state.currentWorkflow = null;
-  }
-
-  getState() {
-    return { ...this.state };
   }
 }
 
