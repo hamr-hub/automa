@@ -1,4 +1,4 @@
-import { fetchApi, deleteWorkflow } from '@/utils/api';
+import { deleteWorkflow } from '@/utils/api';
 import firstWorkflows from '@/utils/firstWorkflows';
 import { tasks } from '@/utils/shared';
 import {

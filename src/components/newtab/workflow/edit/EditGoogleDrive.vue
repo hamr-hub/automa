@@ -1,82 +1,81 @@
 <template>
   <div>
-    <div v-if="!store.integrations.googleDrive">
-      <p>
-        You haven't
-        <a
-          href="https://docs.extension.automa.site/integrations/google-drive.html"
-          target="_blank"
-          class="underline"
-          >connected Automa to Google Drive</a
-        >.
-      </p>
-    </div>
-    <template v-else>
-      <ui-textarea
-        :model-value="data.description"
-        class="w-full"
-        :placeholder="t('common.description')"
-        @change="updateData({ description: $event })"
-      />
-      <ui-select
-        :model-value="data.action"
-        class="w-full mt-4"
-        @change="updateData({ action: $event })"
-      >
-        <option v-for="action in actions" :key="action" :value="action">
-          {{ t(`workflow.blocks.google-drive.actions.${action}`) }}
-        </option>
-      </ui-select>
-      <div class="mt-4">
-        <ul class="space-y-2">
-          <li
-            v-for="(item, index) in filePaths"
-            :key="item.id"
-            class="p-2 border rounded-lg"
-          >
-            <div class="flex items-center">
-              <ui-select
-                v-model="item.type"
-                class="grow mr-2"
-                placeholder="File location"
+    <ui-textarea
+      :model-value="data.description"
+      class="w-full"
+      :placeholder="t('common.description')"
+      @change="updateData({ description: $event })"
+    />
+    <ui-input
+      :model-value="data.bucket || 'automa_files'"
+      class="w-full mt-2"
+      placeholder="Bucket name (default: automa_files)"
+      @change="updateData({ bucket: $event })"
+    />
+    <ui-select
+      :model-value="data.action"
+      class="w-full mt-4"
+      @change="updateData({ action: $event })"
+    >
+      <option v-for="action in actions" :key="action" :value="action">
+        {{ t(`workflow.blocks.google-drive.actions.${action}`) }}
+      </option>
+    </ui-select>
+    <div class="mt-4">
+      <ul class="space-y-2">
+        <li
+          v-for="(item, index) in filePaths"
+          :key="item.id"
+          class="p-2 border rounded-lg"
+        >
+          <div class="flex items-center">
+            <ui-select
+              v-if="data.action === 'upload'"
+              v-model="item.type"
+              class="grow mr-2"
+              placeholder="File location"
+            >
+              <option value="url">URL</option>
+              <option value="local" :disabled="!hasFileAccess">
+                Local computer
+              </option>
+              <option
+                value="downloadId"
+                :disabled="!permissions.has.downloads"
               >
-                <option value="url">URL</option>
-                <option value="local" :disabled="!hasFileAccess">
-                  Local computer
-                </option>
-                <option
-                  value="downloadId"
-                  :disabled="!permissions.has.downloads"
-                >
-                  Download id
-                </option>
-              </ui-select>
-              <ui-button icon @click="filePaths.splice(index, 1)">
-                <v-remixicon name="riDeleteBin7Line" />
-              </ui-button>
+                Download id
+              </option>
+            </ui-select>
+            <div v-else class="grow mr-2 font-medium">
+              {{ t(`workflow.blocks.google-drive.actions.${data.action}`) }} Item
             </div>
-            <edit-autocomplete>
-              <ui-input
-                v-model="item.name"
-                placeholder="Filename (optional)"
-                class="w-full mt-2"
-              />
-            </edit-autocomplete>
-            <edit-autocomplete>
-              <ui-input
-                v-model="item.path"
-                :placeholder="placeholders[item.type]"
-                title="File location"
-                class="w-full mt-2"
-              />
-            </edit-autocomplete>
-          </li>
-        </ul>
-        <ui-button class="mt-4" variant="accent" @click="addFile">
-          Add file
-        </ui-button>
-      </div>
-    </template>
+            <ui-button icon @click="filePaths.splice(index, 1)">
+              <v-remixicon name="riDeleteBin7Line" />
+            </ui-button>
+          </div>
+          
+          <edit-autocomplete>
+            <ui-input
+              v-model="item.path"
+              :placeholder="getPathPlaceholder(item.type, data.action)"
+              :title="getPathTitle(data.action)"
+              class="w-full mt-2"
+            />
+          </edit-autocomplete>
+
+          <edit-autocomplete v-if="['upload', 'move', 'copy', 'download'].includes(data.action)">
+            <ui-input
+              v-model="item.name"
+              :placeholder="getNamePlaceholder(data.action)"
+              class="w-full mt-2"
+            />
+          </edit-autocomplete>
+        </li>
+      </ul>
+      <ui-button class="mt-4" variant="accent" @click="addFile">
+        Add item
+      </ui-button>
+    </div>
   </div>
 </template>
 <script setup>
@@ -103,14 +102,9 @@ const emit = defineEmits(['update:data']);
 
 const { t } = useI18n();
 const store = useStore();
-store.checkGDriveIntegration();
+// Removed checkGDriveIntegration
 
-const actions = ['upload'];
-const placeholders = {
-  downloadId: '0',
-  local: 'C:\\file.zip',
-  url: 'https://example.com/file.zip',
-};
+const actions = ['upload', 'download', 'delete', 'list', 'move', 'copy'];
 
 const permissions = useHasPermissions(['downloads']);
 
@@ -122,6 +116,34 @@ function updateData(value) {
 }
 function addFile() {
   filePaths.value.push({ path: '', type: 'url', name: '', id: nanoid(5) });
+}
+
+function getPathPlaceholder(type, action) {
+  if (action === 'upload') {
+    const placeholders = {
+      downloadId: 'Download ID',
+      local: 'C:\\file.zip',
+      url: 'https://example.com/file.zip',
+    };
+    return placeholders[type];
+  }
+  if (action === 'list') return 'Folder path (e.g. /my-folder)';
+  return 'File path (e.g. /folder/file.txt)';
+}
+
+function getPathTitle(action) {
+  if (action === 'upload') return 'Source File';
+  if (action === 'move' || action === 'copy') return 'Source Path';
+  if (action === 'download' || action === 'delete') return 'Remote Path';
+  if (action === 'list') return 'Folder Path';
+  return 'Path';
+}
+
+function getNamePlaceholder(action) {
+  if (action === 'upload') return 'Destination Filename (optional)';
+  if (action === 'download') return 'Local Filename (optional)';
+  if (action === 'move' || action === 'copy') return 'Destination Path';
+  return 'Name';
 }
 
 browser.extension.isAllowedFileSchemeAccess().then((value) => {

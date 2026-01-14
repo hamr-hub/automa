@@ -337,12 +337,7 @@ import { useSharedWorkflowStore } from '@/stores/sharedWorkflow';
 import { useTeamWorkflowStore } from '@/stores/teamWorkflow';
 import { useUserStore } from '@/stores/user';
 import { useWorkflowStore } from '@/stores/workflow';
-import {
-  createWorkflow,
-  deleteWorkflow as deleteWorkflowApi,
-  updateWorkflow as updateWorkflowApiFunc,
-  getWorkflowById,
-} from '@/utils/api';
+import apiAdapter from '@/utils/apiAdapter';
 import convertWorkflowData from '@/utils/convertWorkflowData';
 import { findTriggerBlock, parseJSON } from '@/utils/helper';
 import { tagColors } from '@/utils/shared';
@@ -527,25 +522,16 @@ async function setAsHostWorkflow(isHost) {
 
   try {
     if (isHost) {
-      const workflowPaylod = convertWorkflow(props.workflow, ['id']);
-      workflowPaylod.drawflow = parseJSON(
-        props.workflow.drawflow,
-        props.workflow.drawflow
-      );
-      delete workflowPaylod.extVersion;
-
-      // Add host specific fields
-      workflowPaylod.isHost = true;
-      workflowPaylod.hostId = props.workflow.id;
-
-      const result = await createWorkflow(workflowPaylod);
+      let result;
+      try {
+        result = await apiAdapter.createWorkflow(props.workflow);
+      } catch (e) {
+        result = await apiAdapter.updateWorkflow(props.workflow.id, props.workflow);
+      }
 
       userStore.hostedWorkflows[props.workflow.id] = result;
     } else {
-      const hostedInfo = userStore.hostedWorkflows[props.workflow.id];
-      if (hostedInfo && hostedInfo.id) {
-        await deleteWorkflowApi(hostedInfo.id);
-      }
+      await apiAdapter.deleteWorkflow(props.workflow.id);
       delete userStore.hostedWorkflows[props.workflow.id];
     }
 
@@ -589,14 +575,14 @@ function deleteFromTeam() {
     okVariant: 'danger',
     body: `Are you sure want to delete the "${props.workflow.name}" workflow from this team?`,
     onConfirm: async () => {
-      try {
-        await deleteWorkflowApi(props.workflow.id);
+        try {
+          await apiAdapter.deleteTeamWorkflow(teamId, props.workflow.id);
 
-        await teamWorkflowStore.delete(teamId, props.workflow.id);
-        router.replace(`/workflows?active=team&teamId=${teamId}`);
+          await teamWorkflowStore.delete(teamId, props.workflow.id);
+          router.replace(`/workflows?active=team&teamId=${teamId}`);
 
-        return true;
-      } catch (error) {
+          return true;
+        } catch (error) {
         toast.error('Something went wrong');
         console.error(error);
         return false;
@@ -615,22 +601,19 @@ function clearRenameModal() {
 async function publishWorkflow() {
   if (!props.canEdit) return;
 
-  const workflowPaylod = convertWorkflow(props.workflow, [
-    'id',
-    'tag',
-    'content',
-  ]);
-  workflowPaylod.drawflow = parseJSON(
-    props.workflow.drawflow,
-    props.workflow.drawflow
-  );
-  delete workflowPaylod.id;
-  delete workflowPaylod.extVersion;
-
   state.isPublishing = true;
 
   try {
-    await updateWorkflowApi(props.workflow.id, workflowPaylod);
+    try {
+      await apiAdapter.updateWorkflow(props.workflow.id, props.workflow);
+    } catch (e) {
+      if (e.message.includes('JSON object requested') || e.code === 'PGRST116') {
+        await teamWorkflowStore.delete(teamId, props.workflow.id);
+        router.replace('/');
+        return;
+      }
+      throw e;
+    }
   } catch (error) {
     console.error(error);
     toast.error('Something went wrong');
@@ -693,12 +676,16 @@ async function retrieveTriggerText() {
 }
 async function fetchSyncWorkflow() {
   try {
-    const result = await getWorkflowById(props.workflow.id);
-
-    if (!result) {
-      await teamWorkflowStore.delete(teamId, props.workflow.id);
-      router.replace(`/workflows?active=team&teamId=${teamId}`);
-      return;
+    let result;
+    try {
+      result = await apiAdapter.getWorkflowById(props.workflow.id);
+    } catch (e) {
+      if (e.message.includes('JSON object requested') || e.code === 'PGRST116') {
+        await teamWorkflowStore.delete(teamId, props.workflow.id);
+        router.replace(`/workflows?active=team&teamId=${teamId}`);
+        return;
+      }
+      throw e;
     }
 
     await teamWorkflowStore.update({

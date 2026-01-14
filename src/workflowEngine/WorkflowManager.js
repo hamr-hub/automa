@@ -1,6 +1,6 @@
 import dayjs from '@/lib/dayjs';
 import BrowserAPIService from '@/service/browser-api/BrowserAPIService';
-import { fetchApi } from '@/utils/api';
+import supabaseClient from '@/services/supabase/SupabaseClient';
 import convertWorkflowData from '@/utils/convertWorkflowData';
 import getBlockMessage from '@/utils/getBlockMessage';
 import blocksHandler from './blocksHandler';
@@ -126,9 +126,8 @@ class WorkflowManager {
         const isSameDay = checkStatus
           ? dayjs().isSame(checkStatus, 'day')
           : false;
-        if (!isSameDay || !checkStatus) {
-          fetchApi('/status')
-            .then((response) => response.json())
+        if ((!isSameDay || !checkStatus) && supabaseClient.client) {
+          supabaseClient.client.auth.getSession()
             .then(() => {
               BrowserAPIService.storage.local.set({
                 checkStatus: new Date().toString(),

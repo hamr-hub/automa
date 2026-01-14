@@ -27,13 +27,11 @@ class SupabaseClient {
         },
       });
 
-      // 测试连接：使用 HEAD 请求探测 REST endpoint，避免触发表查询导致噪声/权限问题
-      // 注意：Supabase URL 可能是自建网关（如 kong:8000），此处只做可达性探测
+      // 测试连接：使用 auth.getSession 探测服务连通性
       try {
-        const healthUrl = `${supabaseUrl.replace(/\/$/, '')}/rest/v1/`;
-        await fetch(healthUrl, { method: 'HEAD' });
+        await this.client.auth.getSession();
       } catch (e) {
-        // ignore：后续调用仍可能成功（例如被 CORS/HEAD 限制）
+        // ignore
       }
 
       this.initialized = true;
@@ -592,6 +590,140 @@ class SupabaseClient {
       .single();
 
     if (error) throw error;
+    return data;
+  }
+
+  // ============================================
+  // Storage File Operations
+  // ============================================
+
+  /**
+   * Upload file to storage
+   * @param {string} bucket - Bucket name
+   * @param {string} path - File path
+   * @param {File|Blob|ArrayBuffer} file - File body
+   * @param {object} options - Upload options
+   */
+  async uploadFile(bucket, path, file, options = {}) {
+    if (!this.client) throw new Error('Supabase not connected');
+
+    const { data, error } = await this.client.storage
+      .from(bucket)
+      .upload(path, file, options);
+
+    if (error) throw error;
+    return data;
+  }
+
+  /**
+   * Download file from storage
+   * @param {string} bucket - Bucket name
+   * @param {string} path - File path
+   */
+  async downloadFile(bucket, path) {
+    if (!this.client) throw new Error('Supabase not connected');
+
+    const { data, error } = await this.client.storage
+      .from(bucket)
+      .download(path);
+
+    if (error) throw error;
+    return data;
+  }
+
+  /**
+   * List files in storage
+   * @param {string} bucket - Bucket name
+   * @param {string} path - Folder path
+   * @param {object} options - List options
+   */
+  async listFiles(bucket, path = '', options = {}) {
+    if (!this.client) throw new Error('Supabase not connected');
+
+    const { data, error } = await this.client.storage
+      .from(bucket)
+      .list(path, options);
+
+    if (error) throw error;
+    return data;
+  }
+
+  /**
+   * Delete files from storage
+   * @param {string} bucket - Bucket name
+   * @param {array} paths - Array of file paths
+   */
+  async deleteFiles(bucket, paths) {
+    if (!this.client) throw new Error('Supabase not connected');
+
+    const { data, error } = await this.client.storage
+      .from(bucket)
+      .remove(paths);
+
+    if (error) throw error;
+    return data;
+  }
+
+  /**
+   * Move file in storage
+   * @param {string} bucket - Bucket name
+   * @param {string} fromPath - Source path
+   * @param {string} toPath - Destination path
+   */
+  async moveFile(bucket, fromPath, toPath) {
+    if (!this.client) throw new Error('Supabase not connected');
+
+    const { data, error } = await this.client.storage
+      .from(bucket)
+      .move(fromPath, toPath);
+
+    if (error) throw error;
+    return data;
+  }
+
+  /**
+   * Copy file in storage
+   * @param {string} bucket - Bucket name
+   * @param {string} fromPath - Source path
+   * @param {string} toPath - Destination path
+   */
+  async copyFile(bucket, fromPath, toPath) {
+    if (!this.client) throw new Error('Supabase not connected');
+
+    const { data, error } = await this.client.storage
+      .from(bucket)
+      .copy(fromPath, toPath);
+
+    if (error) throw error;
+    return data;
+  }
+
+  /**
+   * Create signed URL for file
+   * @param {string} bucket - Bucket name
+   * @param {string} path - File path
+   * @param {number} expiresIn - Expiration time in seconds
+   */
+  async createSignedUrl(bucket, path, expiresIn = 60) {
+    if (!this.client) throw new Error('Supabase not connected');
+
+    const { data, error } = await this.client.storage
+      .from(bucket)
+      .createSignedUrl(path, expiresIn);
+
+    if (error) throw error;
+    return data;
+  }
+
+  /**
+   * Get public URL for file
+   * @param {string} bucket - Bucket name
+   * @param {string} path - File path
+   */
+  getPublicUrl(bucket, path) {
+    if (!this.client) throw new Error('Supabase not connected');
+
+    const { data } = this.client.storage.from(bucket).getPublicUrl(path);
     return data;
   }
 

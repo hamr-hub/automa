@@ -413,10 +413,15 @@
         "connect": "Connect sheet"
       },
       "google-drive": {
-        "name": "Google Drive",
-        "description": "Upload files to Google Drive",
+        "name": "Cloud Storage (Supabase)",
+        "description": "Manage files in Supabase Storage",
         "actions": {
-          "upload": "Upload files"
+          "upload": "Upload files",
+          "download": "Download files",
+          "delete": "Delete files",
+          "list": "List files",
+          "move": "Move files",
+          "copy": "Copy files"
         }
       },
       "google-sheets": {

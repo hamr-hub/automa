@@ -16,6 +16,7 @@ import SettingsIndex from './pages/settings/SettingsIndex.vue';
 import SettingsAbout from './pages/settings/SettingsAbout.vue';
 import SettingsShortcuts from './pages/settings/SettingsShortcuts.vue';
 import SettingsBackup from './pages/settings/SettingsBackup.vue';
+import SettingsDriveMigration from './pages/settings/SettingsDriveMigration.vue';
 import SettingsEditor from './pages/settings/SettingsEditor.vue';
 import AIWorkflowGenerator from './pages/AIWorkflowGenerator.vue';
 
@@ -109,6 +110,7 @@ const routes = [
       { path: '', component: SettingsIndex },
       { path: '/about', component: SettingsAbout },
       { path: '/backup', component: SettingsBackup },
+      { path: '/drive-migration', component: SettingsDriveMigration },
       { path: '/editor', component: SettingsEditor },
       { path: '/shortcuts', component: SettingsShortcuts },
     ],

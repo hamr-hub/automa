@@ -1,18 +1,6 @@
 import supabaseClient from '@/services/supabase/SupabaseClient';
 import BrowserAPIService from '@/service/browser-api/BrowserAPIService';
 
-function queryBuilder(obj) {
-  let str = '';
-
-  Object.entries(obj).forEach(([key, value], index) => {
-    if (index !== 0) str += `&`;
-
-    str += `${key}=${value}`;
-  });
-
-  return str;
-}
-
 /**
  * 获取Google Sheets访问令牌
  * 从localStorage中获取存储的sessionToken
@@ -26,151 +14,127 @@ async function getGoogleAccessToken() {
 }
 
 /**
- * 直接调用Google Sheets API
+ * Call Supabase Edge Function to proxy Google Sheets API
+ * @param {string} method - The method to call on the proxy (e.g. 'getValues')
+ * @param {object} params - Parameters for the method
+ * @param {string} [accessToken] - Optional Google Access Token (for user-context calls)
  */
-async function callGoogleSheetsApi(url, options = {}) {
-  const accessToken = await getGoogleAccessToken();
-  
-  const { search, origin, pathname } = new URL(url);
-  const searchParams = new URLSearchParams(search);
-  searchParams.set('access_token', accessToken);
-  
-  const fullUrl = `${origin}${pathname}?${searchParams.toString()}`;
-  
-  const response = await fetch(fullUrl, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(options.headers || {}),
-    },
-  });
-  
-  if (!response.ok) {
-    const errorText = await response.text();
-    let errorData;
-    try {
-      errorData = JSON.parse(errorText);
-    } catch {
-      errorData = { message: errorText };
-    }
-    throw new Error(errorData?.error?.message || `Google API error: ${response.status}`);
+async function callSupabaseEdgeFunction(method, params, accessToken = null) {
+  if (!supabaseClient.client) {
+    throw new Error('Supabase not initialized');
   }
   
-  return response.json();
+  const body = { method, params };
+  if (accessToken) {
+    body.accessToken = accessToken;
+  }
+
+  const { data, error } = await supabaseClient.client.functions.invoke(
+    'google-sheets-proxy',
+    { body }
+  );
+  
+  if (error) throw error;
+  return data;
 }
 
 export const googleSheetNative = {
-  getUrl(path) {
-    return `https://sheets.googleapis.com/v4/spreadsheets${path}`;
+  async getValues({ spreadsheetId, range }) {
+    const accessToken = await getGoogleAccessToken();
+    return callSupabaseEdgeFunction('getValues', { spreadsheetId, range }, accessToken);
   },
-  getValues({ spreadsheetId, range }) {
-    const url = googleSheetNative.getUrl(`/${spreadsheetId}/values/${range}`);
-    return callGoogleSheetsApi(url);
-  },
-  getRange({ spreadsheetId, range }) {
-    const url = googleSheetNative.getUrl(
-      `/${spreadsheetId}/values/${range}:append?valueInputOption=RAW&includeValuesInResponse=false&insertDataOption=INSERT_ROWS`
-    );
-
-    return callGoogleSheetsApi(url, {
-      method: 'POST',
-    });
-  },
-  clearValues({ spreadsheetId, range }) {
-    const url = googleSheetNative.getUrl(
-      `/${spreadsheetId}/values/${range}:clear`
-    );
-
-    return callGoogleSheetsApi(url, { method: 'POST' });
-  },
-  updateValues({ spreadsheetId, range, options, append }) {
-    let url = '';
-    let method = '';
-
-    if (append) {
-      url = googleSheetNative.getUrl(
-        `/${spreadsheetId}/values/${range}:append`
-      );
-      method = 'POST';
-    } else {
-      url = googleSheetNative.getUrl(`/${spreadsheetId}/values/${range}`);
-      method = 'PUT';
-    }
-
-    const payload = { method };
-    if (options.body) payload.body = options.body;
-
-    return callGoogleSheetsApi(`${url}?${queryBuilder(options?.queries || {})}`, payload);
-  },
-  create(name) {
-    const url = googleSheetNative.getUrl('');
-
-    return callGoogleSheetsApi(url, {
-      method: 'POST',
-      body: JSON.stringify({
-        properties: {
-          title: name,
+  
+  async getRange({ spreadsheetId, range }) {
+    const accessToken = await getGoogleAccessToken();
+    // Map to updateValues with append=true, matching googleSheets behavior
+    return callSupabaseEdgeFunction('updateValues', {
+      spreadsheetId,
+      range,
+      append: true,
+      options: {
+        body: JSON.stringify({ values: [] }),
+        queries: {
+          valueInputOption: 'RAW',
+          includeValuesInResponse: false,
+          insertDataOption: 'INSERT_ROWS',
         },
-      }),
-    });
+      }
+    }, accessToken);
   },
-  addSheet({ sheetName, spreadsheetId }) {
-    const url = googleSheetNative.getUrl(`/${spreadsheetId}:batchUpdate`);
-    return callGoogleSheetsApi(url, {
-      method: 'POST',
-      body: JSON.stringify({
-        requests: [
-          {
-            addSheet: {
-              properties: { title: sheetName },
-            },
-          },
-        ],
-      }),
-    });
+  
+  async clearValues({ spreadsheetId, range }) {
+    const accessToken = await getGoogleAccessToken();
+    return callSupabaseEdgeFunction('clearValues', { spreadsheetId, range }, accessToken);
   },
+  
+  async updateValues({ spreadsheetId, range, options, append }) {
+    const accessToken = await getGoogleAccessToken();
+    return callSupabaseEdgeFunction('updateValues', {
+      spreadsheetId,
+      range,
+      options,
+      append
+    }, accessToken);
+  },
+  
+  async create(name) {
+    const accessToken = await getGoogleAccessToken();
+    // Map to 'create' method on proxy
+    return callSupabaseEdgeFunction('create', { title: name }, accessToken);
+  },
+  
+  async addSheet({ sheetName, spreadsheetId }) {
+    const accessToken = await getGoogleAccessToken();
+    // Map to 'addSheet' method on proxy
+    return callSupabaseEdgeFunction('addSheet', { title: sheetName, spreadsheetId }, accessToken);
+  },
+  
+  async checkPermission(spreadsheetId) {
+    try {
+      await this.getValues({ spreadsheetId, range: 'A1' });
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
 };
 
 /**
  * 通过Supabase Edge Function调用Google Sheets API
- * 这个版本使用Supabase作为代理,适用于需要服务端处理的场景
+ * 适用于系统级调用或降级方案
  */
 export const googleSheets = {
-  async callEdgeFunction(method, params) {
-    if (!supabaseClient.client) {
-      throw new Error('Supabase not initialized');
-    }
-    
-    const { data, error } = await supabaseClient.client.functions.invoke(
-      'google-sheets-proxy',
-      {
-        body: { method, params },
-      }
-    );
-    
-    if (error) throw error;
-    return data;
-  },
+  // Expose for flexibility if needed
+  callEdgeFunction: callSupabaseEdgeFunction,
   
+  // Legacy helper, might be used by UI components
   getUrl(spreadsheetId, range) {
     return `/services/google-sheets?spreadsheetId=${spreadsheetId}&range=${range}`;
   },
   
-  async getValues({ spreadsheetId, range }) {
-    // 优先使用直接调用,降级到Edge Function
+  async checkPermission(spreadsheetId) {
     try {
-      return await googleSheetNative.getValues({ spreadsheetId, range });
+      await this.getValues({ spreadsheetId, range: 'A1' });
+      return true;
     } catch (error) {
-      console.warn('Direct Google API call failed, trying Edge Function:', error);
-      return this.callEdgeFunction('getValues', { spreadsheetId, range });
+      return false;
     }
   },
   
-  getRange({ spreadsheetId, range }) {
-    return googleSheets.updateValues({
-      range,
+  async getValues({ spreadsheetId, range }) {
+    try {
+      // Try with user token first (parity with existing behavior)
+      return await googleSheetNative.getValues({ spreadsheetId, range });
+    } catch (error) {
+      console.warn('User auth failed, trying System Proxy:', error);
+      return callSupabaseEdgeFunction('getValues', { spreadsheetId, range });
+    }
+  },
+  
+  getRange(params) {
+    return this.updateValues({
+      ...params,
       append: true,
-      spreadsheetId,
       options: {
         body: JSON.stringify({ values: [] }),
         queries: {
@@ -186,22 +150,17 @@ export const googleSheets = {
     try {
       return await googleSheetNative.clearValues({ spreadsheetId, range });
     } catch (error) {
-      console.warn('Direct Google API call failed, trying Edge Function:', error);
-      return this.callEdgeFunction('clearValues', { spreadsheetId, range });
+      console.warn('User auth failed, trying System Proxy:', error);
+      return callSupabaseEdgeFunction('clearValues', { spreadsheetId, range });
     }
   },
   
   async updateValues({ spreadsheetId, range, options = {}, append }) {
     try {
-      return await googleSheetNative.updateValues({ 
-        spreadsheetId, 
-        range, 
-        options, 
-        append 
-      });
+      return await googleSheetNative.updateValues({ spreadsheetId, range, options, append });
     } catch (error) {
-      console.warn('Direct Google API call failed, trying Edge Function:', error);
-      return this.callEdgeFunction('updateValues', { 
+      console.warn('User auth failed, trying System Proxy:', error);
+      return callSupabaseEdgeFunction('updateValues', { 
         spreadsheetId, 
         range, 
         options, 

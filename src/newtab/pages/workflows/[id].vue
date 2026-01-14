@@ -328,7 +328,7 @@ import { usePackageStore } from '@/stores/package';
 import { useTeamWorkflowStore } from '@/stores/teamWorkflow';
 import { useUserStore } from '@/stores/user';
 import { useWorkflowStore } from '@/stores/workflow';
-import { fetchApi } from '@/utils/api';
+import apiAdapter from '@/utils/apiAdapter';
 import convertWorkflowData from '@/utils/convertWorkflowData';
 import DroppedNode from '@/utils/editor/DroppedNode';
 import extractAutocopmleteData from '@/utils/editor/editorAutocomplete';
@@ -660,19 +660,12 @@ const updateHostedWorkflow = throttle(async () => {
       );
     }
 
-    const response = await fetchApi(`/me/workflows/${route.params.id}`, {
-      auth: true,
-      method: 'PUT',
-      keepalive: true,
-      body: JSON.stringify({
-        workflow: workflowPayload.data,
-      }),
-    });
+    const result = await apiAdapter.updateWorkflow(
+      route.params.id,
+      workflowPayload.data
+    );
 
-    if (!response.ok) throw new Error(response.message);
     if (isBackup) {
-      const result = await response.json();
-
       if (result.updatedAt) {
         await browser.storage.local.set({ lastBackup: result.updatedAt });
       }
@@ -1548,20 +1541,21 @@ function checkWorkflowPermission() {
   });
 }
 function checkWorkflowUpdate() {
-  const updatedAt = encodeURIComponent(workflow.value.updatedAt);
-  fetchApi(
-    `/teams/${teamId}/workflows/${workflowId}/check-update?updatedAt=${updatedAt}`,
-    { auth: true }
-  )
-    .then((response) => response.json())
+  apiAdapter
+    .getWorkflowById(workflowId)
     .then((result) => {
       if (!result) return;
 
-      updateWorkflow(result).then(() => {
-        editor.value.setNodes(result.drawflow.nodes || []);
-        editor.value.setEdges(result.drawflow.edges || []);
-        editor.value.fitView();
-      });
+      const localTime = new Date(workflow.value.updatedAt).getTime();
+      const remoteTime = new Date(result.updatedAt).getTime();
+
+      if (remoteTime > localTime) {
+        updateWorkflow(result).then(() => {
+          editor.value.setNodes(result.drawflow.nodes || []);
+          editor.value.setEdges(result.drawflow.edges || []);
+          editor.value.fitView();
+        });
+      }
     })
     .catch((error) => {
       console.error(error);

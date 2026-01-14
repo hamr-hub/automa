@@ -233,7 +233,6 @@
   </div>
 </template>
 <script setup>
-import { fetchApi } from '@/utils/api';
 import googleSheetsApi from '@/utils/googleSheetsApi';
 import { convert2DArrayToArrayObj, debounce } from '@/utils/helper';
 import { defineAsyncComponent, shallowReactive } from 'vue';
@@ -307,11 +306,9 @@ const checkPermission = debounce(async (value) => {
 
     if (state.lastSheetId === value) return;
 
-    const response = await fetchApi(
-      `/services/google-sheets/meta?spreadsheetId=${value}`
-    );
+    const hasPermission = await googleSheetsApi(props.googleDrive).checkPermission(value);
 
-    state.havePermission = response.status !== 403;
+    state.havePermission = hasPermission;
     state.lastSheetId = value;
   } catch (error) {
     console.error(error);
@@ -360,11 +357,7 @@ async function previewData() {
       ? googleSheetsApi(props.googleDrive).getValues(params)
       : googleSheetsApi(props.googleDrive).getRange(params));
 
-    let result = props.googleDrive ? response : await response.json();
-
-    if (!response.ok && !props.googleDrive) {
-      throw new Error(result.message || response.statusText);
-    }
+    let result = response;
 
     if (isGetValues) {
       const values = result?.values ?? [];

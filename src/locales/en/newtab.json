@@ -148,7 +148,8 @@
       "editor": "Editor",
       "general": "General",
       "shortcuts": "Shortcuts",
-      "about": "About"
+      "about": "About",
+      "driveMigration": "Google Drive Migration"
     },
     "backupWorkflows": {
       "title": "Local Backup",

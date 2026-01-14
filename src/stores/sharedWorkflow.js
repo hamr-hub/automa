@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { fetchApi, cacheApi } from '@/utils/api';
+import { cacheApi } from '@/utils/api';
 import apiAdapter from '@/utils/apiAdapter';
 import { useUserStore } from './user';
 
