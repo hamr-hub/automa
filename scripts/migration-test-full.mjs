@@ -69,21 +69,27 @@ async function loadSecrets() {
     if (fs.existsSync(secretsPath)) {
         try {
              // Dynamic import for local secrets if possible, or simple parsing
-             // Since secrets.js is likely ES module or CJS, we try to read it.
-             // For simplicity in this script, we'll rely on Process Env mostly, 
-             // but attempt to read the file content if needed.
-             // NOTE: Real secrets.js might be 'export default' or 'module.exports'
-             // We will try to rely on process.env first.
+             const fileContent = fs.readFileSync(secretsPath, 'utf8');
+             // Quick hack to parse JS object export without dynamic import (which can be tricky with ESM/CJS mix)
+             // We assume simple format: export default { ... }
+             const match = fileContent.match(/export default\s*(\{[\s\S]*?\});/);
+             if (match && match[1]) {
+                 // Evaluating JS object literal in string
+                 // Note: This is unsafe in general but acceptable for local dev scripts
+                 // We replace 'process.env.*' with actual empty strings to avoid eval errors if not defined
+                 const cleanContent = match[1].replace(/process\.env\.[a-zA-Z0-9_]+/g, "''");
+                 secrets = eval(`(${cleanContent})`);
+             }
         } catch (e) {
-            console.warn("Could not load secrets.js");
+            console.warn("Could not load secrets.js", e);
         }
     }
     
     return {
         supabaseUrl: process.env.SUPABASE_URL || secrets.supabaseUrl || '',
         supabaseAnonKey: process.env.SUPABASE_ANON_KEY || secrets.supabaseAnonKey || '',
-        testEmail: process.env.TEST_EMAIL || '',
-        testPassword: process.env.TEST_PASSWORD || ''
+        testEmail: process.env.TEST_EMAIL || secrets.testEmail || '',
+        testPassword: process.env.TEST_PASSWORD || secrets.testPassword || ''
     };
 }
 
@@ -107,22 +113,38 @@ async function main() {
         if (!SupabaseClient.initialized) throw new Error("Client failed to initialize");
     });
 
-    // 2. Auth Test (Optional)
+    // 2. Auth Test (Register or Login)
     let user = null;
-    if (config.testEmail && config.testPassword) {
-        await runTest('Authentication (Sign In)', async () => {
-            const data = await SupabaseClient.signInWithPassword(config.testEmail, config.testPassword);
-            user = data.user;
-            if (!user) throw new Error("Login failed");
-        });
-    } else {
-        log("Skipping Auth Test (No credentials provided)", 'warn');
-        report.summary.skipped++;
-    }
+    let testEmail = config.testEmail || `test-${Date.now()}@example.com`;
+    let testPassword = config.testPassword || 'test-password-123';
 
-    // 3. Functional Tests (Storage Operations)
-    // We can only test this if we are logged in, because storage usually requires auth (RLS).
-    
+    await runTest('Authentication (Sign Up/Sign In)', async () => {
+        // Try to sign in first
+        try {
+            const { data, error } = await SupabaseClient.client.auth.signInWithPassword({
+                email: testEmail,
+                password: testPassword
+            });
+            
+            if (error) {
+                // If sign in fails, try to sign up
+                log(`Sign in failed (${error.message}), trying sign up...`, 'info');
+                const { data: signUpData, error: signUpError } = await SupabaseClient.signUp(testEmail, testPassword);
+                if (signUpError) throw signUpError;
+                user = signUpData.user;
+                log('User signed up successfully', 'pass');
+            } else {
+                user = data.user;
+                log('User signed in successfully', 'pass');
+            }
+        } catch (e) {
+            throw new Error(`Auth failed: ${e.message}`);
+        }
+        
+        if (!user) throw new Error("Authentication failed: No user returned");
+    });
+
+    // 3. Functional Tests (CRUD on Workflows)
     if (user) {
         const testBucket = 'automa_files';
         const testFileName = `test-file-${Date.now()}.txt`;
