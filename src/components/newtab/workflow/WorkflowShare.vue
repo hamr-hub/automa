@@ -90,7 +90,7 @@
 import SharedWysiwyg from '@/components/newtab/shared/SharedWysiwyg.vue';
 import { useSharedWorkflowStore } from '@/stores/sharedWorkflow';
 import { useUserStore } from '@/stores/user';
-import { fetchApi } from '@/utils/api';
+import supabaseAdapter from '@/utils/apiAdapter';
 import { debounce, parseJSON } from '@/utils/helper';
 import { workflowCategories } from '@/utils/shared';
 import { convertWorkflow } from '@/utils/workflowData';
@@ -131,19 +131,7 @@ async function publishWorkflow() {
 
     delete workflow.extVersion;
 
-    const response = await fetchApi('/me/workflows/shared', {
-      auth: true,
-      method: 'POST',
-      body: JSON.stringify({ workflow }),
-    });
-    const result = await response.json();
-
-    if (!response.ok) {
-      const error = new Error(response.statusText);
-      error.data = result.data;
-
-      throw error;
-    }
+    const result = await supabaseAdapter.createWorkflow(workflow);
 
     workflow.drawflow = props.workflow.drawflow;
 

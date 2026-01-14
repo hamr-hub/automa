@@ -1,4 +1,5 @@
-import { fetchGapi, fetchApi } from './api';
+import supabaseClient from '@/services/supabase/SupabaseClient';
+import BrowserAPIService from '@/service/browser-api/BrowserAPIService';
 
 function queryBuilder(obj) {
   let str = '';
@@ -12,21 +13,66 @@ function queryBuilder(obj) {
   return str;
 }
 
+/**
+ * 获取Google Sheets访问令牌
+ * 从localStorage中获取存储的sessionToken
+ */
+async function getGoogleAccessToken() {
+  const { sessionToken } = await BrowserAPIService.storage.local.get('sessionToken');
+  if (!sessionToken?.access) {
+    throw new Error('No Google access token found. Please authenticate first.');
+  }
+  return sessionToken.access;
+}
+
+/**
+ * 直接调用Google Sheets API
+ */
+async function callGoogleSheetsApi(url, options = {}) {
+  const accessToken = await getGoogleAccessToken();
+  
+  const { search, origin, pathname } = new URL(url);
+  const searchParams = new URLSearchParams(search);
+  searchParams.set('access_token', accessToken);
+  
+  const fullUrl = `${origin}${pathname}?${searchParams.toString()}`;
+  
+  const response = await fetch(fullUrl, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(options.headers || {}),
+    },
+  });
+  
+  if (!response.ok) {
+    const errorText = await response.text();
+    let errorData;
+    try {
+      errorData = JSON.parse(errorText);
+    } catch {
+      errorData = { message: errorText };
+    }
+    throw new Error(errorData?.error?.message || `Google API error: ${response.status}`);
+  }
+  
+  return response.json();
+}
+
 export const googleSheetNative = {
   getUrl(path) {
     return `https://sheets.googleapis.com/v4/spreadsheets${path}`;
   },
   getValues({ spreadsheetId, range }) {
     const url = googleSheetNative.getUrl(`/${spreadsheetId}/values/${range}`);
-
-    return fetchGapi(url);
+    return callGoogleSheetsApi(url);
   },
   getRange({ spreadsheetId, range }) {
     const url = googleSheetNative.getUrl(
       `/${spreadsheetId}/values/${range}:append?valueInputOption=RAW&includeValuesInResponse=false&insertDataOption=INSERT_ROWS`
     );
 
-    return fetchGapi(url, {
+    return callGoogleSheetsApi(url, {
       method: 'POST',
     });
   },
@@ -35,7 +81,7 @@ export const googleSheetNative = {
       `/${spreadsheetId}/values/${range}:clear`
     );
 
-    return fetchGapi(url, { method: 'POST' });
+    return callGoogleSheetsApi(url, { method: 'POST' });
   },
   updateValues({ spreadsheetId, range, options, append }) {
     let url = '';
@@ -54,12 +100,12 @@ export const googleSheetNative = {
     const payload = { method };
     if (options.body) payload.body = options.body;
 
-    return fetchGapi(`${url}?${queryBuilder(options?.queries || {})}`, payload);
+    return callGoogleSheetsApi(`${url}?${queryBuilder(options?.queries || {})}`, payload);
   },
   create(name) {
     const url = googleSheetNative.getUrl('');
 
-    return fetchGapi(url, {
+    return callGoogleSheetsApi(url, {
       method: 'POST',
       body: JSON.stringify({
         properties: {
@@ -70,7 +116,7 @@ export const googleSheetNative = {
   },
   addSheet({ sheetName, spreadsheetId }) {
     const url = googleSheetNative.getUrl(`/${spreadsheetId}:batchUpdate`);
-    return fetchGapi(url, {
+    return callGoogleSheetsApi(url, {
       method: 'POST',
       body: JSON.stringify({
         requests: [
@@ -85,15 +131,41 @@ export const googleSheetNative = {
   },
 };
 
+/**
+ * 通过Supabase Edge Function调用Google Sheets API
+ * 这个版本使用Supabase作为代理,适用于需要服务端处理的场景
+ */
 export const googleSheets = {
+  async callEdgeFunction(method, params) {
+    if (!supabaseClient.client) {
+      throw new Error('Supabase not initialized');
+    }
+    
+    const { data, error } = await supabaseClient.client.functions.invoke(
+      'google-sheets-proxy',
+      {
+        body: { method, params },
+      }
+    );
+    
+    if (error) throw error;
+    return data;
+  },
+  
   getUrl(spreadsheetId, range) {
     return `/services/google-sheets?spreadsheetId=${spreadsheetId}&range=${range}`;
   },
-  getValues({ spreadsheetId, range }) {
-    const url = this.getUrl(spreadsheetId, range);
-
-    return fetchApi(url);
+  
+  async getValues({ spreadsheetId, range }) {
+    // 优先使用直接调用,降级到Edge Function
+    try {
+      return await googleSheetNative.getValues({ spreadsheetId, range });
+    } catch (error) {
+      console.warn('Direct Google API call failed, trying Edge Function:', error);
+      return this.callEdgeFunction('getValues', { spreadsheetId, range });
+    }
   },
+  
   getRange({ spreadsheetId, range }) {
     return googleSheets.updateValues({
       range,
@@ -109,20 +181,33 @@ export const googleSheets = {
       },
     });
   },
-  clearValues({ spreadsheetId, range }) {
-    return fetchApi(this.getUrl(spreadsheetId, range), {
-      method: 'DELETE',
-    });
+  
+  async clearValues({ spreadsheetId, range }) {
+    try {
+      return await googleSheetNative.clearValues({ spreadsheetId, range });
+    } catch (error) {
+      console.warn('Direct Google API call failed, trying Edge Function:', error);
+      return this.callEdgeFunction('clearValues', { spreadsheetId, range });
+    }
   },
-  updateValues({ spreadsheetId, range, options = {}, append }) {
-    const url = `${this.getUrl(spreadsheetId, range)}&${queryBuilder(
-      options?.queries || {}
-    )}`;
-
-    return fetchApi(url, {
-      ...options,
-      method: append ? 'POST' : 'PUT',
-    });
+  
+  async updateValues({ spreadsheetId, range, options = {}, append }) {
+    try {
+      return await googleSheetNative.updateValues({ 
+        spreadsheetId, 
+        range, 
+        options, 
+        append 
+      });
+    } catch (error) {
+      console.warn('Direct Google API call failed, trying Edge Function:', error);
+      return this.callEdgeFunction('updateValues', { 
+        spreadsheetId, 
+        range, 
+        options, 
+        append 
+      });
+    }
   },
 };
 

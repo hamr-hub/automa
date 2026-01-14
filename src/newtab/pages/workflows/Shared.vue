@@ -155,7 +155,7 @@ import { useDialog } from '@/composable/dialog';
 import { useGroupTooltip } from '@/composable/groupTooltip';
 import { useSharedWorkflowStore } from '@/stores/sharedWorkflow';
 import { useWorkflowStore } from '@/stores/workflow';
-import { fetchApi } from '@/utils/api';
+import supabaseAdapter from '@/utils/apiAdapter';
 import convertWorkflowData from '@/utils/convertWorkflowData';
 import { useHead } from '@vueuse/head';
 import { computed, onMounted, reactive, shallowRef, watch } from 'vue';
@@ -254,14 +254,7 @@ function unpublishSharedWorkflow() {
       try {
         state.isUnpublishing = true;
 
-        const response = await fetchApi(`/me/workflows/shared/${workflowId}`, {
-          auth: true,
-          method: 'DELETE',
-        });
-
-        if (response.status !== 200) {
-          throw new Error(response.statusText);
-        }
+        await supabaseAdapter.unshareWorkflow(workflowId);
 
         sharedWorkflowStore.delete(workflowId);
         sessionStorage.setItem(
@@ -294,17 +287,7 @@ async function saveUpdatedSharedWorkflow() {
       }
     });
 
-    const url = `/me/workflows/shared/${workflowId}`;
-    const response = await fetchApi(url, {
-      auth: true,
-      method: 'PUT',
-      body: JSON.stringify(payload),
-    });
-
-    if (response.status !== 200) {
-      toast.error(t('message.somethingWrong'));
-      throw new Error(response.statusText);
-    }
+    await supabaseAdapter.updateWorkflow(workflowId, payload);
 
     state.isChanged = false;
     changingKeys.clear();
@@ -316,6 +299,7 @@ async function saveUpdatedSharedWorkflow() {
     state.isUpdating = false;
   } catch (error) {
     console.error(error);
+    toast.error(t('message.somethingWrong'));
     state.isUpdating = false;
   }
 }

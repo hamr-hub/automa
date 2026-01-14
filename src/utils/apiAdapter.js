@@ -168,6 +168,26 @@ class SupabaseAdapter {
   }
 
   // ============================================
+  // Teams
+  // ============================================
+
+  async getTeamWorkflows(teamId) {
+    await ensureSupabaseInitialized();
+    const workflows = await supabaseClient.getTeamWorkflows(teamId);
+    return workflows.map((w) => this._convertFromSupabaseFormat(w));
+  }
+
+  async deleteTeamWorkflow(teamId, workflowId) {
+    await ensureSupabaseInitialized();
+    return supabaseClient.deleteTeamWorkflow(teamId, workflowId);
+  }
+
+  async unshareWorkflow(workflowId) {
+    await ensureSupabaseInitialized();
+    return supabaseClient.unshareWorkflow(workflowId);
+  }
+
+  // ============================================
   // Helpers
   // ============================================
 

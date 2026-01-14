@@ -841,6 +841,37 @@ class SupabaseClient {
     return data;
   }
 
+  /**
+   * 获取团队工作流
+   * @param {string} teamId - 团队 ID
+   */
+  async getTeamWorkflows(teamId) {
+    const { data, error } = await this.client
+      .from('workflows')
+      .select('*')
+      .eq('team_id', teamId)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return data;
+  }
+
+  /**
+   * 删除团队工作流
+   * @param {string} teamId - 团队 ID
+   * @param {string} workflowId - 工作流 ID
+   */
+  async deleteTeamWorkflow(teamId, workflowId) {
+    const { error } = await this.client
+      .from('workflows')
+      .delete()
+      .eq('id', workflowId)
+      .eq('team_id', teamId);
+
+    if (error) throw error;
+    return { success: true };
+  }
+
   // ============================================
   // Packages 相关操作
   // ============================================

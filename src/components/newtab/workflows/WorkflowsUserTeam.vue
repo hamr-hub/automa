@@ -59,7 +59,7 @@ import { useDialog } from '@/composable/dialog';
 import RendererWorkflowService from '@/service/renderer/RendererWorkflowService';
 import { useTeamWorkflowStore } from '@/stores/teamWorkflow';
 import { useUserStore } from '@/stores/user';
-import { fetchApi } from '@/utils/api';
+import supabaseAdapter from '@/utils/apiAdapter';
 import { arraySorter } from '@/utils/helper';
 import { tagColors } from '@/utils/shared';
 import { computed } from 'vue';
@@ -170,14 +170,7 @@ function onMenuSelected({ id, data }) {
       body: `Are you sure want to delete the "${data.name}" workflow from this team?`,
       onConfirm: async () => {
         try {
-          const response = await fetchApi(
-            `/teams/${props.teamId}/workflows/${data.id}`,
-            { method: 'DELETE', auth: true }
-          );
-          const result = await response.json();
-
-          if (!response.ok && response.status !== 404)
-            throw new Error(result.message);
+          await supabaseAdapter.deleteTeamWorkflow(props.teamId, data.id);
 
           await teamWorkflowStore.delete(props.teamId, data.id);
 
