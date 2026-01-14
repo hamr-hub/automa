@@ -144,7 +144,7 @@
               :disabled="state.isGenerating || !state.userInput.trim()"
               @click="sendMessage"
             >
-              <v-remixicon name="riSendPlane2Line" />
+              <v-remixicon name="riSendPlaneLine" />
             </button>
           </div>
           <p class="mt-2 text-xs text-gray-400">
@@ -405,6 +405,10 @@ async function sendMessage() {
   scrollToBottom();
 
   try {
+    // 确保使用配置的 Ollama 服务器
+    agent.ollama.baseUrl = state.ollamaConfig.baseUrl;
+    agent.ollama.model = state.ollamaConfig.model;
+    
     const result = await agent.chat(content, '', (progress) => {
     });
 

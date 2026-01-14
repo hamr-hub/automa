@@ -15,11 +15,48 @@ class OllamaClient {
   }
 
   /**
+   * 规范化 URL，支持 IPv6 地址和域名
+   * @param {string} url - 原始 URL
+   * @returns {string} - 规范化后的 URL
+   */
+  normalizeUrl(url) {
+    // 如果 URL 已经是完整格式，直接返回
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return url;
+    }
+    
+    // 处理 IPv6 地址格式
+    // 支持格式: [::1]:11434, [2001:db8::1]:11434
+    const ipv6WithBrackets = url.match(/^\[([0-9a-fA-F:]+)\]:(\d+)(.*)$/);
+    if (ipv6WithBrackets) {
+      const [, ipv6, port, path] = ipv6WithBrackets;
+      return `http://[${ipv6}]:${port}${path}`;
+    }
+    
+    // 处理不带方括号的纯 IPv6 地址（如 ::1 或 2001:db8::1）
+    // 注意：这里不处理 host:port 格式，因为可能与域名冲突
+    const pureIpv6 = url.match(/^([0-9a-fA-F:]+)$/);
+    if (pureIpv6 && pureIpv6[1].split(':').length > 2) {
+      return `http://[${pureIpv6[1]}]:11434`;
+    }
+    
+    // 处理普通域名或 IPv4 地址（如 localhost:11434, wsl.hamr.top:11434, 192.168.1.1:11434）
+    // 浏览器会自动处理 DNS 解析，包括 IPv6-only 域名
+    if (!url.includes('://')) {
+      return `http://${url}`;
+    }
+    
+    return url;
+  }
+
+  /**
    * 检查 Ollama 服务是否可用
    */
   async checkHealth() {
     try {
-      const response = await fetch(`${this.baseUrl}/api/tags`, {
+      const url = this.normalizeUrl(`${this.baseUrl}/api/tags`);
+      
+      const response = await fetch(url, {
         method: 'GET',
         signal: AbortSignal.timeout(5000),
       });
@@ -35,7 +72,8 @@ class OllamaClient {
    */
   async listModels() {
     try {
-      const response = await fetch(`${this.baseUrl}/api/tags`);
+      const url = this.normalizeUrl(`${this.baseUrl}/api/tags`);
+      const response = await fetch(url);
       const data = await response.json();
       return data.models || [];
     } catch (error) {
@@ -64,7 +102,8 @@ class OllamaClient {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), this.timeout);
 
-      const response = await fetch(`${this.baseUrl}/api/generate`, {
+      const url = this.normalizeUrl(`${this.baseUrl}/api/generate`);
+      const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -114,7 +153,8 @@ class OllamaClient {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), this.timeout);
 
-      const response = await fetch(`${this.baseUrl}/api/chat`, {
+      const url = this.normalizeUrl(`${this.baseUrl}/api/chat`);
+      const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -159,7 +199,8 @@ class OllamaClient {
     };
 
     try {
-      const response = await fetch(`${this.baseUrl}/api/generate`, {
+      const url = this.normalizeUrl(`${this.baseUrl}/api/generate`);
+      const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -223,7 +264,8 @@ class OllamaClient {
     };
 
     try {
-      const response = await fetch(`${this.baseUrl}/api/chat`, {
+      const url = this.normalizeUrl(`${this.baseUrl}/api/chat`);
+      const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
