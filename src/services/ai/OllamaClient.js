@@ -25,8 +25,8 @@ class OllamaClient {
       });
       return response.ok;
     } catch (error) {
-      console.warn('Ollama 服务不可用，启用 Mock 模式:', error);
-      return true; // Return true to enable Mock mode
+      console.warn('Ollama 服务不可用:', error);
+      return false;
     }
   }
 
@@ -39,8 +39,8 @@ class OllamaClient {
       const data = await response.json();
       return data.models || [];
     } catch (error) {
-      console.warn('获取模型列表失败，使用 Mock 模型:', error);
-      return [{ name: 'mock-model' }];
+      console.warn('获取模型列表失败:', error);
+      throw error;
     }
   }
 
@@ -136,27 +136,8 @@ class OllamaClient {
         done: data.done,
       };
     } catch (error) {
-      console.warn('Ollama chat failed, using Mock response:', error);
-      
-      // Mock response
-      const mockContent = JSON.stringify({
-        steps: [
-          { type: 'NAVIGATE', data: { url: 'https://www.google.com' }, description: 'Go to Google' },
-          { type: 'INPUT', selector: "textarea[name='q']", data: { value: 'Automa' }, description: "Type 'Automa'" },
-          { type: 'CLICK', selector: "input[name='btnK']", description: 'Click search' },
-          { type: 'WAIT', data: { time: 2000 }, description: 'Wait for results' }
-        ],
-        dataSchema: {}
-      });
-
-      return {
-        message: {
-          role: 'assistant',
-          content: `(Mock) Sure! Here is a workflow to do that:\n\`\`\`json\n${mockContent}\n\`\`\``
-        },
-        model: 'mock-model',
-        done: true
-      };
+      console.warn('Ollama chat failed:', error);
+      throw error;
     }
   }
 
