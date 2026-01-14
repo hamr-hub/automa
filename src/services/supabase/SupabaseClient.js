@@ -27,14 +27,15 @@ class SupabaseClient {
         },
       });
 
-      // 测试连接：使用 auth.getSession 探测服务连通性
+      // 测试连接：使用轻量级的auth.getSession检查(不触发网络请求到REST API)
       try {
         await this.client.auth.getSession();
+        this.initialized = true;
+        console.log('[Supabase] Client initialized successfully');
       } catch (e) {
-        // ignore
+        console.warn('[Supabase] Session check failed:', e.message);
+        this.initialized = true; // 仍标记为已初始化，允许后续调用
       }
-
-      this.initialized = true;
     } catch (error) {
       console.warn('Supabase initialization failed:', error.message);
       this.client = null;
