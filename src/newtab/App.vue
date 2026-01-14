@@ -8,17 +8,17 @@
     <ui-dialog>
       <template #auth>
         <div class="text-center">
-          <p class="text-xl font-semibold">Oops!! 😬</p>
+          <p class="text-xl font-semibold">{{ t('auth.requireLogin.title', '需要登录') }}</p>
           <p class="mt-2 text-gray-600 dark:text-gray-200">
-            {{ t('auth.text') }}
+            {{ authRequiredFeature ? t('auth.requireLogin.featureText', '此功能需要登录才能使用：') : t('auth.text') }}
+            <span v-if="authRequiredFeature" class="font-semibold">{{ authRequiredFeature }}</span>
           </p>
           <ui-button
-            tag="a"
-            href="https://extension.automa.site/auth"
             class="mt-6 block w-full"
             variant="accent"
+            @click="handleAuthClick"
           >
-            {{ t('auth.signIn') }}
+            {{ t('auth.signIn', '登录') }}
           </ui-button>
         </div>
       </template>
@@ -125,7 +125,7 @@ const hostedWorkflowStore = useHostedWorkflowStore();
 
 theme.init();
 
-// 设置认证状态监听
+// 监听认证状态变化（可选）
 onAuthStateChange((event, session) => {
   if (event === 'SIGNED_OUT') {
     // 用户登出,清空用户状态但不强制跳转
@@ -134,6 +134,8 @@ onAuthStateChange((event, session) => {
     userStore.user = null;
     userStore.hostedWorkflows = {};
     userStore.backupIds = [];
+    console.log('[App] User signed out');
+    // 不强制跳转登录页，允许用户继续使用本地功能
   } else if (event === 'SIGNED_IN') {
     console.log('[App] User signed in:', session?.user?.email);
     // 登录成功后重新加载用户数据
@@ -148,10 +150,27 @@ onAuthStateChange((event, session) => {
 
 const retrieved = ref(false);
 const isUpdated = ref(false);
+const authRequiredFeature = ref('');
 const permissionState = reactive({
   permissions: [],
   showModal: false,
 });
+
+// 监听需要认证的事件
+emitter.on('auth:required', ({ feature }) => {
+  authRequiredFeature.value = feature || '';
+  emitter.emit('show-dialog', {
+    type: 'auth',
+    options: {
+      custom: true,
+    },
+  });
+});
+
+// 处理认证按钮点击
+function handleAuthClick() {
+  router.push('/login');
+}
 
 const currentVersion = browser.runtime.getManifest().version;
 const prevVersion = localStorage.getItem('ext-version') || '0.0.0';

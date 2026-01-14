@@ -130,4 +130,7 @@ const router = createRouter({
   history: createWebHashHistory(),
 });
 
+// 不需要全局路由守卫，允许用户在未登录状态下使用本地功能
+// 需要登录的功能会在具体使用时通过 requireAuth() 检查并弹出登录提示
+
 export default router;
