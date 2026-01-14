@@ -1199,7 +1199,11 @@ class SupabaseClient {
    */
   onAuthStateChange(callback) {
     if (this.client) {
-      return this.client.auth.onAuthStateChange(callback);
+      if (!this.client) {
+      console.warn('[Supabase] Client not initialized, skipping auth state change listener');
+      return { data: { subscription: { unsubscribe: () => {} } } };
+    }
+    return this.client.auth.onAuthStateChange(callback);
     }
 
     const listener = {
