@@ -100,7 +100,11 @@ import { useDialog } from '@/composable/dialog';
 import { getShortcut, useShortcut } from '@/composable/shortcut';
 import { usePackageStore } from '@/stores/package';
 import { useUserStore } from '@/stores/user';
-import { createPackage, deletePackage, updatePackage } from '@/utils/api';
+import {
+  createPackage,
+  deletePackage as deletePackageApi,
+  updatePackage as updatePackageApi,
+} from '@/utils/api';
 import { computed, onMounted, reactive } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
@@ -203,7 +207,7 @@ async function toggleSharePackage() {
 
       packageStore.insertShared(props.data.id);
     } else {
-      await deletePackage(props.data.id);
+      await deletePackageApi(props.data.id);
 
       packageStore.deleteShared(props.data.id);
     }
@@ -234,7 +238,7 @@ async function updateSharedPackage() {
       payload[key] = props.data[key];
     });
 
-    await updatePackage(props.data.id, payload);
+    await updatePackageApi(props.data.id, payload);
   } catch (error) {
     console.error(error);
     toast.error('Something went wrong!');

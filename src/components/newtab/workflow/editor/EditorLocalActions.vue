@@ -339,8 +339,8 @@ import { useUserStore } from '@/stores/user';
 import { useWorkflowStore } from '@/stores/workflow';
 import {
   createWorkflow,
-  deleteWorkflow,
-  updateWorkflow,
+  deleteWorkflow as deleteWorkflowApi,
+  updateWorkflow as updateWorkflowApi,
   getWorkflowById,
 } from '@/utils/api';
 import convertWorkflowData from '@/utils/convertWorkflowData';
@@ -544,7 +544,7 @@ async function setAsHostWorkflow(isHost) {
     } else {
       const hostedInfo = userStore.hostedWorkflows[props.workflow.id];
       if (hostedInfo && hostedInfo.id) {
-        await deleteWorkflow(hostedInfo.id);
+        await deleteWorkflowApi(hostedInfo.id);
       }
       delete userStore.hostedWorkflows[props.workflow.id];
     }
@@ -590,7 +590,7 @@ function deleteFromTeam() {
     body: `Are you sure want to delete the "${props.workflow.name}" workflow from this team?`,
     onConfirm: async () => {
       try {
-        await deleteWorkflow(props.workflow.id);
+        await deleteWorkflowApi(props.workflow.id);
 
         await teamWorkflowStore.delete(teamId, props.workflow.id);
         router.replace(`/workflows?active=team&teamId=${teamId}`);
@@ -630,7 +630,7 @@ async function publishWorkflow() {
   state.isPublishing = true;
 
   try {
-    await updateWorkflow(props.workflow.id, workflowPaylod);
+    await updateWorkflowApi(props.workflow.id, workflowPaylod);
   } catch (error) {
     console.error(error);
     toast.error('Something went wrong');

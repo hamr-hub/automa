@@ -11,7 +11,7 @@ test.describe('Supabase Migration Verification', () => {
 
   test.beforeEach(async () => {
     browserContext = await chromium.launchPersistentContext('', {
-      headless: true,
+      headless: false,
       args: [
         `--disable-extensions-except=${extensionPath}`,
         `--load-extension=${extensionPath}`,
@@ -30,26 +30,22 @@ test.describe('Supabase Migration Verification', () => {
     }
     
     if (!backgroundPage) {
-         // Fallback for some environments
+        // Fallback
         const pages = browserContext.pages();
         const extensionPage = pages.find(p => p.url().startsWith('chrome-extension://'));
         if (extensionPage) {
             extensionId = extensionPage.url().split('/')[2];
         } else {
-            // Assume it works or fail
              console.log("Could not find extension ID from pages");
         }
     } else {
         extensionId = backgroundPage.url().split('/')[2];
+        backgroundPage.on('console', msg => console.log('BG LOG:', msg.text()));
     }
     
-    // Fallback if extensionId is still missing (try to find it from a new page)
-    if (!extensionId) {
-       // This part is tricky without a reliable way to get ID. 
-       // We can assume it loads.
-    }
-
     page = await browserContext.newPage();
+    page.on('console', msg => console.log('PAGE LOG:', msg.text()));
+    page.on('pageerror', exception => console.log(`PAGE ERROR: "${exception}"`));
   });
 
   test.afterEach(async () => {
