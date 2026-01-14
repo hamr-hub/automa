@@ -26,7 +26,23 @@
 
 - **Type**: `method`
 - **Parameters**: `workflow, {}`
-- **Description**: *No description provided.*
+- **Description**:
+
+Creates a new WorkflowEngine instance.
+
+@param {Object} workflow - The workflow data object.
+
+@param {Object} options - Configuration options.
+
+@param {Object} options.states - State manager instance.
+
+@param {Object} options.logger - Logger instance.
+
+@param {Object} options.blocksHandler - Handlers for different block types.
+
+@param {boolean} [options.isPopup=true] - Whether running in a popup context.
+
+@param {Object} [options.options] - Additional options (parentWorkflow, data, etc.).
 
 **Implementation**:
 ```javascript
@@ -54,7 +70,15 @@ constructor(workflow, { states, logger, blocksHandler, isPopup, options }) {
 
 - **Type**: `method`
 - **Parameters**: ``
-- **Description**: *No description provided.*
+- **Description**:
+
+Initializes the workflow engine.
+
+Validates the workflow structure, sets up listeners, prepares data,
+
+and starts the execution by creating the first worker.
+
+@returns {Promise<void>}
 
 **Implementation**:
 ```javascript
@@ -82,7 +106,11 @@ async init() {
 
 - **Type**: `method`
 - **Parameters**: `key`
-- **Description**: *No description provided.*
+- **Description**:
+
+Creates a snapshot of reference data (variables or loop data) for history logging.
+
+@param {string} key - The key of the data to snapshot ('variables' or 'loopData').
 
 **Implementation**:
 ```javascript
@@ -101,7 +129,11 @@ addRefDataSnapshot(key) {
 
 - **Type**: `method`
 - **Parameters**: `detail`
-- **Description**: *No description provided.*
+- **Description**:
+
+Adds a new worker to execute a block.
+
+@param {Object} detail - Details for initializing the worker (blockId, execParam, state).
 
 **Implementation**:
 ```javascript
@@ -122,7 +154,11 @@ addWorker(detail) {
 
 - **Type**: `method`
 - **Parameters**: `detail`
-- **Description**: *No description provided.*
+- **Description**:
+
+Adds an entry to the execution log history.
+
+@param {Object} detail - The log detail object.
 
 **Implementation**:
 ```javascript
@@ -150,7 +186,13 @@ addLogHistory(detail) {
 
 - **Type**: `method`
 - **Parameters**: ``
-- **Description**: *No description provided.*
+- **Description**:
+
+Stops the workflow execution.
+
+Terminates child workflows and destroys the engine instance.
+
+@returns {Promise<void>}
 
 **Implementation**:
 ```javascript
@@ -173,7 +215,11 @@ async stop() {
 
 - **Type**: `method`
 - **Parameters**: ``
-- **Description**: *No description provided.*
+- **Description**:
+
+Checks the workflow queue and executes the next workflow if available.
+
+@returns {Promise<void>}
 
 **Implementation**:
 ```javascript
@@ -201,7 +247,15 @@ async executeQueue() {
 
 - **Type**: `method`
 - **Parameters**: `workerId`
-- **Description**: *No description provided.*
+- **Description**:
+
+Destroys a specific worker.
+
+If it's the last worker, it triggers the workflow completion.
+
+@param {string} workerId - The ID of the worker to destroy.
+
+@returns {Promise<void>}
 
 **Implementation**:
 ```javascript
@@ -229,7 +283,19 @@ async destroyWorker(workerId) {
 
 - **Type**: `method`
 - **Parameters**: `status, message, blockDetail`
-- **Description**: *No description provided.*
+- **Description**:
+
+Destroys the workflow engine instance and cleans up resources.
+
+Reports the execution status and saves logs/state.
+
+@param {string} status - The final status ('success', 'error', 'stopped').
+
+@param {string} [message] - Optional message or error description.
+
+@param {Object} [blockDetail] - Optional detail about the block where it ended.
+
+@returns {Promise<void>}
 
 **Implementation**:
 ```javascript
@@ -285,7 +351,13 @@ async destroy(status, message, blockDetail) {
 
 - **Type**: `method`
 - **Parameters**: `data`
-- **Description**: *No description provided.*
+- **Description**:
+
+Updates the workflow state in the state manager.
+
+@param {Object} data - The state data to update.
+
+@returns {Promise<void>}
 
 **Implementation**:
 ```javascript
@@ -313,7 +385,13 @@ async updateState(data) {
 
 - **Type**: `method`
 - **Parameters**: `name, params`
-- **Description**: *No description provided.*
+- **Description**:
+
+Dispatches an event to registered listeners.
+
+@param {string} name - The event name.
+
+@param {*} params - Parameters to pass to the listener.
 
 **Implementation**:
 ```javascript
@@ -334,7 +412,13 @@ dispatchEvent(name, params) {
 
 - **Type**: `method`
 - **Parameters**: `name, listener`
-- **Description**: *No description provided.*
+- **Description**:
+
+Registers an event listener.
+
+@param {string} name - The event name to listen for.
+
+@param {Function} listener - The callback function.
 
 **Implementation**:
 ```javascript

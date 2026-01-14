@@ -9,7 +9,21 @@ import WorkflowWorker from './WorkflowWorker';
 
 let blocks = getBlocks();
 
+/**
+ * The main engine that manages the execution of a workflow.
+ * It handles state, workers, logging, and lifecycle events.
+ */
 class WorkflowEngine {
+  /**
+   * Creates a new WorkflowEngine instance.
+   * @param {Object} workflow - The workflow data object.
+   * @param {Object} options - Configuration options.
+   * @param {Object} options.states - State manager instance.
+   * @param {Object} options.logger - Logger instance.
+   * @param {Object} options.blocksHandler - Handlers for different block types.
+   * @param {boolean} [options.isPopup=true] - Whether running in a popup context.
+   * @param {Object} [options.options] - Additional options (parentWorkflow, data, etc.).
+   */
   constructor(workflow, { states, logger, blocksHandler, isPopup, options }) {
     this.id = nanoid();
     this.states = states;
@@ -117,6 +131,12 @@ class WorkflowEngine {
     // this.messageListener = new MessageListener('workflow-engine');
   }
 
+  /**
+   * Initializes the workflow engine.
+   * Validates the workflow structure, sets up listeners, prepares data, 
+   * and starts the execution by creating the first worker.
+   * @returns {Promise<void>}
+   */
   async init() {
     try {
       if (this.workflow.isDisabled) return;
@@ -321,6 +341,10 @@ class WorkflowEngine {
     }
   }
 
+  /**
+   * Creates a snapshot of reference data (variables or loop data) for history logging.
+   * @param {string} key - The key of the data to snapshot ('variables' or 'loopData').
+   */
   addRefDataSnapshot(key) {
     this.refDataSnapshotsKeys[key].index += 1;
     this.refDataSnapshotsKeys[key].key = key;
@@ -329,6 +353,10 @@ class WorkflowEngine {
     this.refDataSnapshots[keyName] = cloneDeep(this.referenceData[key]);
   }
 
+  /**
+   * Adds a new worker to execute a block.
+   * @param {Object} detail - Details for initializing the worker (blockId, execParam, state).
+   */
   addWorker(detail) {
     this.workerId += 1;
 
@@ -339,6 +367,10 @@ class WorkflowEngine {
     this.workers.set(worker.id, worker);
   }
 
+  /**
+   * Adds an entry to the execution log history.
+   * @param {Object} detail - The log detail object.
+   */
   addLogHistory(detail) {
     if (detail.name === 'blocks-group') return;
 
@@ -375,6 +407,11 @@ class WorkflowEngine {
     this.history.push(detail);
   }
 
+  /**
+   * Stops the workflow execution.
+   * Terminates child workflows and destroys the engine instance.
+   * @returns {Promise<void>}
+   */
   async stop() {
     try {
       if (this.childWorkflowId) {
@@ -387,6 +424,10 @@ class WorkflowEngine {
     }
   }
 
+  /**
+   * Checks the workflow queue and executes the next workflow if available.
+   * @returns {Promise<void>}
+   */
   async executeQueue() {
     const { workflowQueue } = (await BrowserAPIService.storage.local.get(
       'workflowQueue'
@@ -407,6 +448,12 @@ class WorkflowEngine {
     await BrowserAPIService.storage.localSet({ workflowQueue });
   }
 
+  /**
+   * Destroys a specific worker.
+   * If it's the last worker, it triggers the workflow completion.
+   * @param {string} workerId - The ID of the worker to destroy.
+   * @returns {Promise<void>}
+   */
   async destroyWorker(workerId) {
     // is last worker
     if (this.workers.size === 1 && this.workers.has(workerId)) {
@@ -426,6 +473,14 @@ class WorkflowEngine {
     }
   }
 
+  /**
+   * Destroys the workflow engine instance and cleans up resources.
+   * Reports the execution status and saves logs/state.
+   * @param {string} status - The final status ('success', 'error', 'stopped').
+   * @param {string} [message] - Optional message or error description.
+   * @param {Object} [blockDetail] - Optional detail about the block where it ended.
+   * @returns {Promise<void>}
+   */
   async destroy(status, message, blockDetail) {
     const cleanUp = () => {
       this.id = null;
@@ -592,6 +647,11 @@ class WorkflowEngine {
     }
   }
 
+  /**
+   * Updates the workflow state in the state manager.
+   * @param {Object} data - The state data to update.
+   * @returns {Promise<void>}
+   */
   async updateState(data) {
     const state = {
       ...data,
@@ -617,6 +677,11 @@ class WorkflowEngine {
     this.dispatchEvent('update', { state });
   }
 
+  /**
+   * Dispatches an event to registered listeners.
+   * @param {string} name - The event name.
+   * @param {*} params - Parameters to pass to the listener.
+   */
   dispatchEvent(name, params) {
     const listeners = this.eventListeners[name];
 
@@ -627,6 +692,11 @@ class WorkflowEngine {
     });
   }
 
+  /**
+   * Registers an event listener.
+   * @param {string} name - The event name to listen for.
+   * @param {Function} listener - The callback function.
+   */
   on(name, listener) {
     (this.eventListeners[name] = this.eventListeners[name] || []).push(
       listener

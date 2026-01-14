@@ -54,7 +54,17 @@ function blockExecutionWrapper(blockHandler, blockData) {
 
 - **Type**: `method`
 - **Parameters**: `id, engine, options?`
-- **Description**: *No description provided.*
+- **Description**:
+
+Creates a new WorkflowWorker instance.
+
+@param {string} id - Unique worker ID.
+
+@param {WorkflowEngine} engine - The parent workflow engine.
+
+@param {Object} [options] - Additional options.
+
+@param {Object} [options.blocksDetail] - Details about block definitions.
 
 **Implementation**:
 ```javascript
@@ -82,7 +92,17 @@ constructor(id, engine, options = {}) {
 
 - **Type**: `method`
 - **Parameters**: `{}`
-- **Description**: *No description provided.*
+- **Description**:
+
+Initializes the worker and starts executing the first block.
+
+@param {Object} params - Initialization parameters.
+
+@param {string} params.blockId - The ID of the block to execute.
+
+@param {Object} [params.execParam] - Execution parameters (prevBlockData, etc.).
+
+@param {Object} [params.state] - Initial state (if restoring).
 
 **Implementation**:
 ```javascript
@@ -104,7 +124,13 @@ init({ blockId, execParam, state }) {
 
 - **Type**: `method`
 - **Parameters**: `key, value`
-- **Description**: *No description provided.*
+- **Description**:
+
+Adds data to the workflow's table (data columns).
+
+@param {string|Array} key - The column name or an array of objects to add.
+
+@param {*} value - The value to add (if key is a string).
 
 **Implementation**:
 ```javascript
@@ -132,7 +158,19 @@ addDataToColumn(key, value) {
 
 - **Type**: `method`
 - **Parameters**: `name, value`
-- **Description**: *No description provided.*
+- **Description**:
+
+Sets a variable in the workflow's reference data.
+
+Supports normal variables and pushing to array variables (via '$push:' prefix).
+
+Also updates persistent variables (prefixed with '$$') in storage.
+
+@param {string} name - The variable name.
+
+@param {*} value - The value to set.
+
+@returns {Promise<void>}
 
 **Implementation**:
 ```javascript
@@ -160,7 +198,15 @@ async setVariable(name, value) {
 
 - **Type**: `method`
 - **Parameters**: `blockId, outputIndex?`
-- **Description**: *No description provided.*
+- **Description**:
+
+Retrieves the connections (next blocks) for a specific block output.
+
+@param {string} blockId - The current block ID.
+
+@param {number} [outputIndex=1] - The output index to check.
+
+@returns {Array|null} Array of connections or null if none.
 
 **Implementation**:
 ```javascript
@@ -182,7 +228,17 @@ getBlockConnections(blockId, outputIndex = 1) {
 
 - **Type**: `method`
 - **Parameters**: `connections, prevBlockData, nextBlockBreakpointCount?`
-- **Description**: *No description provided.*
+- **Description**:
+
+Executes the next blocks in the workflow.
+
+If there are multiple connections, it spawns new workers for parallel execution.
+
+@param {Array} connections - List of connections to next blocks.
+
+@param {*} prevBlockData - Data passed from the previous block.
+
+@param {number|null} [nextBlockBreakpointCount=null] - Breakpoint counter.
 
 **Implementation**:
 ```javascript
@@ -210,7 +266,11 @@ executeNextBlocks(
 
 - **Type**: `method`
 - **Parameters**: `nextBlock`
-- **Description**: *No description provided.*
+- **Description**:
+
+Resumes execution from a breakpoint.
+
+@param {boolean} nextBlock - Whether to proceed to the next block or retry/stay.
 
 **Implementation**:
 ```javascript
@@ -234,7 +294,21 @@ resume(nextBlock) {
 
 - **Type**: `method`
 - **Parameters**: `block, execParam?, isRetry?`
-- **Description**: *No description provided.*
+- **Description**:
+
+Executes a single block.
+
+Handles state updates, breakpoints, templating, logging, error handling,
+
+and finding the next block(s) to execute.
+
+@param {Object} block - The block object to execute.
+
+@param {Object} [execParam={}] - Execution parameters.
+
+@param {boolean} [isRetry=false] - Whether this is a retry attempt.
+
+@returns {Promise<void>}
 
 **Implementation**:
 ```javascript
@@ -337,7 +411,19 @@ reset() {
 
 - **Type**: `method`
 - **Parameters**: `payload, options?, runBeforeLoad?`
-- **Description**: *No description provided.*
+- **Description**:
+
+Sends a message to the active tab's content script.
+
+Handles script injection if connection fails.
+
+@param {Object} payload - The message payload.
+
+@param {Object} [options={}] - Options for sendMessage.
+
+@param {boolean} [runBeforeLoad=false] - Whether to run before tab load completes.
+
+@returns {Promise<Object>} Response from the content script.
 
 **Implementation**:
 ```javascript
