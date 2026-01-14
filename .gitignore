@@ -30,3 +30,4 @@ getPassKey.js
 /business/test
 
 .idea
+secrets.js

@@ -1,5 +1,5 @@
 export default {
   baseApiUrl: process.env.VUE_APP_API_BASE_URL || '',
-  supabaseUrl: process.env.SUPABASE_URL || process.env.VUE_APP_SUPABASE_URL || '',
-  supabaseAnonKey: process.env.SUPABASE_ANON_KEY || process.env.VUE_APP_SUPABASE_ANON_KEY || '',
+  supabaseUrl: 'http://jetson-local.hamr.top:8000',
+  supabaseAnonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNzY1NzI4MDAwLCJleHAiOjE5MjM0OTQ0MDB9.TvUdo_Zg_svi6SwUiwJtqKatjkbqEw_pCZznEkHDRh4',
 };
