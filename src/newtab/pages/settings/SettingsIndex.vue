@@ -1,6 +1,8 @@
 <template>
   <div class="mb-12">
-    <p class="mb-1 font-semibold">{{ t('settings.theme') }}</p>
+    <p class="mb-1 font-semibold">
+      {{ t('settings.theme') }}
+    </p>
     <div class="flex items-center space-x-4">
       <div
         v-for="item in theme.themes"
@@ -27,7 +29,9 @@
   </div>
   <div class="flex items-center">
     <div id="languages">
-      <p class="mb-1 font-semibold">{{ t('settings.language.label') }}</p>
+      <p class="mb-1 font-semibold">
+        {{ t('settings.language.label') }}
+      </p>
       <ui-select
         :model-value="settings.locale"
         class="w-80"
@@ -50,11 +54,13 @@
         {{ t('settings.language.helpTranslate') }}
       </a>
     </div>
-    <p v-if="isLangChange" class="ml-4 inline-block">
+    <p v-if="isLangChange"
+class="ml-4 inline-block">
       {{ t('settings.language.reloadPage') }}
     </p>
   </div>
-  <div id="delete-logs" class="mt-12">
+  <div id="delete-logs"
+class="mt-12">
     <p class="mb-1 font-semibold">Workflow Logs</p>
     <div class="flex items-center">
       <ui-select
@@ -69,7 +75,8 @@
           )
         "
       >
-        <option v-for="day in deleteLogDays" :key="day" :value="day">
+        <option v-for="day in deleteLogDays"
+:key="day" :value="day">
           <template v-if="typeof day === 'string'">
             {{ t('settings.deleteLog.deleteAfter.never') }}
           </template>

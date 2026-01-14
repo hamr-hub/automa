@@ -12,10 +12,11 @@
           style="height: 40px; width: 40px"
           alt="Can not display"
         />
-        <span v-else class="bg-box-transparent rounded-lg p-2">
+        <span v-else
+class="bg-box-transparent rounded-lg p-2">
           <v-remixicon :name="data.icon || icon" />
         </span>
-        <div class="grow"></div>
+        <div class="grow" />
         <span
           v-if="data.isDisabled"
           class="text-sm text-gray-600 dark:text-gray-200"
@@ -29,13 +30,15 @@
         >
           <v-remixicon name="riPlayLine" />
         </button>
-        <ui-popover v-if="showDetails" class="ml-2 h-6">
+        <ui-popover v-if="showDetails"
+class="ml-2 h-6">
           <template #trigger>
             <button>
               <v-remixicon name="riMoreLine" />
             </button>
           </template>
-          <ui-list class="space-y-1" style="min-width: 150px">
+          <ui-list class="space-y-1"
+style="min-width: 150px">
             <ui-list-item
               v-for="item in menu"
               :key="item.id"
@@ -44,14 +47,16 @@
               class="cursor-pointer"
               @click="$emit('menuSelected', { id: item.id, data })"
             >
-              <v-remixicon :name="item.icon" class="mr-2 -ml-1" />
+              <v-remixicon :name="item.icon"
+class="mr-2 -ml-1" />
               <span class="capitalize">{{ item.name }}</span>
             </ui-list-item>
           </ui-list>
         </ui-popover>
       </div>
     </slot>
-    <div class="flex-1 cursor-pointer" @click="$emit('click', data)">
+    <div class="flex-1 cursor-pointer"
+@click="$emit('click', data)">
       <p class="line-clamp font-semibold leading-tight">
         {{ data.name }}
       </p>
@@ -63,7 +68,9 @@
       </p>
     </div>
     <div class="flex items-center text-gray-600 dark:text-gray-200">
-      <p class="flex-1">{{ state.date }}</p>
+      <p class="flex-1">
+        {{ state.date }}
+      </p>
       <slot name="footer-content" />
     </div>
   </ui-card>

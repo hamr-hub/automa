@@ -1,8 +1,11 @@
 <template>
   <div>
     <div class="flex items-center">
-      <p class="flex-1">{{ t('workflow.events.description') }}</p>
-      <ui-button variant="accent" @click="updateModalState({ show: true })">
+      <p class="flex-1">
+        {{ t('workflow.events.description') }}
+      </p>
+      <ui-button variant="accent"
+@click="updateModalState({ show: true })">
         {{ t('workflow.events.add-action') }}
       </ui-button>
     </div>
@@ -13,7 +16,9 @@
         class="gap-2 group"
       >
         <div class="flex-1 overflow-hidden">
-          <p class="text-overflow">{{ action.name || 'Untitled action' }}</p>
+          <p class="text-overflow">
+            {{ action.name || 'Untitled action' }}
+          </p>
           <div
             v-for="event in action.events"
             :key="event"
@@ -62,7 +67,9 @@
         autofocus
         class="w-full"
       />
-      <p class="mt-4">{{ t('workflow.events.event', 2) }}</p>
+      <p class="mt-4">
+        {{ t('workflow.events.event', 2) }}
+      </p>
       <div class="mt-1 flex flex-wrap items-center space-x-2">
         <div
           v-for="(event, index) in actionModal.data.events"
@@ -72,7 +79,9 @@
             'border rounded-lg px-3 text-sm h-8 inline-flex items-center',
           ]"
         >
-          <p class="flex-1">{{ t(`workflow.events.types.${event}.name`) }}</p>
+          <p class="flex-1">
+            {{ t(`workflow.events.types.${event}.name`) }}
+          </p>
           <v-remixicon
             name="riCloseLine"
             height="20"
@@ -92,7 +101,9 @@
                 height="20"
                 width="20"
               />
-              <p class="text-sm">{{ t('common.add') }}</p>
+              <p class="text-sm">
+                {{ t('common.add') }}
+              </p>
             </ui-button>
           </template>
           <ui-list>
@@ -110,7 +121,7 @@
                   WORKFLOW_EVENTS_CLASSES[event],
                   'w-2 flex-shrink-0 rounded-full',
                 ]"
-              ></div>
+              />
               <div class="text-sm ml-2">
                 <p>{{ t(`workflow.events.types.${event}.name`) }}</p>
                 <p class="text-gray-600 dark:text-gray-300 leading-tight">
@@ -121,7 +132,9 @@
           </ui-list>
         </ui-popover>
       </div>
-      <p class="mt-4">{{ t('workflow.events.action') }}</p>
+      <p class="mt-4">
+        {{ t('workflow.events.action') }}
+      </p>
       <ui-select
         :model-value="actionModal.data.action.type"
         class="mt-1 w-full"

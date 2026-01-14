@@ -16,7 +16,7 @@
     @mouseenter="uiTabs.hoverHandler"
     @click="uiTabs.updateActive(value)"
   >
-    <slot></slot>
+    <slot />
   </button>
 </template>
 <script setup>

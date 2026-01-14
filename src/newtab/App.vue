@@ -8,10 +8,19 @@
     <ui-dialog>
       <template #auth>
         <div class="text-center">
-          <p class="text-xl font-semibold">{{ t('auth.requireLogin.title', '需要登录') }}</p>
+          <p class="text-xl font-semibold">
+            {{ t('auth.requireLogin.title', '需要登录') }}
+          </p>
           <p class="mt-2 text-gray-600 dark:text-gray-200">
-            {{ authRequiredFeature ? t('auth.requireLogin.featureText', '此功能需要登录才能使用：') : t('auth.text') }}
-            <span v-if="authRequiredFeature" class="font-semibold">{{ authRequiredFeature }}</span>
+            {{
+              authRequiredFeature
+                ? t('auth.requireLogin.featureText', '此功能需要登录才能使用：')
+                : t('auth.text')
+            }}
+            <span v-if="authRequiredFeature"
+class="font-semibold">{{
+              authRequiredFeature
+            }}</span>
           </p>
           <ui-button
             class="mt-6 block w-full"
@@ -27,8 +36,11 @@
       v-if="isUpdated"
       class="fixed bottom-8 left-1/2 z-50 max-w-xl -translate-x-1/2 text-white dark:text-gray-900"
     >
-      <div class="flex items-center rounded-lg bg-[var(--color-accent)] p-4 shadow-2xl">
-        <v-remixicon name="riInformationLine" class="mr-3" />
+      <div
+        class="flex items-center rounded-lg bg-[var(--color-accent)] p-4 shadow-2xl"
+      >
+        <v-remixicon name="riInformationLine"
+class="mr-3" />
         <p>
           {{ t('updateMessage.text1', { version: currentVersion }) }}
         </p>
@@ -45,11 +57,15 @@
           class="ml-6 text-gray-200 dark:text-gray-600"
           @click="isUpdated = false"
         >
-          <v-remixicon size="20" name="riCloseLine" />
+          <v-remixicon size="20"
+name="riCloseLine" />
         </button>
       </div>
-      <div class="mt-4 flex items-center rounded-lg bg-[var(--color-accent)] p-4 shadow-2xl">
-        <v-remixicon name="riInformationLine" class="mr-3 shrink-0" />
+      <div
+        class="mt-4 flex items-center rounded-lg bg-[var(--color-accent)] p-4 shadow-2xl"
+      >
+        <v-remixicon name="riInformationLine"
+class="mr-3 shrink-0" />
         <p>
           Export your Automa workflows as a standalone extension using
           <a
@@ -66,8 +82,10 @@
       :permissions="permissionState.items"
     />
   </template>
-  <div v-else class="py-8 text-center">
-    <ui-spinner color="text-[var(--color-accent)]" size="28" />
+  <div v-else
+class="py-8 text-center">
+    <ui-spinner color="text-[var(--color-accent)]"
+size="28" />
   </div>
 </template>
 <script setup>
@@ -202,7 +220,7 @@ async function fetchUserData() {
     console.error(error);
   }
 }
-/* eslint-disable-next-line */
+
 function autoDeleteLogs() {
   const deleteAfter = store.settings.deleteLogAfter;
   if (deleteAfter === 'never') return;
@@ -317,7 +335,6 @@ useHead(() => {
   };
 });
 
-/* eslint-disable-next-line */
 window.onbeforeunload = () => {
   const runningWorkflows = workflowStore.popupStates.length;
   if (window.isDataChanged || runningWorkflows > 0) {
@@ -364,9 +381,8 @@ watch(
 
 (async () => {
   try {
-    const { workflowStates } = await browser.storage.local.get(
-      'workflowStates'
-    );
+    const { workflowStates } =
+      await browser.storage.local.get('workflowStates');
     workflowStore.states = Object.values(workflowStates || {});
 
     /*

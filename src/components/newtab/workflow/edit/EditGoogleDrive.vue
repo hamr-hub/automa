@@ -17,7 +17,8 @@
       class="w-full mt-4"
       @change="updateData({ action: $event })"
     >
-      <option v-for="action in actions" :key="action" :value="action">
+      <option v-for="action in actions"
+:key="action" :value="action">
         {{ t(`workflow.blocks.google-drive.actions.${action}`) }}
       </option>
     </ui-select>
@@ -36,24 +37,25 @@
               placeholder="File location"
             >
               <option value="url">URL</option>
-              <option value="local" :disabled="!hasFileAccess">
+              <option value="local"
+:disabled="!hasFileAccess">
                 Local computer
               </option>
-              <option
-                value="downloadId"
-                :disabled="!permissions.has.downloads"
-              >
+              <option value="downloadId" :disabled="!permissions.has.downloads">
                 Download id
               </option>
             </ui-select>
-            <div v-else class="grow mr-2 font-medium">
-              {{ t(`workflow.blocks.google-drive.actions.${data.action}`) }} Item
+            <div v-else
+class="grow mr-2 font-medium">
+              {{ t(`workflow.blocks.google-drive.actions.${data.action}`) }}
+              Item
             </div>
-            <ui-button icon @click="filePaths.splice(index, 1)">
+            <ui-button icon
+@click="filePaths.splice(index, 1)">
               <v-remixicon name="riDeleteBin7Line" />
             </ui-button>
           </div>
-          
+
           <edit-autocomplete>
             <ui-input
               v-model="item.path"
@@ -63,7 +65,9 @@
             />
           </edit-autocomplete>
 
-          <edit-autocomplete v-if="['upload', 'move', 'copy', 'download'].includes(data.action)">
+          <edit-autocomplete
+            v-if="['upload', 'move', 'copy', 'download'].includes(data.action)"
+          >
             <ui-input
               v-model="item.name"
               :placeholder="getNamePlaceholder(data.action)"
@@ -72,7 +76,8 @@
           </edit-autocomplete>
         </li>
       </ul>
-      <ui-button class="mt-4" variant="accent" @click="addFile">
+      <ui-button class="mt-4"
+variant="accent" @click="addFile">
         Add item
       </ui-button>
     </div>

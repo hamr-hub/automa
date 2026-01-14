@@ -13,8 +13,8 @@
       ref="hoverIndicator"
       class="ui-tabs__indicator bg-box-transparent absolute left-0 z-0 rounded-lg"
       style="top: 50%; transform: translate(0, -50%)"
-    ></div>
-    <slot></slot>
+    />
+    <slot />
   </div>
 </template>
 <script setup>

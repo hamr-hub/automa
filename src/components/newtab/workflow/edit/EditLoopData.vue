@@ -19,7 +19,8 @@
       class="w-full"
       @change="updateData({ loopThrough: $event })"
     >
-      <option v-for="type in loopTypes" :key="type" :value="type">
+      <option v-for="type in loopTypes"
+:key="type" :value="type">
         {{ t(`workflow.blocks.loop-data.loopThrough.options.${type}`) }}
       </option>
     </ui-select>
@@ -40,7 +41,8 @@
       @change="updateData({ variableName: $event })"
     />
     <template v-else-if="data.loopThrough === 'elements'">
-      <edit-autocomplete class="mt-2" trigger-class="!flex items-end">
+      <edit-autocomplete class="mt-2"
+trigger-class="!flex items-end">
         <ui-input
           :model-value="data.elementSelector"
           :label="t('workflow.blocks.base.selector')"
@@ -142,7 +144,8 @@
       content-class="max-w-3xl"
     >
       <div class="mb-4 flex items-center">
-        <ui-button variant="accent" @click="importFile">
+        <ui-button variant="accent"
+@click="importFile">
           {{ t('workflow.blocks.loop-data.buttons.import') }}
         </ui-button>
         <ui-button
@@ -154,7 +157,9 @@
         >
           <v-remixicon name="riSettings3Line" />
         </ui-button>
-        <p class="text-overflow mx-4 flex-1">{{ file.name }}</p>
+        <p class="text-overflow mx-4 flex-1">
+          {{ file.name }}
+        </p>
         <p>{{ t('workflow.blocks.loop-data.modal.maxFile') }}</p>
       </div>
       <div style="height: calc(100vh - 11rem)">
@@ -185,8 +190,8 @@ import { openFilePicker } from '@/utils/helper';
 import SharedElSelectorActions from '@/components/newtab/shared/SharedElSelectorActions.vue';
 import EditAutocomplete from './EditAutocomplete.vue';
 
-const SharedCodemirror = defineAsyncComponent(() =>
-  import('@/components/newtab/shared/SharedCodemirror.vue')
+const SharedCodemirror = defineAsyncComponent(
+  () => import('@/components/newtab/shared/SharedCodemirror.vue')
 );
 
 const props = defineProps({

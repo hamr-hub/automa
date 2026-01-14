@@ -13,7 +13,7 @@ export default async function ({ block, refKeys, data, isPopup }) {
 
   for (const blockDataKey of refKeys) {
     const currentData = objectPath.get(copyBlock.data, blockDataKey);
-    /* eslint-disable-next-line */
+
     if (!currentData) continue;
 
     if (Array.isArray(currentData)) {

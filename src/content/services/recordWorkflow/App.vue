@@ -27,10 +27,10 @@
         <span
           class="absolute animate-ping rounded-full bg-red-400"
           style="height: 80%; width: 80%; animation-duration: 1.3s"
-        ></span>
+        />
       </span>
       <p class="ml-2 font-semibold">Automa</p>
-      <div class="grow"></div>
+      <div class="grow" />
       <v-remixicon name="mdiDragHorizontal" />
     </div>
     <div class="p-4">
@@ -48,13 +48,15 @@
           Select list element
         </button>
       </template>
-      <div v-else-if="selectState.status === 'selecting'" class="leading-tight">
+      <div v-else-if="selectState.status === 'selecting'"
+class="leading-tight">
         <p v-if="selectState.selectedElements.length === 0">
           Select an element by clicking on it
         </p>
         <template v-else>
           <template v-if="selectState.list && !selectState.listId">
-            <label for="list-id" class="ml-1" style="font-size: 14px">
+            <label for="list-id"
+class="ml-1" style="font-size: 14px">
               Element list id
             </label>
             <input
@@ -85,10 +87,12 @@
                 "
               >
                 <button @click="selectElementPath('up')">
-                  <v-remixicon name="riArrowLeftLine" rotate="90" />
+                  <v-remixicon name="riArrowLeftLine"
+rotate="90" />
                 </button>
                 <button @click="selectElementPath('down')">
-                  <v-remixicon name="riArrowLeftLine" rotate="-90" />
+                  <v-remixicon name="riArrowLeftLine"
+rotate="-90" />
                 </button>
               </template>
             </div>
@@ -96,7 +100,8 @@
               v-model="addBlockState.activeBlock"
               class="bg-input mt-2 w-full rounded-lg px-4 py-2"
             >
-              <option value="" disabled selected>Select what to do</option>
+              <option
+value="" disabled selected>Select what to do</option>
               <option
                 v-for="block in addBlockState.blocks"
                 :key="block"
@@ -117,7 +122,8 @@
                 v-model="addBlockState.activeAttr"
                 class="bg-input mt-2 block w-full rounded-lg px-4 py-2"
               >
-                <option value="" selected disabled>Select attribute</option>
+                <option
+value="" selected disabled>Select attribute</option>
                 <option
                   v-for="(value, name) in addBlockState.attributes"
                   :key="name"
@@ -149,7 +155,8 @@
                 v-model="addBlockState.column"
                 class="bg-input block w-full rounded-lg px-4 py-2"
               >
-                <option value="" selected>Select column [none]</option>
+                <option
+value="" selected>Select column [none]</option>
                 <option
                   v-for="column in addBlockState.workflowColumns"
                   :key="column.id"
@@ -173,7 +180,8 @@
             </button>
           </template>
         </template>
-        <p class="mt-4" style="font-size: 14px">
+        <p class="mt-4"
+style="font-size: 14px">
           Press <kbd class="bg-box-transparent rounded-md p-1">Esc</kbd> to
           cancel
         </p>

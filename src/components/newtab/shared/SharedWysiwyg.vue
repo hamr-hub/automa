@@ -1,6 +1,7 @@
 <template>
   <div class="wysiwyg-editor">
-    <slot v-if="editor" name="prepend" :editor="editor" />
+    <slot v-if="editor"
+name="prepend" :editor="editor" />
     <div
       v-if="editor && toolbar && !readonly"
       class="bg-box-transparent sticky top-0 z-50 mb-2 flex items-center space-x-1 rounded-lg p-2 backdrop-blur"
@@ -32,7 +33,7 @@
       <span
         class="h-5 w-px bg-gray-300 dark:bg-gray-600"
         style="margin: 0 12px"
-      ></span>
+      />
       <button
         v-for="item in menuItems"
         :key="item.id"
@@ -48,7 +49,7 @@
       <span
         class="h-5 w-px bg-gray-300 dark:bg-gray-600"
         style="margin: 0 12px"
-      ></span>
+      />
       <button
         :class="{
           'bg-box-transparent text-primary': editor.isActive('blockquote'),

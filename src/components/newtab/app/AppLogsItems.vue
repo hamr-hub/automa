@@ -17,13 +17,16 @@
       @updateSorts="sortsBuilder[$event.key] = $event.value"
       @updateFilters="filtersBuilder[$event.key] = $event.value"
     >
-      <ui-popover padding="" @click="filtersBuilder.workflowQuery = ''">
+      <ui-popover padding=""
+@click="filtersBuilder.workflowQuery = ''">
         <template #trigger>
           <ui-button>
-            <span class="text-overflow text-left" style="max-width: 160px">
+            <span class="text-overflow text-left"
+style="max-width: 160px">
               {{ activeWorkflowName }}
             </span>
-            <v-remixicon name="riArrowDropDownLine" class="-mr-1 ml-2" />
+            <v-remixicon name="riArrowDropDownLine"
+class="-mr-1 ml-2" />
           </ui-button>
         </template>
         <div class="w-64">
@@ -52,13 +55,16 @@
               class="cursor-pointer"
               @click="filtersBuilder.workflowId = workflow.id"
             >
-              <p class="text-overflow">{{ workflow.name }}</p>
+              <p class="text-overflow">
+                {{ workflow.name }}
+              </p>
             </ui-list-item>
           </ui-list>
         </div>
       </ui-popover>
     </logs-filters>
-    <div v-if="logs" style="min-height: 320px">
+    <div v-if="logs"
+style="min-height: 320px">
       <shared-logs-table
         :logs="logs"
         :modal="true"
@@ -90,8 +96,10 @@
     <div class="mt-4 md:flex md:items-center md:justify-between">
       <div>
         {{ t('components.pagination.text1') }}
-        <select v-model="pagination.perPage" class="bg-input rounded-md p-1">
-          <option v-for="num in [10, 15, 25, 50, 100]" :key="num" :value="num">
+        <select v-model="pagination.perPage"
+class="bg-input rounded-md p-1">
+          <option v-for="num in [10, 15, 25, 50, 100]"
+:key="num" :value="num">
             {{ num }}
           </option>
         </select>
@@ -117,11 +125,13 @@
           )
         }}
       </ui-button>
-      <ui-button variant="danger" @click="deleteSelectedLogs">
+      <ui-button variant="danger"
+@click="deleteSelectedLogs">
         {{ t('log.deleteSelected') }} ({{ selectedLogs.length }})
       </ui-button>
     </ui-card>
-    <ui-modal v-model="exportDataModal.show" content-class="max-w-2xl">
+    <ui-modal v-model="exportDataModal.show"
+content-class="max-w-2xl">
       <template #header>
         <span class="capitalize">{{ t('common.data') }}</span>
       </template>

@@ -17,9 +17,8 @@ export async function newWindow({ data, id }) {
   }
   if (data.url) windowOptions.url = data.url;
 
-  const newWindowInstance = await BrowserAPIService.windows.create(
-    windowOptions
-  );
+  const newWindowInstance =
+    await BrowserAPIService.windows.create(windowOptions);
   this.windowId = newWindowInstance.id;
 
   if (data.url) {

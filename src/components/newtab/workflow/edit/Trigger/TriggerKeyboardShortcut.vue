@@ -68,7 +68,7 @@ function onKeydown(event) {
 }
 function attachKeyEvents() {
   window.addEventListener('keydown', onKeydown);
-  /* eslint-disable-next-line */
+
   window.addEventListener('keyup', detachKeyEvents);
 }
 function detachKeyEvents() {

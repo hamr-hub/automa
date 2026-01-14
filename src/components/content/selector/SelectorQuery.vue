@@ -54,10 +54,13 @@
           title="Parent element"
           @click.stop.prevent="$emit('parent')"
         >
-          <v-remixicon rotate="90" name="riArrowLeftLine" />
+          <v-remixicon rotate="90"
+name="riArrowLeftLine" />
         </button>
-        <button title="Child element" @click.stop.prevent="$emit('child')">
-          <v-remixicon rotate="-90" name="riArrowLeftLine" />
+        <button title="Child element"
+@click.stop.prevent="$emit('child')">
+          <v-remixicon rotate="-90"
+name="riArrowLeftLine" />
         </button>
       </template>
     </div>

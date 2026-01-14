@@ -32,19 +32,22 @@
               title="Close tab"
               @click.stop="closeTab(index, tab)"
             >
-              <v-remixicon name="riCloseLine" size="20" />
+              <v-remixicon name="riCloseLine"
+size="20" />
             </span>
           </button>
         </template>
       </draggable>
-      <button class="h-full px-2" @click="addTab()">
+      <button class="h-full px-2"
+@click="addTab()">
         <v-remixicon name="riAddLine" />
       </button>
     </div>
     <div class="flex-1">
       <router-view v-slot="{ Component }">
         <keep-alive>
-          <component :is="Component" :key="$route.fullPath"></component>
+          <component
+:is="Component" :key="$route.fullPath" />
         </keep-alive>
       </router-view>
     </div>

@@ -354,9 +354,8 @@ window.addEventListener('DOMContentLoaded', async () => {
   if (!accept) return;
   const workflow = JSON.parse(document.documentElement.innerText);
 
-  const { workflows: workflowsStorage } = await browser.storage.local.get(
-    'workflows'
-  );
+  const { workflows: workflowsStorage } =
+    await browser.storage.local.get('workflows');
 
   const workflowId = nanoid();
   const workflowData = {

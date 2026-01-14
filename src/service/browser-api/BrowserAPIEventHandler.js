@@ -1,5 +1,3 @@
-/* eslint-disable class-methods-use-this */
-
 import { MessageListener } from '@/utils/message';
 import { browserAPIMap } from './browser-api-map';
 

@@ -1,5 +1,3 @@
-/* eslint-disable max-classes-per-file */
-/* eslint-disable prefer-rest-params */
 import { MessageListener } from '@/utils/message';
 import {
   deserializeFunctions,

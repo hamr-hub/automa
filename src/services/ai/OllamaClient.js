@@ -14,7 +14,7 @@ class OllamaClient {
     this.maxTokens = config.maxTokens || aiConfig.ollama.maxTokens;
     this.timeout = config.timeout || aiConfig.ollama.timeout;
     this.headers = config.headers || {};
-    
+
     // Performance & Monitoring
     this.cache = new Map();
     this.metrics = {
@@ -31,7 +31,9 @@ class OllamaClient {
   getMetrics() {
     return {
       ...this.metrics,
-      avgLatency: this.metrics.requests ? Math.round(this.metrics.totalLatency / this.metrics.requests) : 0,
+      avgLatency: this.metrics.requests
+        ? Math.round(this.metrics.totalLatency / this.metrics.requests)
+        : 0,
     };
   }
 
@@ -65,28 +67,28 @@ class OllamaClient {
       let result;
       // 1. 尝试直接 fetch
       const response = await fetch(url, fetchOptions);
-      
+
       if (!response.ok) {
         // ... (Error handling logic)
         if (response.status === 403) {
-           console.warn('Direct fetch returned 403, trying background proxy...');
-           throw new Error('403_FORBIDDEN');
+          console.warn('Direct fetch returned 403, trying background proxy...');
+          throw new Error('403_FORBIDDEN');
         }
         throw new Error(`Ollama API 错误: ${response.status}`);
       }
 
       result = await response[responseType]();
-      
+
       // Update Metrics & Cache
-      this.metrics.totalLatency += (Date.now() - startTime);
+      this.metrics.totalLatency += Date.now() - startTime;
       if (options.cache) {
         this.cache.set(cacheKey, result);
       }
-      
+
       return result;
     } catch (error) {
       this.metrics.errors++;
-      
+
       // ... (Proxy logic)
       if (error.name === 'AbortError') {
         throw new Error('请求超时,请检查 Ollama 服务是否正常运行');
@@ -94,32 +96,47 @@ class OllamaClient {
 
       try {
         console.log('Falling back to background fetch proxy for:', url);
-        const result = await sendMessage('fetch', {
-          type: responseType,
-          resource: {
-            url,
-            ...fetchOptions,
-            body: typeof fetchOptions.body === 'object' ? JSON.stringify(fetchOptions.body) : fetchOptions.body
-          }
-        }, 'background');
-        
-        this.metrics.totalLatency += (Date.now() - startTime);
+        const result = await sendMessage(
+          'fetch',
+          {
+            type: responseType,
+            resource: {
+              url,
+              ...fetchOptions,
+              body:
+                typeof fetchOptions.body === 'object'
+                  ? JSON.stringify(fetchOptions.body)
+                  : fetchOptions.body,
+            },
+          },
+          'background'
+        );
+
+        this.metrics.totalLatency += Date.now() - startTime;
         if (options.cache) {
           this.cache.set(cacheKey, result);
         }
         return result;
       } catch (proxyError) {
-         console.error('Background proxy failed:', proxyError);
-         
-         if (error.message === '403_FORBIDDEN' || proxyError.message.includes('403') || proxyError.message.includes('Forbidden')) {
-              throw new Error(`Ollama API 拒绝访问 (403)。\n可能原因：\n1. 跨域限制：请在 Ollama 服务器设置环境变量 OLLAMA_ORIGINS="*" \n2. 认证失败：请检查是否需要 API Key\n3. 防火墙拦截`);
-         }
+        console.error('Background proxy failed:', proxyError);
 
-         if (error.name === 'TypeError' && error.message.includes('fetch')) {
-              throw new Error(`连接失败 (CORS/Network)。请确保 Ollama 允许跨域 (OLLAMA_ORIGINS="*") 且服务可访问。`);
-         }
-         
-         throw error;
+        if (
+          error.message === '403_FORBIDDEN' ||
+          proxyError.message.includes('403') ||
+          proxyError.message.includes('Forbidden')
+        ) {
+          throw new Error(
+            `Ollama API 拒绝访问 (403)。\n可能原因：\n1. 跨域限制：请在 Ollama 服务器设置环境变量 OLLAMA_ORIGINS="*" \n2. 认证失败：请检查是否需要 API Key\n3. 防火墙拦截`
+          );
+        }
+
+        if (error.name === 'TypeError' && error.message.includes('fetch')) {
+          throw new Error(
+            `连接失败 (CORS/Network)。请确保 Ollama 允许跨域 (OLLAMA_ORIGINS="*") 且服务可访问。`
+          );
+        }
+
+        throw error;
       }
     }
   }
@@ -127,19 +144,19 @@ class OllamaClient {
   /**
    * 批量生成 (并发控制)
    * @param {Array<string>} prompts 提示词列表
-   * @param {Object} options 
+   * @param {Object} options
    */
   async batchGenerate(prompts, options = {}) {
     const concurrency = options.concurrency || 3;
     const results = [];
-    
+
     for (let i = 0; i < prompts.length; i += concurrency) {
       const batch = prompts.slice(i, i + concurrency);
-      const promises = batch.map(prompt => this.generate(prompt, options));
+      const promises = batch.map((prompt) => this.generate(prompt, options));
       const batchResults = await Promise.all(promises);
       results.push(...batchResults);
     }
-    
+
     return results;
   }
 
@@ -156,7 +173,7 @@ class OllamaClient {
     if (url.startsWith('http://') || url.startsWith('https://')) {
       return url;
     }
-    
+
     // 处理 IPv6 地址格式
     // 支持格式: [::1]:11434, [2001:db8::1]:11434
     const ipv6WithBrackets = url.match(/^\[([0-9a-fA-F:]+)\]:(\d+)(.*)$/);
@@ -164,20 +181,20 @@ class OllamaClient {
       const [, ipv6, port, path] = ipv6WithBrackets;
       return `http://[${ipv6}]:${port}${path}`;
     }
-    
+
     // 处理不带方括号的纯 IPv6 地址（如 ::1 或 2001:db8::1）
     // 注意：这里不处理 host:port 格式，因为可能与域名冲突
     const pureIpv6 = url.match(/^([0-9a-fA-F:]+)$/);
     if (pureIpv6 && pureIpv6[1].split(':').length > 2) {
       return `http://[${pureIpv6[1]}]:11434`;
     }
-    
+
     // 处理普通域名或 IPv4 地址（如 localhost:11434, wsl.hamr.top:11434, 192.168.1.1:11434）
     // 浏览器会自动处理 DNS 解析，包括 IPv6-only 域名
     if (!url.includes('://')) {
       return `http://${url}`;
     }
-    
+
     return url;
   }
 
@@ -187,7 +204,7 @@ class OllamaClient {
   async checkHealth() {
     try {
       const url = this.normalizeUrl(`${this.baseUrl}/api/tags`);
-      
+
       await this.request(url, {
         method: 'GET',
         mode: 'cors',
@@ -239,16 +256,20 @@ class OllamaClient {
       const timeoutId = setTimeout(() => controller.abort(), this.timeout);
 
       const url = this.normalizeUrl(`${this.baseUrl}/api/generate`);
-      
-      const data = await this.request(url, {
-        method: 'POST',
-        mode: 'cors',
-        headers: {
-          'Content-Type': 'application/json',
+
+      const data = await this.request(
+        url,
+        {
+          method: 'POST',
+          mode: 'cors',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(requestBody),
+          signal: controller.signal,
         },
-        body: JSON.stringify(requestBody),
-        signal: controller.signal,
-      }, 'json');
+        'json'
+      );
 
       clearTimeout(timeoutId);
 
@@ -284,12 +305,16 @@ class OllamaClient {
       const timeoutId = setTimeout(() => controller.abort(), this.timeout);
 
       const url = this.normalizeUrl(`${this.baseUrl}/api/chat`);
-      
-      const data = await this.request(url, {
-        method: 'POST',
-        body: requestBody,
-        signal: controller.signal,
-      }, 'json');
+
+      const data = await this.request(
+        url,
+        {
+          method: 'POST',
+          body: requestBody,
+          signal: controller.signal,
+        },
+        'json'
+      );
 
       clearTimeout(timeoutId);
 

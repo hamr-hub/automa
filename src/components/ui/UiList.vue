@@ -4,7 +4,7 @@
     class="ui-list"
     :class="{ 'pointer-events-none': disabled }"
   >
-    <slot></slot>
+    <slot />
   </div>
 </template>
 <script>

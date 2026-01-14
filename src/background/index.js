@@ -34,7 +34,9 @@ if (browser?.commands?.onCommand) {
 
 const browserAction = browser?.action || browser?.browserAction;
 if (browserAction?.onClicked) {
-  browserAction.onClicked.addListener(BackgroundEventsListeners.onActionClicked);
+  browserAction.onClicked.addListener(
+    BackgroundEventsListeners.onActionClicked
+  );
 }
 
 if (browser?.runtime?.onStartup) {
@@ -44,11 +46,17 @@ if (browser?.runtime?.onStartup) {
     // 启动时尝试同步一次（未登录/离线会自动跳过）
     try {
       // 仅在 online 且确实存在待同步数据时才触发
-      if (navigator.onLine && (await WorkflowSyncService.getPendingCount()) > 0) {
+      if (
+        navigator.onLine &&
+        (await WorkflowSyncService.getPendingCount()) > 0
+      ) {
         // 仅在 online 且确实存在待同步数据时才触发
-      if (navigator.onLine && (await WorkflowSyncService.getPendingCount()) > 0) {
-        await WorkflowSyncService.syncOnce();
-      }
+        if (
+          navigator.onLine &&
+          (await WorkflowSyncService.getPendingCount()) > 0
+        ) {
+          await WorkflowSyncService.syncOnce();
+        }
       }
     } catch (error) {
       console.warn('WorkflowSyncService.syncOnce(onStartup) failed:', error);
@@ -269,7 +277,7 @@ message.on(
     try {
       const [isBlockedByCSP] = await browser.scripting.executeScript({
         target,
-        // eslint-disable-next-line object-shorthand
+
         func: function () {
           return new Promise((resolve) => {
             const escapePolicy = (script) => {

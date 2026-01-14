@@ -10,9 +10,8 @@ import BackgroundWorkflowUtils from './BackgroundWorkflowUtils';
 
 class BackgroundWorkflowTriggers {
   static async visitWebTriggers(tabId, tabUrl, spa = false) {
-    const { visitWebTriggers } = await browser.storage.local.get(
-      'visitWebTriggers'
-    );
+    const { visitWebTriggers } =
+      await browser.storage.local.get('visitWebTriggers');
     if (!visitWebTriggers || visitWebTriggers.length === 0) return;
 
     const triggeredWorkflow = visitWebTriggers.find(
@@ -30,9 +29,8 @@ class BackgroundWorkflowTriggers {
         workflowId = triggerWorkflowId;
       }
 
-      const workflowData = await BackgroundWorkflowUtils.getWorkflow(
-        workflowId
-      );
+      const workflowData =
+        await BackgroundWorkflowUtils.getWorkflow(workflowId);
       if (workflowData) {
         BackgroundWorkflowUtils.instance.executeWorkflow(workflowData, {
           tabId,
@@ -52,9 +50,8 @@ class BackgroundWorkflowTriggers {
         workflowId = triggerWorkflowId;
       }
 
-      const currentWorkflow = await BackgroundWorkflowUtils.getWorkflow(
-        workflowId
-      );
+      const currentWorkflow =
+        await BackgroundWorkflowUtils.getWorkflow(workflowId);
       if (!currentWorkflow) return;
 
       let data = currentWorkflow.trigger;
@@ -73,17 +70,15 @@ class BackgroundWorkflowTriggers {
       }
 
       if (data && data.type === 'interval' && data.fixedDelay) {
-        const { workflowStates } = await browser.storage.local.get(
-          'workflowStates'
-        );
+        const { workflowStates } =
+          await browser.storage.local.get('workflowStates');
         const workflowState = (workflowStates || []).find(
           (item) => item.workflowId === workflowId
         );
 
         if (workflowState) {
-          let { workflowQueue } = await browser.storage.local.get(
-            'workflowQueue'
-          );
+          let { workflowQueue } =
+            await browser.storage.local.get('workflowQueue');
           workflowQueue = workflowQueue || [];
 
           if (!workflowQueue.includes(workflowId)) {
@@ -137,9 +132,8 @@ class BackgroundWorkflowTriggers {
         workflowId = triggerWorkflowId;
       }
 
-      const workflowData = await BackgroundWorkflowUtils.getWorkflow(
-        workflowId
-      );
+      const workflowData =
+        await BackgroundWorkflowUtils.getWorkflow(workflowId);
       BackgroundWorkflowUtils.instance.executeWorkflow(workflowData, {
         data: {
           variables: message,
@@ -172,7 +166,6 @@ class BackgroundWorkflowTriggers {
     }
 
     for (const currWorkflow of workflowsArr) {
-      // eslint-disable-next-line no-continue
       if (currWorkflow.isDisabled) continue;
 
       let triggerBlock = currWorkflow.trigger;

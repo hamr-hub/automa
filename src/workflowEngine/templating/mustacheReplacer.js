@@ -106,7 +106,6 @@ function replacer(
 
       result = funcRef.apply({ refData: data }, funcParams);
     } else {
-      /* eslint-disable-next-line */
       let { dataKey, path } = keyParser(key, data);
       if (dataKey.startsWith('!')) {
         stringify = true;

@@ -22,7 +22,8 @@
           {{ workflow.name }}
         </option>
       </optgroup>
-      <optgroup v-if="route.params.teamId" label="Team">
+      <optgroup v-if="route.params.teamId"
+label="Team">
         <option
           v-for="workflow in teamWorkflows"
           :key="workflow.id"
@@ -103,8 +104,8 @@ import { useRoute } from 'vue-router';
 import { useWorkflowStore } from '@/stores/workflow';
 import { useTeamWorkflowStore } from '@/stores/teamWorkflow';
 
-const SharedCodemirror = defineAsyncComponent(() =>
-  import('@/components/newtab/shared/SharedCodemirror.vue')
+const SharedCodemirror = defineAsyncComponent(
+  () => import('@/components/newtab/shared/SharedCodemirror.vue')
 );
 
 const props = defineProps({

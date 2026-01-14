@@ -13,7 +13,7 @@
           v-if="prependIcon"
           class="absolute left-0 ml-2 text-gray-600 dark:text-gray-200"
           :name="prependIcon"
-        ></v-remixicon>
+        />
       </slot>
       <input
         v-bind="{
@@ -46,7 +46,7 @@
         @blur="$emit('blur', $event)"
         @focus="$emit('focus', $event)"
         @input="emitValue"
-      />
+      >
       <slot name="append" />
     </div>
   </div>

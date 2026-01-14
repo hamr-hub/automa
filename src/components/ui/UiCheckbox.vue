@@ -24,11 +24,12 @@
           :name="indeterminate ? 'riSubtractLine' : 'riCheckLine'"
           size="20"
           class="text-white dark:text-black"
-        ></v-remixicon>
+        />
       </div>
     </div>
-    <span v-if="$slots.default" class="ml-2 inline-block">
-      <slot></slot>
+    <span v-if="$slots.default"
+class="ml-2 inline-block">
+      <slot />
     </span>
   </label>
 </template>

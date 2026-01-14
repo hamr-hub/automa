@@ -1,4 +1,3 @@
-/* eslint-disable  no-param-reassign */
 import BrowserAPIService from '@/service/browser-api/BrowserAPIService';
 
 class WorkflowState {

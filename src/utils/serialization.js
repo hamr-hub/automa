@@ -26,7 +26,6 @@ export function serializeFunctions(obj) {
 export function deserializeFunctions(obj) {
   if (obj && typeof obj === 'object') {
     if (obj.__type === 'function') {
-      // eslint-disable-next-line no-new-func, prefer-template
       return new Function('return ' + obj.__value)();
     }
 

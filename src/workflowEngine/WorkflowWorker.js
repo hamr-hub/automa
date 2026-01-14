@@ -213,7 +213,7 @@ class WorkflowWorker {
       }
 
       // pass disabled block
-      // eslint-disable-next-line no-continue
+
       if (block.data.disableBlock) continue;
 
       // check if the next block is breakpoint
@@ -279,7 +279,7 @@ class WorkflowWorker {
 
   /**
    * Executes a single block.
-   * Handles state updates, breakpoints, templating, logging, error handling, 
+   * Handles state updates, breakpoints, templating, logging, error handling,
    * and finding the next block(s) to execute.
    * @param {Object} block - The block object to execute.
    * @param {Object} [execParam={}] - Execution parameters.

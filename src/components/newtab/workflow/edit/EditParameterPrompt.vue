@@ -20,7 +20,8 @@
     >
       Insert Parameters
     </ui-button>
-    <ui-modal v-model="showModal" title="Parameters" content-class="max-w-4xl">
+    <ui-modal v-model="showModal"
+title="Parameters" content-class="max-w-4xl">
       <edit-workflow-parameters
         :data="data.parameters"
         hide-prefer-tab

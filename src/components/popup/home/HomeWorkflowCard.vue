@@ -6,13 +6,16 @@
       class="text-overflow flex-1 cursor-pointer"
       @click="$emit('details', workflow)"
     >
-      <p class="text-overflow leading-tight">{{ workflow.name }}</p>
+      <p class="text-overflow leading-tight">
+        {{ workflow.name }}
+      </p>
       <p class="leading-tight text-gray-500">
         {{ dayjs(workflow.createdAt).fromNow() }}
       </p>
     </div>
     <p v-if="workflow.isDisabled">Disabled</p>
-    <button v-else title="Execute" @click="$emit('execute', workflow)">
+    <button v-else
+title="Execute" @click="$emit('execute', workflow)">
       <v-remixicon name="riPlayLine" />
     </button>
     <v-remixicon
@@ -20,19 +23,22 @@
       name="riShieldKeyholeLine"
       class="text-green-600"
     />
-    <ui-popover v-else class="h-6">
+    <ui-popover v-else
+class="h-6">
       <template #trigger>
         <button>
           <v-remixicon name="riMoreLine" />
         </button>
       </template>
-      <ui-list class="space-y-1" style="min-width: 160px">
+      <ui-list class="space-y-1"
+style="min-width: 160px">
         <template v-if="tab === 'local'">
           <ui-list-item
             class="cursor-pointer capitalize"
             @click="$emit('update', { isDisabled: !workflow.isDisabled })"
           >
-            <v-remixicon name="riToggleLine" class="mr-2 -ml-1" />
+            <v-remixicon name="riToggleLine"
+class="mr-2 -ml-1" />
             <span>{{
               t(`common.${workflow.isDisabled ? 'enable' : 'disable'}`)
             }}</span>
@@ -41,7 +47,8 @@
             class="cursor-pointer capitalize"
             @click="$emit('togglePin')"
           >
-            <v-remixicon name="riPushpin2Line" class="mr-2 -ml-1" />
+            <v-remixicon name="riPushpin2Line"
+class="mr-2 -ml-1" />
             <span>{{ pinned ? 'Unpin workflow' : 'Pin workflow' }}</span>
           </ui-list-item>
         </template>
@@ -52,7 +59,8 @@
           class="cursor-pointer capitalize"
           @click="$emit(item.name, workflow)"
         >
-          <v-remixicon :name="item.icon" class="mr-2 -ml-1" />
+          <v-remixicon :name="item.icon"
+class="mr-2 -ml-1" />
           <span>{{ item.name }}</span>
         </ui-list-item>
       </ui-list>

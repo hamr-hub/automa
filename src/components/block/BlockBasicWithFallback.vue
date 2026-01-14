@@ -10,7 +10,8 @@
     @update="$emit('update', $event)"
     @settings="$emit('settings', $event)"
   >
-    <Handle :id="`${id}-input-1`" type="target" :position="Position.Left" />
+    <Handle :id="`${id}-input-1`"
+type="target" :position="Position.Left" />
     <div class="flex items-center">
       <span
         :class="data.disableBlock ? 'bg-box-transparent' : block.category.color"
@@ -38,9 +39,10 @@
       }"
       class="absolute top-2 right-2 text-red-500 dark:text-red-400"
     >
-      <v-remixicon name="riAlertLine" size="20" />
+      <v-remixicon name="riAlertLine"
+size="20" />
     </span>
-    <slot :block="block"></slot>
+    <slot :block="block" />
     <div class="fallback flex items-center justify-end">
       <v-remixicon
         v-if="block"
@@ -52,7 +54,8 @@
         {{ t('common.fallback') }}
       </span>
     </div>
-    <Handle :id="`${id}-output-1`" type="source" :position="Position.Right" />
+    <Handle :id="`${id}-output-1`"
+type="source" :position="Position.Right" />
     <Handle
       :id="`${id}-output-fallback`"
       type="source"

@@ -5,7 +5,9 @@
     @close="state.show = false"
   >
     <template #header>
-      <h3 class="font-semibold">{{ state.options.title }}</h3>
+      <h3 class="font-semibold">
+        {{ state.options.title }}
+      </h3>
     </template>
     <slot
       v-if="state.options.custom"
@@ -30,7 +32,8 @@
         "
         class="w-full"
       >
-        <template v-if="state.options.inputType === 'password'" #append>
+        <template v-if="state.options.inputType === 'password'"
+#append>
           <v-remixicon
             :name="state.showPassword ? 'riEyeOffLine' : 'riEyeLine'"
             class="absolute right-2"
@@ -39,7 +42,8 @@
         </template>
       </ui-input>
       <div class="mt-8 flex space-x-2">
-        <ui-button class="w-6/12" @click="fireCallback('onCancel')">
+        <ui-button class="w-6/12"
+@click="fireCallback('onCancel')">
           {{ state.options.cancelText }}
         </ui-button>
         <ui-button

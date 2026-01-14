@@ -9,12 +9,16 @@
         <span
           class="absolute animate-ping rounded-full bg-red-400"
           style="height: 80%; width: 80%; animation-duration: 1.3s"
-        ></span>
-        <ui-spinner v-if="state.isGenerating" color="text-white" />
-        <v-remixicon v-else name="riStopLine" class="relative z-10" />
+        />
+        <ui-spinner v-if="state.isGenerating"
+color="text-white" />
+        <v-remixicon v-else
+name="riStopLine" class="relative z-10" />
       </button>
       <div class="ml-4 flex-1 overflow-hidden">
-        <p class="text-sm">{{ t('recording.title') }}</p>
+        <p class="text-sm">
+          {{ t('recording.title') }}
+        </p>
         <p class="text-overflow text-xl font-semibold leading-tight">
           {{ state.name }}
         </p>

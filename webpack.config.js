@@ -150,7 +150,10 @@ const options = {
   resolve: {
     alias: {
       ...alias,
-      'node:async_hooks': path.resolve(__dirname, 'src/utils/mockAsyncHooks.js'),
+      'node:async_hooks': path.resolve(
+        __dirname,
+        'src/utils/mockAsyncHooks.js'
+      ),
       async_hooks: path.resolve(__dirname, 'src/utils/mockAsyncHooks.js'),
     },
     extensions: fileExtensions

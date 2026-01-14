@@ -1,9 +1,11 @@
 <template>
   <div class="space-y-4">
-    <ui-button v-if="conditions.length === 0" @click="addOrCondition">
+    <ui-button v-if="conditions.length === 0"
+@click="addOrCondition">
       {{ t('workflow.conditionBuilder.add') }}
     </ui-button>
-    <div v-for="(item, index) in conditions" :key="item.id">
+    <div v-for="(item, index) in conditions"
+:key="item.id">
       <div class="condition-group relative flex">
         <div
           v-show="item.conditions.length > 1"
@@ -70,14 +72,16 @@
           </draggable>
           <div class="condition-action mt-2 space-x-2 text-sm">
             <ui-button @click="addAndCondition(index)">
-              <v-remixicon name="riAddLine" class="-ml-2 mr-1" size="20" />
+              <v-remixicon name="riAddLine"
+class="-ml-2 mr-1" size="20" />
               {{ t('workflow.conditionBuilder.and') }}
             </ui-button>
             <ui-button
               v-if="index === conditions.length - 1"
               @click="addOrCondition"
             >
-              <v-remixicon name="riAddLine" class="-ml-2 mr-1" size="20" />
+              <v-remixicon name="riAddLine"
+class="-ml-2 mr-1" size="20" />
               {{ t('workflow.conditionBuilder.or') }}
             </ui-button>
           </div>
@@ -90,7 +94,7 @@
         <span
           class="line absolute top-1/2 left-0 w-full -translate-y-1/2 bg-indigo-500 dark:bg-indigo-400"
           style="height: 2px"
-        ></span>
+        />
         <span
           class="relative z-10 inline-block w-14 rounded-md bg-indigo-500 py-1 text-center text-white dark:bg-indigo-300 dark:text-black"
         >

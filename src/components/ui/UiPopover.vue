@@ -1,18 +1,20 @@
 <template>
-  <div class="ui-popover inline-block" :class="{ hidden: to }">
+  <div class="ui-popover inline-block"
+:class="{ hidden: to }">
     <div
       ref="targetEl"
       :class="triggerClass"
       class="ui-popover__trigger inline-block h-full"
     >
-      <slot name="trigger" v-bind="{ isShow }"></slot>
+      <slot
+name="trigger" v-bind="{ isShow }" />
     </div>
     <div
       ref="content"
       class="ui-popover__content rounded-lg border bg-white shadow-xl dark:border-gray-700 dark:bg-gray-800"
       :class="[padding]"
     >
-      <slot v-bind="{ isShow }"></slot>
+      <slot v-bind="{ isShow }" />
     </div>
   </div>
 </template>
@@ -91,13 +93,11 @@ export default {
 
         isShow.value = value;
 
-        /* eslint-disable-next-line */
         value ? instance.value.show() : instance.value.hide();
       }
     );
 
     onMounted(() => {
-      /* eslint-disable-next-line */
       const target = props.to
         ? typeof to === 'string'
           ? document.querySelector(props.to)

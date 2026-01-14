@@ -167,9 +167,8 @@ export const useWorkflowStore = defineStore('workflow', {
 
       // 离线优先：记录待同步（联网且已登录时由同步器推送到远端）
       try {
-        const { default: WorkflowSyncService } = await import(
-          '@/services/workflowSync/WorkflowSyncService'
-        );
+        const { default: WorkflowSyncService } =
+          await import('@/services/workflowSync/WorkflowSyncService');
         await Promise.all(
           Object.keys(insertedWorkflows).map((id) =>
             WorkflowSyncService.markPending('upsert', id)
@@ -229,9 +228,8 @@ export const useWorkflowStore = defineStore('workflow', {
 
       // 离线优先：记录待同步（联网且已登录时由同步器推送到远端）
       try {
-        const { default: WorkflowSyncService } = await import(
-          '@/services/workflowSync/WorkflowSyncService'
-        );
+        const { default: WorkflowSyncService } =
+          await import('@/services/workflowSync/WorkflowSyncService');
         if (isFunction) {
           await Promise.all(
             Object.keys(updatedWorkflows).map((wid) =>
@@ -290,9 +288,8 @@ export const useWorkflowStore = defineStore('workflow', {
 
       // 离线优先：先记录待同步 delete（不依赖登录/网络）
       try {
-        const { default: WorkflowSyncService } = await import(
-          '@/services/workflowSync/WorkflowSyncService'
-        );
+        const { default: WorkflowSyncService } =
+          await import('@/services/workflowSync/WorkflowSyncService');
         await Promise.all(
           ids.map((wid) => WorkflowSyncService.markPending('delete', wid))
         );
@@ -318,7 +315,9 @@ export const useWorkflowStore = defineStore('workflow', {
 
             if (backupIndex !== -1) {
               userStore.backupIds.splice(backupIndex, 1);
-              await browser.storage.local.set({ backupIds: userStore.backupIds });
+              await browser.storage.local.set({
+                backupIds: userStore.backupIds,
+              });
             }
           }
 
@@ -332,9 +331,8 @@ export const useWorkflowStore = defineStore('workflow', {
 
       await this.saveToStorage('workflows');
 
-      const { pinnedWorkflows } = await browser.storage.local.get(
-        'pinnedWorkflows'
-      );
+      const { pinnedWorkflows } =
+        await browser.storage.local.get('pinnedWorkflows');
       const pinnedWorkflowIndex = pinnedWorkflows
         ? pinnedWorkflows.indexOf(id)
         : -1;

@@ -64,9 +64,8 @@ export const useTeamWorkflowStore = defineStore('team-workflows', {
       await cleanWorkflowTriggers(id);
     },
     async loadData() {
-      const { teamWorkflows } = await browser.storage.local.get(
-        'teamWorkflows'
-      );
+      const { teamWorkflows } =
+        await browser.storage.local.get('teamWorkflows');
 
       this.workflows = teamWorkflows || {};
       this.retrieved = true;

@@ -160,7 +160,10 @@ class WorkflowSyncService {
 
       return { synced, skipped: 0 };
     } catch (error) {
-      await writeMeta({ lastSyncAt: null, lastError: error?.message || String(error) });
+      await writeMeta({
+        lastSyncAt: null,
+        lastError: error?.message || String(error),
+      });
       throw error;
     }
   }

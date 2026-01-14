@@ -31,9 +31,8 @@ class BackgroundWorkflowUtils {
     if (!workflowId) return null;
 
     if (workflowId.startsWith('team')) {
-      const { teamWorkflows } = await browser.storage.local.get(
-        'teamWorkflows'
-      );
+      const { teamWorkflows } =
+        await browser.storage.local.get('teamWorkflows');
       if (!teamWorkflows) return null;
 
       const workflows = this.flattenTeamWorkflows(teamWorkflows);

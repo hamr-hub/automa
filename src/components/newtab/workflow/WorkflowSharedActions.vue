@@ -61,15 +61,14 @@
       >
         <span
           class="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75"
-        ></span>
-        <span
-          class="relative inline-flex h-3 w-3 rounded-full bg-blue-600"
-        ></span>
+        />
+        <span class="relative inline-flex h-3 w-3 rounded-full bg-blue-600" />
       </span>
       {{ t('workflow.share.update') }}
     </ui-button>
   </ui-card>
-  <ui-modal v-model="state.showModal" custom-content @close="updateDescription">
+  <ui-modal v-model="state.showModal"
+custom-content @close="updateDescription">
     <workflow-share
       :workflow="workflow"
       is-update

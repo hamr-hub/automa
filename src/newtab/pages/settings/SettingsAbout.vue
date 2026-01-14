@@ -1,7 +1,8 @@
 <template>
   <div class="max-w-lg">
     <div class="bg-box-transparent mb-2 inline-block rounded-full p-3">
-      <img src="@/assets/svg/logo.svg" class="w-14" />
+      <img
+src="@/assets/svg/logo.svg" class="w-14" />
     </div>
     <p class="text-2xl font-semibold">Automa</p>
     <p class="mb-2 mt-1">Version: {{ extensionVersion }}</p>
@@ -22,7 +23,7 @@
         <v-remixicon :name="link.icon" />
       </a>
     </div>
-    <div class="my-8 border-b dark:border-gray-700"></div>
+    <div class="my-8 border-b dark:border-gray-700" />
     <h2 class="text-xl font-semibold">Contributors</h2>
     <p class="mt-1 text-gray-600 dark:text-gray-200">
       Thanks to everyone who has submitted issues, made suggestions, and
@@ -48,7 +49,6 @@
   </div>
 </template>
 <script setup>
-/* eslint-disable camelcase */
 import { useGroupTooltip } from '@/composable/groupTooltip';
 import { useStore } from '@/stores/main';
 import { communities } from '@/utils/shared';

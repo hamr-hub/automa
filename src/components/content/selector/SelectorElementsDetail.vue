@@ -7,8 +7,10 @@
     @change="$emit('update:activeTab', $event)"
   >
     <ui-tab value="attributes"> Attributes </ui-tab>
-    <ui-tab v-if="selectElements.length > 0" value="options"> Options </ui-tab>
-    <ui-tab v-if="!hideBlocks" value="blocks"> Blocks </ui-tab>
+    <ui-tab
+v-if="selectElements.length > 0" value="options"> Options </ui-tab>
+    <ui-tab
+v-if="!hideBlocks" value="blocks"> Blocks </ui-tab>
   </ui-tabs>
   <ui-tab-panels
     :model-value="activeTab"

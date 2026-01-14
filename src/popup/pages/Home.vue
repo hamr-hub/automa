@@ -2,14 +2,14 @@
   <div
     :class="[!showTab ? 'h-48' : 'h-56']"
     class="absolute top-0 left-0 w-full rounded-b-2xl bg-accent"
-  ></div>
+  />
   <div
     :class="[!showTab ? 'mb-6' : 'mb-2']"
     class="dark relative z-10 px-5 pt-8 text-white placeholder:text-black"
   >
     <div class="mb-4 flex items-center">
       <h1 class="text-xl font-semibold text-white">Automa</h1>
-      <div class="grow"></div>
+      <div class="grow" />
       <ui-button
         v-tooltip.group="t('home.aiGenerator.title')"
         icon
@@ -66,10 +66,12 @@
       <ui-tab value="local">
         {{ t(`home.workflow.type.local`) }}
       </ui-tab>
-      <ui-tab v-if="hostedWorkflowStore.toArray.length > 0" value="host">
+      <ui-tab v-if="hostedWorkflowStore.toArray.length > 0"
+value="host">
         {{ t(`home.workflow.type.host`) }}
       </ui-tab>
-      <ui-tab v-if="userStore.user?.teams?.length" value="team"> Teams </ui-tab>
+      <ui-tab
+v-if="userStore.user?.teams?.length" value="team"> Teams </ui-tab>
     </ui-tabs>
   </div>
   <home-team-workflows
@@ -81,9 +83,12 @@
     v-if="state.activeTab !== 'team'"
     class="relative z-20 space-y-2 px-5 pb-5"
   >
-    <ui-card v-if="workflowStore.getWorkflows.length === 0" class="text-center">
-      <img src="@/assets/svg/alien.svg" />
-      <p class="font-semibold">{{ t('message.empty') }}</p>
+    <ui-card v-if="workflowStore.getWorkflows.length === 0"
+class="text-center">
+      <img src="@/assets/svg/alien.svg" >
+      <p class="font-semibold">
+        {{ t('message.empty') }}
+      </p>
       <ui-button
         variant="accent"
         class="mt-6"
@@ -92,9 +97,11 @@
         {{ t('home.workflow.new') }}
       </ui-button>
     </ui-card>
-    <div v-if="pinnedWorkflows.length > 0" class="mt-1 mb-4 border-b pb-4">
+    <div v-if="pinnedWorkflows.length > 0"
+class="mt-1 mb-4 border-b pb-4">
       <div class="mb-1 flex items-center text-gray-300">
-        <v-remixicon name="riPushpin2Line" size="20" class="mr-2" />
+        <v-remixicon name="riPushpin2Line"
+size="20" class="mr-2" />
         <span>Pinned workflows</span>
       </div>
       <home-workflow-card
@@ -116,7 +123,8 @@
       :class="{ 'p-2 rounded-lg bg-white': pinnedWorkflows.length === 0 }"
       class="flex items-center"
     >
-      <ui-select v-model="state.activeFolder" class="flex-1">
+      <ui-select v-model="state.activeFolder"
+class="flex-1">
         <option value="">Folder (all)</option>
         <option
           v-for="folder in folderStore.items"
@@ -129,12 +137,14 @@
       <ui-popover class="ml-2">
         <template #trigger>
           <ui-button>
-            <v-remixicon name="riSortDesc" class="mr-2 -ml-1" />
+            <v-remixicon name="riSortDesc"
+class="mr-2 -ml-1" />
             <span>Sort</span>
           </ui-button>
         </template>
         <div class="w-48">
-          <ui-select v-model="sortState.order" block placeholder="Sort order">
+          <ui-select v-model="sortState.order"
+block placeholder="Sort order">
             <option value="asc">Ascending</option>
             <option value="desc">Descending</option>
           </ui-select>
@@ -144,7 +154,8 @@
             block
             class="mt-2 flex-1"
           >
-            <option v-for="sort in sorts" :key="sort" :value="sort">
+            <option v-for="sort in sorts"
+:key="sort" :value="sort">
               {{ t(`sort.${sort}`) }}
             </option>
           </ui-select>
@@ -238,7 +249,7 @@ const state = shallowReactive({
   activeFolder: savedSorts.activeFolder,
   showSettingsPopup: isMV2
     ? false
-    : parseJSON(localStorage.getItem('settingsPopup'), true) ?? true,
+    : (parseJSON(localStorage.getItem('settingsPopup'), true) ?? true),
 });
 
 const pinnedWorkflows = computed(() => {

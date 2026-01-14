@@ -25,7 +25,6 @@ const targetObserver = new MutationObserver(targetMutationCallback);
 const baseMutationCallback = debounce(() => {
   targetObserver.disconnect();
   Object.values(observeElements).forEach((detail) => {
-    /* eslint-disable-next-line */
     tryObserve({ ...detail, observer: targetObserver });
   });
 }, 250);

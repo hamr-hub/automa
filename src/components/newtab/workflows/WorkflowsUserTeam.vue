@@ -1,6 +1,8 @@
 <template>
-  <p v-if="!userStore.user" class="my-4 text-center">
-    <ui-spinner v-if="!userStore.retrieved" color="text-accent" />
+  <p v-if="!userStore.user"
+class="my-4 text-center">
+    <ui-spinner v-if="!userStore.retrieved"
+color="text-accent" />
     <template v-else>
       You must
       <a
@@ -16,7 +18,8 @@
     v-else-if="!isUnknownTeam && teamWorkflows.length === 0"
     class="text-center"
   >
-    <img src="@/assets/svg/files-and-folder.svg" class="mx-auto w-96" />
+    <img
+src="@/assets/svg/files-and-folder.svg" class="mx-auto w-96" />
     <p class="text-lg font-semibold">Nothing to see here</p>
     <p class="text-gray-600 dark:text-gray-200">
       Browse workflows that been shared by your team
@@ -31,7 +34,8 @@
       Browse workflows
     </ui-button>
   </div>
-  <div v-else class="workflows-container">
+  <div v-else
+class="workflows-container">
     <shared-card
       v-for="workflow in workflows"
       :key="workflow.id"

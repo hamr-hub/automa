@@ -24,7 +24,7 @@
       </div>
       <div class="flex items-center px-4 pt-4">
         <p class="text-lg font-semibold">Automa</p>
-        <div class="grow"></div>
+        <div class="grow" />
         <button
           class="hoverable mr-2 rounded-md p-1 transition"
           @mousedown.stop.prevent

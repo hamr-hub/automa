@@ -133,7 +133,7 @@ class WorkflowEngine {
 
   /**
    * Initializes the workflow engine.
-   * Validates the workflow structure, sets up listeners, prepares data, 
+   * Validates the workflow structure, sets up listeners, prepares data,
    * and starts the execution by creating the first worker.
    * @returns {Promise<void>}
    */

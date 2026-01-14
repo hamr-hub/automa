@@ -127,7 +127,8 @@ class WorkflowManager {
           ? dayjs().isSame(checkStatus, 'day')
           : false;
         if ((!isSameDay || !checkStatus) && supabaseClient.client) {
-          supabaseClient.client.auth.getSession()
+          supabaseClient.client.auth
+            .getSession()
             .then(() => {
               BrowserAPIService.storage.local.set({
                 checkStatus: new Date().toString(),

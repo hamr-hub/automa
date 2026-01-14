@@ -56,7 +56,7 @@ async function loopElements({ data, id }, { refData }) {
       }
 
       this.loopList[data.loopId] = loopPayload;
-      /* eslint-disable-next-line */
+
       refData.loopData[data.loopId] = {
         $index: 0,
         data: elements[0],

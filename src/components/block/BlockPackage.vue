@@ -58,7 +58,9 @@
             type="target"
             :position="Position.Left"
           />
-          <p class="text-overflow">{{ input.name }}</p>
+          <p class="text-overflow">
+            {{ input.name }}
+          </p>
         </li>
       </ul>
       <ul class="pkg-handle-container">
@@ -73,7 +75,9 @@
             type="source"
             :position="Position.Right"
           />
-          <p class="text-overflow">{{ output.name }}</p>
+          <p class="text-overflow">
+            {{ output.name }}
+          </p>
         </li>
       </ul>
     </div>
@@ -88,7 +92,8 @@
         title="Open package page"
         class="ml-2"
       >
-        <v-remixicon size="18" name="riExternalLinkLine" />
+        <v-remixicon size="18"
+name="riExternalLinkLine" />
       </a>
     </div>
   </block-base>

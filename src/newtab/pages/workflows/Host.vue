@@ -1,5 +1,6 @@
 <template>
-  <div v-if="workflow" class="relative h-screen">
+  <div v-if="workflow"
+class="relative h-screen">
     <div class="absolute top-0 left-0 z-10 flex w-full items-center p-4">
       <ui-card
         padding="px-2"
@@ -12,7 +13,8 @@
             :src="workflow.icon"
             class="h-8 w-8"
           />
-          <v-remixicon v-else :name="workflow.icon" size="26" />
+          <v-remixicon v-else
+:name="workflow.icon" size="26" />
         </span>
         <div class="ml-2 max-w-sm">
           <p
@@ -34,8 +36,11 @@
         class="ml-4 h-full space-x-1 rounded-lg border-none bg-white px-2 dark:bg-gray-800"
         style="height: 48px"
       >
-        <ui-tab value="editor">{{ t('common.editor') }}</ui-tab>
-        <ui-tab value="logs" @click="openLogs">
+        <ui-tab value="editor">
+          {{ t('common.editor') }}
+        </ui-tab>
+        <ui-tab value="logs"
+@click="openLogs">
           {{ t('common.log', 2) }}
           <span
             v-if="workflowStates.length > 0"
@@ -46,7 +51,7 @@
           </span>
         </ui-tab>
       </ui-tabs>
-      <div class="grow"></div>
+      <div class="grow" />
       <ui-card padding="p-1">
         <button
           v-tooltip.group="state.triggerText"
@@ -89,7 +94,8 @@
       :class="{ 'container pb-4 pt-24': state.activeTab !== 'editor' }"
       class="h-full"
     >
-      <ui-tab-panel class="h-full" value="editor">
+      <ui-tab-panel class="h-full"
+value="editor">
         <workflow-editor
           v-if="state.retrieved"
           :id="route.params.id"
@@ -140,7 +146,6 @@ const editorOptions = {
   elementsSelectable: false,
 };
 
-/* eslint-disable-next-line */
 const shortcut = useShortcut('editor:execute-workflow', executeCurrWorkflow);
 
 const state = reactive({
@@ -182,7 +187,7 @@ function syncWorkflow() {
       if (!workflow.value) {
         router.replace('/workflows');
       }
-      /* eslint-disable-next-line */
+
       retrieveTriggerText();
       state.loadingSync = false;
     })

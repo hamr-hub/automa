@@ -1,5 +1,6 @@
 <template>
-  <div v-if="workflow" class="relative h-screen">
+  <div v-if="workflow"
+class="relative h-screen">
     <div class="absolute top-0 left-0 z-10 flex w-full items-center p-4">
       <ui-card
         padding="px-2"
@@ -12,7 +13,8 @@
             :src="workflow.icon"
             class="h-8 w-8"
           />
-          <v-remixicon v-else :name="workflow.icon" size="26" />
+          <v-remixicon v-else
+:name="workflow.icon" size="26" />
         </span>
         <div class="ml-2 max-w-sm">
           <p
@@ -102,10 +104,10 @@
           >
             <span
               class="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75"
-            ></span>
+            />
             <span
               class="relative inline-flex h-3 w-3 rounded-full bg-blue-600"
-            ></span>
+            />
           </span>
           {{ t('workflow.share.update') }}
         </ui-button>

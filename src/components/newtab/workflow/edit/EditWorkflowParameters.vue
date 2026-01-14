@@ -9,9 +9,11 @@
     >
       No parameters
     </p>
-    <section v-else class="w-full">
+    <section v-else
+class="w-full">
       <div class="grid grid-cols-12 space-x-2 text-sm">
-        <div class="col-span-3" style="padding-left: 28px">Name</div>
+        <div
+class="col-span-3" style="padding-left: 28px">Name</div>
         <div class="col-span-2">Type</div>
         <div class="col-span-3">Placeholder</div>
         <div class="col-span-4">Default Value</div>
@@ -26,7 +28,8 @@
           <div class="mb-4">
             <div class="grid grid-cols-12 space-x-2">
               <div class="col-span-3 flex">
-                <v-remixicon name="mdiDrag" class="handle mr-2 cursor-move" />
+                <v-remixicon name="mdiDrag"
+class="handle mr-2 cursor-move" />
                 <ui-input
                   :model-value="param.name"
                   placeholder="Parameter name"
@@ -123,7 +126,8 @@
     </section>
   </div>
   <div class="mt-4 flex items-center">
-    <ui-button variant="accent" @click="addParameter">
+    <ui-button variant="accent"
+@click="addParameter">
       {{ $t('workflow.parameters.add') }}
     </ui-button>
     <div class="grow" />

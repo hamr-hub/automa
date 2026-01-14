@@ -88,7 +88,7 @@ class WorkflowGenerator {
   generateDrawflow(steps, dataSchema, targetUrl) {
     const nodes = [];
     const edges = [];
-    
+
     // Stack to track active loops: { id: string, type: string }
     const loopStack = [];
 
@@ -106,7 +106,13 @@ class WorkflowGenerator {
     if (targetUrl) {
       const navigateNode = this.createNavigateNode(targetUrl);
       nodes.push(navigateNode);
-      edges.push(this.createEdge(previousNodeId, navigateNode.id, previousNodeOutputHandle));
+      edges.push(
+        this.createEdge(
+          previousNodeId,
+          navigateNode.id,
+          previousNodeOutputHandle
+        )
+      );
       previousNodeId = navigateNode.id;
     }
 
@@ -119,14 +125,14 @@ class WorkflowGenerator {
           // The flow continues from the "Done" output (output-2 usually) of the loop block
           // But wait, in Automa, blocks *inside* the loop don't connect to "Done".
           // The "Done" path starts from the Loop block itself.
-          
+
           // So, if we have steps AFTER the loop, they should connect to the Loop Block's output-2.
           // We update previousNodeId to the Loop Block ID.
           previousNodeId = finishedLoop.id;
-          
+
           // For loop-data and loop-elements, output-2 is "Done/Fallback"
           // For while-loop, output-2 is "Fallback" (Condition False)
-          previousNodeOutputHandle = 'output-2'; 
+          previousNodeOutputHandle = 'output-2';
         }
         return;
       }
@@ -134,18 +140,20 @@ class WorkflowGenerator {
       const node = this.createNodeFromStep(step, index);
       if (node) {
         nodes.push(node);
-        
+
         // Connect previous node to current node
-        edges.push(this.createEdge(previousNodeId, node.id, previousNodeOutputHandle));
-        
+        edges.push(
+          this.createEdge(previousNodeId, node.id, previousNodeOutputHandle)
+        );
+
         previousNodeId = node.id;
         previousNodeOutputHandle = 'output-1'; // Default for next connection
 
         // If this is a loop block, push to stack
         if (['loop-data', 'loop-elements', 'while-loop'].includes(node.label)) {
-           loopStack.push({ id: node.id, type: node.label });
-           // The next block will connect to output-1 (Loop Body)
-           previousNodeOutputHandle = 'output-1';
+          loopStack.push({ id: node.id, type: node.label });
+          // The next block will connect to output-1 (Loop Body)
+          previousNodeOutputHandle = 'output-1';
         }
       }
     });
@@ -157,7 +165,9 @@ class WorkflowGenerator {
     if (lastStep?.type !== 'EXPORT') {
       const exportNode = this.createExportNode(dataSchema);
       nodes.push(exportNode);
-      edges.push(this.createEdge(previousNodeId, exportNode.id, previousNodeOutputHandle));
+      edges.push(
+        this.createEdge(previousNodeId, exportNode.id, previousNodeOutputHandle)
+      );
     }
 
     return {
@@ -215,7 +225,7 @@ class WorkflowGenerator {
       console.warn(`未知的步骤类型: ${step.type}`);
       return null;
     }
-    
+
     if (blockType === 'loop-end') return null; // Should be handled in generateDrawflow
 
     const position = this.getNextNodePosition();
@@ -308,38 +318,38 @@ class WorkflowGenerator {
       }),
 
       'while-loop': () => {
-         // Create conditions for "Next Button Exists"
-         const conditions = [
-            {
+        // Create conditions for "Next Button Exists"
+        const conditions = [
+          {
+            id: nanoid(),
+            conditions: [
+              {
                 id: nanoid(),
-                conditions: [
-                    {
-                        id: nanoid(),
-                        items: [
-                            {
-                                id: nanoid(),
-                                category: 'value',
-                                type: 'element-selector',
-                                data: { selector: step.selector || '' }
-                            },
-                            {
-                                id: nanoid(),
-                                category: 'compare',
-                                type: 'itr' // Is True (Exists)
-                            }
-                        ]
-                    }
-                ]
-            }
-         ];
-         return {
-            loopId: nanoid(5),
-            conditions,
-         };
+                items: [
+                  {
+                    id: nanoid(),
+                    category: 'value',
+                    type: 'element-selector',
+                    data: { selector: step.selector || '' },
+                  },
+                  {
+                    id: nanoid(),
+                    category: 'compare',
+                    type: 'itr', // Is True (Exists)
+                  },
+                ],
+              },
+            ],
+          },
+        ];
+        return {
+          loopId: nanoid(5),
+          conditions,
+        };
       },
 
       'export-data': () => ({
-        type: (step.data?.type === 'excel' ? 'csv' : (step.data?.type || 'json')),
+        type: step.data?.type === 'excel' ? 'csv' : step.data?.type || 'json',
         dataToExport: 'data-columns',
         refKey: '',
         name: step.data?.filename || 'automa-data',
@@ -367,32 +377,32 @@ class WorkflowGenerator {
       conditions: () => {
         // Handle simplified AI output for "exists" condition
         if (step.data?.selector && step.data?.condition === 'exists') {
-             return {
+          return {
+            conditions: [
+              {
+                id: nanoid(),
+                name: 'Element Exists',
                 conditions: [
-                    {
+                  {
+                    id: nanoid(),
+                    items: [
+                      {
                         id: nanoid(),
-                        name: 'Element Exists',
-                        conditions: [
-                            {
-                                id: nanoid(),
-                                items: [
-                                    {
-                                        id: nanoid(),
-                                        category: 'value',
-                                        type: 'element-selector',
-                                        data: { selector: step.data.selector }
-                                    },
-                                    {
-                                        id: nanoid(),
-                                        category: 'compare',
-                                        type: 'itr' // Is True (Exists)
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                ]
-             };
+                        category: 'value',
+                        type: 'element-selector',
+                        data: { selector: step.data.selector },
+                      },
+                      {
+                        id: nanoid(),
+                        category: 'compare',
+                        type: 'itr', // Is True (Exists)
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          };
         }
 
         return {

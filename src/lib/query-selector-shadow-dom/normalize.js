@@ -1,5 +1,4 @@
 /* istanbul ignore file */
-/* eslint-disable */
 
 // normalize-selector-rev-02.js
 /*
@@ -44,7 +43,6 @@ export function normalizeSelector(sel) {
   ];
   sel = sel.trim();
 
-  // eslint-disable-next-line no-constant-condition
   while (true) {
     unmatched = '';
 

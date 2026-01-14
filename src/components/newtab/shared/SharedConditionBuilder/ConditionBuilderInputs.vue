@@ -18,7 +18,8 @@
           :key="label"
           :label="label"
         >
-          <option v-for="type in types" :key="type.id" :value="type.id">
+          <option v-for="type in types"
+:key="type.id" :value="type.id">
             {{ type.name }}
           </option>
         </optgroup>
@@ -91,7 +92,8 @@
         :key="category"
         :label="category"
       >
-        <option v-for="type in types" :key="type.id" :value="type.id">
+        <option v-for="type in types"
+:key="type.id" :value="type.id">
           {{ type.name }}
         </option>
       </optgroup>
@@ -113,8 +115,8 @@ import { conditionBuilder } from '@/utils/shared';
 import SharedElSelectorActions from '@/components/newtab/shared/SharedElSelectorActions.vue';
 import EditAutocomplete from '../../workflow/edit/EditAutocomplete.vue';
 
-const SharedCodemirror = defineAsyncComponent(() =>
-  import('../SharedCodemirror.vue')
+const SharedCodemirror = defineAsyncComponent(
+  () => import('../SharedCodemirror.vue')
 );
 
 const props = defineProps({

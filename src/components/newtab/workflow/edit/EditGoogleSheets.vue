@@ -11,7 +11,8 @@
       class="mb-2 w-full"
       @change="onActionChange"
     >
-      <option v-for="action in actions" :key="action" :value="action">
+      <option v-for="action in actions"
+:key="action" :value="action">
         {{ t(`workflow.blocks.google-sheets.select.${action}`) }}
       </option>
     </ui-select>
@@ -26,7 +27,9 @@
         :model-value="data.spreadsheetId"
         class="w-full"
         placeholder="abcd123"
-        @change="updateData({ spreadsheetId: $event }), checkPermission($event)"
+        @change="
+          (updateData({ spreadsheetId: $event }), checkPermission($event))
+        "
       >
         <template #label>
           {{ t('workflow.blocks.google-sheets.spreadsheetId.label') }}*
@@ -36,7 +39,8 @@
             rel="noopener"
             :title="t('workflow.blocks.google-sheets.spreadsheetId.link')"
           >
-            <v-remixicon name="riInformationLine" size="18" class="inline" />
+            <v-remixicon name="riInformationLine"
+size="18" class="inline" />
           </a>
         </template>
       </ui-input>
@@ -51,7 +55,8 @@
       Automa doesn't have access to the spreadsheet.
       <span>
         Click here to read more.
-        <v-remixicon name="riInformationLine" size="18" class="inline" />
+        <v-remixicon name="riInformationLine"
+size="18" class="inline" />
       </span>
     </a>
     <edit-autocomplete v-if="!['create', 'add-sheet'].includes(data.type)">
@@ -73,7 +78,8 @@
             rel="noopener"
             :title="t('workflow.blocks.google-sheets.range.link')"
           >
-            <v-remixicon name="riInformationLine" size="18" class="inline" />
+            <v-remixicon name="riInformationLine"
+size="18" class="inline" />
           </a>
         </template>
         <template
@@ -112,7 +118,8 @@
       >
         {{ t('workflow.blocks.google-sheets.previewData') }}
       </ui-button>
-      <p v-if="previewDataState.status === 'error'" class="text-red-500">
+      <p v-if="previewDataState.status === 'error'"
+class="text-red-500">
         {{ previewDataState.errorMessage }}
       </p>
     </template>
@@ -120,7 +127,8 @@
       <p class="mt-4">
         {{ t('workflow.blocks.google-sheets.spreadsheetId.label') }}
       </p>
-      <insert-workflow-data :data="data" variables @update="updateData" />
+      <insert-workflow-data :data="data"
+variables @update="updateData" />
       <ui-button
         v-if="data.type === 'getRange'"
         :loading="previewDataState.status === 'loading'"
@@ -144,7 +152,8 @@
             target="_blank"
             rel="noopener"
           >
-            <v-remixicon name="riInformationLine" size="18" class="inline" />
+            <v-remixicon name="riInformationLine"
+size="18" class="inline" />
           </a>
         </template>
         <option
@@ -168,7 +177,8 @@
             target="_blank"
             rel="noopener"
           >
-            <v-remixicon name="riInformationLine" size="18" class="inline" />
+            <v-remixicon name="riInformationLine"
+size="18" class="inline" />
           </a>
         </template>
         <option
@@ -185,7 +195,8 @@
         class="mt-2 w-full"
         @change="updateData({ dataFrom: $event })"
       >
-        <option v-for="item in dataFrom" :key="item" :value="item">
+        <option v-for="item in dataFrom"
+:key="item" :value="item">
           {{ t(`workflow.blocks.google-sheets.dataFrom.options.${item}`) }}
         </option>
       </ui-select>
@@ -241,8 +252,8 @@ import { useToast } from 'vue-toastification';
 import EditAutocomplete from './EditAutocomplete.vue';
 import InsertWorkflowData from './InsertWorkflowData.vue';
 
-const SharedCodemirror = defineAsyncComponent(() =>
-  import('@/components/newtab/shared/SharedCodemirror.vue')
+const SharedCodemirror = defineAsyncComponent(
+  () => import('@/components/newtab/shared/SharedCodemirror.vue')
 );
 
 const props = defineProps({
@@ -306,7 +317,9 @@ const checkPermission = debounce(async (value) => {
 
     if (state.lastSheetId === value) return;
 
-    const hasPermission = await googleSheetsApi(props.googleDrive).checkPermission(value);
+    const hasPermission = await googleSheetsApi(
+      props.googleDrive
+    ).checkPermission(value);
 
     state.havePermission = hasPermission;
     state.lastSheetId = value;

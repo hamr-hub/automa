@@ -3,14 +3,16 @@
     v-if="workflows.length === 0"
     class="md:flex items-center md:text-left text-center py-12"
   >
-    <img src="@/assets/svg/alien.svg" class="w-96" />
+    <img
+src="@/assets/svg/alien.svg" class="w-96" />
     <div class="ml-4">
       <h1 class="mb-6 max-w-md text-2xl font-semibold">
         {{ t('message.empty') }}
       </h1>
     </div>
   </div>
-  <div v-else class="workflows-container">
+  <div v-else
+class="workflows-container">
     <shared-card
       v-for="workflow in workflows"
       :key="workflow.id"

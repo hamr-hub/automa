@@ -81,7 +81,6 @@ export function getElementRect(target, withAttributes) {
 export function getElementPath(el, root = document.documentElement) {
   const path = [el];
 
-  /* eslint-disable-next-line */
   while ((el = el.parentNode) && !el.isEqualNode(root)) {
     path.push(el);
   }

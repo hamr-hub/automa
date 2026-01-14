@@ -35,7 +35,8 @@
           icon
           @click="nextBlock"
         >
-          <v-remixicon name="riArrowLeftSLine" rotate="180" />
+          <v-remixicon name="riArrowLeftSLine"
+rotate="180" />
         </ui-button>
         <ui-button
           v-tooltip="t('common.stop')"
@@ -79,9 +80,12 @@
       </ui-list>
     </div>
     <div class="w-64">
-      <ui-tabs v-model="activeTab" class="-mt-1">
-        <ui-tab class="!py-2" value="workflow-data">Data</ui-tab>
-        <ui-tab class="!py-2" value="workflow-logs">Logs</ui-tab>
+      <ui-tabs v-model="activeTab"
+class="-mt-1">
+        <ui-tab
+class="!py-2" value="workflow-data"> Data </ui-tab>
+        <ui-tab
+class="!py-2" value="workflow-logs"> Logs </ui-tab>
       </ui-tabs>
       <ui-tab-panels v-model="activeTab">
         <ui-tab-panel value="workflow-data">
@@ -137,8 +141,8 @@ import { tasks } from '@/utils/shared';
 import { debounce } from '@/utils/helper';
 import { sendMessage } from '@/utils/message';
 
-const SharedCodemirror = defineAsyncComponent(() =>
-  import('@/components/newtab/shared/SharedCodemirror.vue')
+const SharedCodemirror = defineAsyncComponent(
+  () => import('@/components/newtab/shared/SharedCodemirror.vue')
 );
 
 const props = defineProps({

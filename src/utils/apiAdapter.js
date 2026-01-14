@@ -16,11 +16,13 @@ async function ensureSupabaseInitialized() {
         supabaseConfig.supabaseUrl,
         supabaseConfig.supabaseAnonKey
       );
-      
+
       // 仅初始化 Supabase 客户端,不自动登录
       // 用户需要通过登录页面进行认证
-      console.log('[Supabase] Client initialized, waiting for user authentication');
-      
+      console.log(
+        '[Supabase] Client initialized, waiting for user authentication'
+      );
+
       supabaseInitialized = true;
     } catch (error) {
       console.warn('Supabase initialization failed:', error.message);
@@ -44,7 +46,7 @@ class SupabaseAdapter {
 
   async getUserWorkflows() {
     await ensureSupabaseInitialized();
-    
+
     // 检查用户是否已登录
     const user = await supabaseClient.getCurrentUser();
     if (!user) {
@@ -52,21 +54,21 @@ class SupabaseAdapter {
       console.log('[API] User not logged in, returning empty workflows');
       return { hosted: {}, backup: [], cacheData: { backup: [], hosted: {} } };
     }
-    
+
     const workflows = await supabaseClient.getWorkflows();
     return this._formatWorkflowsResponse(workflows);
   }
 
   async getSharedWorkflows() {
     await ensureSupabaseInitialized();
-    
+
     // 检查用户是否已登录
     const user = await supabaseClient.getCurrentUser();
     if (!user) {
       console.log('[API] User not logged in, returning empty shared workflows');
       return {};
     }
-    
+
     const sharedWorkflows = await supabaseClient.getSharedWorkflows();
     return this._formatSharedWorkflowsResponse(sharedWorkflows);
   }
@@ -110,7 +112,8 @@ class SupabaseAdapter {
     const formattedWorkflows = workflows.map((w) =>
       this._convertToSupabaseFormat(w)
     );
-    const result = await supabaseClient.batchInsertWorkflows(formattedWorkflows);
+    const result =
+      await supabaseClient.batchInsertWorkflows(formattedWorkflows);
     return result.map((w) => this._convertFromSupabaseFormat(w));
   }
 
@@ -316,7 +319,8 @@ class SupabaseAdapter {
       name: pkg.name,
       description: pkg.description,
       icon: pkg.icon,
-      content: typeof pkg.content === 'string' ? JSON.parse(pkg.content) : pkg.content,
+      content:
+        typeof pkg.content === 'string' ? JSON.parse(pkg.content) : pkg.content,
       is_external: pkg.isExtenal,
       inputs: pkg.inputs,
       outputs: pkg.outputs,
@@ -332,7 +336,10 @@ class SupabaseAdapter {
       name: pkg.name,
       description: pkg.description,
       icon: pkg.icon,
-      content: typeof pkg.content === 'string' ? pkg.content : JSON.stringify(pkg.content),
+      content:
+        typeof pkg.content === 'string'
+          ? pkg.content
+          : JSON.stringify(pkg.content),
       isExtenal: pkg.is_external,
       inputs: pkg.inputs,
       outputs: pkg.outputs,

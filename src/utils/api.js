@@ -104,12 +104,14 @@ export async function deletePackage(id) {
  */
 export async function fetchApi(path, options = {}) {
   const urlPath = path.startsWith('/') ? path : `/${path}`;
-  
+
   // If calling Automa Backend, we should intercept or warn.
   // But for now, we'll try to execute it using fetch, hoping it's not needed or the backend URL in secrets is updated to something else (unlikely).
   // Actually, if we are fully migrating, calls to the old backend will fail.
-  
-  console.warn(`[Deprecation] fetchApi called for ${path}. This should be migrated to Supabase.`);
+
+  console.warn(
+    `[Deprecation] fetchApi called for ${path}. This should be migrated to Supabase.`
+  );
 
   const headers = {
     'Content-Type': 'application/json',
@@ -119,7 +121,7 @@ export async function fetchApi(path, options = {}) {
   // Attempt to attach Supabase token if auth is requested?
   // The old backend expected a specific token format. Supabase expects its own.
   // If the path is for the old backend, it won't work with Supabase token anyway.
-  
+
   const url = `${secrets.baseApiUrl}${urlPath}`;
 
   return fetch(url, {
@@ -167,19 +169,20 @@ export function validateOauthToken() {
   // This function was used to refresh Google tokens via the old backend.
   // With Supabase, we need a new strategy.
   // For now, we return null to disable this flow until a replacement is implemented.
-  console.warn('[Supabase Migration] validateOauthToken is not fully supported yet.');
+  console.warn(
+    '[Supabase Migration] validateOauthToken is not fully supported yet.'
+  );
   return Promise.resolve(null);
 }
 
 export async function fetchGapi(url, resource = {}, options = {}) {
   // Try to use the old token from storage first
-  const { sessionToken } = await BrowserAPIService.storage.local.get(
-    'sessionToken'
-  );
-  
+  const { sessionToken } =
+    await BrowserAPIService.storage.local.get('sessionToken');
+
   // If no legacy token, maybe we can check Supabase session for provider token?
   // (Not implemented here yet as it requires 'provider_token' scope config)
-  
+
   if (!sessionToken) throw new Error('unauthorized');
 
   const { search, origin, pathname } = new URL(url);
@@ -196,10 +199,10 @@ export async function fetchGapi(url, resource = {}, options = {}) {
     );
 
     const result = parseJSON(await response.text(), null);
-    
+
     // Logic to refresh token is removed because we don't have the backend endpoint anymore.
     // If token is expired, it will just fail.
-    
+
     if (!response.ok) {
       throw new Error(result?.error?.message, { cause: result });
     }

@@ -12,7 +12,8 @@
       class="mt-2 w-full"
       @change="updateData({ type: $event })"
     >
-      <option v-for="type in types" :key="type" :value="type">
+      <option v-for="type in types"
+:key="type" :value="type">
         {{ t(`workflow.blocks.take-screenshot.types.${type}`) }}
       </option>
     </ui-select>
@@ -48,7 +49,8 @@
     >
       {{ t('workflow.blocks.take-screenshot.saveToComputer') }}
     </ui-checkbox>
-    <div v-if="data.saveToComputer" class="mt-1 flex items-center">
+    <div v-if="data.saveToComputer"
+class="mt-1 flex items-center">
       <edit-autocomplete class="mr-2 flex-1">
         <ui-input
           :model-value="data.fileName"
@@ -109,7 +111,6 @@
   </div>
 </template>
 <script setup>
-/* eslint-disable no-unused-expressions */
 import { inject, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { objectHasKey } from '@/utils/helper';

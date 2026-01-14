@@ -1,4 +1,4 @@
-/* eslint-disable prefer-destructuring, no-useless-escape */
+/* eslint-disable no-useless-escape */
 import jsonpath from 'jsonpath';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -31,7 +31,6 @@ export default {
       dateFormat = args[1];
     }
 
-    /* eslint-disable-next-line */
     const isValidDate = date instanceof Date && !isNaN(date);
     const dayjsDate = dayjs(isValidDate ? date : Date.now());
 

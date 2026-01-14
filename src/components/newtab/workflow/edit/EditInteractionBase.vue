@@ -10,14 +10,16 @@
         @change="updateData({ description: $event })"
       />
       <slot name="prepend:selector" />
-      <div v-if="!hideSelector" class="mb-2 flex items-center">
+      <div v-if="!hideSelector"
+class="mb-2 flex items-center">
         <ui-select
           :model-value="data.findBy || 'cssSelector'"
           :placeholder="t('workflow.blocks.base.findElement.placeholder')"
           class="mr-2 flex-1"
           @change="updateData({ findBy: $event })"
         >
-          <option v-for="type in selectorTypes" :key="type" :value="type">
+          <option v-for="type in selectorTypes"
+:key="type" :value="type">
             {{ t(`workflow.blocks.base.findElement.options.${type}`) }}
           </option>
         </ui-select>
@@ -28,7 +30,8 @@
           @update:selector="updateData({ selector: $event })"
         />
       </div>
-      <edit-autocomplete v-if="!hideSelector" class="mb-1">
+      <edit-autocomplete v-if="!hideSelector"
+class="mb-1">
         <ui-textarea
           v-if="!hideSelector"
           :model-value="data.selector"
@@ -89,7 +92,7 @@
         />
       </ui-expand>
     </template>
-    <slot></slot>
+    <slot />
   </div>
 </template>
 <script setup>

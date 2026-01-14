@@ -128,7 +128,6 @@ const menuItems = {
   },
 };
 
-/* eslint-disable-next-line */
 function showCtxMenu(items = [], event) {
   event.preventDefault();
   const { clientX, clientY } = event;

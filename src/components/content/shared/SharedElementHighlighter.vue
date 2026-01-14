@@ -12,7 +12,7 @@
     }"
     :key="index"
     stroke-width="2"
-  ></rect>
+  />
 </template>
 <script setup>
 const props = defineProps({

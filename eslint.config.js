@@ -7,7 +7,7 @@ import babelParser from '@babel/eslint-parser';
 
 export default [
   js.configs.recommended,
-  ...vue.configs['flat/vue3-recommended'],
+  ...vue.configs['flat/recommended'],
   {
     files: ['**/*.{js,vue}'],
     languageOptions: {
@@ -123,5 +123,21 @@ export default [
   },
   {
     ignores: ['src/lib/google-*', 'node_modules/**', 'build/**'],
+  },
+  {
+    files: ['webpack.config.js', 'utils/**/*.js', 'scripts/**/*.js', 'eslint.config.js'],
+    languageOptions: {
+      globals: {
+        process: 'readonly',
+        require: 'readonly',
+        module: 'readonly',
+        __dirname: 'readonly',
+        Buffer: 'readonly',
+        console: 'readonly',
+      },
+    },
+    rules: {
+      'no-console': 'off',
+    },
   },
 ];

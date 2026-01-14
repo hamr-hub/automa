@@ -10,7 +10,6 @@ import {
 
 function isValidURL(url) {
   try {
-    // eslint-disable-next-line
     new URL(url);
     return true;
   } catch (error) {

@@ -10,7 +10,9 @@
       <option value="aipower">AI Power</option>
     </ui-select>
 
-    <template v-if="(data.provider === 'aipower') || (!data.provider && data.flowUuid)">
+    <template
+      v-if="data.provider === 'aipower' || (!data.provider && data.flowUuid)"
+    >
       <ui-button
         variant="accent"
         class="text-sm w-full"
@@ -18,10 +20,12 @@
       >
         <span class="flex justify-between items-center w-full">
           <span class="flex items-center space-x-1">
-            <v-remixicon name="riKey" size="16"></v-remixicon>
+            <v-remixicon
+name="riKey" size="16" />
             <span>Configure AI Power Token</span>
           </span>
-          <v-remixicon name="riArrowRightLine" size="16"></v-remixicon>
+          <v-remixicon
+name="riArrowRightLine" size="16" />
         </span>
       </ui-button>
 
@@ -40,8 +44,10 @@
           @change="onFlowChange"
         >
           <template #footer>
-            <ui-button class="w-full" @click="createNewWorkflow">
-              <v-remixicon name="riAddLine" class="mr-2" />
+            <ui-button class="w-full"
+@click="createNewWorkflow">
+              <v-remixicon name="riAddLine"
+class="mr-2" />
               New AI Workflow
             </ui-button>
           </template>
@@ -49,7 +55,7 @@
 
         <div
           class="w-full my-6 relative flex items-center justify-center bg-[#e4e4e7] h-[1px]"
-        ></div>
+        />
 
         <div class="my-4">
           <p class="font-semibold">Workflow Inputs</p>
@@ -106,7 +112,7 @@
       />
 
       <div class="mb-4 relative">
-         <ui-select
+        <ui-select
           :model-value="data.model"
           label="Model"
           placeholder="Select a model"
@@ -114,11 +120,18 @@
           @change="updateData({ model: $event })"
           @click="fetchOllamaModels"
         >
-          <option v-for="model in ollamaModels" :key="model.name" :value="model.name">
+          <option
+            v-for="model in ollamaModels"
+            :key="model.name"
+            :value="model.name"
+          >
             {{ model.name }}
           </option>
         </ui-select>
-        <span v-if="isFetchingModels" class="absolute right-8 top-9 text-xs text-gray-400">Loading...</span>
+        <span
+          v-if="isFetchingModels"
+          class="absolute right-8 top-9 text-xs text-gray-400"
+        >Loading...</span>
       </div>
 
       <ui-textarea
@@ -140,7 +153,7 @@
         autoresize
         @change="updateData({ prompt: $event })"
       />
-      
+
       <ui-input
         :model-value="data.temperature"
         label="Temperature"
@@ -155,10 +168,13 @@
     </template>
 
     <div class="my-4">
-      <insert-workflow-data :data="data" variables @update="updateData" />
+      <insert-workflow-data :data="data"
+variables @update="updateData" />
     </div>
 
-    <template v-if="(data.provider === 'aipower') || (!data.provider && data.flowUuid)">
+    <template
+      v-if="data.provider === 'aipower' || (!data.provider && data.flowUuid)"
+    >
       <span class="text-sm text-gray-500 block text-center mt-10"
         >Powered by Automa
         <a href="https://aipower.automa.site/">AI Power</a></span
@@ -183,7 +199,8 @@
         <p
           class="font-semibold text-[16px] dark:text-gray-300 leading-[24px] flex items-center"
         >
-          <v-remixicon name="riKey" size="16" class="mr-1"></v-remixicon>
+          <v-remixicon
+name="riKey" size="16" class="mr-1" />
           How to get your AI Power Token
         </p>
 
@@ -196,9 +213,11 @@
           <li>Copy the generated token and paste it below</li>
         </ol>
 
-        <ui-button variant="default" @click="goToAIPowerSettings">
+        <ui-button variant="default"
+@click="goToAIPowerSettings">
           <span class="text-[14px] leading-[24px]">Open AI Power Settings</span>
-          <v-remixicon name="riArrowRightUpLine" size="16"></v-remixicon>
+          <v-remixicon
+name="riArrowRightUpLine" size="16" />
         </ui-button>
       </div>
 
@@ -216,9 +235,11 @@
         <ui-button
           variant="default"
           @click="state.showAIPowerTokenModal = false"
-          >Cancel</ui-button
         >
-        <ui-button variant="accent" @click="saveAIPowerToken">Save</ui-button>
+          Cancel
+        </ui-button>
+        <ui-button
+variant="accent" @click="saveAIPowerToken"> Save </ui-button>
       </div>
     </ui-modal>
   </div>
@@ -428,8 +449,8 @@ const fetchOllamaModels = async () => {
   try {
     const client = new OllamaClient({ baseUrl: host });
     const models = await client.listModels();
-    ollamaModels.value = models.map(m => ({ name: m.name }));
-    
+    ollamaModels.value = models.map((m) => ({ name: m.name }));
+
     // Auto select first model if none selected
     if (!props.data.model && ollamaModels.value.length > 0) {
       updateData({ model: ollamaModels.value[0].name });
@@ -451,11 +472,14 @@ const onProviderChange = (provider) => {
 
 onMounted(() => {
   if (!props.data.provider && !props.data.flowUuid) {
-     // Default to ollama if no provider and no flowUuid (new block)
-     updateData({ provider: 'ollama' });
+    // Default to ollama if no provider and no flowUuid (new block)
+    updateData({ provider: 'ollama' });
   }
-  
-  if (props.data.provider === 'ollama' || (!props.data.provider && !props.data.flowUuid)) {
+
+  if (
+    props.data.provider === 'ollama' ||
+    (!props.data.provider && !props.data.flowUuid)
+  ) {
     fetchOllamaModels();
   }
 });

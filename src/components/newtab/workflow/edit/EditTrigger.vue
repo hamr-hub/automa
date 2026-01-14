@@ -14,8 +14,10 @@
     >
       Edit Triggers
     </ui-button>
-    <ui-button class="mt-4" @click="state.showParamModal = true">
-      <v-remixicon name="riCommandLine" class="mr-2 -ml-1" />
+    <ui-button class="mt-4"
+@click="state.showParamModal = true">
+      <v-remixicon name="riCommandLine"
+class="mr-2 -ml-1" />
       <span>Parameters</span>
     </ui-button>
     <ui-modal

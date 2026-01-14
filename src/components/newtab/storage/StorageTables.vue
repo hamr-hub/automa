@@ -5,7 +5,7 @@
       :placeholder="t('common.search')"
       prepend-icon="riSearch2Line"
     />
-    <div class="grow"></div>
+    <div class="grow" />
     <ui-button
       variant="accent"
       class="ml-4"
@@ -47,7 +47,8 @@
       </template>
     </ui-table>
   </div>
-  <storage-edit-table v-model="state.showAddTable" @save="saveTable" />
+  <storage-edit-table v-model="state.showAddTable"
+@save="saveTable" />
 </template>
 <script setup>
 import { reactive } from 'vue';

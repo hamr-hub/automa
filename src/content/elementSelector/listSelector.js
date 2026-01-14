@@ -1,6 +1,5 @@
 import findSelector from '@/lib/findSelector';
 
-/* eslint-disable  no-cond-assign */
 export function getAllSiblings(el, selector) {
   const siblings = [el];
 

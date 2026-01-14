@@ -23,9 +23,8 @@ export const useHostedWorkflowStore = defineStore('hosted-workflows', {
     async loadData() {
       if (!browser?.storage?.local) return;
 
-      const { workflowHosts } = await browser.storage.local.get(
-        'workflowHosts'
-      );
+      const { workflowHosts } =
+        await browser.storage.local.get('workflowHosts');
       this.workflows = workflowHosts || {};
       this.retrieved = true;
     },
@@ -80,8 +79,8 @@ export const useHostedWorkflowStore = defineStore('hosted-workflows', {
 
           // Replicate update logic if needed, but for now just load data.
           if (data.drawflow) {
-             const triggerBlock = findTriggerBlock(data.drawflow);
-             registerWorkflowTrigger(hostId, triggerBlock);
+            const triggerBlock = findTriggerBlock(data.drawflow);
+            registerWorkflowTrigger(hostId, triggerBlock);
           }
 
           data.hostId = hostId;
@@ -90,12 +89,12 @@ export const useHostedWorkflowStore = defineStore('hosted-workflows', {
         });
 
         // Handle deleted workflows (ids requested but not returned)
-        const returnedIds = result.map(w => w.hostId || w.id);
-        ids.forEach(id => {
-           if (!returnedIds.includes(id)) {
-              delete this.workflows[id];
-              cleanWorkflowTriggers(id);
-           }
+        const returnedIds = result.map((w) => w.hostId || w.id);
+        ids.forEach((id) => {
+          if (!returnedIds.includes(id)) {
+            delete this.workflows[id];
+            cleanWorkflowTriggers(id);
+          }
         });
 
         await this.saveToStorage('workflows');

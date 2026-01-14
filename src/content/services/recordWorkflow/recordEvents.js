@@ -248,9 +248,8 @@ const onMessage = debounce(({ data, source }) => {
   if (!lastFlow) return;
 
   const lastIndex = data.recording.flows.length - 1;
-  data.recording.flows[
-    lastIndex
-  ].data.selector = `${frameSelector} |> ${lastFlow.data.selector}`;
+  data.recording.flows[lastIndex].data.selector =
+    `${frameSelector} |> ${lastFlow.data.selector}`;
 
   browser.storage.local.set({ recording: data.recording });
 }, 100);

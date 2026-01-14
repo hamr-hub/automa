@@ -1,7 +1,11 @@
 <template>
-  <div v-if="tableData.body.length === 0" class="text-center">
-    <img src="@/assets/svg/files-and-folder.svg" class="mx-auto max-w-sm" />
-    <p class="text-xl font-semibold">{{ t('message.noData') }}</p>
+  <div v-if="tableData.body.length === 0"
+class="text-center">
+    <img
+src="@/assets/svg/files-and-folder.svg" class="mx-auto max-w-sm" />
+    <p class="text-xl font-semibold">
+      {{ t('message.noData') }}
+    </p>
   </div>
   <template v-else>
     <div class="flex items-center">
@@ -15,7 +19,7 @@
         <ui-tab value="table"> Table </ui-tab>
         <ui-tab value="raw"> Raw </ui-tab>
       </ui-tabs>
-      <div class="grow"></div>
+      <div class="grow" />
       <ui-input
         v-if="state.activeTab === 'table'"
         v-model="state.query"
@@ -28,7 +32,8 @@
         <template #trigger>
           <ui-button variant="accent">
             <span>{{ t('log.exportData.title') }}</span>
-            <v-remixicon name="riArrowDropDownLine" class="ml-2 -mr-1" />
+            <v-remixicon name="riArrowDropDownLine"
+class="ml-2 -mr-1" />
           </ui-button>
         </template>
         <ui-list class="space-y-1">
@@ -68,8 +73,8 @@ import { useI18n } from 'vue-i18n';
 import { dataExportTypes } from '@/utils/shared';
 import dataExporter from '@/utils/dataExporter';
 
-const SharedCodemirror = defineAsyncComponent(() =>
-  import('@/components/newtab/shared/SharedCodemirror.vue')
+const SharedCodemirror = defineAsyncComponent(
+  () => import('@/components/newtab/shared/SharedCodemirror.vue')
 );
 
 const props = defineProps({

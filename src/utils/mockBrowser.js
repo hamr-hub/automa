@@ -44,7 +44,8 @@ const browser = {
           workflowStates: {},
           isRecording: false,
         };
-        if (typeof keys === 'string') return Promise.resolve({ [keys]: data[keys] });
+        if (typeof keys === 'string')
+          return Promise.resolve({ [keys]: data[keys] });
         return Promise.resolve(data);
       },
       set: () => Promise.resolve(),

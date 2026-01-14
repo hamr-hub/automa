@@ -7,7 +7,8 @@
       class="absolute -right-2 -top-2 scale-0 rounded-full bg-white shadow-md transition group-hover:scale-100"
       @click="closeModal"
     >
-      <v-remixicon class="text-gray-600" name="riCloseLine" />
+      <v-remixicon class="text-gray-600"
+name="riCloseLine" />
     </button>
     <h2 class="text-lg font-semibold">
       {{ activeModal.title }}

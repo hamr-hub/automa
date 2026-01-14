@@ -11,11 +11,14 @@
             :src="workflow.icon"
             class="h-8 w-8"
           />
-          <v-remixicon v-else :name="workflow.icon" size="26" class="mt-1" />
+          <v-remixicon v-else
+:name="workflow.icon" size="26" class="mt-1" />
         </span>
       </template>
       <div class="w-56">
-        <p class="mb-2">{{ t('workflow.sidebar.workflowIcon') }}</p>
+        <p class="mb-2">
+          {{ t('workflow.sidebar.workflowIcon') }}
+        </p>
         <div class="mb-2 grid grid-cols-5 gap-1">
           <span
             v-for="icon in icons"

@@ -9,7 +9,7 @@
       { 'pointer-events-none opacity-75': disabled },
     ]"
   >
-    <slot></slot>
+    <slot />
   </component>
 </template>
 <script>

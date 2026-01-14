@@ -61,9 +61,8 @@ export const useStore = defineStore('main', {
         if (!result) return;
 
         const isIntegrated = result.scope.includes('auth/drive.file');
-        const { sessionToken } = await browser.storage.local.get(
-          'sessionToken'
-        );
+        const { sessionToken } =
+          await browser.storage.local.get('sessionToken');
 
         if (!isIntegrated && sessionToken?.refresh && retryCount < 3) {
           // Legacy backend refresh logic - deprecated with Supabase migration
@@ -82,7 +81,9 @@ export const useStore = defineStore('main', {
           // });
           // await this.checkGDriveIntegration(force, retryCount + 1);
 
-          console.warn('Google Drive token refresh is not supported in the current backend version.');
+          console.warn(
+            'Google Drive token refresh is not supported in the current backend version.'
+          );
           return;
         }
 

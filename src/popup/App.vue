@@ -29,15 +29,14 @@ if (browser?.storage?.local) {
   });
 }
 
-
 onMounted(async () => {
   try {
     console.log('[Popup] 开始初始化 popup');
-    
+
     console.log('[Popup] 加载设置...');
     await store.loadSettings();
     console.log('[Popup] 设置加载完成:', store.settings);
-    
+
     console.log('[Popup] 加载国际化文件...');
     await loadLocaleMessages(store.settings.locale, 'popup');
     await setI18nLanguage(store.settings.locale);
@@ -46,7 +45,7 @@ onMounted(async () => {
     console.log('[Popup] 加载工作流数据...');
     await workflowStore.loadData();
     console.log('[Popup] 工作流数据加载完成');
-    
+
     console.log('[Popup] 加载托管工作流数据...');
     await hostedWorkflowStore.loadData();
     console.log('[Popup] 托管工作流数据加载完成');

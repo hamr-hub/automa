@@ -14,7 +14,8 @@
     />
   </div>
   <transition-expand>
-    <div v-if="settings.insertDefaultColumn" class="flex items-center pt-4">
+    <div v-if="settings.insertDefaultColumn"
+class="flex items-center pt-4">
       <p class="flex-1">
         {{ t('workflow.settings.defaultColumn.name') }}
       </p>

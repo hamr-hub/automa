@@ -28,7 +28,8 @@ class LangGraphAgent {
     const isHealthy = await this.ollama.checkHealth();
     if (!isHealthy) {
       this.state.status = 'error';
-      this.state.error = 'Ollama 服务不可用,请确保 Ollama 已启动 (运行: ollama serve)';
+      this.state.error =
+        'Ollama 服务不可用,请确保 Ollama 已启动 (运行: ollama serve)';
       return false;
     }
 
@@ -42,14 +43,23 @@ class LangGraphAgent {
    */
   async getPageContext() {
     try {
-      let [tab] = await Browser.tabs.query({ active: true, currentWindow: true });
-      
+      let [tab] = await Browser.tabs.query({
+        active: true,
+        currentWindow: true,
+      });
+
       // If current tab is extension page, try to find Amazon JP tab
-      if (tab?.url && (tab.url.startsWith('chrome-extension:') || tab.url.startsWith('moz-extension:'))) {
-          const amazonTabs = await Browser.tabs.query({ url: '*://*.amazon.co.jp/*' });
-          if (amazonTabs.length > 0) {
-              tab = amazonTabs[0];
-          }
+      if (
+        tab?.url &&
+        (tab.url.startsWith('chrome-extension:') ||
+          tab.url.startsWith('moz-extension:'))
+      ) {
+        const amazonTabs = await Browser.tabs.query({
+          url: '*://*.amazon.co.jp/*',
+        });
+        if (amazonTabs.length > 0) {
+          tab = amazonTabs[0];
+        }
       }
 
       if (!tab?.id) return null;
@@ -58,32 +68,45 @@ class LangGraphAgent {
         target: { tabId: tab.id },
         func: () => {
           // Inline simple simplifier to avoid dependency injection issues in executeScript
-          // Or use the file we just created if we can bundle it. 
+          // Or use the file we just created if we can bundle it.
           // For reliability in this context, we'll implement a basic version here.
-          
+
           function simplify(root) {
-             if (!root) return '';
-             const clone = root.cloneNode(true);
-             const removeTags = ['SCRIPT', 'STYLE', 'NOSCRIPT', 'IFRAME', 'SVG', 'PATH', 'LINK', 'META'];
-             const walker = document.createTreeWalker(clone, NodeFilter.SHOW_ELEMENT);
-             const nodesToRemove = [];
-             while (walker.nextNode()) {
-               if (removeTags.includes(walker.currentNode.tagName)) nodesToRemove.push(walker.currentNode);
-             }
-             nodesToRemove.forEach(n => n.remove());
-             
-             // Simple cleanup
-             return clone.innerHTML.replace(/\s+/g, ' ').trim().slice(0, 30000);
+            if (!root) return '';
+            const clone = root.cloneNode(true);
+            const removeTags = [
+              'SCRIPT',
+              'STYLE',
+              'NOSCRIPT',
+              'IFRAME',
+              'SVG',
+              'PATH',
+              'LINK',
+              'META',
+            ];
+            const walker = document.createTreeWalker(
+              clone,
+              NodeFilter.SHOW_ELEMENT
+            );
+            const nodesToRemove = [];
+            while (walker.nextNode()) {
+              if (removeTags.includes(walker.currentNode.tagName))
+                nodesToRemove.push(walker.currentNode);
+            }
+            nodesToRemove.forEach((n) => n.remove());
+
+            // Simple cleanup
+            return clone.innerHTML.replace(/\s+/g, ' ').trim().slice(0, 30000);
           }
-          
+
           return {
             url: window.location.href,
             title: document.title,
-            dom: simplify(document.body)
+            dom: simplify(document.body),
           };
-        }
+        },
       });
-      
+
       return result?.result;
     } catch (e) {
       console.warn('Failed to get page context:', e);
@@ -101,16 +124,16 @@ class LangGraphAgent {
     try {
       this.state.status = 'generating';
       this.state.error = null;
-      
+
       onProgress?.({ step: 'ai', message: 'AI 正在分析页面...' });
 
       // 1. Get Page Context if targetUrl is not provided (assume current page)
       let pageContext = null;
       if (!targetUrl) {
-         pageContext = await this.getPageContext();
-         if (pageContext) {
-             targetUrl = pageContext.url; // Use current URL
-         }
+        pageContext = await this.getPageContext();
+        if (pageContext) {
+          targetUrl = pageContext.url; // Use current URL
+        }
       }
 
       // Add user message to history
@@ -122,16 +145,16 @@ class LangGraphAgent {
       // We pass the history so the AI knows the context
       onProgress?.({ step: 'ai', message: 'AI 正在生成工作流...' });
       const workflow = await this.langGraphService.run(
-          userInput, 
-          targetUrl, 
-          this.history,
-          pageContext?.dom // Pass DOM context
+        userInput,
+        targetUrl,
+        this.history,
+        pageContext?.dom // Pass DOM context
       );
 
       if (workflow) {
         const aiResponse = `已为您生成工作流: ${workflow.name}`;
         this.history.push({ role: 'assistant', content: aiResponse });
-        
+
         this.state.status = 'idle';
         this.state.currentWorkflow = workflow;
 
@@ -139,22 +162,24 @@ class LangGraphAgent {
           success: true,
           message: aiResponse,
           workflow: workflow,
-          isWorkflowUpdate: false
+          isWorkflowUpdate: false,
         };
       } else {
         throw new Error('未能生成有效的工作流');
       }
-
     } catch (error) {
       console.error('LangGraph Agent Error:', error);
       this.state.status = 'error';
       this.state.error = error.message;
-      
-      this.history.push({ role: 'assistant', content: `错误: ${error.message}` });
+
+      this.history.push({
+        role: 'assistant',
+        content: `错误: ${error.message}`,
+      });
 
       return {
         success: false,
-        error: error.message
+        error: error.message,
       };
     }
   }

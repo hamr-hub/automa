@@ -5,7 +5,7 @@
     </h1>
     <p>
       Get started by reading the documentation or browsing workflows in the
-      Automa Marketplace. <br />
+      Automa Marketplace. <br >
       To learn how to use Automa, watch the tutorials on our YouTube Channel.
     </p>
     <div class="mt-8 flex items-center space-x-2">
@@ -17,7 +17,8 @@
         rel="noopener"
         class="hoverable w-40 flex-1 rounded-lg border-2 p-4 transition"
       >
-        <v-remixicon size="28" :name="link.icon" />
+        <v-remixicon size="28"
+:name="link.icon" />
         <p class="mt-2">
           {{ link.name }}
         </p>
@@ -34,7 +35,8 @@
           rel="noopener"
           class="hoverable w-40 rounded-lg border-2 p-4 transition"
         >
-          <v-remixicon size="28" :name="link.icon" />
+          <v-remixicon size="28"
+:name="link.icon" />
           <p class="mt-2">
             {{ link.name }}
           </p>

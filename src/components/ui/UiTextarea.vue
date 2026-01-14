@@ -10,7 +10,7 @@
     @keydown="$emit('keydown', $event)"
     @focus="$emit('focus', $event)"
     @blur="$emit('blur', $event)"
-  ></textarea>
+  />
 </template>
 <script>
 import { ref, onMounted } from 'vue';

@@ -28,7 +28,8 @@
       class="mt-1 w-full"
       @change="updateData({ flowBlockId: $event })"
     >
-      <option v-for="item in connections" :key="item.id" :value="item.id">
+      <option v-for="item in connections"
+:key="item.id" :value="item.id">
         {{ item.name }}
       </option>
     </ui-select>

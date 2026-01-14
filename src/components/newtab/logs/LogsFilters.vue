@@ -24,7 +24,8 @@
         :placeholder="t('sort.sortBy')"
         @change="updateSorts('by', $event)"
       >
-        <option v-for="sort in sortsList" :key="sort.id" :value="sort.id">
+        <option v-for="sort in sortsList"
+:key="sort.id" :value="sort.id">
           {{ sort.name }}
         </option>
       </ui-select>
@@ -32,12 +33,15 @@
     <ui-popover class="mt-4 md:mt-0">
       <template #trigger>
         <ui-button>
-          <v-remixicon name="riFilter2Line" class="mr-2 -ml-1" />
+          <v-remixicon name="riFilter2Line"
+class="mr-2 -ml-1" />
           <span>{{ t('log.filter.title') }}</span>
         </ui-button>
       </template>
       <div class="w-48">
-        <p class="mb-2 flex-1 font-semibold">{{ t('log.filter.title') }}</p>
+        <p class="mb-2 flex-1 font-semibold">
+          {{ t('log.filter.title') }}
+        </p>
         <p class="mb-2 text-sm text-gray-600 dark:text-gray-200">
           {{ t('log.filter.byStatus') }}
         </p>
@@ -61,14 +65,17 @@
           class="w-full"
           @change="updateFilters('byDate', $event)"
         >
-          <option v-for="date in filterByDate" :key="date.id" :value="date.id">
+          <option v-for="date in filterByDate"
+:key="date.id" :value="date.id">
             {{ date.name }}
           </option>
         </ui-select>
       </div>
     </ui-popover>
-    <ui-button class="ml-4 mt-4 md:ml-0 md:mt-0" @click="$emit('clear')">
-      <v-remixicon name="riDeleteBin7Line" class="mr-2 -ml-1" />
+    <ui-button class="ml-4 mt-4 md:ml-0 md:mt-0"
+@click="$emit('clear')">
+      <v-remixicon name="riDeleteBin7Line"
+class="mr-2 -ml-1" />
       <span>
         {{ t('log.clearLogs.title') }}
       </span>

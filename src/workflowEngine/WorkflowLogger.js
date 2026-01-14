@@ -1,5 +1,5 @@
 import dbLogs, { defaultLogItem } from '@/db/logs';
-/* eslint-disable class-methods-use-this */
+
 class WorkflowLogger {
   async add({ detail, history, ctxData, data }) {
     const logDetail = { ...defaultLogItem, ...detail };

@@ -1,4 +1,3 @@
-
 import { StateGraph, END } from '@langchain/langgraph';
 import OllamaClient from './OllamaClient.js';
 import WorkflowGenerator from './WorkflowGenerator.js';
@@ -10,7 +9,8 @@ import aiConfig from '../../config/ai.config.js';
  */
 class LangGraphService {
   constructor(config = {}, ollamaClient = null) {
-    this.ollama = ollamaClient || new OllamaClient(config.ollama || aiConfig.ollama);
+    this.ollama =
+      ollamaClient || new OllamaClient(config.ollama || aiConfig.ollama);
     this.workflowGenerator = new WorkflowGenerator();
     this.graph = this.buildGraph();
     this.maxRetries = 3;
@@ -53,11 +53,14 @@ class LangGraphService {
         workflow: { value: (x, y) => y, default: () => null },
         error: { value: (x, y) => y, default: () => null },
         retryCount: { value: (x, y) => y, default: () => 0 },
-      }
+      },
     });
 
     // Define Nodes
-    graphBuilder.addNode('input_processing', this.inputProcessingNode.bind(this));
+    graphBuilder.addNode(
+      'input_processing',
+      this.inputProcessingNode.bind(this)
+    );
     graphBuilder.addNode('generation', this.generationNode.bind(this));
     graphBuilder.addNode('validation', this.validationNode.bind(this));
     graphBuilder.addNode('correction', this.correctionNode.bind(this));
@@ -93,7 +96,7 @@ class LangGraphService {
    */
   async inputProcessingNode(state) {
     console.log('[LangGraph] Processing Input:', state.userInput);
-    
+
     let systemPrompt = `You are an Automa workflow generator. 
     Convert user requests into Automa workflow JSON format.
     Return ONLY the JSON. No markdown, no explanations.
@@ -127,19 +130,22 @@ class LangGraphService {
 
     // Inject DOM Context if available
     if (state.pageContext) {
-        systemPrompt += `\n\nCURRENT PAGE DOM CONTEXT:\n${state.pageContext}\n\nUse the CSS Selectors from the DOM above.`;
+      systemPrompt += `\n\nCURRENT PAGE DOM CONTEXT:\n${state.pageContext}\n\nUse the CSS Selectors from the DOM above.`;
     }
 
     // Add initial messages if empty
     if (state.messages.length === 0) {
       return {
         messages: [
-            { role: 'system', content: systemPrompt },
-            { role: 'user', content: `Task: ${state.userInput}\nURL: ${state.targetUrl}` }
-        ]
+          { role: 'system', content: systemPrompt },
+          {
+            role: 'user',
+            content: `Task: ${state.userInput}\nURL: ${state.targetUrl}`,
+          },
+        ],
       };
     }
-    
+
     return {};
   }
 
@@ -147,15 +153,17 @@ class LangGraphService {
    * Node: Generate JSON using Ollama
    */
   async generationNode(state) {
-    console.log('[LangGraph] Generating (Attempt ' + (state.retryCount + 1) + ')...');
-    
+    console.log(
+      '[LangGraph] Generating (Attempt ' + (state.retryCount + 1) + ')...'
+    );
+
     try {
       const response = await this.ollama.chat(state.messages);
       const content = response.message.content;
-      
+
       return {
         messages: [{ role: 'assistant', content }],
-        generatedJson: this.extractJson(content)
+        generatedJson: this.extractJson(content),
       };
     } catch (error) {
       console.error('[LangGraph] Generation Error:', error);
@@ -168,14 +176,20 @@ class LangGraphService {
    */
   async validationNode(state) {
     console.log('[LangGraph] Validating...');
-    
+
     if (!state.generatedJson) {
-      return { error: 'No JSON found in response', retryCount: state.retryCount + 1 };
+      return {
+        error: 'No JSON found in response',
+        retryCount: state.retryCount + 1,
+      };
     }
 
     try {
       // Validate structure basics
-      if (!state.generatedJson.steps || !Array.isArray(state.generatedJson.steps)) {
+      if (
+        !state.generatedJson.steps ||
+        !Array.isArray(state.generatedJson.steps)
+      ) {
         throw new Error('Invalid JSON structure: missing "steps" array');
       }
 
@@ -199,12 +213,12 @@ class LangGraphService {
    */
   async correctionNode(state) {
     console.log('[LangGraph] Applying Correction...');
-    
+
     const correctionMessage = `The previous JSON was invalid. Error: ${state.error}. 
     Please fix the JSON and return ONLY the JSON.`;
-    
+
     return {
-      messages: [{ role: 'user', content: correctionMessage }]
+      messages: [{ role: 'user', content: correctionMessage }],
     };
   }
 
@@ -217,12 +231,13 @@ class LangGraphService {
       return JSON.parse(text);
     } catch (e) {
       // Extract from markdown code blocks
-      const match = text.match(/```json([\s\S]*?)```/) || text.match(/```([\s\S]*?)```/);
+      const match =
+        text.match(/```json([\s\S]*?)```/) || text.match(/```([\s\S]*?)```/);
       if (match) {
         try {
           return JSON.parse(match[1]);
         } catch (e2) {
-           return null;
+          return null;
         }
       }
       return null;
@@ -238,13 +253,15 @@ class LangGraphService {
       userInput,
       targetUrl,
       pageContext,
-      messages: history.length > 0 ? history : []
+      messages: history.length > 0 ? history : [],
     };
 
     const result = await this.graph.invoke(initialState);
-    
+
     if (result.error && !result.workflow) {
-      throw new Error(`Failed to generate workflow after retries: ${result.error}`);
+      throw new Error(
+        `Failed to generate workflow after retries: ${result.error}`
+      );
     }
 
     return result.workflow;

@@ -1,4 +1,3 @@
-/* eslint-disable no-template-curly-in-string */
 import { snippet } from '@codemirror/autocomplete';
 import { syntaxTree } from '@codemirror/language';
 
@@ -7,7 +6,7 @@ const excludeProps = ['chrome', 'Mousetrap'];
 
 function completeProperties(from, object) {
   const options = [];
-  /* eslint-disable-next-line */
+
   for (const name in object) {
     if (
       !name.startsWith('__') &&

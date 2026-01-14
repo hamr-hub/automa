@@ -1,7 +1,11 @@
 <template>
-  <div v-if="Object.keys(variables).length === 0" class="text-center">
-    <img src="@/assets/svg/files-and-folder.svg" class="mx-auto max-w-sm" />
-    <p class="text-xl font-semibold">{{ t('message.noData') }}</p>
+  <div v-if="Object.keys(variables).length === 0"
+class="text-center">
+    <img
+src="@/assets/svg/files-and-folder.svg" class="mx-auto max-w-sm" />
+    <p class="text-xl font-semibold">
+      {{ t('message.noData') }}
+    </p>
   </div>
   <template v-else>
     <ui-tabs
@@ -14,7 +18,8 @@
       <ui-tab value="gui"> GUI </ui-tab>
       <ui-tab value="raw"> Raw </ui-tab>
     </ui-tabs>
-    <div v-if="state.activeTab === 'gui'" class="mt-4">
+    <div v-if="state.activeTab === 'gui'"
+class="mt-4">
       <ul class="grid grid-cols-1 gap-4 md:grid-cols-2">
         <li
           v-for="(varValue, varName) in variables"
@@ -53,8 +58,8 @@
 import { computed, defineAsyncComponent, shallowReactive } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-const SharedCodemirror = defineAsyncComponent(() =>
-  import('@/components/newtab/shared/SharedCodemirror.vue')
+const SharedCodemirror = defineAsyncComponent(
+  () => import('@/components/newtab/shared/SharedCodemirror.vue')
 );
 
 const props = defineProps({

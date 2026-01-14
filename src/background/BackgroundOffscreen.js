@@ -1,4 +1,3 @@
-/* eslint-disable class-methods-use-this */
 import { IS_FIREFOX } from '@/common/utils/constant';
 import { sleep } from '@/utils/helper';
 import { MessageListener } from '@/utils/message';

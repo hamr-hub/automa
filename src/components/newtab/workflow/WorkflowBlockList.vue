@@ -4,11 +4,13 @@
     header-class="flex items-center py-2 focus:ring-0 w-full text-left text-gray-600 dark:text-gray-200"
   >
     <template #header="{ show }">
-      <span :class="category.color" class="h-3 w-3 rounded-full"></span>
+      <span
+:class="category.color" class="h-3 w-3 rounded-full" />
       <p class="ml-2 flex-1 capitalize">
         {{ category.name }}
       </p>
-      <v-remixicon :name="show ? 'riSubtractLine' : 'riAddLine'" size="20" />
+      <v-remixicon :name="show ? 'riSubtractLine' : 'riAddLine'"
+size="20" />
     </template>
     <div class="mb-4 grid grid-cols-2 gap-2">
       <div
@@ -28,7 +30,8 @@
             target="_blank"
             rel="noopener"
           >
-            <v-remixicon name="riInformationLine" size="18" />
+            <v-remixicon name="riInformationLine"
+size="18" />
           </a>
           <span
             :title="`${pinned.includes(block.id) ? 'Unpin' : 'Pin'} block`"

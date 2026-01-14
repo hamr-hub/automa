@@ -178,7 +178,6 @@ export function convertData(data, type) {
 
   switch (type) {
     case 'integer':
-      /* eslint-disable-next-line */
       result = typeof data !== 'number' ? +data?.replace(/\D+/g, '') : data;
       break;
     case 'boolean':

@@ -68,4 +68,8 @@ const dataExtractionPrompt = {
   },
 };
 
-export { workflowGenerationPrompt, selectorOptimizationPrompt, dataExtractionPrompt };
+export {
+  workflowGenerationPrompt,
+  selectorOptimizationPrompt,
+  dataExtractionPrompt,
+};

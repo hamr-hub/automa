@@ -59,9 +59,8 @@ window.addEventListener('DOMContentLoaded', async () => {
     });
     webListener.on('add-workflow', async ({ workflow }) => {
       try {
-        const { workflows: workflowsStorage } = await browser.storage.local.get(
-          'workflows'
-        );
+        const { workflows: workflowsStorage } =
+          await browser.storage.local.get('workflows');
 
         const workflowId = nanoid();
         const workflowData = {
@@ -141,9 +140,8 @@ window.addEventListener('DOMContentLoaded', async () => {
       );
     });
     webListener.on('check-team-workflow', async ({ teamId, workflowId }) => {
-      const { teamWorkflows } = await browser.storage.local.get(
-        'teamWorkflows'
-      );
+      const { teamWorkflows } =
+        await browser.storage.local.get('teamWorkflows');
       const workflowExist = Boolean(teamWorkflows?.[teamId]?.[workflowId]);
 
       window.dispatchEvent(

@@ -135,7 +135,6 @@ export function jsContentHandler($blockData, $preloadScripts, $automaScript) {
         let onNextBlock;
         let onResetTimeout;
 
-        /* eslint-disable-next-line */
         function cleanUp() {
           script.remove();
           preloadScriptsEl.forEach((item) => {

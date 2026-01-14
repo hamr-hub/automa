@@ -13,14 +13,14 @@ import emitter from '@/lib/mitt';
  */
 export async function requireAuth(feature = '') {
   const authenticated = await isAuthenticated();
-  
+
   if (!authenticated) {
     console.log(`[Auth] Feature "${feature}" requires authentication`);
     // 发送事件以弹出登录对话框
     emitter.emit('auth:required', { feature });
     return false;
   }
-  
+
   return true;
 }
 
@@ -32,11 +32,11 @@ export async function requireAuth(feature = '') {
  */
 export async function withAuth(apiCall, feature = '') {
   const authenticated = await requireAuth(feature);
-  
+
   if (!authenticated) {
     return null;
   }
-  
+
   try {
     return await apiCall();
   } catch (error) {
@@ -57,7 +57,7 @@ export async function withAuth(apiCall, feature = '') {
  * - 团队协作
  * - 工作流分享
  * - 托管工作流
- * 
+ *
  * 以下功能不需要认证（本地功能）：
  * - 创建和编辑本地工作流
  * - 执行本地工作流
@@ -66,13 +66,13 @@ export async function withAuth(apiCall, feature = '') {
  */
 export function isCloudFeature(feature) {
   const cloudFeatures = [
-    'sync',           // 云同步
-    'team',           // 团队协作
-    'share',          // 分享工作流
-    'host',           // 托管工作流
-    'backup',         // 云备份
-    'cloud-storage',  // 云存储
+    'sync', // 云同步
+    'team', // 团队协作
+    'share', // 分享工作流
+    'host', // 托管工作流
+    'backup', // 云备份
+    'cloud-storage', // 云存储
   ];
-  
+
   return cloudFeatures.includes(feature);
 }

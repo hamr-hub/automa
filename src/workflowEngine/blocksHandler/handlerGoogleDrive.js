@@ -23,9 +23,9 @@ export async function googleDrive({ id, data }, { refData }) {
   const resultPromise = data.filePaths.map(async (item) => {
     let path = (await renderString(item.path, refData, this.engine.isPopup))
       .value;
-    const name =
-      (await renderString(item.name || '', refData, this.engine.isPopup))
-        .value;
+    const name = (
+      await renderString(item.name || '', refData, this.engine.isPopup)
+    ).value;
 
     if (action === 'upload') {
       if (item.type === 'downloadId') {
@@ -51,12 +51,16 @@ export async function googleDrive({ id, data }, { refData }) {
       const { publicUrl } = supabaseClient.getPublicUrl(bucket, result.path);
       return { ...result, publicUrl, name: filename, mimeType: blob.type };
     } else if (action === 'download') {
-      const { signedUrl } = await supabaseClient.createSignedUrl(bucket, path, 60);
+      const { signedUrl } = await supabaseClient.createSignedUrl(
+        bucket,
+        path,
+        60
+      );
 
       const downloadId = await BrowserAPIService.downloads.download({
         url: signedUrl,
         filename: name || path.split('/').pop(),
-        saveAs: false, 
+        saveAs: false,
       });
 
       return { downloadId, path };
@@ -70,7 +74,7 @@ export async function googleDrive({ id, data }, { refData }) {
       return await supabaseClient.copyFile(bucket, path, name);
     }
   });
-  
+
   const result = await Promise.all(resultPromise);
 
   return {

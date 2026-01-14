@@ -25,9 +25,8 @@ export default async function () {
     const isInvalidURL = /.(json|xml)$/.test(window.location.pathname);
     if (isInvalidURL) return;
 
-    const { automaShortcut } = await browser.storage.local.get(
-      'automaShortcut'
-    );
+    const { automaShortcut } =
+      await browser.storage.local.get('automaShortcut');
     if (Array.isArray(automaShortcut) && automaShortcut.length === 0) return;
 
     await pageLoaded();

@@ -28,7 +28,6 @@ function setProxy({ data, id }) {
 
       const schemeRegex = /^https?|socks4|socks5/i;
       if (schemeRegex.test(data.host)) {
-        /* eslint-disable-next-line */
         let [scheme, host] = data.host.split(/:\/\/(.*)/);
 
         if (host.includes(':')) {

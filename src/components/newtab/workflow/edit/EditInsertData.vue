@@ -69,7 +69,8 @@
             />
           </div>
           <div class="p-2">
-            <div v-if="hasFileAccess && item.isFile" class="flex items-end">
+            <div v-if="hasFileAccess && item.isFile"
+class="flex items-end">
               <edit-autocomplete class="w-full">
                 <ui-input
                   v-model="item.filePath"
@@ -99,7 +100,8 @@
                 />
               </template>
             </div>
-            <edit-autocomplete v-else class="w-full">
+            <edit-autocomplete v-else
+class="w-full">
               <ui-textarea
                 v-model="item.value"
                 placeholder="value"
@@ -121,7 +123,8 @@
                 <v-remixicon name="riFileLine" />
               </ui-button>
               <template v-if="hasFileAccess && item.isFile">
-                <ui-button class="ml-2" @click="previewData(index, item)">
+                <ui-button class="ml-2"
+@click="previewData(index, item)">
                   Preview data
                 </ui-button>
                 <ui-button
@@ -164,7 +167,8 @@
             />
           </div>
         </li>
-        <ui-button class="mt-4 w-24" variant="accent" @click="addItem">
+        <ui-button class="mt-4 w-24"
+variant="accent" @click="addItem">
           {{ t('common.add') }}
         </ui-button>
       </ul>
@@ -181,8 +185,8 @@ import browser from 'webextension-polyfill';
 import { read as readXlsx, utils as utilsXlsx } from 'xlsx';
 import EditAutocomplete from './EditAutocomplete.vue';
 
-const SharedCodemirror = defineAsyncComponent(() =>
-  import('@/components/newtab/shared/SharedCodemirror.vue')
+const SharedCodemirror = defineAsyncComponent(
+  () => import('@/components/newtab/shared/SharedCodemirror.vue')
 );
 
 const props = defineProps({

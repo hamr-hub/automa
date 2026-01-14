@@ -63,7 +63,7 @@ export class MessageListener {
           return response;
         }
         // 对于不匹配的前缀消息，不返回任何响应
-        // eslint-disable-next-line consistent-return
+
         return;
       }
 

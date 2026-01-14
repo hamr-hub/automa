@@ -25,7 +25,7 @@
           }}
         </p>
       </div>
-      <div class="grow"></div>
+      <div class="grow" />
       <ui-button
         v-if="state.workflowExists"
         v-tooltip="t('log.goWorkflow')"
@@ -35,12 +35,15 @@
       >
         <v-remixicon name="riExternalLinkLine" />
       </ui-button>
-      <ui-button class="text-red-500 dark:text-red-400" @click="deleteLog">
+      <ui-button class="text-red-500 dark:text-red-400"
+@click="deleteLog">
         {{ t('common.delete') }}
       </ui-button>
     </div>
-    <ui-tabs v-model="state.activeTab" class="mt-4" @change="onTabChange">
-      <ui-tab v-for="tab in tabs" :key="tab.id" class="mr-4" :value="tab.id">
+    <ui-tabs v-model="state.activeTab"
+class="mt-4" @change="onTabChange">
+      <ui-tab v-for="tab in tabs"
+:key="tab.id" class="mr-4" :value="tab.id">
         {{ tab.name }}
       </ui-tab>
     </ui-tabs>
@@ -57,7 +60,8 @@
         />
       </ui-tab-panel>
       <ui-tab-panel value="table">
-        <logs-table :current-log="currentLog" :table-data="tableData" />
+        <logs-table :current-log="currentLog"
+:table-data="tableData" />
       </ui-tab-panel>
       <ui-tab-panel value="variables">
         <logs-variables :current-log="currentLog" />

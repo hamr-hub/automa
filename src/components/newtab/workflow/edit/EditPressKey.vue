@@ -6,7 +6,8 @@
       :placeholder="t('common.description')"
       @change="updateData({ description: $event })"
     />
-    <edit-autocomplete class="mt-2" trigger-class="!flex items-end">
+    <edit-autocomplete class="mt-2"
+trigger-class="!flex items-end">
       <ui-input
         :model-value="data.selector"
         class="mr-2 flex-1"
@@ -131,7 +132,6 @@ function onKeydown(event) {
 function onKeyup() {
   isRecordingKey.value = false;
 
-  /* eslint-disable-next-line */
   detachKeyEvents();
 }
 function attachKeyEvents() {

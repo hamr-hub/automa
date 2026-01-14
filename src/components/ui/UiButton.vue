@@ -18,16 +18,17 @@
       class="flex h-full items-center justify-center"
       :class="{ 'opacity-25': loading }"
     >
-      <slot></slot>
+      <slot />
     </span>
-    <div v-if="loading" class="button-loading">
+    <div v-if="loading"
+class="button-loading">
       <ui-spinner
         :color="
           variant === 'default'
             ? 'text-primary'
             : 'text-white dark:text-gray-900'
         "
-      ></ui-spinner>
+      />
     </div>
   </component>
 </template>

@@ -4,7 +4,6 @@
 <script setup>
 import { inject, h, useSlots } from 'vue';
 
-/* eslint-disable-next-line */
 const props = defineProps({
   value: {
     type: [String, Number],

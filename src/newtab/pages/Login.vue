@@ -1,9 +1,12 @@
 <template>
-  <div class="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900">
+  <div
+    class="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900"
+  >
     <div class="w-full max-w-md space-y-8 p-8">
       <!-- Logo -->
       <div class="text-center">
-        <img :src="logo" alt="Automa" class="mx-auto h-16 w-auto" />
+        <img
+:src="logo" alt="Automa" class="mx-auto h-16 w-auto" />
         <h2 class="mt-6 text-3xl font-bold text-gray-900 dark:text-white">
           {{ t('auth.login.title', '登录 Automa') }}
         </h2>
@@ -13,11 +16,15 @@
       </div>
 
       <!-- Login Form -->
-      <form class="mt-8 space-y-6" @submit.prevent="handleLogin">
+      <form class="mt-8 space-y-6"
+@submit.prevent="handleLogin">
         <div class="space-y-4 rounded-md">
           <!-- Email -->
           <div>
-            <label for="email" class="sr-only">{{ t('auth.email', '邮箱') }}</label>
+            <label for="email"
+class="sr-only">{{
+              t('auth.email', '邮箱')
+            }}</label>
             <input
               id="email"
               v-model="form.email"
@@ -31,7 +38,8 @@
 
           <!-- Password -->
           <div>
-            <label for="password" class="sr-only">{{
+            <label for="password"
+class="sr-only">{{
               t('auth.password', '密码')
             }}</label>
             <input
@@ -56,16 +64,21 @@
               type="checkbox"
               class="h-4 w-4 rounded border-gray-300 text-[var(--color-accent)] focus:ring-[var(--color-accent)] dark:border-gray-600"
             />
-            <label for="remember-me" class="ml-2 block text-sm text-gray-900 dark:text-gray-300">
+            <label
+              for="remember-me"
+              class="ml-2 block text-sm text-gray-900 dark:text-gray-300"
+            >
               {{ t('auth.rememberMe', '记住我') }}
             </label>
           </div>
         </div>
 
         <!-- Error Message -->
-        <div v-if="error" class="rounded-md bg-red-50 p-4 dark:bg-red-900/20">
+        <div v-if="error"
+class="rounded-md bg-red-50 p-4 dark:bg-red-900/20">
           <div class="flex">
-            <v-remixicon name="riErrorWarningLine" class="text-red-400" />
+            <v-remixicon name="riErrorWarningLine"
+class="text-red-400" />
             <div class="ml-3">
               <p class="text-sm text-red-800 dark:text-red-200">
                 {{ error }}
@@ -82,8 +95,13 @@
             variant="accent"
             :disabled="loading"
           >
-            <ui-spinner v-if="loading" size="20" class="mr-2" />
-            {{ loading ? t('auth.signingIn', '登录中...') : t('auth.signIn', '登录') }}
+            <ui-spinner v-if="loading"
+size="20" class="mr-2" />
+            {{
+              loading
+                ? t('auth.signingIn', '登录中...')
+                : t('auth.signIn', '登录')
+            }}
           </ui-button>
         </div>
 
@@ -103,7 +121,10 @@
       </form>
 
       <!-- Register Modal (Simple inline for now) -->
-      <div v-if="showRegister" class="mt-8 space-y-6 rounded-lg border border-gray-200 p-6 dark:border-gray-700">
+      <div
+        v-if="showRegister"
+        class="mt-8 space-y-6 rounded-lg border border-gray-200 p-6 dark:border-gray-700"
+      >
         <div class="flex items-center justify-between">
           <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
             {{ t('auth.register', '注册新账号') }}
@@ -141,8 +162,13 @@
               :placeholder="t('auth.confirmPassword', '确认密码')"
             />
           </div>
-          <div v-if="registerError" class="mt-4 rounded-md bg-red-50 p-3 dark:bg-red-900/20">
-            <p class="text-sm text-red-800 dark:text-red-200">{{ registerError }}</p>
+          <div
+            v-if="registerError"
+            class="mt-4 rounded-md bg-red-50 p-3 dark:bg-red-900/20"
+          >
+            <p class="text-sm text-red-800 dark:text-red-200">
+              {{ registerError }}
+            </p>
           </div>
           <ui-button
             type="submit"
@@ -150,8 +176,13 @@
             variant="accent"
             :disabled="registerLoading"
           >
-            <ui-spinner v-if="registerLoading" size="20" class="mr-2" />
-            {{ registerLoading ? t('auth.registering', '注册中...') : t('auth.register', '注册') }}
+            <ui-spinner v-if="registerLoading"
+size="20" class="mr-2" />
+            {{
+              registerLoading
+                ? t('auth.registering', '注册中...')
+                : t('auth.register', '注册')
+            }}
           </ui-button>
         </form>
       </div>
@@ -201,13 +232,17 @@ async function handleLogin() {
   error.value = '';
 
   try {
-    await supabaseClient.signInWithPassword(form.value.email, form.value.password);
-    
+    await supabaseClient.signInWithPassword(
+      form.value.email,
+      form.value.password
+    );
+
     // Login successful, redirect to main page
     router.push('/');
   } catch (err) {
     console.error('Login error:', err);
-    error.value = err.message || t('auth.loginFailed', '登录失败，请检查邮箱和密码');
+    error.value =
+      err.message || t('auth.loginFailed', '登录失败，请检查邮箱和密码');
   } finally {
     loading.value = false;
   }
@@ -241,7 +276,8 @@ async function handleRegister() {
     };
   } catch (err) {
     console.error('Registration error:', err);
-    registerError.value = err.message || t('auth.registerFailed', '注册失败，请稍后重试');
+    registerError.value =
+      err.message || t('auth.registerFailed', '注册失败，请稍后重试');
   } finally {
     registerLoading.value = false;
   }

@@ -9,7 +9,9 @@
         class="text-overflow mr-4 flex-1 cursor-pointer"
         @click="openWorkflowPage(workflow)"
       >
-        <p class="text-overflow leading-tight">{{ workflow.name }}</p>
+        <p class="text-overflow leading-tight">
+          {{ workflow.name }}
+        </p>
         <div class="flex items-center text-gray-500">
           <span>{{ dayjs(workflow.createdAt).fromNow() }}</span>
           <div class="grow" />
@@ -22,8 +24,10 @@
           </span>
         </div>
       </div>
-      <p v-if="workflow.isDisabled" class="text-sm text-gray-600">Disabled</p>
-      <button v-else title="Execute" @click="executeWorkflow(workflow)">
+      <p
+v-if="workflow.isDisabled" class="text-sm text-gray-600">Disabled</p>
+      <button v-else
+title="Execute" @click="executeWorkflow(workflow)">
         <v-remixicon name="riPlayLine" />
       </button>
     </ui-card>

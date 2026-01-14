@@ -58,7 +58,6 @@
   </div>
 </template>
 <script setup>
-/* eslint-disable vue/no-mutating-props */
 import { reactive, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useShortcut } from '@/composable/shortcut';

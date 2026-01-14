@@ -10,7 +10,8 @@
       :label="$t('workflow.blocks.create-element.insertEl.title')"
       class="mt-4 w-full"
     >
-      <option v-for="item in insertOptions" :key="item" :value="item">
+      <option v-for="item in insertOptions"
+:key="item" :value="item">
         {{ $t(`workflow.blocks.create-element.insertEl.items.${item}`) }}
       </option>
     </ui-select>
@@ -34,8 +35,10 @@
       padding="p-0"
     >
       <template #header>
-        <ui-tabs v-model="state.activeTab" class="space-x-1 border-none">
-          <ui-tab v-for="tab in tabs" :key="tab.id" :value="tab.id">
+        <ui-tabs v-model="state.activeTab"
+class="space-x-1 border-none">
+          <ui-tab v-for="tab in tabs"
+:key="tab.id" :value="tab.id">
             {{ tab.name }}
           </ui-tab>
           <ui-tab value="preloadScript">
@@ -48,21 +51,24 @@
         class="scroll mb-4 overflow-auto px-4"
         style="height: calc(100vh - 12rem)"
       >
-        <ui-tab-panel value="html" class="h-full">
+        <ui-tab-panel value="html"
+class="h-full">
           <shared-codemirror
             v-model="blockData.html"
             lang="html"
             class="h-full"
           />
         </ui-tab-panel>
-        <ui-tab-panel value="css" class="h-full">
+        <ui-tab-panel value="css"
+class="h-full">
           <shared-codemirror
             v-model="blockData.css"
             lang="css"
             class="h-full"
           />
         </ui-tab-panel>
-        <ui-tab-panel value="javascript" class="h-full">
+        <ui-tab-panel value="javascript"
+class="h-full">
           <div class="mb-4">
             <span class="text-sm text-gray-500 dark:text-gray-300">
               Available functions
@@ -96,7 +102,8 @@
               :key="index"
               class="flex items-center space-x-2"
             >
-              <ui-select v-model="item.type" placeholder="Type">
+              <ui-select v-model="item.type"
+placeholder="Type">
                 <option value="style">Style</option>
                 <option value="script">Script</option>
               </ui-select>
@@ -115,7 +122,8 @@
               />
             </li>
           </ul>
-          <ui-button class="mt-4" @click="addPreloadScript">
+          <ui-button class="mt-4"
+@click="addPreloadScript">
             Add script
           </ui-button>
         </ui-tab-panel>
@@ -134,8 +142,8 @@ import cloneDeep from 'lodash.clonedeep';
 import { defineAsyncComponent, reactive, watch } from 'vue';
 import EditInteractionBase from './EditInteractionBase.vue';
 
-const SharedCodemirror = defineAsyncComponent(() =>
-  import('@/components/newtab/shared/SharedCodemirror.vue')
+const SharedCodemirror = defineAsyncComponent(
+  () => import('@/components/newtab/shared/SharedCodemirror.vue')
 );
 
 const props = defineProps({

@@ -1,8 +1,6 @@
 import FindElement from '@/utils/FindElement';
 import { visibleInViewport, isXPath } from '@/utils/helper';
 
-/* eslint-disable consistent-return */
-
 export function markElement(el, { id, data }) {
   if (data.markEl) {
     el.setAttribute(`block--${id}`, '');

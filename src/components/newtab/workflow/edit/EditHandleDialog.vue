@@ -14,7 +14,8 @@
     >
       {{ t('workflow.blocks.handle-dialog.accept') }}
     </ui-checkbox>
-    <edit-autocomplete v-if="data.accept" class="mt-1">
+    <edit-autocomplete v-if="data.accept"
+class="mt-1">
       <ui-input
         :model-value="data.promptText"
         :label="t('workflow.blocks.handle-dialog.promptText.label')"

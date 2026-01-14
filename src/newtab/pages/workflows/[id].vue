@@ -1,5 +1,6 @@
 <template>
-  <div v-if="workflow" class="flex" style="height: calc(100vh - 40px)">
+  <div v-if="workflow"
+class="flex" style="height: calc(100vh - 40px)">
     <div
       v-if="state.showSidebar && haveEditAccess"
       :class="
@@ -28,7 +29,8 @@
         @update="updateWorkflow"
       />
       <!-- drag-element -->
-      <div ref="sidebarRef" class="custom-drag" @mousedown="startDrag"></div>
+      <div
+ref="sidebarRef" class="custom-drag" @mousedown="startDrag" />
     </div>
     <div class="relative flex-1 overflow-auto">
       <div
@@ -46,7 +48,8 @@
               :src="workflow.icon"
               class="h-8 w-8"
             />
-            <v-remixicon v-else :name="workflow.icon" size="26" />
+            <v-remixicon v-else
+:name="workflow.icon" size="26" />
           </span>
           <div class="ml-2 max-w-sm">
             <p
@@ -82,14 +85,17 @@
               :name="state.showSidebar ? 'riSideBarFill' : 'riSideBarLine'"
             />
           </button>
-          <ui-tab value="editor">{{ t('common.editor') }}</ui-tab>
+          <ui-tab value="editor">
+            {{ t('common.editor') }}
+          </ui-tab>
           <template v-if="isPackage">
             <ui-tab value="package-details"> Details </ui-tab>
             <ui-tab value="package-settings">
               {{ t('common.settings') }}
             </ui-tab>
           </template>
-          <ui-tab v-else value="logs" class="flex items-center">
+          <ui-tab v-else
+value="logs" class="flex items-center">
             {{ t('common.log', 2) }}
             <span
               v-if="workflowStates.length > 0"
@@ -100,7 +106,8 @@
             </span>
           </ui-tab>
         </ui-tabs>
-        <ui-card v-if="isTeamWorkflow" padding="p-1 ml-4 pointer-events-auto">
+        <ui-card v-if="isTeamWorkflow"
+padding="p-1 ml-4 pointer-events-auto">
           <ui-input
             v-tooltip="'Workflow URL'"
             prepend-icon="riLinkM"
@@ -110,14 +117,16 @@
           />
         </ui-card>
         <div class="pointer-events-none grow" />
-        <editor-used-credentials v-if="editor" :editor="editor" />
+        <editor-used-credentials v-if="editor"
+:editor="editor" />
         <template v-if="isPackage">
           <ui-button
             v-if="workflow.isExternal"
             v-tooltip="t('workflow.previewMode.description')"
             class="pointer-events-auto cursor-default"
           >
-            <v-remixicon name="riEyeLine" class="mr-2 -ml-1" />
+            <v-remixicon name="riEyeLine"
+class="mr-2 -ml-1" />
             <span>{{ t('workflow.previewMode.title') }}</span>
           </ui-button>
           <editor-pkg-actions
@@ -138,7 +147,7 @@
           :can-edit="haveEditAccess"
           @update="onActionUpdated"
           @permission="checkWorkflowPermission"
-          @modal="(modalState.name = $event), (modalState.show = true)"
+          @modal="((modalState.name = $event), (modalState.show = true))"
         />
       </div>
       <ui-tab-panels
@@ -150,10 +159,13 @@
         @dragover.prevent="onDragoverEditor"
       >
         <template v-if="isPackage">
-          <ui-tab-panel value="package-details" class="container pt-24">
-            <package-details :data="workflow" @update="updateWorkflow" />
+          <ui-tab-panel value="package-details"
+class="container pt-24">
+            <package-details :data="workflow"
+@update="updateWorkflow" />
           </ui-tab-panel>
-          <ui-tab-panel value="package-settings" class="container pt-24">
+          <ui-tab-panel value="package-settings"
+class="container pt-24">
             <package-settings
               :data="workflow"
               :editor="editor"
@@ -162,7 +174,8 @@
             />
           </ui-tab-panel>
         </template>
-        <ui-tab-panel cache value="editor" class="w-full" @keydown="onKeydown">
+        <ui-tab-panel cache
+value="editor" class="w-full" @keydown="onKeydown">
           <editor-debugging
             v-if="workflow.testingMode && workflowStates.length > 0"
             :states="workflowStates"
@@ -256,7 +269,8 @@
     :content-class="activeWorkflowModal?.width || 'max-w-xl'"
     v-bind="activeWorkflowModal.attrs || {}"
   >
-    <template v-if="activeWorkflowModal.title" #header>
+    <template v-if="activeWorkflowModal.title"
+#header>
       {{ activeWorkflowModal.title }}
       <a
         v-if="activeWorkflowModal.docs"
@@ -265,7 +279,8 @@
         target="_blank"
         class="inline-block align-middle"
       >
-        <v-remixicon name="riInformationLine" size="20" />
+        <v-remixicon name="riInformationLine"
+size="20" />
       </a>
     </template>
     <component
@@ -281,7 +296,8 @@
     :permissions="permissionState.items"
     @granted="registerTrigger"
   />
-  <ui-modal v-model="blockFolderModal.showModal" :title="t('packages.set')">
+  <ui-modal v-model="blockFolderModal.showModal"
+:title="t('packages.set')">
     <editor-add-package
       :data="{
         name: blockFolderModal.name,
@@ -465,7 +481,6 @@ const workflowModals = {
     title: t('workflow.table.title'),
     docs: 'https://docs.extension.automa.site/workflow/table.html',
     events: {
-      /* eslint-disable-next-line */
       connect: fetchConnectedTable,
       disconnect() {
         connectedTable.value = null;
@@ -614,7 +629,7 @@ const updateBlockData = debounce((data) => {
     const { id, blockId } = editState.blockData;
     Object.assign(
       autocompleteState.blocks,
-      /* eslint-disable-next-line */
+
       extractAutocopmleteData(id, { data, id: blockId })
     );
   }
@@ -799,7 +814,6 @@ function addPackageIO({ type, handleId, nodeId }) {
     blockId: nodeId,
   });
 
-  /* eslint-disable-next-line */
   updateWorkflow({ [type]: copyPkgIO });
 }
 function initBlockFolder({ nodes }) {
@@ -1293,7 +1307,7 @@ function onDropInEditor({ dataTransfer, clientX, clientY, target }) {
       ]);
     } else {
       const { nodes, edges } = savedBlocks.data;
-      /* eslint-disable-next-line */
+
       const newElements = copyElements(nodes, edges, { clientX, clientY });
 
       editor.value.addNodes(newElements.nodes);
@@ -1561,7 +1575,7 @@ function checkWorkflowUpdate() {
       console.error(error);
     });
 }
-/* eslint-disable consistent-return */
+
 function onBeforeLeave() {
   // disselect node before leave
   const selectedNodes = editor.value?.getSelectedNodes?.value;

@@ -13,11 +13,12 @@
     <div
       class="ui-switch__ball absolute z-40 flex h-4 w-4 items-center justify-center rounded-full bg-white shadow-xl"
     >
-      <slot v-if="$slots.ball" name="ball"></slot>
+      <slot
+v-if="$slots.ball" name="ball" />
     </div>
     <div
       class="ui-switch__background absolute left-0 top-0 h-full w-full rounded-md"
-    ></div>
+    />
   </div>
 </template>
 <script>

@@ -61,7 +61,8 @@
         >
           {{ option[optionLabelKey] }}
         </li>
-        <li v-if="isLoading" class="px-4 py-2 text-center text-gray-500">
+        <li v-if="isLoading"
+class="px-4 py-2 text-center text-gray-500">
           Loading...
         </li>
         <li
@@ -81,7 +82,7 @@
         v-if="$slots.footer"
         class="border-t border-gray-200 p-2 dark:border-gray-700"
       >
-        <slot name="footer"></slot>
+        <slot name="footer" />
       </div>
     </div>
   </div>

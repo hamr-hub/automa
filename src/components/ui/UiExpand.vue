@@ -1,5 +1,6 @@
 <template>
-  <div :aria-expanded="show" :class="{ [activeClass]: show }" class="ui-expand">
+  <div :aria-expanded="show"
+:class="{ [activeClass]: show }" class="ui-expand">
     <button
       :class="[headerClass, { [headerActiveClass]: show }]"
       @click="toggleExpand"
@@ -10,7 +11,8 @@
         name="riArrowLeftSLine"
         class="mr-2 -ml-1 transition-transform"
       />
-      <slot v-bind="{ show }" name="header" />
+      <slot v-bind="{ show }"
+name="header" />
       <v-remixicon
         v-if="appendIcon"
         :rotate="show ? 90 : -90"
@@ -19,8 +21,9 @@
       />
     </button>
     <transition-expand>
-      <div v-if="show" :class="panelClass" class="ui-expand__panel">
-        <slot></slot>
+      <div v-if="show"
+:class="panelClass" class="ui-expand__panel">
+        <slot />
       </div>
     </transition-expand>
   </div>

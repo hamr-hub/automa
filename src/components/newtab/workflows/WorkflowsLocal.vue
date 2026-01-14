@@ -3,7 +3,8 @@
     v-if="workflowStore.getWorkflows.length === 0"
     class="md:flex items-center md:text-left text-center py-12"
   >
-    <img src="@/assets/svg/alien.svg" class="w-96" />
+    <img
+src="@/assets/svg/alien.svg" class="w-96" />
     <div class="ml-4">
       <h1 class="mb-6 max-w-md text-2xl font-semibold">
         {{ t('message.empty') }}
@@ -11,9 +12,11 @@
     </div>
   </div>
   <template v-else>
-    <div v-if="pinnedWorkflows.length > 0" class="mb-8 border-b pb-8">
+    <div v-if="pinnedWorkflows.length > 0"
+class="mb-8 border-b pb-8">
       <div class="flex items-center">
-        <v-remixicon name="riPushpin2Line" class="mr-2" size="20" />
+        <v-remixicon name="riPushpin2Line"
+class="mr-2" size="20" />
         <span>{{ t('workflow.pinWorkflow.pinned') }}</span>
       </div>
       <div class="workflows-container mt-4">
@@ -58,7 +61,8 @@
           class="bg-input rounded-md p-1"
           @change="onPerPageChange"
         >
-          <option v-for="num in [18, 32, 64, 128]" :key="num" :value="num">
+          <option v-for="num in [18, 32, 64, 128]"
+:key="num" :value="num">
             {{ num }}
           </option>
         </select>
@@ -75,7 +79,8 @@
       />
     </div>
   </template>
-  <ui-modal v-model="renameState.show" title="Workflow">
+  <ui-modal v-model="renameState.show"
+title="Workflow">
     <ui-input
       v-model="renameState.name"
       :placeholder="t('common.name')"
@@ -95,10 +100,12 @@
       {{ renameState.description.length }}/300
     </p>
     <div class="flex space-x-2">
-      <ui-button class="w-full" @click="clearRenameModal">
+      <ui-button class="w-full"
+@click="clearRenameModal">
         {{ t('common.cancel') }}
       </ui-button>
-      <ui-button variant="accent" class="w-full" @click="renameWorkflow">
+      <ui-button variant="accent"
+class="w-full" @click="renameWorkflow">
         {{ t('common.update') }}
       </ui-button>
     </div>
@@ -186,7 +193,6 @@ selection
     );
   })
   .on('start', () => {
-    /* eslint-disable-next-line */
     clearSelectedWorkflows();
     document.body.style.userSelect = 'none';
   })

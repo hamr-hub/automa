@@ -32,9 +32,11 @@ class SupabaseClient {
       if (this.pendingAuthListeners.length > 0) {
         const listeners = [...this.pendingAuthListeners];
         this.pendingAuthListeners = [];
-        
+
         listeners.forEach((listener) => {
-          const { data } = this.client.auth.onAuthStateChange(listener.callback);
+          const { data } = this.client.auth.onAuthStateChange(
+            listener.callback
+          );
           listener.subscription = data.subscription;
         });
       }
@@ -93,7 +95,7 @@ class SupabaseClient {
    */
   async getWorkflows() {
     if (!this.client) return [];
-    
+
     try {
       const user = await this.getCurrentUser();
       if (!user) return [];
@@ -117,7 +119,7 @@ class SupabaseClient {
    */
   async getWorkflowById(id) {
     if (!this.client) throw new Error('Supabase not connected');
-    
+
     try {
       const { data, error } = await this.client
         .from('workflows')
@@ -139,7 +141,7 @@ class SupabaseClient {
    */
   async getWorkflowsByIds(ids) {
     if (!this.client) return [];
-    
+
     try {
       const { data, error } = await this.client
         .from('workflows')
@@ -162,7 +164,7 @@ class SupabaseClient {
    */
   async createWorkflow(workflow) {
     if (!this.client) throw new Error('Supabase not connected');
-    
+
     try {
       const user = await this.getCurrentUser();
       if (!user) throw new Error('User not authenticated');
@@ -193,7 +195,7 @@ class SupabaseClient {
    */
   async updateWorkflow(id, updates) {
     if (!this.client) throw new Error('Supabase not connected');
-    
+
     try {
       const { data, error } = await this.client
         .from('workflows')
@@ -216,9 +218,12 @@ class SupabaseClient {
    */
   async deleteWorkflow(id) {
     if (!this.client) throw new Error('Supabase not connected');
-    
+
     try {
-      const { error } = await this.client.from('workflows').delete().eq('id', id);
+      const { error } = await this.client
+        .from('workflows')
+        .delete()
+        .eq('id', id);
 
       if (error) throw error;
       return { success: true };
@@ -877,7 +882,7 @@ class SupabaseClient {
    */
   async getSharedWorkflows() {
     if (!this.client) return [];
-    
+
     try {
       const user = await this.getCurrentUser();
       if (!user) return [];

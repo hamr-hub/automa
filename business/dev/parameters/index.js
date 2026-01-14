@@ -3,5 +3,5 @@
 
 export default {
   parameters: [],
-  handlers: {}
+  handlers: {},
 };

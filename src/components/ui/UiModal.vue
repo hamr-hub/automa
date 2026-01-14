@@ -1,10 +1,14 @@
 <template>
   <div class="modal-ui">
-    <div v-if="$slots.activator" class="modal-ui__activator">
-      <slot name="activator" v-bind="{ open: () => (show = true) }"></slot>
+    <div v-if="$slots.activator"
+class="modal-ui__activator">
+      <slot
+name="activator" v-bind="{ open: () => (show = true) }" />
     </div>
-    <teleport :to="teleportTo" :disabled="disabledTeleport">
-      <transition name="modal" mode="out-in">
+    <teleport :to="teleportTo"
+:disabled="disabledTeleport">
+      <transition name="modal"
+mode="out-in">
         <div
           v-if="show"
           :class="[positions[contentPosition]]"
@@ -16,7 +20,7 @@
             style="z-index: -2"
             @click="closeModal"
           />
-          <slot v-if="customContent"></slot>
+          <slot v-if="customContent" />
           <ui-card
             v-else
             class="modal-ui__content w-full shadow-lg"
@@ -35,10 +39,10 @@
                   name="riCloseLine"
                   size="20"
                   @click="closeModal"
-                ></v-remixicon>
+                />
               </div>
             </div>
-            <slot :close="closeModal"></slot>
+            <slot :close="closeModal" />
           </ui-card>
         </div>
       </transition>

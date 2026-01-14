@@ -115,7 +115,7 @@ async function loopData({ data, id }, { refData }) {
             ? data.toNumber + 1 - data.fromNumber
             : maxLoop,
       };
-      /* eslint-disable-next-line */
+
       refData.loopData[data.loopId] = {
         data:
           data.loopThrough === 'numbers'

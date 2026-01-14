@@ -6,7 +6,8 @@
         This workflow will be shared with your team
       </p>
     </template>
-    <p v-else class="font-semibold">Update workflow</p>
+    <p
+v-else class="font-semibold">Update workflow</p>
     <div class="mt-4 flex items-start">
       <div class="mr-8 flex-1">
         <div class="flex items-center">
@@ -79,7 +80,8 @@
           >
             Save
           </ui-button>
-          <ui-button class="mt-2 w-full" @click="$emit('close')">
+          <ui-button class="mt-2 w-full"
+@click="$emit('close')">
             {{ t('common.cancel') }}
           </ui-button>
         </template>
@@ -128,7 +130,8 @@
         <span class="ml-2 mt-5 block text-sm text-gray-600 dark:text-gray-200">
           Environment
         </span>
-        <ui-tabs v-model="state.workflow.tag" type="fill" fill>
+        <ui-tabs v-model="state.workflow.tag"
+type="fill" fill>
           <ui-tab value="stage"> Stage </ui-tab>
           <ui-tab value="production"> Production </ui-tab>
         </ui-tabs>

@@ -1,5 +1,6 @@
 <template>
-  <ui-modal :model-value="modelValue" persist custom-content>
+  <ui-modal :model-value="modelValue"
+persist custom-content>
     <ui-card
       padding="p-0"
       class="flex w-full max-w-xl flex-col"
@@ -17,7 +18,8 @@
         />
         <div class="mt-4 flex items-center">
           <p class="flex-1">Columns</p>
-          <ui-button icon :title="t('common.add')" @click="addColumn">
+          <ui-button icon
+:title="t('common.add')" @click="addColumn">
             <v-remixicon name="riAddLine" />
           </ui-button>
         </div>
@@ -66,7 +68,8 @@
         </draggable>
       </div>
       <div class="p-4 text-right">
-        <ui-button class="mr-4" @click="clearTempTables(true)">
+        <ui-button class="mr-4"
+@click="clearTempTables(true)">
           {{ t('common.cancel') }}
         </ui-button>
         <ui-button

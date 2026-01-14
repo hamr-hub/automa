@@ -5,7 +5,7 @@
       :placeholder="t('common.search')"
       prepend-icon="riSearch2Line"
     />
-    <div class="grow"></div>
+    <div class="grow" />
     <ui-button
       variant="accent"
       style="min-width: 125px"
@@ -39,14 +39,16 @@
     v-model="editState.show"
     :title="`${editState.type === 'edit' ? 'Edit' : 'Add'} variable`"
   >
-    <ui-input v-model="editState.name" placeholder="Name" class="w-full" />
+    <ui-input v-model="editState.name"
+placeholder="Name" class="w-full" />
     <ui-textarea
       v-model="editState.value"
       placeholder="value"
       class="mt-4 w-full"
     />
     <div class="mt-8 text-right">
-      <ui-button class="mr-4" @click="editState.show = false">
+      <ui-button class="mr-4"
+@click="editState.show = false">
         {{ t('common.cancel') }}
       </ui-button>
       <ui-button
