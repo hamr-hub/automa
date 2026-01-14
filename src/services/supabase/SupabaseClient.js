@@ -9,6 +9,7 @@ class SupabaseClient {
   constructor() {
     this.client = null;
     this.initialized = false;
+    this.pendingAuthListeners = [];
   }
 
   /**
@@ -26,6 +27,17 @@ class SupabaseClient {
           persistSession: true,
         },
       });
+
+      // 注册挂起的认证监听器
+      if (this.pendingAuthListeners.length > 0) {
+        const listeners = [...this.pendingAuthListeners];
+        this.pendingAuthListeners = [];
+        
+        listeners.forEach((listener) => {
+          const { data } = this.client.auth.onAuthStateChange(listener.callback);
+          listener.subscription = data.subscription;
+        });
+      }
 
       // 测试连接：使用轻量级的auth.getSession检查(不触发网络请求到REST API)
       try {
@@ -1186,7 +1198,31 @@ class SupabaseClient {
    * @param {function} callback - 回调函数
    */
   onAuthStateChange(callback) {
-    return this.client.auth.onAuthStateChange(callback);
+    if (this.client) {
+      return this.client.auth.onAuthStateChange(callback);
+    }
+
+    const listener = {
+      callback,
+      subscription: null,
+    };
+    this.pendingAuthListeners.push(listener);
+
+    return {
+      data: {
+        subscription: {
+          unsubscribe: () => {
+            if (listener.subscription) {
+              listener.subscription.unsubscribe();
+            }
+            const index = this.pendingAuthListeners.indexOf(listener);
+            if (index > -1) {
+              this.pendingAuthListeners.splice(index, 1);
+            }
+          },
+        },
+      },
+    };
   }
 }
 
