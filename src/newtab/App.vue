@@ -128,10 +128,19 @@ theme.init();
 // 设置认证状态监听
 onAuthStateChange((event, session) => {
   if (event === 'SIGNED_OUT') {
-    // 用户登出,重定向到登录页
-    router.push('/login');
+    // 用户登出,清空用户状态但不强制跳转
+    // 如果用户当前在需要认证的页面(如团队工作流),可以在对应页面处理
+    console.log('[App] User signed out');
+    userStore.user = null;
+    userStore.hostedWorkflows = {};
+    userStore.backupIds = [];
   } else if (event === 'SIGNED_IN') {
     console.log('[App] User signed in:', session?.user?.email);
+    // 登录成功后重新加载用户数据
+    userStore.loadUser().then(() => {
+      fetchUserData();
+      syncHostedWorkflows();
+    });
   } else if (event === 'TOKEN_REFRESHED') {
     console.log('[App] Token refreshed');
   }

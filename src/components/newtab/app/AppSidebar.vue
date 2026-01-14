@@ -57,8 +57,16 @@
       <v-remixicon name="riFocus3Line" />
     </button>
     <div class="grow"></div>
+    <router-link
+      v-if="!userStore.user"
+      v-tooltip:right.group="t('auth.signIn')"
+      to="/login"
+      class="mb-4 inline-block rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-200"
+    >
+      <v-remixicon name="riLoginBoxLine" />
+    </router-link>
     <ui-popover
-      v-if="userStore.user"
+      v-else
       trigger="mouseenter click"
       placement="right"
     >
