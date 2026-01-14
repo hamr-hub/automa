@@ -1,5 +1,6 @@
 import { postRunAPWorkflow } from '@/utils/getAIPoweredInfo';
 import renderString from '../templating/renderString';
+import OllamaClient from '@/services/ai/OllamaClient';
 
 async function aiWorkflow(block, { refData }) {
   const {
@@ -9,62 +10,125 @@ async function aiWorkflow(block, { refData }) {
     variableName,
     saveData,
     dataColumn,
+    provider,
+    ollamaHost,
+    model,
+    prompt,
+    systemPrompt,
+    temperature,
   } = block.data;
 
   const replacedValueList = {};
-  const aipowerToken = this.engine.workflow.settings?.aipowerToken;
 
-  if (!aipowerToken) {
-    throw new Error('AI Power token is not set');
-  }
+  // AI Power Logic
+  if (provider === 'aipower' || (!provider && flowUuid)) {
+    const aipowerToken = this.engine.workflow.settings?.aipowerToken;
 
-  const inputForAPI = {};
-  for (const item of inputs) {
-    if (typeof item.value === 'object' && item.value !== null) {
-      // For file objects, we don't render them as strings.
-      // We assume they contain the necessary structure like { filename, url }.
-      inputForAPI[item.name] = item.value;
-    } else {
-      // For strings, we render them using the templating engine.
-      const renderedValue = await renderString(
-        item.value,
-        refData,
-        this.engine.isPopup
+    if (!aipowerToken) {
+      throw new Error('AI Power token is not set');
+    }
+
+    const inputForAPI = {};
+    for (const item of inputs) {
+      if (typeof item.value === 'object' && item.value !== null) {
+        // For file objects, we don't render them as strings.
+        // We assume they contain the necessary structure like { filename, url }.
+        inputForAPI[item.name] = item.value;
+      } else {
+        // For strings, we render them using the templating engine.
+        const renderedValue = await renderString(
+          item.value,
+          refData,
+          this.engine.isPopup
+        );
+        inputForAPI[item.name] = renderedValue.value;
+        Object.assign(replacedValueList, renderedValue.list);
+      }
+    }
+
+    try {
+      const runResponse = await postRunAPWorkflow(
+        { flowUuid, input: inputForAPI },
+        aipowerToken
       );
-      inputForAPI[item.name] = renderedValue.value;
-      Object.assign(replacedValueList, renderedValue.list);
+      const { success, msg } = runResponse;
+
+      if (!success) {
+        throw new Error(msg || 'AI workflow execution failed');
+      }
+
+      if (assignVariable) {
+        this.setVariable(variableName, runResponse.data.result);
+      }
+
+      if (saveData) {
+        this.addDataToColumn(dataColumn, runResponse.data.result);
+      }
+
+      const nextBlockId = this.getBlockConnections(block.id);
+
+      return {
+        data: runResponse.data.result,
+        nextBlockId,
+        replacedValue: replacedValueList,
+      };
+    } catch (error) {
+      console.error('AI workflow execution failed:', error);
+      throw new Error(error.message);
     }
   }
+
+  // Ollama Logic
+  const host = ollamaHost || 'http://localhost:11434';
+  const client = new OllamaClient({ baseUrl: host });
+
+  // Render Prompts
+  const renderedPrompt = await renderString(
+    prompt || '',
+    refData,
+    this.engine.isPopup
+  );
+  Object.assign(replacedValueList, renderedPrompt.list);
+
+  const renderedSystemPrompt = await renderString(
+    systemPrompt || '',
+    refData,
+    this.engine.isPopup
+  );
+  Object.assign(replacedValueList, renderedSystemPrompt.list);
 
   try {
-    const runResponse = await postRunAPWorkflow(
-      { flowUuid, input: inputForAPI },
-      aipowerToken
-    );
-    const { success, msg } = runResponse;
-
-    if (!success) {
-      throw new Error(msg || 'AI workflow execution failed');
+    const messages = [];
+    if (renderedSystemPrompt.value) {
+      messages.push({ role: 'system', content: renderedSystemPrompt.value });
     }
+    messages.push({ role: 'user', content: renderedPrompt.value });
+
+    const response = await client.chat(messages, {
+      model: model,
+      temperature: parseFloat(temperature) || 0.7,
+    });
+
+    const resultText = response.message.content;
 
     if (assignVariable) {
-      this.setVariable(variableName, runResponse.data.result);
+      this.setVariable(variableName, resultText);
     }
 
     if (saveData) {
-      this.addDataToColumn(dataColumn, runResponse.data.result);
+      this.addDataToColumn(dataColumn, resultText);
     }
 
     const nextBlockId = this.getBlockConnections(block.id);
 
     return {
-      data: runResponse.data.result,
+      data: resultText,
       nextBlockId,
       replacedValue: replacedValueList,
     };
   } catch (error) {
-    console.error('AI workflow execution failed:', error);
-    throw new Error(error.message);
+    console.error('Ollama execution failed:', error);
+    throw new Error(`Ollama execution failed: ${error.message}`);
   }
 }
 

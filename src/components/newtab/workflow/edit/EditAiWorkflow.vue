@@ -1,91 +1,164 @@
 <template>
   <div>
-    <ui-button
-      variant="accent"
-      class="text-sm w-full"
-      @click="state.showAIPowerTokenModal = true"
+    <ui-select
+      :model-value="data.provider || (data.flowUuid ? 'aipower' : 'ollama')"
+      label="AI Provider"
+      class="w-full mb-4"
+      @change="onProviderChange"
     >
-      <span class="flex justify-between items-center w-full">
-        <span class="flex items-center space-x-1">
-          <v-remixicon name="riKey" size="16"></v-remixicon>
-          <span>Configure AI Power Token</span>
-        </span>
-        <v-remixicon name="riArrowRightLine" size="16"></v-remixicon>
-      </span>
-    </ui-button>
+      <option value="ollama">Ollama</option>
+      <option value="aipower">AI Power</option>
+    </ui-select>
 
-    <template v-if="aiPowerToken">
-      <ui-paginated-select
-        :key="aiPowerToken"
-        :model-value="data.flowUuid"
-        :initial-label="data.flowLabel"
-        :load-options="loadWorkflows"
-        option-value-key="flowUuid"
-        option-label-key="name"
-        class="mt-4 w-full"
-        label="Select Workflows"
-        placeholder="Select a workflow"
-        search-placeholder="Search workflows..."
-        @change="onFlowChange"
+    <template v-if="(data.provider === 'aipower') || (!data.provider && data.flowUuid)">
+      <ui-button
+        variant="accent"
+        class="text-sm w-full"
+        @click="state.showAIPowerTokenModal = true"
       >
-        <template #footer>
-          <ui-button class="w-full" @click="createNewWorkflow">
-            <v-remixicon name="riAddLine" class="mr-2" />
-            New AI Workflow
-          </ui-button>
-        </template>
-      </ui-paginated-select>
+        <span class="flex justify-between items-center w-full">
+          <span class="flex items-center space-x-1">
+            <v-remixicon name="riKey" size="16"></v-remixicon>
+            <span>Configure AI Power Token</span>
+          </span>
+          <v-remixicon name="riArrowRightLine" size="16"></v-remixicon>
+        </span>
+      </ui-button>
 
-      <div
-        class="w-full my-6 relative flex items-center justify-center bg-[#e4e4e7] h-[1px]"
-      ></div>
+      <template v-if="aiPowerToken">
+        <ui-paginated-select
+          :key="aiPowerToken"
+          :model-value="data.flowUuid"
+          :initial-label="data.flowLabel"
+          :load-options="loadWorkflows"
+          option-value-key="flowUuid"
+          option-label-key="name"
+          class="mt-4 w-full"
+          label="Select Workflows"
+          placeholder="Select a workflow"
+          search-placeholder="Search workflows..."
+          @change="onFlowChange"
+        >
+          <template #footer>
+            <ui-button class="w-full" @click="createNewWorkflow">
+              <v-remixicon name="riAddLine" class="mr-2" />
+              New AI Workflow
+            </ui-button>
+          </template>
+        </ui-paginated-select>
 
-      <div class="my-4">
-        <p class="font-semibold">Workflow Inputs</p>
-        <template v-if="data.inputs && data.inputs.length">
-          <div
-            v-for="(item, index) in data.inputs"
-            :key="`${data.flowUuid}-${item.name}`"
-          >
-            <component
-              :is="getComponent(item.type)"
+        <div
+          class="w-full my-6 relative flex items-center justify-center bg-[#e4e4e7] h-[1px]"
+        ></div>
+
+        <div class="my-4">
+          <p class="font-semibold">Workflow Inputs</p>
+          <template v-if="data.inputs && data.inputs.length">
+            <div
+              v-for="(item, index) in data.inputs"
+              :key="`${data.flowUuid}-${item.name}`"
+            >
+              <component
+                :is="getComponent(item.type)"
+                :label="`${item.label} (${item.type})`"
+                :placeholder="item.name || null"
+                :model-value="item.value"
+                :accept="item.accept"
+                :max-size="item.maxSize"
+                :on-upload="handleUploadFile"
+                class="w-full my-2"
+                @change="onInputParamsChange(item, index, $event)"
+              />
+            </div>
+          </template>
+          <template v-else>
+            <p class="text-sm text-gray-500">No inputs</p>
+          </template>
+        </div>
+
+        <div class="my-4">
+          <p class="font-semibold">Workflow Outputs(view only)</p>
+          <template v-if="data.outputs && data.outputs.length">
+            <ui-input
+              v-for="(item, index) in data.outputs"
+              :key="index"
               :label="`${item.label} (${item.type})`"
               :placeholder="item.name || null"
-              :model-value="item.value"
-              :accept="item.accept"
-              :max-size="item.maxSize"
-              :on-upload="handleUploadFile"
+              readonly
               class="w-full my-2"
-              @change="onInputParamsChange(item, index, $event)"
             />
-          </div>
-        </template>
-        <template v-else>
-          <p class="text-sm text-gray-500">No inputs</p>
-        </template>
+          </template>
+          <template v-else>
+            <p class="text-sm text-gray-500">No outputs</p>
+          </template>
+        </div>
+      </template>
+    </template>
+
+    <template v-else>
+      <ui-input
+        :model-value="data.ollamaHost || 'http://localhost:11434'"
+        label="Ollama Host"
+        placeholder="http://localhost:11434"
+        class="w-full mb-4"
+        @change="updateData({ ollamaHost: $event })"
+        @blur="fetchOllamaModels"
+      />
+
+      <div class="mb-4 relative">
+         <ui-select
+          :model-value="data.model"
+          label="Model"
+          placeholder="Select a model"
+          class="w-full"
+          @change="updateData({ model: $event })"
+          @click="fetchOllamaModels"
+        >
+          <option v-for="model in ollamaModels" :key="model.name" :value="model.name">
+            {{ model.name }}
+          </option>
+        </ui-select>
+        <span v-if="isFetchingModels" class="absolute right-8 top-9 text-xs text-gray-400">Loading...</span>
       </div>
 
-      <div class="my-4">
-        <p class="font-semibold">Workflow Outputs(view only)</p>
-        <template v-if="data.outputs && data.outputs.length">
-          <ui-input
-            v-for="(item, index) in data.outputs"
-            :key="index"
-            :label="`${item.label} (${item.type})`"
-            :placeholder="item.name || null"
-            readonly
-            class="w-full my-2"
-          />
-        </template>
-        <template v-else>
-          <p class="text-sm text-gray-500">No outputs</p>
-        </template>
-      </div>
+      <ui-textarea
+        :model-value="data.systemPrompt"
+        label="System Prompt"
+        placeholder="Optional system prompt..."
+        class="w-full mb-4"
+        :min-rows="2"
+        autoresize
+        @change="updateData({ systemPrompt: $event })"
+      />
 
-      <div class="my-4">
-        <insert-workflow-data :data="data" variables @update="updateData" />
-      </div>
+      <ui-textarea
+        :model-value="data.prompt"
+        label="User Prompt"
+        placeholder="Enter your prompt here..."
+        class="w-full mb-4"
+        :min-rows="4"
+        autoresize
+        @change="updateData({ prompt: $event })"
+      />
+      
+      <ui-input
+        :model-value="data.temperature"
+        label="Temperature"
+        type="number"
+        step="0.1"
+        min="0"
+        max="1"
+        placeholder="0.7"
+        class="w-full mb-4"
+        @change="updateData({ temperature: $event })"
+      />
+    </template>
 
+    <div class="my-4">
+      <insert-workflow-data :data="data" variables @update="updateData" />
+    </div>
+
+    <template v-if="(data.provider === 'aipower') || (!data.provider && data.flowUuid)">
       <span class="text-sm text-gray-500 block text-center mt-10"
         >Powered by Automa
         <a href="https://aipower.automa.site/">AI Power</a></span
@@ -154,6 +227,8 @@
 <script setup>
 import UiFileInput from '@/components/ui/UiFileInput.vue';
 import UiInput from '@/components/ui/UiInput.vue';
+import UiSelect from '@/components/ui/UiSelect.vue';
+import UiTextarea from '@/components/ui/UiTextarea.vue';
 import UiPaginatedSelect from '@/components/ui/UiPaginatedSelect.vue';
 import { useWorkflowStore } from '@/stores/workflow';
 import {
@@ -161,6 +236,7 @@ import {
   getAPWorkflowDetail,
   postUploadFile,
 } from '@/utils/getAIPoweredInfo';
+import OllamaClient from '@/services/ai/OllamaClient';
 import cloneDeep from 'lodash.clonedeep';
 import secrets from 'secrets';
 import {
@@ -169,6 +245,8 @@ import {
   defineProps,
   shallowReactive,
   watch,
+  ref,
+  onMounted,
 } from 'vue';
 import { useRoute } from 'vue-router';
 import { useToast } from 'vue-toastification';
@@ -339,4 +417,46 @@ watch(
     });
   }
 );
+
+// Ollama Logic
+const ollamaModels = ref([]);
+const isFetchingModels = ref(false);
+
+const fetchOllamaModels = async () => {
+  const host = props.data.ollamaHost || 'http://localhost:11434';
+  isFetchingModels.value = true;
+  try {
+    const client = new OllamaClient({ baseUrl: host });
+    const models = await client.listModels();
+    ollamaModels.value = models.map(m => ({ name: m.name }));
+    
+    // Auto select first model if none selected
+    if (!props.data.model && ollamaModels.value.length > 0) {
+      updateData({ model: ollamaModels.value[0].name });
+    }
+  } catch (error) {
+    // console.error('Failed to fetch Ollama models', error);
+    // Silent fail or toast? Toast might be annoying on load.
+  } finally {
+    isFetchingModels.value = false;
+  }
+};
+
+const onProviderChange = (provider) => {
+  updateData({ provider });
+  if (provider === 'ollama') {
+    fetchOllamaModels();
+  }
+};
+
+onMounted(() => {
+  if (!props.data.provider && !props.data.flowUuid) {
+     // Default to ollama if no provider and no flowUuid (new block)
+     updateData({ provider: 'ollama' });
+  }
+  
+  if (props.data.provider === 'ollama' || (!props.data.provider && !props.data.flowUuid)) {
+    fetchOllamaModels();
+  }
+});
 </script>
