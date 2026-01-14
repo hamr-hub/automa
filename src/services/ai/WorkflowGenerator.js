@@ -74,6 +74,9 @@ class WorkflowGenerator {
       dataColumns: this.generateDataColumns(dataSchema),
     };
 
+    // Optimize workflow
+    this.optimizeWorkflow(workflow);
+
     return workflow;
   }
 
@@ -470,10 +473,76 @@ class WorkflowGenerator {
    * 合并重复步骤、优化选择器等
    */
   optimizeWorkflow(workflow) {
-    // TODO: 实现工作流优化逻辑
-    // 1. 合并连续的等待步骤
-    // 2. 移除不必要的步骤
-    // 3. 优化选择器
+    const { nodes, edges } = workflow.drawflow;
+
+    // Helper to find node by ID
+    const getNode = (id) => nodes.find((n) => n.id === id);
+
+    // Helper to remove node and reconnect
+    const removeNode = (nodeId) => {
+      const nodeIndex = nodes.findIndex((n) => n.id === nodeId);
+      if (nodeIndex === -1) return;
+
+      const inEdges = edges.filter((e) => e.target === nodeId);
+      const outEdges = edges.filter((e) => e.source === nodeId);
+
+      // Remove node
+      nodes.splice(nodeIndex, 1);
+
+      // Remove connected edges
+      for (let i = edges.length - 1; i >= 0; i--) {
+        if (edges[i].source === nodeId || edges[i].target === nodeId) {
+          edges.splice(i, 1);
+        }
+      }
+
+      // Reconnect if possible (1 input -> 1 output)
+      if (inEdges.length === 1 && outEdges.length === 1) {
+        const inEdge = inEdges[0];
+        const outEdge = outEdges[0];
+
+        edges.push({
+          ...inEdge,
+          id: `edge-${nanoid()}`,
+          target: outEdge.target,
+          targetHandle: outEdge.targetHandle,
+        });
+      }
+    };
+
+    // 1. Remove 0-time delays or empty delays
+    let changed = true;
+    while (changed) {
+      changed = false;
+      const zeroDelayNode = nodes.find(
+        (n) => n.label === 'delay' && (!n.data.time || n.data.time <= 0)
+      );
+      if (zeroDelayNode) {
+        removeNode(zeroDelayNode.id);
+        changed = true;
+      }
+    }
+
+    // 2. Merge consecutive delays
+    changed = true;
+    while (changed) {
+      changed = false;
+      for (const node of nodes) {
+        if (node.label !== 'delay') continue;
+
+        const outEdge = edges.find((e) => e.source === node.id);
+        if (!outEdge) continue;
+
+        const nextNode = getNode(outEdge.target);
+        if (nextNode && nextNode.label === 'delay') {
+          node.data.time = (node.data.time || 0) + (nextNode.data.time || 0);
+          removeNode(nextNode.id);
+          changed = true;
+          break;
+        }
+      }
+    }
+
     return workflow;
   }
 
