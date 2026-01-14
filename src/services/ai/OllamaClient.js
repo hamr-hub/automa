@@ -4,15 +4,88 @@
  */
 
 import aiConfig from '../../config/ai.config.js';
+import { sendMessage } from '../../utils/message';
 
 class OllamaClient {
   constructor(config = {}) {
-    this.baseUrl = config.baseUrl || aiConfig.ollama.baseUrl;
+    this.baseUrl = this.cleanBaseUrl(config.baseUrl || aiConfig.ollama.baseUrl);
     this.model = config.model || aiConfig.ollama.model;
     this.temperature = config.temperature || aiConfig.ollama.temperature;
     this.maxTokens = config.maxTokens || aiConfig.ollama.maxTokens;
     this.timeout = config.timeout || aiConfig.ollama.timeout;
+    this.headers = config.headers || {};
   }
+
+  /**
+   * 通用请求方法，支持直接 fetch 和 Background 代理
+   */
+  async request(url, options = {}, responseType = 'json') {
+    const fetchOptions = {
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...this.headers,
+        ...options.headers,
+      },
+    };
+
+    try {
+      // 1. 尝试直接 fetch
+      const response = await fetch(url, fetchOptions);
+      
+      if (!response.ok) {
+        // 如果是 403 Forbidden，可能是 CORS 问题，尝试通过 Background 代理
+        // 或者如果是其他网络错误
+        if (response.status === 403) {
+           console.warn('Direct fetch returned 403, trying background proxy...');
+           throw new Error('403_FORBIDDEN');
+        }
+        throw new Error(`Ollama API 错误: ${response.status}`);
+      }
+
+      return await response[responseType]();
+    } catch (error) {
+      // 如果是 AbortError (超时)，直接抛出
+      if (error.name === 'AbortError') {
+        throw new Error('请求超时,请检查 Ollama 服务是否正常运行');
+      }
+
+      // 2. 尝试通过 Background 代理 (解决 CORS / 403 问题)
+      // 只有在非 AbortError 时才尝试
+      try {
+        console.log('Falling back to background fetch proxy for:', url);
+        const result = await sendMessage('fetch', {
+          type: responseType,
+          resource: {
+            url,
+            ...fetchOptions,
+            // body 需要是字符串
+            body: typeof fetchOptions.body === 'object' ? JSON.stringify(fetchOptions.body) : fetchOptions.body
+          }
+        }, 'background');
+        
+        return result;
+      } catch (proxyError) {
+        // 如果代理也失败了
+        console.error('Background proxy failed:', proxyError);
+        
+        // 如果原始错误是 403，抛出详细建议
+        if (error.message === '403_FORBIDDEN' || proxyError.message.includes('403') || proxyError.message.includes('Forbidden')) {
+             throw new Error(`Ollama API 拒绝访问 (403)。\n可能原因：\n1. 跨域限制：请在 Ollama 服务器设置环境变量 OLLAMA_ORIGINS="*" \n2. 认证失败：请检查是否需要 API Key\n3. 防火墙拦截`);
+        }
+
+        // 如果是 TypeError (通常是 CORS 导致的 Network Error)
+        if (error.name === 'TypeError' && error.message.includes('fetch')) {
+             throw new Error(`连接失败 (CORS/Network)。请确保 Ollama 允许跨域 (OLLAMA_ORIGINS="*") 且服务可访问。`);
+        }
+        
+        throw error;
+      }
+    }
+  }
+
+  /**
+   * 清理 Base URL，去除多余的空格、斜杠和 /api 后缀
 
   /**
    * 规范化 URL，支持 IPv6 地址和域名
@@ -56,11 +129,11 @@ class OllamaClient {
     try {
       const url = this.normalizeUrl(`${this.baseUrl}/api/tags`);
       
-      const response = await fetch(url, {
+      await this.request(url, {
         method: 'GET',
         signal: AbortSignal.timeout(5000),
       });
-      return response.ok;
+      return true;
     } catch (error) {
       console.warn('Ollama 服务不可用:', error);
       return false;
@@ -73,8 +146,7 @@ class OllamaClient {
   async listModels() {
     try {
       const url = this.normalizeUrl(`${this.baseUrl}/api/tags`);
-      const response = await fetch(url);
-      const data = await response.json();
+      const data = await this.request(url, { method: 'GET' }, 'json');
       return data.models || [];
     } catch (error) {
       console.warn('获取模型列表失败:', error);
@@ -103,22 +175,15 @@ class OllamaClient {
       const timeoutId = setTimeout(() => controller.abort(), this.timeout);
 
       const url = this.normalizeUrl(`${this.baseUrl}/api/generate`);
-      const response = await fetch(url, {
+      
+      const data = await this.request(url, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestBody),
+        body: requestBody,
         signal: controller.signal,
-      });
+      }, 'json');
 
       clearTimeout(timeoutId);
 
-      if (!response.ok) {
-        throw new Error(`Ollama API 错误: ${response.status}`);
-      }
-
-      const data = await response.json();
       return {
         text: data.response,
         model: data.model,
@@ -126,9 +191,6 @@ class OllamaClient {
         context: data.context,
       };
     } catch (error) {
-      if (error.name === 'AbortError') {
-        throw new Error('请求超时,请检查 Ollama 服务是否正常运行');
-      }
       throw error;
     }
   }
@@ -154,23 +216,15 @@ class OllamaClient {
       const timeoutId = setTimeout(() => controller.abort(), this.timeout);
 
       const url = this.normalizeUrl(`${this.baseUrl}/api/chat`);
-      const response = await fetch(url, {
+      
+      const data = await this.request(url, {
         method: 'POST',
-        mode: 'cors',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestBody),
+        body: requestBody,
         signal: controller.signal,
-      });
+      }, 'json');
 
       clearTimeout(timeoutId);
 
-      if (!response.ok) {
-        throw new Error(`Ollama API 错误: ${response.status}`);
-      }
-
-      const data = await response.json();
       return {
         message: data.message,
         model: data.model,
