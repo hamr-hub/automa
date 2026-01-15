@@ -1,14 +1,14 @@
+
 /**
  * LangGraph Agent 核心
  * 目标：用户与 AI 对话/指令 => 生成 Automa 工作流
- *
- * 说明：已移除 Playwright 相关依赖，不再做页面分析/注入。
  */
 
 import aiConfig from '@/config/ai.config';
 import OllamaClient from './OllamaClient';
 import LangGraphService from './LangGraphService';
 import Browser from 'webextension-polyfill';
+import { workflowGenerationPrompt } from './prompts/workflow-generation';
 
 class LangGraphAgent {
   constructor(config = {}) {
@@ -54,12 +54,7 @@ class LangGraphAgent {
         (tab.url.startsWith('chrome-extension:') ||
           tab.url.startsWith('moz-extension:'))
       ) {
-        const amazonTabs = await Browser.tabs.query({
-          url: '*://*.amazon.co.jp/*',
-        });
-        if (amazonTabs.length > 0) {
-          tab = amazonTabs[0];
-        }
+        // Fallback or specific logic if needed
       }
 
       if (!tab?.id) return null;
@@ -67,10 +62,6 @@ class LangGraphAgent {
       const [result] = await Browser.scripting.executeScript({
         target: { tabId: tab.id },
         func: () => {
-          // Inline simple simplifier to avoid dependency injection issues in executeScript
-          // Or use the file we just created if we can bundle it.
-          // For reliability in this context, we'll implement a basic version here.
-
           function simplify(root) {
             if (!root) return '';
             const clone = root.cloneNode(true);
@@ -119,36 +110,38 @@ class LangGraphAgent {
    * @param {string} userInput 用户输入
    * @param {string} targetUrl 目标 URL (可选)
    * @param {(progress: {step: string, message: string}) => void} onProgress 进度回调
+   * @param {string} pageContext 页面上下文 (可选, JSON string)
    */
-  async chat(userInput, targetUrl = '', onProgress) {
+  async chat(userInput, targetUrl = '', onProgress, pageContext = null) {
     try {
       this.state.status = 'generating';
       this.state.error = null;
 
       onProgress?.({ step: 'ai', message: 'AI 正在分析页面...' });
 
-      // 1. Get Page Context if targetUrl is not provided (assume current page)
-      let pageContext = null;
-      if (!targetUrl) {
-        pageContext = await this.getPageContext();
-        if (pageContext) {
-          targetUrl = pageContext.url; // Use current URL
+      // 1. Get Page Context if not provided and targetUrl is empty
+      if (!pageContext && !targetUrl) {
+        const ctx = await this.getPageContext();
+        if (ctx) {
+          pageContext = ctx.dom;
+          targetUrl = ctx.url;
         }
       }
 
+      // 2. Construct the full prompt
+      const fullPrompt = workflowGenerationPrompt.user(userInput, targetUrl, pageContext);
+
       // Add user message to history
-      // Include Context in the message but don't show it to user in UI if possible
-      // For LangGraph, we'll pass it as a separate property
-      this.history.push({ role: 'user', content: userInput });
+      // Note: We push the FULL prompt to the history so the LLM sees the context.
+      this.history.push({ role: 'user', content: fullPrompt });
 
       // Execute LangGraph Workflow Generation
-      // We pass the history so the AI knows the context
       onProgress?.({ step: 'ai', message: 'AI 正在生成工作流...' });
       const workflow = await this.langGraphService.run(
         userInput,
         targetUrl,
         this.history,
-        pageContext?.dom // Pass DOM context
+        pageContext
       );
 
       if (workflow) {

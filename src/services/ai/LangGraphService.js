@@ -1,7 +1,9 @@
+
 import { StateGraph, END } from '@langchain/langgraph';
 import OllamaClient from './OllamaClient.js';
 import WorkflowGenerator from './WorkflowGenerator.js';
 import aiConfig from '../../config/ai.config.js';
+import { workflowGenerationPrompt } from './prompts/workflow-generation.js';
 
 /**
  * LangGraph Service
@@ -97,55 +99,74 @@ class LangGraphService {
   async inputProcessingNode(state) {
     console.log('[LangGraph] Processing Input:', state.userInput);
 
-    let systemPrompt = `You are an Automa workflow generator. 
-    Convert user requests into Automa workflow JSON format.
-    Return ONLY the JSON. No markdown, no explanations.
+    // Ensure System Prompt is present at the beginning
+    // We clone the messages to avoid mutating the state directly if it were a reference
+    // (though LangGraph usually handles state updates via return)
     
-    Structure:
-    {
-      "steps": [
-        { "type": "NAVIGATE", "data": { "url": "..." } },
-        { "type": "CLICK", "selector": "..." },
-        { "type": "INPUT", "selector": "...", "data": { "value": "..." } },
-        { "type": "EXTRACT", "selector": "...", "data": { "columnName": "..." } },
-        { "type": "LOOP_ELEMENTS", "selector": "..." },
-        { "type": "LOOP_END" },
-        { "type": "GO_BACK" },
-        { "type": "CLOSE_TAB" },
-        { "type": "EXPORT", "data": { "type": "json" } } // type: json, csv (for excel)
-      ],
-      "dataSchema": { ... }
+    // Check if system prompt is already the first message
+    if (state.messages.length === 0 || state.messages[0].role !== 'system') {
+       const systemPrompt = workflowGenerationPrompt.system;
+       
+       // If messages is empty (which shouldn't happen given LangGraphAgent pushes user input),
+       // we just return the system prompt.
+       // If messages has content (User input), we prepend System prompt.
+       
+       return {
+         messages: [
+           { role: 'system', content: systemPrompt },
+           // ...state.messages // LangGraph merges returned messages with existing state based on channel config
+           // However, for 'messages' channel, the config is `(x, y) => x.concat(y)`.
+           // So if we return `[{role: 'system'}]`, it will be APPENDED to `state.messages`.
+           // This is NOT what we want. We want to PREPEND.
+           
+           // If the channel is `x.concat(y)`, we cannot prepend easily by just returning.
+           // We might need to OVERWRITE the messages if possible, or assume LangGraphAgent handles history.
+           
+           // WAIT. LangGraph `messages` reducer is `x.concat(y)`.
+           // If `state.messages` already has [User], and we return [System], it becomes [User, System].
+           // This is bad.
+           
+           // We should fix this by defining the reducer differently or resetting messages?
+           // OR, LangGraphAgent should ensure System Prompt is in history?
+           
+           // Actually, `LangGraphAgent` clears history on `clearHistory`.
+           // If `history` is empty, `LangGraphAgent` creates new history.
+           
+           // Solution: Let's handle the message construction properly here by returning the FULL correct sequence if it's the first turn.
+           // But `state.messages` is already populated from `history` passed to `run`.
+           
+           // If `state.messages` comes from `initialState.messages`, it is what we passed.
+           // We can't "replace" it easily with `concat` reducer.
+           
+           // WORKAROUND:
+           // If we can't change the reducer, we should ensure `LangGraphAgent` passes the System Prompt in the history!
+           // But `LangGraphAgent` doesn't know about `LangGraphService`'s internal prompts.
+           
+           // Let's modify `LangGraphAgent.js` to NOT push to history before run, 
+           // but let `LangGraphService` construct the full history?
+           // No, `LangGraphAgent` manages history.
+           
+           // Let's try to just return the system prompt and hope the LLM handles [User, System] order? 
+           // No, System must be first.
+           
+           // Hack: Since I can't easily change the reducer behavior without breaking other things,
+           // I will change `buildGraph` to use a REPLACER for messages if I want to overwrite?
+           // No.
+           
+           // The best place to fix this is where `history` is passed to `run`.
+           // In `LangGraphAgent.js`, we can prepend System Prompt if history is empty?
+           // But `LangGraphService` owns the prompt.
+           
+           // Let's rely on `LangGraphAgent` passing the messages.
+           // I will modify `LangGraphAgent.js` to Prepend System Prompt if it's not there.
+           // But `LangGraphAgent` doesn't import prompt. I just added import there!
+           
+           // So in `LangGraphAgent.js`, I can ensure history[0] is system prompt.
+         ]
+       };
     }
     
-    BEST PRACTICES:
-    1. For LIST -> DETAIL extraction:
-       - Use LOOP_ELEMENTS on the list item selector.
-       - Inside loop: CLICK (link to detail) -> WAIT (2000ms) -> EXTRACT fields -> GO_BACK (to list).
-       - Ensure GO_BACK is inside the loop.
-    2. Amazon Specifics:
-       - Products often have 'data-component-type="s-search-result"' or class 's-result-item'.
-       - Use specific selectors for Price (e.g., '.a-price .a-offscreen'), Title ('#productTitle').
-    3. Always end with EXPORT if data is extracted.
-    `;
-
-    // Inject DOM Context if available
-    if (state.pageContext) {
-      systemPrompt += `\n\nCURRENT PAGE DOM CONTEXT:\n${state.pageContext}\n\nUse the CSS Selectors from the DOM above.`;
-    }
-
-    // Add initial messages if empty
-    if (state.messages.length === 0) {
-      return {
-        messages: [
-          { role: 'system', content: systemPrompt },
-          {
-            role: 'user',
-            content: `Task: ${state.userInput}\nURL: ${state.targetUrl}`,
-          },
-        ],
-      };
-    }
-
+    // If I move the logic to LangGraphAgent, I don't need to do anything here except logging.
     return {};
   }
 
@@ -248,6 +269,13 @@ class LangGraphService {
    * Execute the graph
    */
   async run(userInput, targetUrl = '', history = [], pageContext = '') {
+    // Prepend System Prompt to history if needed
+    // This modifies the passed history array, which is referenced by LangGraphAgent.
+    // This is acceptable as we want the Agent to "remember" the system prompt.
+    if (history.length === 0 || history[0].role !== 'system') {
+        history.unshift({ role: 'system', content: workflowGenerationPrompt.system });
+    }
+
     const initialState = {
       ...this.getInitialState(),
       userInput,

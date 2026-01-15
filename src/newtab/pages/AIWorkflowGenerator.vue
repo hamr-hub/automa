@@ -16,6 +16,54 @@
         </h1>
       </div>
       <div class="flex items-center space-x-2">
+        <!-- Tab Selector for Analysis -->
+        <ui-popover class="mr-2">
+          <template #trigger>
+            <ui-button variant="secondary" title="选择要分析的标签页">
+              <v-remixicon name="riGlobalLine" class="mr-2" />
+              <span class="max-w-[150px] truncate">
+                {{ state.selectedTab ? state.selectedTab.title : '选择目标网页' }}
+              </span>
+            </ui-button>
+          </template>
+          <div class="w-80 max-h-80 overflow-y-auto p-2 bg-white dark:bg-gray-800 shadow-lg rounded-lg border border-gray-200 dark:border-gray-700">
+             <div v-if="state.activeTabs.length === 0" class="text-sm text-gray-500 p-2 text-center">
+                暂无其他标签页
+             </div>
+             <button
+               v-for="tab in state.activeTabs"
+               :key="tab.id"
+               class="w-full text-left text-sm p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded mb-1 flex items-center"
+               @click="selectTab(tab)"
+             >
+               <img v-if="tab.favIconUrl" :src="tab.favIconUrl" class="w-4 h-4 mr-2" />
+               <div class="truncate flex-1">
+                 <div class="font-medium truncate">{{ tab.title }}</div>
+                 <div class="text-xs text-gray-400 truncate">{{ tab.url }}</div>
+               </div>
+             </button>
+             <div class="border-t dark:border-gray-700 mt-2 pt-2">
+                <button class="w-full text-xs text-center text-blue-500 hover:text-blue-600" @click="fetchActiveTabs">
+                  刷新列表
+                </button>
+             </div>
+          </div>
+        </ui-popover>
+        
+        <ui-button 
+            v-if="state.selectedTab" 
+            :loading="state.isAnalyzing"
+            variant="accent" 
+            title="分析页面结构"
+            class="mr-2"
+            @click="analyzePage"
+        >
+           <v-remixicon name="riMagicLine" class="mr-2" />
+           分析页面
+        </ui-button>
+
+        <div class="h-6 w-px bg-gray-300 dark:bg-gray-600 mx-2" />
+
         <!-- 新增工具栏按钮 -->
         <ui-button
           variant="secondary"
@@ -465,6 +513,7 @@ import { exportWorkflow, importWorkflow } from '@/utils/workflowData';
 import browser from 'webextension-polyfill';
 import LangGraphAgent from '@/services/ai/LangGraphAgent';
 import RendererWorkflowService from '@/service/renderer/RendererWorkflowService';
+import { getSimplifiedDOM } from '@/utils/domSimplifier';
 
 const router = useRouter();
 const toast = useToast();
@@ -487,6 +536,11 @@ const state = reactive({
   },
   editingNodeId: null,
   editData: {},
+  // Page Analysis State
+  activeTabs: [],
+  selectedTab: null,
+  isAnalyzing: false,
+  pageContext: '',
 });
 
 const chatHistory = ref([]);
@@ -517,6 +571,61 @@ const sortedNodes = computed(() => {
   return [...result, ...remaining];
 });
 
+async function fetchActiveTabs() {
+  try {
+    const tabs = await browser.tabs.query({ currentWindow: true });
+    // Filter out Automa pages to avoid confusion
+    state.activeTabs = tabs.filter(
+      (t) =>
+        !t.url.startsWith('moz-extension://') &&
+        !t.url.startsWith('chrome-extension://')
+    );
+
+    // Auto-select the first non-automa tab if none selected
+    if (!state.selectedTab && state.activeTabs.length > 0) {
+      // Prefer the most recently active tab that isn't this one
+      // But tabs query doesn't give history. Just pick first.
+      state.selectedTab = state.activeTabs[0];
+    }
+  } catch (e) {
+    console.error('Failed to fetch tabs', e);
+  }
+}
+
+function selectTab(tab) {
+  state.selectedTab = tab;
+}
+
+async function analyzePage() {
+  if (!state.selectedTab) return;
+
+  state.isAnalyzing = true;
+  try {
+    const results = await browser.scripting.executeScript({
+      target: { tabId: state.selectedTab.id },
+      func: getSimplifiedDOM,
+    });
+
+    if (results && results[0] && results[0].result) {
+      state.pageContext = results[0].result;
+
+      // Add a system message to chat history to indicate context is loaded
+      chatHistory.value.push({
+        role: 'system',
+        content: `✅ 已成功分析页面: "${state.selectedTab.title}"\n已获取页面结构上下文。请在下方描述您的抓取需求（例如："抓取所有商品及其价格"）。`,
+      });
+      
+      scrollToBottom();
+      toast.success('页面分析完成');
+    }
+  } catch (e) {
+    console.error(e);
+    toast.error('分析页面失败: ' + e.message);
+  } finally {
+    state.isAnalyzing = false;
+  }
+}
+
 async function sendMessage() {
   if (!state.userInput.trim() || state.isGenerating) return;
 
@@ -533,7 +642,12 @@ async function sendMessage() {
     agent.ollama.baseUrl = state.ollamaConfig.baseUrl;
     agent.ollama.model = state.ollamaConfig.model;
 
-    const result = await agent.chat(content, '', (progress) => {});
+    const result = await agent.chat(
+      content,
+      state.selectedTab?.url || '',
+      (progress) => {},
+      state.pageContext
+    );
 
     if (result.success) {
       chatHistory.value.push({ role: 'assistant', content: result.message });
@@ -764,6 +878,7 @@ onMounted(async () => {
 
   await agent.initialize();
   await checkOllamaStatus();
+  await fetchActiveTabs();
 });
 </script>
 

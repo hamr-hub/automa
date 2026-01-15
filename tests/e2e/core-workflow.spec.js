@@ -260,7 +260,7 @@ test.describe('Automa Core Workflow Features', () => {
     }
 
     // Wait for Logs Modal
-    const logsModal = page.locator('.ui-modal').last();
+    const logsModal = page.locator('.modal-ui__content-container').last();
     await expect(logsModal).toBeVisible({ timeout: 10000 });
 
     // Check if our workflow is in the logs list
