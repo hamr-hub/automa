@@ -4,7 +4,7 @@
 - **Workflow File**: `demo/Amazon Scrap.json`
 - **Execution Engine**: Custom Node.js Runner with Playwright
 - **Date**: 2026-01-14
-- **Target Site**: https://amazon.com
+- **Target Site**: https://amazon.sg
 
 ## Execution Summary
 The workflow was successfully loaded and executed. Due to the dynamic nature of the target website (Amazon) and outdated selectors in the demo file, runtime patches were applied to ensure the core interaction flow (Search) functioned correctly.
@@ -12,7 +12,7 @@ The workflow was successfully loaded and executed. Due to the dynamic nature of 
 ### Steps Executed
 
 1.  **Initialization**: Parsed JSON workflow, loaded 15 nodes and 15 edges.
-2.  **Navigation**: Successfully opened `https://amazon.com`.
+2.  **Navigation**: Successfully opened `https://amazon.sg`.
 3.  **Condition Check**: Mocked successful condition evaluation.
 4.  **Interaction (Search)**:
     *   **Patch Applied**: Detected outdated selector `input#nav-bb-search` (likely from a legacy or "Black Belt" version of Amazon). Replaced with standard `#twotabsearchtextbox`.

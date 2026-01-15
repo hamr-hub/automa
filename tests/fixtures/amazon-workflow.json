@@ -27,7 +27,7 @@
         "label": "new-tab",
         "position": { "x": 400, "y": 100 },
         "data": {
-          "url": "https://www.amazon.com/s?k=laptop",
+          "url": "https://www.amazon.sg/s?k=laptop",
           "active": true,
           "updatePrevTab": false
         }

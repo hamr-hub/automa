@@ -1,9 +1,83 @@
 
-import { StateGraph, END } from '@langchain/langgraph';
+/**
+ * 简化版状态图管理 (浏览器兼容版本)
+ * 替代 @langchain/langgraph 以在浏览器扩展中运行
+ */
+
 import OllamaClient from './OllamaClient.js';
 import WorkflowGenerator from './WorkflowGenerator.js';
 import aiConfig from '../../config/ai.config.js';
 import { workflowGenerationPrompt } from './prompts/workflow-generation.js';
+
+class StateGraph {
+  constructor(config) {
+    this.config = config;
+    this.nodes = new Map();
+    this.edges = new Map();
+    this.conditionalEdges = new Map();
+  }
+
+  addNode(name, fn) {
+    this.nodes.set(name, fn);
+    return this;
+  }
+
+  addEdge(fromNode, toNode) {
+    if (!this.edges.has(fromNode)) {
+      this.edges.set(fromNode, []);
+    }
+    this.edges.get(fromNode).push(toNode);
+    return this;
+  }
+
+  addConditionalEdges(fromNode, condition, edgeMapping) {
+    this.conditionalEdges.set(fromNode, { condition, edgeMapping });
+    return this;
+  }
+
+  setEntryPoint(nodeName) {
+    this.entryPoint = nodeName;
+    return this;
+  }
+
+  compile() {
+    return {
+      invoke: async (initialState) => {
+        let currentNode = this.entryPoint;
+        let state = { ...initialState };
+
+        while (currentNode && currentNode !== 'END') {
+          const nodeFn = this.nodes.get(currentNode);
+          if (!nodeFn) {
+            throw new Error(`Node ${currentNode} not found`);
+          }
+
+          // 执行节点函数
+          const result = await nodeFn(state);
+          
+          // 更新状态
+          state = { ...state, ...result };
+
+          // 决定下一个节点
+          if (this.conditionalEdges.has(currentNode)) {
+            const { condition, edgeMapping } = this.conditionalEdges.get(currentNode);
+            const nextNodeName = await condition(state);
+            currentNode = edgeMapping[nextNodeName] || 'END';
+          } else if (this.edges.has(currentNode)) {
+            const nextNodes = this.edges.get(currentNode);
+            currentNode = nextNodes[0] || 'END';
+          } else {
+            currentNode = 'END';
+          }
+        }
+
+        return state;
+      }
+    };
+  }
+}
+
+const END = 'END';
 
 /**
  * LangGraph Service
