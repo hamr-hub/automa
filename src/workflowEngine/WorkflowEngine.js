@@ -503,6 +503,26 @@ class WorkflowEngine {
       this.columnsId = null;
       this.historyCtxData = null;
       this.preloadScripts = null;
+      
+      // kwaipilot-fix: MEM-Issue-001/izug9vafykzi3mmd8f9e
+      // 清理所有 workers 以释放内存
+      if (this.workers) {
+        this.workers.forEach(worker => {
+          worker.cleanup && worker.cleanup();
+        });
+        this.workers = null;
+      }
+      
+      // 清理时间间隔器和事件监听
+      if (this.timers) {
+        this.timers.forEach(timer => clearTimeout(timer));
+        this.timers = null;
+      }
+      
+      if (this.intervals) {
+        this.intervals.forEach(interval => clearInterval(interval));
+        this.intervals = null;
+      }
     };
 
     try {
