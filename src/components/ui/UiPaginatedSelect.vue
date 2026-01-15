@@ -92,8 +92,6 @@ class="px-4 py-2 text-center text-gray-500">
 import { useComponentId } from '@/composable/componentId';
 import {
   computed,
-  defineEmits,
-  defineProps,
   onBeforeUnmount,
   onMounted,
   ref,

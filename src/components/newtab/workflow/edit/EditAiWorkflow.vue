@@ -262,8 +262,6 @@ import cloneDeep from 'lodash.clonedeep';
 import secrets from 'secrets';
 import {
   computed,
-  defineEmits,
-  defineProps,
   shallowReactive,
   watch,
   ref,
