@@ -176,7 +176,7 @@
           </div>
 
           <!-- 加载状态 -->
-          <div v-if="state.isGenerating" class="flex items-start">
+          <div v-if="state.isGenerating" class="flex items-center space-x-2">
             <div class="rounded-lg bg-gray-100 p-3 dark:bg-gray-800">
               <div class="flex items-center space-x-2">
                 <div class="h-2 w-2 animate-bounce rounded-full bg-gray-400" />
@@ -188,11 +188,21 @@
                 />
               </div>
             </div>
+            <ui-button size="sm" variant="danger" @click="stopGeneration">
+              <v-remixicon name="riStopCircleLine" class="mr-1" />
+              停止
+            </ui-button>
           </div>
         </div>
 
         <!-- 输入区域 -->
         <div class="border-t border-gray-200 p-4 dark:border-gray-700">
+          <div v-if="state.hasError" class="mb-2 flex justify-center">
+             <ui-button size="sm" variant="secondary" class="text-red-500" @click="retryGeneration">
+                <v-remixicon name="riRefreshLine" class="mr-1" />
+                重试上一次请求
+             </ui-button>
+          </div>
           <div class="relative">
             <ui-textarea
               v-model="state.userInput"
@@ -508,6 +518,8 @@ const state = reactive({
   selectedTab: null,
   isAnalyzing: false,
   pageContext: '',
+  lastUserInput: '',
+  hasError: false,
 });
 
 const chatHistory = ref([]);
@@ -623,6 +635,8 @@ async function sendMessage() {
   if (!state.userInput.trim() || state.isGenerating) return;
 
   const content = state.userInput;
+  state.lastUserInput = content;
+  state.hasError = false;
   state.userInput = '';
   state.isGenerating = true;
 
@@ -652,18 +666,40 @@ async function sendMessage() {
         );
       }
     } else {
+      state.hasError = true;
       chatHistory.value.push({
         role: 'assistant',
         content: `错误: ${result.error}`,
       });
-      toast.error('生成失败');
+      // Do not toast error if it was aborted, or maybe yes?
+      // Result error message is '已停止生成' if aborted.
+      if (result.error === '已停止生成') {
+        toast.info('生成已停止');
+      } else {
+        toast.error('生成失败');
+      }
     }
   } catch (e) {
     console.error(e);
+    state.hasError = true;
     toast.error('发生未知错误');
   } finally {
     state.isGenerating = false;
     scrollToBottom();
+  }
+}
+
+function stopGeneration() {
+  if (agent.stop()) {
+    state.isGenerating = false;
+    // toast.info('已请求停止...');
+  }
+}
+
+function retryGeneration() {
+  if (state.lastUserInput) {
+    state.userInput = state.lastUserInput;
+    sendMessage();
   }
 }
 

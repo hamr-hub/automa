@@ -261,6 +261,10 @@ class OllamaClient {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), this.timeout);
 
+      if (options.signal) {
+        options.signal.addEventListener('abort', () => controller.abort());
+      }
+
       const url = this.normalizeUrl(`${this.baseUrl}/api/generate`);
 
       const data = await this.request(
@@ -309,6 +313,10 @@ class OllamaClient {
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), this.timeout);
+
+      if (options.signal) {
+        options.signal.addEventListener('abort', () => controller.abort());
+      }
 
       const url = this.normalizeUrl(`${this.baseUrl}/api/chat`);
 

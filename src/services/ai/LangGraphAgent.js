@@ -23,6 +23,24 @@ class LangGraphAgent {
       lastAiOutput: null,
       currentWorkflow: null,
     };
+    this.abortController = null;
+  }
+
+  /**
+   * 停止当前的 AI 生成任务
+   */
+  stop() {
+    if (this.abortController) {
+      this.abortController.abort();
+      this.abortController = null;
+      this.state.status = 'idle';
+      this.history.push({
+        role: 'assistant',
+        content: '🚫 已停止生成',
+      });
+      return true;
+    }
+    return false;
   }
 
   async initialize() {
@@ -117,6 +135,12 @@ class LangGraphAgent {
     try {
       this.state.status = 'generating';
       this.state.error = null;
+      
+      // Cancel previous request if any
+      if (this.abortController) {
+        this.abortController.abort();
+      }
+      this.abortController = new AbortController();
 
       onProgress?.({ step: 'ai', message: 'AI 正在分析页面...' });
 
@@ -142,8 +166,11 @@ class LangGraphAgent {
         userInput,
         targetUrl,
         this.history,
-        pageContext
+        pageContext,
+        this.abortController.signal
       );
+
+      this.abortController = null;
 
       if (workflow) {
         const aiResponse = `已为您生成工作流: ${workflow.name}`;
@@ -162,6 +189,9 @@ class LangGraphAgent {
         throw new Error('未能生成有效的工作流');
       }
     } catch (error) {
+      if (error.message === 'Aborted by user') {
+         return { success: false, error: '已停止生成' };
+      }
       console.error('LangGraph Agent Error:', error);
       this.state.status = 'error';
       this.state.error = error.message;
@@ -175,6 +205,8 @@ class LangGraphAgent {
         success: false,
         error: error.message,
       };
+    } finally {
+      this.abortController = null;
     }
   }
 

@@ -45,8 +45,14 @@ class StateGraph {
       invoke: async (initialState) => {
         let currentNode = this.entryPoint;
         let state = { ...initialState };
+        const channels = this.config.channels || {};
 
         while (currentNode && currentNode !== 'END') {
+          // Check for abort
+          if (state.abortSignal && state.abortSignal.aborted) {
+            throw new Error('Aborted by user');
+          }
+
           const nodeFn = this.nodes.get(currentNode);
           if (!nodeFn) {
             throw new Error(`Node ${currentNode} not found`);
@@ -54,13 +60,24 @@ class StateGraph {
 
           // 执行节点函数
           const result = await nodeFn(state);
-          
-          // 更新状态
-          state = { ...state, ...result };
+
+          // 更新状态 (Apply Reducers)
+          if (result) {
+            for (const key of Object.keys(result)) {
+              if (channels[key] && channels[key].value) {
+                // Apply reducer: (oldValue, newValue) => combinedValue
+                state[key] = channels[key].value(state[key], result[key]);
+              } else {
+                // Default: Overwrite
+                state[key] = result[key];
+              }
+            }
+          }
 
           // 决定下一个节点
           if (this.conditionalEdges.has(currentNode)) {
-            const { condition, edgeMapping } = this.conditionalEdges.get(currentNode);
+            const { condition, edgeMapping } =
+              this.conditionalEdges.get(currentNode);
             const nextNodeName = await condition(state);
             currentNode = edgeMapping[nextNodeName] || 'END';
           } else if (this.edges.has(currentNode)) {
@@ -72,7 +89,7 @@ class StateGraph {
         }
 
         return state;
-      }
+      },
     };
   }
 }
@@ -253,7 +270,9 @@ class LangGraphService {
     );
 
     try {
-      const response = await this.ollama.chat(state.messages);
+      const response = await this.ollama.chat(state.messages, {
+        signal: state.abortSignal,
+      });
       const content = response.message.content;
 
       return {
@@ -261,6 +280,9 @@ class LangGraphService {
         generatedJson: this.extractJson(content),
       };
     } catch (error) {
+      if (error.message === 'Aborted by user' || (state.abortSignal && state.abortSignal.aborted)) {
+         throw new Error('Aborted by user');
+      }
       console.error('[LangGraph] Generation Error:', error);
       return { error: error.message };
     }
@@ -342,7 +364,7 @@ class LangGraphService {
   /**
    * Execute the workflow generation graph
    */
-  async run(userInput, targetUrl = '', history = [], pageContext = '') {
+  async run(userInput, targetUrl = '', history = [], pageContext = '', abortSignal = null) {
     // Prepend System Prompt to history if needed
     // This modifies the passed history array, which is referenced by LangGraphAgent.
     // This is acceptable as we want the Agent to "remember" the system prompt.
@@ -356,13 +378,14 @@ class LangGraphService {
       targetUrl,
       pageContext,
       messages: history.length > 0 ? history : [],
+      abortSignal,
     };
 
     const result = await this.graph.invoke(initialState);
 
-    if (result.error && !result.workflow) {
+    if (!result.workflow) {
       throw new Error(
-        `Failed to generate workflow after retries: ${result.error}`
+        result.error || 'Failed to generate workflow (Unknown error)'
       );
     }
 
