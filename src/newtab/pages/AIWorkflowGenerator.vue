@@ -540,7 +540,7 @@ const sortedNodes = computed(() => {
 
 async function fetchActiveTabs() {
   try {
-    const tabs = await browser.tabs.query({ currentWindow: true });
+    const tabs = await browser.tabs.query({});
     // Filter out Automa pages to avoid confusion
     state.activeTabs = tabs.filter(
       (t) =>
