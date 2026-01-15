@@ -474,7 +474,8 @@ class OllamaClient {
    */
   async pullModel(modelName, onProgress) {
     try {
-      const response = await fetch(`${this.baseUrl}/api/pull`, {
+      const url = this.normalizeUrl(`${this.baseUrl}/api/pull`);
+      const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -527,7 +528,8 @@ class OllamaClient {
    */
   async listModels() {
     try {
-      const response = await fetch(`${this.baseUrl}/api/tags`, {
+      const url = this.normalizeUrl(`${this.baseUrl}/api/tags`);
+      const response = await fetch(url, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
