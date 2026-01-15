@@ -8,7 +8,9 @@ import { sendMessage } from '../../utils/message.js';
 
 class OllamaClient {
   constructor(config = {}) {
-    this.baseUrl = this.cleanBaseUrl(config.baseUrl || aiConfig.ollama.baseUrl);
+    // kwaipilot-fix: FUNC-Issue-001/ycryz69oa5t87w1ynt2g
+    // 修复 cleanBaseUrl 方法在调用前未定义的问题
+    this.baseUrl = this.normalizeUrl(config.baseUrl || aiConfig.ollama.baseUrl);
     this.model = config.model || aiConfig.ollama.model;
     this.temperature = config.temperature || aiConfig.ollama.temperature;
     this.maxTokens = config.maxTokens || aiConfig.ollama.maxTokens;

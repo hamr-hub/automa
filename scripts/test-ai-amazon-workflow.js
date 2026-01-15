@@ -7,7 +7,7 @@ const mockAiOutput = {
     {
       type: 'NAVIGATE',
       description: 'Go to Amazon search results for "laptop"',
-      data: { url: 'https://www.amazon.com/s?k=laptop' },
+      data: { url: 'https://www.amazon.sg/s?k=laptop' },
     },
     {
       type: 'PAGINATION',
@@ -72,7 +72,7 @@ const generator = new WorkflowGenerator();
 const workflow = generator.generateWorkflow(
   mockAiOutput,
   'Scrape Amazon laptops',
-  'https://www.amazon.com/s?k=laptop'
+  'https://www.amazon.sg/s?k=laptop'
 );
 
 // Save to file

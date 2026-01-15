@@ -64,6 +64,12 @@ class WorkflowWorker {
     this.childWorkflowId = null;
 
     this.debugAttached = false;
+    
+    // kwaipilot-fix: MEM-Issue-001/izug9vafykzi3mmd8f9e
+    // 添加资源跟踪
+    this.timers = new Set();
+    this.intervals = new Set();
+    this.messageListeners = new Map();
 
     this.activeTab = {
       url: '',
@@ -621,6 +627,45 @@ class WorkflowWorker {
 
       throw error;
     }
+  }
+
+  /**
+   * Cleanup method to release resources
+   * kwaipilot-fix: MEM-Issue-001/izug9vafykzi3mmd8f9e
+   */
+  cleanup() {
+    // Clear timers
+    if (this.timers) {
+      this.timers.forEach(timer => clearTimeout(timer));
+      this.timers.clear();
+    }
+    
+    // Clear intervals
+    if (this.intervals) {
+      this.intervals.forEach(interval => clearInterval(interval));
+      this.intervals.clear();
+    }
+    
+    // Remove message listeners
+    if (this.messageListeners) {
+      this.messageListeners.forEach((listener, key) => {
+        try {
+          BrowserAPIService.runtime.onMessage.removeListener(listener);
+        } catch (e) {
+          // Listener may already be removed
+        }
+      });
+      this.messageListeners.clear();
+    }
+    
+    // Clear references
+    this.loopEls = [];
+    this.loopList = {};
+    this.repeatedTasks = {};
+    this.preloadScripts = [];
+    this.currentBlock = null;
+    this.activeTab = null;
+    this.engine = null;
   }
 }
 

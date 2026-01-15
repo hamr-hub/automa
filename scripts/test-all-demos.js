@@ -38,6 +38,23 @@ async function validateWorkflow(workflowPath) {
 
   const startTime = Date.now();
 
+  const mockData = {
+    'variables.Input_Spreadsheet_URL':
+      'https://www.amazon.sg/s?k=laptop&ref=nb_sb_noss',
+    'variables.Input_Column': 'A',
+    'variables.Current_Input_Row': '2',
+    'variables.AmazonDomain': 'www.amazon.sg',
+    'globalData@productUrl':
+      'https://www.amazon.sg/dp/B09X636B42',
+  };
+
+  const renderTemplate = (str) => {
+    if (!str || typeof str !== 'string') return str;
+    return str.replace(/\{\{([^}]+)\}\}/g, (match, key) => {
+      return mockData[key.trim()] || match;
+    });
+  };
+
   try {
     // 读取工作流
     const workflow = JSON.parse(fs.readFileSync(workflowPath, 'utf8'));
@@ -129,34 +146,54 @@ async function validateWorkflow(workflowPath) {
 
     let currentNode = getNextNode(trigger.id);
     let stepCount = 0;
-    const maxSteps = 20; // 快速测试只执行前20步
+    const maxSteps = 50; // 限制最大步骤数避免无限循环
+    const loopTracker = new Map(); // 跟踪节点访问次数
 
     while (currentNode && stepCount < maxSteps) {
       stepCount++;
+      
+      // 检测循环：如果同一个节点连续访问超过3次，则退出
+      const loopKey = `${currentNode.id}`;
+      const loopCount = loopTracker.get(loopKey) || 0;
+      if (loopCount > 2) {
+        console.log(`\n⚠️  检测到循环：节点 ${currentNode.label} 被访问超过3次，停止测试`);
+        break;
+      }
+      loopTracker.set(loopKey, loopCount + 1);
       const desc = currentNode.data?.description || '';
       console.log(
-        `   [${stepCount}] ${currentNode.label}: ${desc.substring(0, 40)}${desc.length > 40 ? '...' : ''}`
+        `   [${stepCount}] ${currentNode.label}: ${desc.substring(0, 50)}${
+          desc.length > 50 ? '...' : ''
+        }`
       );
 
       let nextOutput = 'output-1';
 
       try {
         switch (currentNode.label) {
+          case 'tab-url':
           case 'new-window':
           case 'new-tab': {
-            const url = currentNode.data.url;
-            if (url) {
-              await page
-                .goto(url, {
-                  waitUntil: 'domcontentloaded',
-                  timeout: 15000,
-                })
-                .catch((e) => {
-                  results.warnings.push(`页面加载超时: ${url}`);
-                });
+            const url = renderTemplate(currentNode.data.url);
+            if (url && url.startsWith('http')) {
+                  console.log(`     ➡️ 导航到: ${url}`);
+                  await page
+                    .goto(url, {
+                      waitUntil: 'domcontentloaded',
+                      timeout: 15000,
+                    })
+                    .catch((e) => {
+                      const warning = `页面加载超时: ${url}`;
+                      results.warnings.push(warning);
+                      console.log(`     ⚠️  ${warning}`);
+                    });
+                } else if (url) {
+                  const warning = `无效或模板未解析的URL: ${url}`;
+                  results.warnings.push(warning);
+                  console.log(`     ⚠️  ${warning}`);
+                }
             }
             break;
-          }
 
           case 'event-click': {
             let selector = currentNode.data.selector;
@@ -171,9 +208,12 @@ async function validateWorkflow(workflowPath) {
 
             // 仅验证选择器是否有效
             if (selector) {
+              console.log(`     🔎 验证选择器: ${selector}`);
               const exists = await page.$(selector).catch(() => null);
               if (!exists) {
-                results.warnings.push(`选择器未找到: ${selector}`);
+                const warning = `选择器未找到: ${selector}`;
+                results.warnings.push(warning);
+                console.log(`     ⚠️  ${warning}`);
               }
             }
             break;
@@ -190,9 +230,12 @@ async function validateWorkflow(workflowPath) {
             }
 
             if (selector) {
+              console.log(`     🔎 验证表单元素: ${selector}`);
               const exists = await page.$(selector).catch(() => null);
               if (!exists) {
-                results.warnings.push(`表单元素未找到: ${selector}`);
+                const warning = `表单元素未找到: ${selector}`;
+                results.warnings.push(warning);
+                console.log(`     ⚠️  ${warning}`);
               }
             }
             break;
@@ -205,6 +248,17 @@ async function validateWorkflow(workflowPath) {
               nextOutput = `output-${firstCondId}`;
             } else {
               nextOutput = 'output-fallback';
+            }
+            break;
+          }
+
+          case 'loop-data':
+          case 'loop-breakpoint': {
+            // 跳过循环结束，直接到循环结束节点
+            if (currentNode.label === 'loop-breakpoint') {
+              nextOutput = 'output-1'; // 退出循环
+            } else {
+              nextOutput = 'output-2'; // 跳过循环体
             }
             break;
           }
