@@ -13,7 +13,8 @@ import { workflowGenerationPrompt } from './prompts/workflow-generation';
 class LangGraphAgent {
   constructor(config = {}) {
     this.ollama = new OllamaClient(config.ollama || aiConfig.ollama);
-    this.langGraphService = new LangGraphService(config);
+    // 传递同一个 OllamaClient 实例给 LangGraphService
+    this.langGraphService = new LangGraphService(config, this.ollama);
 
     this.history = [];
     this.state = {

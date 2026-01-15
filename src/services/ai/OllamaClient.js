@@ -57,6 +57,7 @@ class OllamaClient {
     this.metrics.requests++;
 
     const fetchOptions = {
+      mode: 'cors', // 确保所有请求都启用 CORS
       ...options,
       headers: {
         'Content-Type': 'application/json',
@@ -171,6 +172,9 @@ class OllamaClient {
    * @returns {string} - 规范化后的 URL
    */
   normalizeUrl(url) {
+    // 移除末尾的斜杠
+    url = url.replace(/\/+$/, '');
+    
     // 如果 URL 已经是完整格式，直接返回
     if (url.startsWith('http://') || url.startsWith('https://')) {
       return url;
