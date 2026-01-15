@@ -7,13 +7,8 @@
       class="flex h-16 items-center justify-between border-b border-gray-200 px-6 dark:border-gray-700 dark:bg-gray-800"
     >
       <div class="flex items-center space-x-3">
-        <v-remixicon
-          name="riRobotLine"
-          class="text-accent"
-        />
-        <h1 class="text-lg font-bold">
-          AI 工作流助手
-        </h1>
+        <v-remixicon name="riRobotLine" class="text-accent" />
+        <h1 class="text-lg font-bold">AI 工作流助手</h1>
       </div>
       <div class="flex items-center space-x-2">
         <!-- Tab Selector for Analysis -->
@@ -22,44 +17,58 @@
             <ui-button variant="secondary" title="选择要分析的标签页">
               <v-remixicon name="riGlobalLine" class="mr-2" />
               <span class="max-w-[150px] truncate">
-                {{ state.selectedTab ? state.selectedTab.title : '选择目标网页' }}
+                {{
+                  state.selectedTab ? state.selectedTab.title : '选择目标网页'
+                }}
               </span>
             </ui-button>
           </template>
-          <div class="w-80 max-h-80 overflow-y-auto p-2 bg-white dark:bg-gray-800 shadow-lg rounded-lg border border-gray-200 dark:border-gray-700">
-             <div v-if="state.activeTabs.length === 0" class="text-sm text-gray-500 p-2 text-center">
-                暂无其他标签页
-             </div>
-             <button
-               v-for="tab in state.activeTabs"
-               :key="tab.id"
-               class="w-full text-left text-sm p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded mb-1 flex items-center"
-               @click="selectTab(tab)"
-             >
-               <img v-if="tab.favIconUrl" :src="tab.favIconUrl" class="w-4 h-4 mr-2" />
-               <div class="truncate flex-1">
-                 <div class="font-medium truncate">{{ tab.title }}</div>
-                 <div class="text-xs text-gray-400 truncate">{{ tab.url }}</div>
-               </div>
-             </button>
-             <div class="border-t dark:border-gray-700 mt-2 pt-2">
-                <button class="w-full text-xs text-center text-blue-500 hover:text-blue-600" @click="fetchActiveTabs">
-                  刷新列表
-                </button>
-             </div>
+          <div
+            class="w-80 max-h-80 overflow-y-auto p-2 bg-white dark:bg-gray-800 shadow-lg rounded-lg border border-gray-200 dark:border-gray-700"
+          >
+            <div
+              v-if="state.activeTabs.length === 0"
+              class="text-sm text-gray-500 p-2 text-center"
+            >
+              暂无其他标签页
+            </div>
+            <button
+              v-for="tab in state.activeTabs"
+              :key="tab.id"
+              class="w-full text-left text-sm p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded mb-1 flex items-center"
+              @click="selectTab(tab)"
+            >
+              <img
+                v-if="tab.favIconUrl"
+                :src="tab.favIconUrl"
+                class="w-4 h-4 mr-2"
+              />
+              <div class="truncate flex-1">
+                <div class="font-medium truncate">{{ tab.title }}</div>
+                <div class="text-xs text-gray-400 truncate">{{ tab.url }}</div>
+              </div>
+            </button>
+            <div class="border-t dark:border-gray-700 mt-2 pt-2">
+              <button
+                class="w-full text-xs text-center text-blue-500 hover:text-blue-600"
+                @click="fetchActiveTabs"
+              >
+                刷新列表
+              </button>
+            </div>
           </div>
         </ui-popover>
-        
-        <ui-button 
-            v-if="state.selectedTab" 
-            :loading="state.isAnalyzing"
-            variant="accent" 
-            title="分析页面结构"
-            class="mr-2"
-            @click="analyzePage"
+
+        <ui-button
+          v-if="state.selectedTab"
+          :loading="state.isAnalyzing"
+          variant="accent"
+          title="分析页面结构"
+          class="mr-2"
+          @click="analyzePage"
         >
-           <v-remixicon name="riMagicLine" class="mr-2" />
-           分析页面
+          <v-remixicon name="riMagicLine" class="mr-2" />
+          分析页面
         </ui-button>
 
         <div class="h-6 w-px bg-gray-300 dark:bg-gray-600 mx-2" />
@@ -71,20 +80,13 @@
           class="mr-1"
           @click="recordWorkflow"
         >
-          <v-remixicon
-            name="riRecordCircleLine"
-            class="text-red-500 mr-2"
-          />
+          <v-remixicon name="riRecordCircleLine" class="text-red-500 mr-2" />
           录制
         </ui-button>
 
         <div class="h-6 w-px bg-gray-300 dark:bg-gray-600 mx-2" />
 
-        <ui-button
-          variant="secondary"
-          title="导入工作流"
-          @click="importJSON"
-        >
+        <ui-button variant="secondary" title="导入工作流" @click="importJSON">
           <v-remixicon name="riUploadLine" />
         </ui-button>
         <ui-button
@@ -111,10 +113,7 @@
           class="mr-2"
           @click="state.showConfig = true"
         >
-          <v-remixicon
-            name="riSettings3Line"
-            class="mr-2"
-          />
+          <v-remixicon name="riSettings3Line" class="mr-2" />
           模型配置
           <span
             class="ml-2 inline-block h-2 w-2 rounded-full"
@@ -128,10 +127,7 @@
           title="立即运行测试"
           @click="runWorkflow"
         >
-          <v-remixicon
-            name="riPlayLine"
-            class="mr-2"
-          />
+          <v-remixicon name="riPlayLine" class="mr-2" />
           运行
         </ui-button>
         <ui-button
@@ -139,10 +135,7 @@
           variant="accent"
           @click="saveWorkflow"
         >
-          <v-remixicon
-            name="riSaveLine"
-            class="mr-2"
-          />
+          <v-remixicon name="riSaveLine" class="mr-2" />
           保存
         </ui-button>
       </div>
@@ -183,15 +176,10 @@
           </div>
 
           <!-- 加载状态 -->
-          <div
-            v-if="state.isGenerating"
-            class="flex items-start"
-          >
+          <div v-if="state.isGenerating" class="flex items-start">
             <div class="rounded-lg bg-gray-100 p-3 dark:bg-gray-800">
               <div class="flex items-center space-x-2">
-                <div
-                  class="h-2 w-2 animate-bounce rounded-full bg-gray-400"
-                />
+                <div class="h-2 w-2 animate-bounce rounded-full bg-gray-400" />
                 <div
                   class="h-2 w-2 animate-bounce rounded-full bg-gray-400 delay-75"
                 />
@@ -233,21 +221,12 @@
           v-if="!state.generatedWorkflow"
           class="flex h-full flex-col items-center justify-center text-gray-400"
         >
-          <v-remixicon
-            name="riFlowChart"
-            size="64"
-            class="mb-4 opacity-50"
-          />
+          <v-remixicon name="riFlowChart" size="64" class="mb-4 opacity-50" />
           <p>在左侧输入需求，AI 将为您生成工作流</p>
-          <p class="mt-2 text-sm">
-            或者点击“导入”加载现有工作流
-          </p>
+          <p class="mt-2 text-sm">或者点击“导入”加载现有工作流</p>
         </div>
 
-        <div
-          v-else
-          class="flex h-full flex-col"
-        >
+        <div v-else class="flex h-full flex-col">
           <!-- 工作流头部信息 -->
           <div
             class="border-b border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800"
@@ -273,11 +252,7 @@
                 :key="col.id"
                 class="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
               >
-                <v-remixicon
-                  name="riTableLine"
-                  size="12"
-                  class="mr-1"
-                />
+                <v-remixicon name="riTableLine" size="12" class="mr-1" />
                 {{ col.name }}
               </span>
             </div>
@@ -311,53 +286,48 @@
                   <!-- 正常显示模式 -->
                   <div v-if="state.editingNodeId !== node.id">
                     <div class="mb-1 flex items-center justify-between">
-                      <span class="font-semibold text-gray-900 dark:text-gray-100">
+                      <span
+                        class="font-semibold text-gray-900 dark:text-gray-100"
+                      >
                         {{ getBlockLabel(node.label) }}
                       </span>
-                      <div class="flex items-center space-x-1 opacity-0 transition-opacity group-hover:opacity-100">
+                      <div
+                        class="flex items-center space-x-1 opacity-0 transition-opacity group-hover:opacity-100"
+                      >
                         <!-- 操作按钮 -->
-                        <button 
+                        <button
                           v-if="node.label !== 'trigger' && index > 1"
-                          class="p-1 hover:text-accent" 
+                          class="p-1 hover:text-accent"
                           title="上移"
                           @click="moveNode(index, -1)"
                         >
-                          <v-remixicon
-                            name="riArrowUpLine"
-                            size="16"
-                          />
+                          <v-remixicon name="riArrowUpLine" size="16" />
                         </button>
-                        <button 
-                          v-if="node.label !== 'trigger' && index < sortedNodes.length - 1"
-                          class="p-1 hover:text-accent" 
+                        <button
+                          v-if="
+                            node.label !== 'trigger' &&
+                            index < sortedNodes.length - 1
+                          "
+                          class="p-1 hover:text-accent"
                           title="下移"
                           @click="moveNode(index, 1)"
                         >
-                          <v-remixicon
-                            name="riArrowDownLine"
-                            size="16"
-                          />
+                          <v-remixicon name="riArrowDownLine" size="16" />
                         </button>
-                        <button 
-                          class="p-1 hover:text-accent" 
+                        <button
+                          class="p-1 hover:text-accent"
                           title="编辑"
                           @click="startEditNode(node)"
                         >
-                          <v-remixicon
-                            name="riPencilLine"
-                            size="16"
-                          />
+                          <v-remixicon name="riPencilLine" size="16" />
                         </button>
-                        <button 
+                        <button
                           v-if="node.label !== 'trigger'"
-                          class="p-1 hover:text-red-500" 
+                          class="p-1 hover:text-red-500"
                           title="删除"
                           @click="deleteNode(index)"
                         >
-                          <v-remixicon
-                            name="riDeleteBinLine"
-                            size="16"
-                          />
+                          <v-remixicon name="riDeleteBinLine" size="16" />
                         </button>
                       </div>
                     </div>
@@ -376,54 +346,63 @@
                           size="12"
                           class="mr-1"
                         />
-                        <span class="font-mono bg-gray-100 dark:bg-gray-700 px-1 rounded truncate max-w-md">{{ node.data.selector }}</span>
+                        <span
+                          class="font-mono bg-gray-100 dark:bg-gray-700 px-1 rounded truncate max-w-md"
+                          >{{ node.data.selector }}</span
+                        >
                       </div>
-                      <div
-                        v-if="node.data.url"
-                        class="flex items-center mt-1"
-                      >
-                        <v-remixicon
-                          name="riLinkM"
-                          size="12"
-                          class="mr-1"
-                        />
-                        <span class="truncate max-w-md">{{ node.data.url }}</span>
+                      <div v-if="node.data.url" class="flex items-center mt-1">
+                        <v-remixicon name="riLinkM" size="12" class="mr-1" />
+                        <span class="truncate max-w-md">{{
+                          node.data.url
+                        }}</span>
                       </div>
                     </div>
                   </div>
 
                   <!-- 编辑模式 -->
-                  <div
-                    v-else
-                    class="space-y-3"
-                  >
-                    <div class="flex items-center justify-between border-b pb-2 dark:border-gray-700">
+                  <div v-else class="space-y-3">
+                    <div
+                      class="flex items-center justify-between border-b pb-2 dark:border-gray-700"
+                    >
                       <span class="font-semibold">编辑步骤</span>
                     </div>
                     <!-- 根据不同类型显示不同输入框 -->
                     <div v-if="state.editData.url !== undefined">
-                      <label class="block text-xs font-medium text-gray-500 mb-1">URL</label>
+                      <label
+                        class="block text-xs font-medium text-gray-500 mb-1"
+                        >URL</label
+                      >
                       <ui-input
                         v-model="state.editData.url"
                         class="w-full text-sm"
                       />
                     </div>
                     <div v-if="state.editData.selector !== undefined">
-                      <label class="block text-xs font-medium text-gray-500 mb-1">CSS 选择器</label>
+                      <label
+                        class="block text-xs font-medium text-gray-500 mb-1"
+                        >CSS 选择器</label
+                      >
                       <ui-input
                         v-model="state.editData.selector"
                         class="w-full text-sm"
                       />
                     </div>
                     <div v-if="state.editData.value !== undefined">
-                      <label class="block text-xs font-medium text-gray-500 mb-1">值</label>
+                      <label
+                        class="block text-xs font-medium text-gray-500 mb-1"
+                        >值</label
+                      >
                       <ui-input
                         v-model="state.editData.value"
                         class="w-full text-sm"
                       />
                     </div>
                     <div v-if="state.editData.description !== undefined">
-                      <label class="block text-xs font-medium text-gray-500 mb-1">描述</label>
+                      <label
+                        class="block text-xs font-medium text-gray-500 mb-1"
+                        >描述</label
+                      >
                       <ui-textarea
                         v-model="state.editData.description"
                         rows="2"
@@ -433,17 +412,8 @@
                   </div>
 
                   <div class="flex justify-end space-x-2 pt-2">
-                    <ui-button
-                      size="sm"
-                      @click="cancelEdit"
-                    >
-                      取消
-                    </ui-button>
-                    <ui-button
-                      size="sm"
-                      variant="accent"
-                      @click="saveEditNode"
-                    >
+                    <ui-button size="sm" @click="cancelEdit"> 取消 </ui-button>
+                    <ui-button size="sm" variant="accent" @click="saveEditNode">
                       保存
                     </ui-button>
                   </div>
@@ -457,10 +427,7 @@
   </div>
 
   <!-- 配置弹窗 -->
-  <ui-modal
-    v-model="state.showConfig"
-    title="Ollama 模型配置"
-  >
+  <ui-modal v-model="state.showConfig" title="Ollama 模型配置">
     <div class="space-y-4">
       <div>
         <label class="mb-1 block text-sm font-medium">服务地址</label>
@@ -471,10 +438,7 @@
       </div>
       <div>
         <label class="mb-1 block text-sm font-medium">模型选择</label>
-        <ui-select
-          v-model="state.ollamaConfig.model"
-          class="w-full"
-        >
+        <ui-select v-model="state.ollamaConfig.model" class="w-full">
           <option
             v-for="model in state.availableModels"
             :key="model.name"
@@ -487,15 +451,15 @@
       <div class="flex justify-between items-center pt-2">
         <span
           class="text-sm"
-          :class="state.ollamaStatus === 'connected' ? 'text-green-600' : 'text-red-500'"
+          :class="
+            state.ollamaStatus === 'connected'
+              ? 'text-green-600'
+              : 'text-red-500'
+          "
         >
           {{ state.ollamaStatus === 'connected' ? '已连接' : '未连接' }}
         </span>
-        <ui-button
-          size="sm"
-          variant="secondary"
-          @click="checkOllamaStatus"
-        >
+        <ui-button size="sm" variant="secondary" @click="checkOllamaStatus">
           检查连接
         </ui-button>
       </div>
@@ -504,7 +468,7 @@
 </template>
 
 <script setup>
-import { reactive, onMounted, ref, computed, nextTick } from 'vue';
+import { reactive, onMounted, onUnmounted, ref, computed, nextTick } from 'vue';
 import { useRouter } from 'vue-router';
 import { useToast } from 'vue-toastification';
 import { useWorkflowStore } from '@/stores/workflow';
@@ -519,6 +483,9 @@ const router = useRouter();
 const toast = useToast();
 const workflowStore = useWorkflowStore();
 const chatContainer = ref(null);
+
+let tabsUpdatedListener = null;
+let tabsActivatedListener = null;
 
 const agent = new LangGraphAgent();
 
@@ -592,6 +559,32 @@ async function fetchActiveTabs() {
   }
 }
 
+function setupTabsListener() {
+  try {
+    tabsUpdatedListener = (tabId, changeInfo, tab) => {
+      fetchActiveTabs();
+    };
+    tabsActivatedListener = (activeInfo) => {
+      fetchActiveTabs();
+    };
+    browser.tabs.onUpdated.addListener(tabsUpdatedListener);
+    browser.tabs.onActivated.addListener(tabsActivatedListener);
+  } catch (e) {
+    console.error('Failed to setup tabs listener', e);
+  }
+}
+
+function cleanupTabsListener() {
+  if (tabsUpdatedListener) {
+    browser.tabs.onUpdated.removeListener(tabsUpdatedListener);
+    tabsUpdatedListener = null;
+  }
+  if (tabsActivatedListener) {
+    browser.tabs.onActivated.removeListener(tabsActivatedListener);
+    tabsActivatedListener = null;
+  }
+}
+
 function selectTab(tab) {
   state.selectedTab = tab;
 }
@@ -614,7 +607,7 @@ async function analyzePage() {
         role: 'system',
         content: `✅ 已成功分析页面: "${state.selectedTab.title}"\n已获取页面结构上下文。请在下方描述您的抓取需求（例如："抓取所有商品及其价格"）。`,
       });
-      
+
       scrollToBottom();
       toast.success('页面分析完成');
     }
@@ -879,6 +872,11 @@ onMounted(async () => {
   await agent.initialize();
   await checkOllamaStatus();
   await fetchActiveTabs();
+  setupTabsListener();
+});
+
+onUnmounted(() => {
+  cleanupTabsListener();
 });
 </script>
 
