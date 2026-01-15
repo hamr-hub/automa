@@ -43,8 +43,6 @@ class="mr-2 -ml-1" />
 <script setup>
 import {
   computed,
-  defineEmits,
-  defineProps,
   onMounted,
   ref,
   shallowRef,
