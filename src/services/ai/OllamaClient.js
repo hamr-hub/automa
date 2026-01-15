@@ -316,7 +316,7 @@ class OllamaClient {
         url,
         {
           method: 'POST',
-          body: requestBody,
+          body: JSON.stringify(requestBody), // 修复: 序列化为 JSON 字符串
           signal: controller.signal,
         },
         'json'

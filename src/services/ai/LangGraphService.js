@@ -340,7 +340,7 @@ class LangGraphService {
   }
 
   /**
-   * Execute the graph
+   * Execute the workflow generation graph
    */
   async run(userInput, targetUrl = '', history = [], pageContext = '') {
     // Prepend System Prompt to history if needed
@@ -367,6 +367,73 @@ class LangGraphService {
     }
 
     return result.workflow;
+  }
+
+  /**
+   * 简单聊天调用 (不需要工作流生成、验证等复杂流程)
+   * 适用于 AI Block、一次性查询等场景
+   * 
+   * @param {Array} messages - 消息数组 [{role: 'user'|'assistant'|'system', content: '...'}]
+   * @param {Object} options - 可选配置
+   * @returns {Promise<Object>} AI 响应
+   */
+  async simpleChat(messages, options = {}) {
+    try {
+      const response = await this.ollama.chat(messages, options);
+      return response;
+    } catch (error) {
+      console.error('[LangGraphService] Simple Chat Error:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * 简单生成调用 (不需要工作流生成、验证等复杂流程)
+   * 
+   * @param {string} prompt - 提示词
+   * @param {Object} options - 可选配置
+   * @returns {Promise<Object>} AI 响应
+   */
+  async simpleGenerate(prompt, options = {}) {
+    try {
+      const response = await this.ollama.generate(prompt, options);
+      return response;
+    } catch (error) {
+      console.error('[LangGraphService] Simple Generate Error:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * 流式聊天调用
+   * 
+   * @param {Array} messages - 消息数组
+   * @param {Function} onChunk - 接收文本块的回调
+   * @param {Object} options - 可选配置
+   */
+  async simpleChatStream(messages, onChunk, options = {}) {
+    try {
+      return await this.ollama.chatStream(messages, onChunk, options);
+    } catch (error) {
+      console.error('[LangGraphService] Simple Chat Stream Error:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * 流式生成调用
+   * 
+   * @param {string} prompt - 提示词
+   * @param {Function} onChunk - 接收文本块的回调
+   * @param {Object} options - 可选配置
+   */
+  async simpleGenerateStream(prompt, onChunk, options = {}) {
+    try {
+      return await this.ollama.generateStream(prompt, onChunk, options);
+    } catch (error) {
+      console.error('[LangGraphService] Simple Generate Stream Error:', error);
+      throw error;
+    }
   }
 }
 

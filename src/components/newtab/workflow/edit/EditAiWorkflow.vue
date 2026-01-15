@@ -257,7 +257,7 @@ import {
   getAPWorkflowDetail,
   postUploadFile,
 } from '@/utils/getAIPoweredInfo';
-import OllamaClient from '@/services/ai/OllamaClient';
+import aiService from '@/services/ai/AIService';
 import cloneDeep from 'lodash.clonedeep';
 import secrets from 'secrets';
 import {
@@ -445,8 +445,8 @@ const fetchOllamaModels = async () => {
   const host = props.data.ollamaHost || 'http://localhost:11434';
   isFetchingModels.value = true;
   try {
-    const client = new OllamaClient({ baseUrl: host });
-    const models = await client.listModels();
+    // 通过 AIService.listModels() 调用,统一经过 LangGraphService
+    const models = await aiService.listModels();
     ollamaModels.value = models.map((m) => ({ name: m.name }));
 
     // Auto select first model if none selected

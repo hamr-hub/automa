@@ -1,6 +1,6 @@
 import { postRunAPWorkflow } from '@/utils/getAIPoweredInfo';
 import renderString from '../templating/renderString';
-import OllamaClient from '@/services/ai/OllamaClient';
+import aiService from '@/services/ai/AIService';
 
 async function aiWorkflow(block, { refData }) {
   const {
@@ -78,10 +78,7 @@ async function aiWorkflow(block, { refData }) {
     }
   }
 
-  // Ollama Logic
-  const host = ollamaHost || 'http://localhost:11434';
-  const client = new OllamaClient({ baseUrl: host });
-
+  // Ollama Logic - 通过 AIService 调用 (统一经过 LangGraphService)
   // Render Prompts
   const renderedPrompt = await renderString(
     prompt || '',
@@ -104,8 +101,9 @@ async function aiWorkflow(block, { refData }) {
     }
     messages.push({ role: 'user', content: renderedPrompt.value });
 
-    const response = await client.chat(messages, {
-      model: model,
+    // 通过 AIService.chat 调用,统一经过 LangGraphService
+    const response = await aiService.chat(messages, {
+      model: model || 'mistral',
       temperature: parseFloat(temperature) || 0.7,
     });
 
