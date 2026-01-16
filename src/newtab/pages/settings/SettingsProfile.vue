@@ -186,6 +186,7 @@ import UiInput from '@/components/ui/UiInput.vue';
 import UiModal from '@/components/ui/UiModal.vue';
 import PasswordStrength from '@/components/auth/PasswordStrength.vue';
 import MfaSetup from '@/components/auth/MfaSetup.vue';
+import PasskeySetup from '@/components/auth/PasskeySetup.vue';
 
 const { t } = useI18n();
 const user = ref(null);
@@ -197,6 +198,7 @@ const passwordForm = ref({ password: '' });
 const passwordLoading = ref(false);
 
 const showMfaModal = ref(false);
+const showPasskeyModal = ref(false);
 
 onMounted(async () => {
   user.value = await supabaseClient.getCurrentUser();
@@ -235,6 +237,12 @@ function handleMfaComplete() {
   showMfaModal.value = false;
   hasMfa.value = true;
   window.alert(t('auth.mfaEnabled', '两步验证已开启'));
+  loadLogs();
+}
+
+function handlePasskeyComplete() {
+  showPasskeyModal.value = false;
+  window.alert(t('auth.passkeyManaged', 'Passkey 设置已更新'));
   loadLogs();
 }
 
