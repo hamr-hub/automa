@@ -55,7 +55,6 @@ const menus = [
   { id: 'profile', path: '/profile', icon: 'riUserLine' },
   { id: 'general', path: '/settings', icon: 'riSettings3Line' },
   { id: 'backup', path: '/backup', icon: 'riDatabase2Line' },
-  { id: 'driveMigration', path: '/drive-migration', icon: 'riGoogleFill' },
   { id: 'editor', path: '/editor', icon: 'riMindMap' },
   { id: 'shortcuts', path: '/shortcuts', icon: 'riKeyboardLine' },
   { id: 'about', path: '/about', icon: 'riInformationLine' },

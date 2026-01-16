@@ -398,15 +398,15 @@
         "insertAllGlobalData": "Utilizar todo el flujo de trabajo actual globalData"
       },
       "google-sheets-drive": {
-        "name": "@:workflow.blocks.google-sheets.name (GDrive)",
+        "name": "@:workflow.blocks.google-sheets.name (Cloud Storage)",
         "description": "@:workflow.blocks.google-sheets.description",
         "connected": "Connected sheets",
         "select": "Seleccionar hoja",
         "connect": "Conectar hoja"
       },
       "google-drive": {
-        "name": "Google Drive",
-        "description": "Cargar archivos en Google Drive",
+        "name": "Cloud Storage (Supabase)",
+        "description": "Cargar archivos en Cloud Storage (Supabase)",
         "actions": {
           "upload": "Cargar archivos"
         }

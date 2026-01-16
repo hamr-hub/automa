@@ -402,15 +402,15 @@
     "insertAllGlobalData": "Usar todos os dados globais atuais do workflow"
       },
       "google-sheets-drive": {
-    "name": "@:workflow.blocks.google-sheets.name (GDrive)",
+    "name": "@:workflow.blocks.google-sheets.name (Cloud Storage)",
     "description": "@:workflow.blocks.google-sheets.description",
     "connected": "Planilhas conectadas",
     "select": "Selecionar planilha",
     "connect": "Conectar planilha"
   },
   "google-drive": {
-    "name": "Google Drive",
-    "description": "Enviar arquivos para o Google Drive",
+    "name": "Armazenamento em Nuvem (Supabase)",
+    "description": "Enviar arquivos para o Armazenamento em Nuvem (Supabase)",
     "actions": {
       "upload": "Enviar arquivos"
     }

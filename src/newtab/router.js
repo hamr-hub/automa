@@ -113,7 +113,6 @@ const routes = [
       { path: '', component: SettingsIndex },
       { path: '/about', component: SettingsAbout },
       { path: '/backup', component: SettingsBackup },
-      { path: '/drive-migration', component: SettingsDriveMigration },
       { path: '/editor', component: SettingsEditor },
       { path: '/profile', component: SettingsProfile },
       { path: '/shortcuts', component: SettingsShortcuts },

@@ -398,15 +398,15 @@
         "insertAllGlobalData": "Tüm mevcut iş akışı genel verilerini kullan"
       },
       "google-sheets-drive": {
-        "name": "@:workflow.blocks.google-sheets.name (GDrive)",
+        "name": "@:workflow.blocks.google-sheets.name (Cloud Storage)",
         "description": "@:workflow.blocks.google-sheets.description",
         "connected": "Bağlı tablolar",
         "select": "Tabloyu seç",
         "connect": "Tabloyu bağla"
       },
       "google-drive": {
-        "name": "Google Drive",
-        "description": "Dosyaları Google Drive'a yükle",
+        "name": "Bulut Depolama (Supabase)",
+        "description": "Dosyaları Bulut Depolama'ya (Supabase) yükle",
         "actions": {
           "upload": "Dosyaları yükle"
         }

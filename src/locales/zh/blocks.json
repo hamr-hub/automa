@@ -402,17 +402,22 @@
         "insertAllGlobalData": "插入当前工作流的 GlobalData"
       },
       "google-sheets-drive": {
-        "name": "@:workflow.blocks.google-sheets.name (GDrive)",
+        "name": "@:workflow.blocks.google-sheets.name",
         "description": "@:workflow.blocks.google-sheets.description",
         "connected": "已连接工作簿",
         "select": "选择工作簿",
         "connect": "连接工作簿"
       },
       "google-drive": {
-        "name": "Google Drive",
-        "description": "上传文件到 Google Drive",
+        "name": "云存储 (Supabase)",
+        "description": "在 Supabase Storage 中管理文件",
         "actions": {
-          "upload": "上传文件"
+          "upload": "上传文件",
+          "download": "下载文件",
+          "delete": "删除文件",
+          "list": "列出文件",
+          "move": "移动文件",
+          "copy": "复制文件"
         }
       },
       "google-sheets": {

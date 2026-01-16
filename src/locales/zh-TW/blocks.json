@@ -398,15 +398,15 @@
         "insertAllGlobalData": "使用所有目前工作流程的全域資料"
       },
       "google-sheets-drive": {
-        "name": "@:workflow.blocks.google-sheets.name (GDrive)",
+        "name": "@:workflow.blocks.google-sheets.name (雲端儲存)",
         "description": "@:workflow.blocks.google-sheets.description",
         "connected": "已連接的表格",
         "select": "選擇表格",
         "connect": "連接表格"
       },
       "google-drive": {
-        "name": "Google Drive",
-        "description": "將檔案上傳至 Google Drive",
+        "name": "雲端儲存 (Supabase)",
+        "description": "將檔案上傳至雲端儲存 (Supabase)",
         "actions": {
           "upload": "上傳檔案"
         }

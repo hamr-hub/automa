@@ -406,7 +406,7 @@
         "insertAllGlobalData": "Use all current workflow globalData"
       },
       "google-sheets-drive": {
-        "name": "@:workflow.blocks.google-sheets.name (GDrive)",
+        "name": "@:workflow.blocks.google-sheets.name",
         "description": "@:workflow.blocks.google-sheets.description",
         "connected": "Connected sheets",
         "select": "Select sheet",

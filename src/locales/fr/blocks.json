@@ -385,15 +385,15 @@
         "useCommas": "Utiliser des virgules pour séparer les noms de variable"
       },
       "google-sheets-drive": {
-        "name": "@:workflow.blocks.google-sheets.name (GDrive)",
+        "name": "@:workflow.blocks.google-sheets.name (Stockage Cloud)",
         "description": "@:workflow.blocks.google-sheets.description",
         "connected": "Feuilles de calcul connectées",
         "select": "Choisir une feuille de calcul",
         "connect": "Connecter une feuille de calcul"
       },
       "google-drive": {
-        "name": "Google Drive",
-        "description": "Téléverser des fichiers vers Google Drive",
+        "name": "Stockage Cloud (Supabase)",
+        "description": "Téléverser des fichiers vers le stockage Cloud (Supabase)",
         "actions": {
           "upload": "Téléverser des fichiers"
         }
