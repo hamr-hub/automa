@@ -309,10 +309,17 @@ size="20" />
       @add="saveBlockToFolder"
     />
   </ui-modal>
+  
+  <AIChatFloating 
+    v-if="workflow" 
+    :workflow="workflow" 
+    @update-workflow="onAIWorkflowUpdate" 
+  />
 </template>
 <script setup>
 import PackageDetails from '@/components/newtab/package/PackageDetails.vue';
 import PackageSettings from '@/components/newtab/package/PackageSettings.vue';
+import AIChatFloating from '@/components/newtab/workflow/AIChatFloating.vue';
 import SharedPermissionsModal from '@/components/newtab/shared/SharedPermissionsModal.vue';
 import EditorAddPackage from '@/components/newtab/workflow/editor/EditorAddPackage.vue';
 import EditorDebugging from '@/components/newtab/workflow/editor/EditorDebugging.vue';
@@ -1574,6 +1581,31 @@ function checkWorkflowUpdate() {
     .catch((error) => {
       console.error(error);
     });
+}
+
+function onAIWorkflowUpdate(newWorkflow) {
+  if (newWorkflow && newWorkflow.drawflow) {
+    // 确保数据结构正确
+    const updateData = {
+      drawflow: newWorkflow.drawflow,
+      // 如果 AI 修改了名称或描述，也更新
+      name: newWorkflow.name || workflow.value.name,
+      description: newWorkflow.description || workflow.value.description,
+      table: newWorkflow.table || workflow.value.table,
+    };
+
+    updateWorkflow(updateData).then(() => {
+      // 更新编辑器视图
+      if (editor.value) {
+        editor.value.setNodes(newWorkflow.drawflow.nodes || []);
+        editor.value.setEdges(newWorkflow.drawflow.edges || []);
+        // 自动对齐一下可能更好
+        // autoAlign(); 
+        editor.value.fitView();
+      }
+      toast.success('工作流已由 AI 更新');
+    });
+  }
 }
 
 function onBeforeLeave() {

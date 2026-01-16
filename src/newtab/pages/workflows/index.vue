@@ -16,10 +16,16 @@
           </ui-button>
           <ui-popover>
             <template #trigger>
-              <ui-button icon
-class="rounded-l-none" variant="accent">
-                <v-remixicon name="riArrowLeftSLine"
-rotate="-90" />
+              <ui-button
+                v-tooltip="t('common.options')"
+                icon
+                class="rounded-l-none"
+                variant="accent"
+              >
+                <v-remixicon
+                  name="riArrowLeftSLine"
+                  rotate="-90"
+                />
               </ui-button>
             </template>
             <ui-list class="space-y-1">
@@ -214,6 +220,7 @@ class="mr-2 -ml-1" />
             </span>
             <div class="workflow-sort flex flex-1 items-center">
               <ui-button
+                v-tooltip="t('sort.sortBy')"
                 icon
                 class="rounded-r-none border-r border-gray-300 dark:border-gray-700"
                 @click="

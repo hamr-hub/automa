@@ -129,6 +129,7 @@ class LangGraphService {
       workflow: null,
       error: null,
       retryCount: 0,
+      currentWorkflow: null,
     };
   }
 
@@ -147,6 +148,7 @@ class LangGraphService {
         error: { value: (x, y) => y, default: () => null },
         retryCount: { value: (x, y) => y, default: () => 0 },
         onProgress: { value: (x, y) => x, default: () => null }, // Keep original callback
+        currentWorkflow: { value: (x, y) => x, default: () => null }, // Immutable context
       },
     });
 
@@ -191,75 +193,6 @@ class LangGraphService {
    */
   async inputProcessingNode(state) {
     console.log('[LangGraph] Processing Input:', state.userInput);
-
-    // Ensure System Prompt is present at the beginning
-    // We clone the messages to avoid mutating the state directly if it were a reference
-    // (though LangGraph usually handles state updates via return)
-    
-    // Check if system prompt is already the first message
-    if (state.messages.length === 0 || state.messages[0].role !== 'system') {
-       const systemPrompt = workflowGenerationPrompt.system;
-       
-       // If messages is empty (which shouldn't happen given LangGraphAgent pushes user input),
-       // we just return the system prompt.
-       // If messages has content (User input), we prepend System prompt.
-       
-       return {
-         messages: [
-           { role: 'system', content: systemPrompt },
-           // ...state.messages // LangGraph merges returned messages with existing state based on channel config
-           // However, for 'messages' channel, the config is `(x, y) => x.concat(y)`.
-           // So if we return `[{role: 'system'}]`, it will be APPENDED to `state.messages`.
-           // This is NOT what we want. We want to PREPEND.
-           
-           // If the channel is `x.concat(y)`, we cannot prepend easily by just returning.
-           // We might need to OVERWRITE the messages if possible, or assume LangGraphAgent handles history.
-           
-           // WAIT. LangGraph `messages` reducer is `x.concat(y)`.
-           // If `state.messages` already has [User], and we return [System], it becomes [User, System].
-           // This is bad.
-           
-           // We should fix this by defining the reducer differently or resetting messages?
-           // OR, LangGraphAgent should ensure System Prompt is in history?
-           
-           // Actually, `LangGraphAgent` clears history on `clearHistory`.
-           // If `history` is empty, `LangGraphAgent` creates new history.
-           
-           // Solution: Let's handle the message construction properly here by returning the FULL correct sequence if it's the first turn.
-           // But `state.messages` is already populated from `history` passed to `run`.
-           
-           // If `state.messages` comes from `initialState.messages`, it is what we passed.
-           // We can't "replace" it easily with `concat` reducer.
-           
-           // WORKAROUND:
-           // If we can't change the reducer, we should ensure `LangGraphAgent` passes the System Prompt in the history!
-           // But `LangGraphAgent` doesn't know about `LangGraphService`'s internal prompts.
-           
-           // Let's modify `LangGraphAgent.js` to NOT push to history before run, 
-           // but let `LangGraphService` construct the full history?
-           // No, `LangGraphAgent` manages history.
-           
-           // Let's try to just return the system prompt and hope the LLM handles [User, System] order? 
-           // No, System must be first.
-           
-           // Hack: Since I can't easily change the reducer behavior without breaking other things,
-           // I will change `buildGraph` to use a REPLACER for messages if I want to overwrite?
-           // No.
-           
-           // The best place to fix this is where `history` is passed to `run`.
-           // In `LangGraphAgent.js`, we can prepend System Prompt if history is empty?
-           // But `LangGraphService` owns the prompt.
-           
-           // Let's rely on `LangGraphAgent` passing the messages.
-           // I will modify `LangGraphAgent.js` to Prepend System Prompt if it's not there.
-           // But `LangGraphAgent` doesn't import prompt. I just added import there!
-           
-           // So in `LangGraphAgent.js`, I can ensure history[0] is system prompt.
-         ]
-       };
-    }
-    
-    // If I move the logic to LangGraphAgent, I don't need to do anything here except logging.
     return {};
   }
 
@@ -391,10 +324,25 @@ class LangGraphService {
   /**
    * Execute the workflow generation graph
    */
-  async run(userInput, targetUrl = '', history = [], pageContext = '', abortSignal = null, onProgress = null) {
+  async run(userInput, targetUrl = '', history = [], pageContext = '', abortSignal = null, onProgress = null, currentWorkflow = null) {
     // Prepend System Prompt to history if needed
     if (history.length === 0 || history[0].role !== 'system') {
         history.unshift({ role: 'system', content: workflowGenerationPrompt.system });
+    }
+
+    // Inject/Update Current Workflow Context
+    if (currentWorkflow) {
+        const workflowJson = JSON.stringify(currentWorkflow);
+        const contextContent = `Current Workflow Context (JSON):\n\`\`\`json\n${workflowJson}\n\`\`\`\n\nTask: Modify this workflow based on the user's latest request. Return the COMPLETE updated workflow JSON.`;
+        
+        const contextIndex = history.findIndex(m => m.role === 'system' && m.content.startsWith('Current Workflow Context'));
+        
+        if (contextIndex !== -1) {
+            history[contextIndex].content = contextContent;
+        } else {
+            // Insert after system prompt (index 1)
+            history.splice(1, 0, { role: 'system', content: contextContent });
+        }
     }
 
     const initialState = {
@@ -405,6 +353,7 @@ class LangGraphService {
       messages: history.length > 0 ? history : [],
       abortSignal,
       onProgress, // Pass callback to state
+      currentWorkflow, // Pass current workflow
     };
 
     const result = await this.graph.invoke(initialState);

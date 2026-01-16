@@ -168,12 +168,6 @@ const tabs = [
     shortcut: getShortcut('page:workflows', '/workflows'),
   },
   {
-    id: 'ai-generator',
-    icon: 'riRobotLine',
-    path: '/ai-workflow-generator',
-    shortcut: '',
-  },
-  {
     id: 'packages',
     icon: 'mdiPackageVariantClosed',
     path: '/packages',

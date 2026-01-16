@@ -131,7 +131,7 @@ class LangGraphAgent {
    * @param {(progress: {step: string, message: string}) => void} onProgress 进度回调
    * @param {string} pageContext 页面上下文 (可选, JSON string)
    */
-  async chat(userInput, targetUrl = '', onProgress, pageContext = null) {
+  async chat(userInput, targetUrl = '', onProgress, pageContext = null, currentWorkflow = null) {
     try {
       this.state.status = 'generating';
       this.state.error = null;
@@ -175,7 +175,8 @@ class LangGraphAgent {
         this.history,
         pageContext,
         this.abortController.signal,
-        onProgress
+        onProgress,
+        currentWorkflow
       );
 
       this.abortController = null;

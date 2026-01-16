@@ -16,8 +16,12 @@
           <hr >
           <ui-popover>
             <template #trigger>
-              <ui-button icon
-variant="accent" class="rounded-l-none">
+              <ui-button
+                v-tooltip="t('common.options')"
+                icon
+                variant="accent"
+                class="rounded-l-none"
+              >
                 <v-remixicon name="riArrowDropDownLine" />
               </ui-button>
             </template>
@@ -67,6 +71,7 @@ class="mr-2 -ml-1" />
           <div class="grow" />
           <div class="workflow-sort mt-4 flex items-center lg:mt-0">
             <ui-button
+              v-tooltip="t('sort.sortBy')"
               icon
               class="rounded-r-none border-r border-gray-300 dark:border-gray-700"
               @click="
@@ -110,6 +115,7 @@ class="bg-box-transparent rounded-lg p-2">
               <ui-popover>
                 <template #trigger>
                   <v-remixicon
+                    v-tooltip="t('common.options')"
                     name="riMoreLine"
                     class="cursor-pointer text-gray-600 dark:text-gray-200"
                   />

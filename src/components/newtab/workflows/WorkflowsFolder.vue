@@ -47,6 +47,7 @@ class="mr-2" />
         <ui-popover class="leading-none">
           <template #trigger>
             <v-remixicon
+              v-tooltip="t('common.options')"
               name="riMoreLine"
               class="invisible cursor-pointer group-hover:visible"
             />
