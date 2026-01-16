@@ -10,6 +10,9 @@ const handlers = blocksHandler.keys().reduce((acc, key) => {
   return acc;
 }, {});
 
+// Alias for legacy Google Drive block
+handlers.googleDrive = handlers.supabaseStorage;
+
 export default function () {
   return {
     ...handlers,

@@ -16,7 +16,7 @@ function getFilename(url) {
   }
 }
 
-export async function googleDrive({ id, data }, { refData }) {
+export async function supabaseStorage({ id, data }, { refData }) {
   const bucket = data.bucket || 'automa_files';
   const action = data.action || 'upload';
 
@@ -83,4 +83,4 @@ export async function googleDrive({ id, data }, { refData }) {
   };
 }
 
-export default googleDrive;
+export default supabaseStorage;

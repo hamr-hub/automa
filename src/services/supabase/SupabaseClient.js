@@ -1207,7 +1207,7 @@ class SupabaseClient {
 
     if (error) throw error;
     if (data.user) {
-      await this.createUserActivityLog('register', { email });
+        await this.createUserActivityLog('register', { email });
     }
     return data;
   }
@@ -1226,12 +1226,9 @@ class SupabaseClient {
    * @param {string} email
    */
   async resetPasswordForEmail(email) {
-    const { data, error } = await this.client.auth.resetPasswordForEmail(
-      email,
-      {
-        redirectTo: `${window.location.origin}/#/settings/profile?reset=true`,
-      }
-    );
+    const { data, error } = await this.client.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/#/settings/profile?reset=true`,
+    });
     if (error) throw error;
     return data;
   }
@@ -1243,9 +1240,7 @@ class SupabaseClient {
   async updateUser(attributes) {
     const { data, error } = await this.client.auth.updateUser(attributes);
     if (error) throw error;
-    await this.createUserActivityLog('update_profile', {
-      attributes: Object.keys(attributes),
-    });
+    await this.createUserActivityLog('update_profile', { attributes: Object.keys(attributes) });
     return data;
   }
 
@@ -1271,10 +1266,9 @@ class SupabaseClient {
    */
   async verifyAndEnableMFA(factorId, code) {
     // 1. Create challenge
-    const { data: challengeData, error: challengeError } =
-      await this.client.auth.mfa.challenge({
-        factorId,
-      });
+    const { data: challengeData, error: challengeError } = await this.client.auth.mfa.challenge({
+        factorId
+    });
     if (challengeError) throw challengeError;
 
     // 2. Verify
@@ -1284,7 +1278,7 @@ class SupabaseClient {
       code,
     });
     if (error) throw error;
-
+    
     await this.createUserActivityLog('enable_mfa');
     return data;
   }
@@ -1304,19 +1298,18 @@ class SupabaseClient {
    * 获取已注册的 MFA 因子
    */
   async listMFAFactors() {
-    const { data, error } = await this.client.auth.mfa.listFactors();
-    if (error) throw error;
-    return data.all;
+     const { data, error } = await this.client.auth.mfa.listFactors();
+     if (error) throw error;
+     return data.all;
   }
-
+  
   /**
    * 获取当前 MFA 状态 (等级)
    */
   async getMFAAssuranceLevel() {
-    const { data, error } =
-      await this.client.auth.mfa.getAuthenticatorAssuranceLevel();
-    if (error) throw error;
-    return data;
+      const { data, error } = await this.client.auth.mfa.getAuthenticatorAssuranceLevel();
+      if (error) throw error;
+      return data;
   }
 
   // ============================================
@@ -1331,24 +1324,23 @@ class SupabaseClient {
   async createUserActivityLog(action, details = {}) {
     if (!this.client) return;
     try {
-      const user = await this.getCurrentUser();
-      if (!user) return; // 匿名操作暂不记录
+        const user = await this.getCurrentUser();
+        if (!user) return; // 匿名操作暂不记录
 
-      // 尝试写入 user_activity_logs 表，如果表不存在可能会报错，所以加 try-catch
-      await this.client.from('user_activity_logs').insert([
-        {
-          user_id: user.id,
-          action,
-          details,
-          ip_address: '0.0.0.0', // 前端无法直接获取真实 IP，通常由后端或 Edge Function 处理
-          user_agent: navigator.userAgent,
-        },
-      ]);
+        // 尝试写入 user_activity_logs 表，如果表不存在可能会报错，所以加 try-catch
+        await this.client.from('user_activity_logs').insert([{
+            user_id: user.id,
+            action,
+            details,
+            ip_address: '0.0.0.0', // 前端无法直接获取真实 IP，通常由后端或 Edge Function 处理
+            user_agent: navigator.userAgent
+        }]);
     } catch (e) {
-      // 忽略日志写入错误，以免影响主流程
-      console.warn('Failed to log user activity:', e);
+        // 忽略日志写入错误，以免影响主流程
+        console.warn('Failed to log user activity:', e);
     }
   }
+
 
   /**
    * 获取用户行为日志
@@ -1356,23 +1348,23 @@ class SupabaseClient {
    */
   async getUserActivityLogs(limit = 20) {
     if (!this.client) return [];
-
+    
     try {
-      const user = await this.getCurrentUser();
-      if (!user) return [];
+        const user = await this.getCurrentUser();
+        if (!user) return [];
 
-      const { data, error } = await this.client
-        .from('user_activity_logs')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
-        .limit(limit);
-
-      if (error) throw error;
-      return data;
+        const { data, error } = await this.client
+            .from('user_activity_logs')
+            .select('*')
+            .eq('user_id', user.id)
+            .order('created_at', { ascending: false })
+            .limit(limit);
+            
+        if (error) throw error;
+        return data;
     } catch (e) {
-      console.warn('Failed to fetch user activity logs:', e);
-      return [];
+        console.warn('Failed to fetch user activity logs:', e);
+        return [];
     }
   }
 
