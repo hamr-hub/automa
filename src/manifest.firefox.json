@@ -47,13 +47,15 @@
       "all_frames": false
     }
   ],
-  "optional_permissions": ["clipboardRead", "clipboardWrite", "downloads", "notifications", "cookies"],
+  "optional_permissions": ["clipboardRead", "clipboardWrite", "notifications"],
   "permissions": [
+    "cookies",
     "tabs",
     "proxy",
     "menus",
     "alarms",
     "storage",
+    "downloads",
     "webNavigation",
     "unlimitedStorage",
     "<all_urls>"

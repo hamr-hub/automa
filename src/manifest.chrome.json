@@ -50,13 +50,12 @@
     }
   ],
   "optional_permissions": [
-    "cookies",
-    "downloads",
     "contextMenus",
     "clipboardRead",
     "notifications"
   ],
   "permissions": [
+    "cookies",
     "tabs",
     "proxy",
     "alarms",
@@ -64,6 +63,7 @@
     "debugger",
     "activeTab",
     "offscreen",
+    "downloads",
     "webNavigation",
     "unlimitedStorage",
     "scripting"
