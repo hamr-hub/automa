@@ -268,7 +268,7 @@ test.describe('Automa Import/Export', () => {
       await page.waitForTimeout(1000);
       
       // Look for duplicate option
-      const duplicateOption = page.locator('text=Duplicate|Copy|复制/i);
+      const duplicateOption = page.locator('text=/Duplicate|Copy|复制/i');
       if ((await duplicateOption.count()) > 0) {
         await duplicateOption.first().click();
         await page.waitForTimeout(2000);
@@ -320,7 +320,7 @@ test.describe('Automa Import/Export', () => {
       await page.waitForTimeout(1000);
       
       // Look for delete option
-      const deleteOption = page.locator('text=Delete|删除|Remove/i);
+      const deleteOption = page.locator('text=/Delete|删除|Remove/i');
       if ((await deleteOption.count()) > 0) {
         await deleteOption.first().click();
         await page.waitForTimeout(1000);
