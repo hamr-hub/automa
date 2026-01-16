@@ -29,6 +29,9 @@ export default async function (options = {}) {
           id: activeTab?.id,
           url: activeTab?.url,
         },
+        // 新增UI状态
+        collapsed: false, // 录制器是否折叠
+        position: { x: 20, y: 20 }, // 录制器位置(如果需要可拖拽)
         ...options,
       },
     });

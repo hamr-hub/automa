@@ -324,7 +324,28 @@ const showTab = computed(
 );
 
 function startRecording() {
-  openDashboard('/recording');
+  // 显示录制设置对话框
+  dialog.prompt({
+    title: t('home.record.title'),
+    placeholder: t('home.record.name'),
+    okText: t('home.record.button'),
+    inputValue: '',
+    onConfirm: async (workflowName) => {
+      try {
+        // 直接启动录制,不打开新窗口
+        const startRecordWorkflow = (await import('@/newtab/utils/startRecordWorkflow')).default;
+        await startRecordWorkflow({ 
+          name: workflowName || '未命名工作流',
+          description: ''
+        });
+        
+        // 关闭popup
+        window.close();
+      } catch (error) {
+        console.error('启动录制失败:', error);
+      }
+    },
+  });
 }
 function openAIGenerator() {
   openDashboard('/workflows');

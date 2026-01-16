@@ -1,12 +1,25 @@
 <template>
-  <div
-    ref="rootEl"
-    class="content fixed top-0 left-0 overflow-hidden rounded-lg bg-white text-black shadow-xl"
-    style="z-index: 99999999; font-size: 16px"
-    :style="{
-      transform: `translate(${draggingState.xPos}px, ${draggingState.yPos}px)`,
-    }"
-  >
+  <div>
+    <!-- 新的录制器组件 -->
+    <workflow-recorder
+      v-if="recordingState.name"
+      :flows="recordingState.flows"
+      :workflow-name="recordingState.name"
+      @save="saveRecording"
+      @cancel="cancelRecording"
+      @update-flows="updateFlows"
+    />
+
+    <!-- 元素选择器(仅在需要时显示) -->
+    <div
+      v-if="selectState.status !== 'idle'"
+      ref="rootEl"
+      class="content fixed top-0 left-0 overflow-hidden rounded-lg bg-white text-black shadow-xl"
+      style="z-index: 99999999; font-size: 16px"
+      :style="{
+        transform: `translate(${draggingState.xPos}px, ${draggingState.yPos}px)`,
+      }"
+    >
     <div
       class="hoverable flex select-none items-center px-4 py-2 transition"
       :class="[draggingState.dragging ? 'cursor-grabbing' : 'cursor-grab']"
@@ -14,22 +27,17 @@
       @mousedown="toggleDragging(true, $event)"
     >
       <span
-        class="relative flex cursor-pointer items-center justify-center rounded-full bg-red-400"
+        class="relative flex cursor-pointer items-center justify-center rounded-full bg-blue-500"
         style="height: 24px; width: 24px"
-        title="Stop recording"
-        @click="stopRecording"
+        title="Element selector"
       >
         <v-remixicon
-          name="riRecordCircleLine"
+          name="riCursorLine"
           class="relative z-10"
           size="20"
         />
-        <span
-          class="absolute animate-ping rounded-full bg-red-400"
-          style="height: 80%; width: 80%; animation-duration: 1.3s"
-        />
       </span>
-      <p class="ml-2 font-semibold">Automa</p>
+      <p class="ml-2 font-semibold">Select Element</p>
       <div class="grow" />
       <v-remixicon name="mdiDragHorizontal" />
     </div>
@@ -201,14 +209,16 @@ style="font-size: 14px">
     "
     @selected="onElementsSelected"
   />
+  </div>
 </template>
 <script setup>
-import { ref, reactive, watch, onMounted, onBeforeUnmount } from 'vue';
+import { ref, reactive, watch, onMounted, onBeforeUnmount, toRaw } from 'vue';
 import browser from 'webextension-polyfill';
 import { toCamelCase } from '@/utils/helper';
 import { tasks } from '@/utils/shared';
 import findSelector from '@/lib/findSelector';
 import SharedElementSelector from '@/components/content/shared/SharedElementSelector.vue';
+import WorkflowRecorder from '@/components/newtab/workflow/WorkflowRecorder.vue';
 import { getElementRect } from '../../utils';
 import addBlock from './addBlock';
 
@@ -220,6 +230,13 @@ const elementsPath = {
 
 const rootEl = ref(null);
 const tempListId = ref('');
+
+const recordingState = reactive({
+  name: '',
+  flows: [],
+  description: '',
+  workflowId: null,
+});
 
 const selectState = reactive({
   listId: '',
@@ -254,6 +271,30 @@ const blocksList = {
   default: ['get-text', 'attribute-value'],
 };
 
+function saveRecording() {
+  browser.runtime.sendMessage({
+    type: 'background--recording:stop',
+  });
+}
+function cancelRecording() {
+  if (recordingState.flows.length > 0) {
+    if (!confirm('确定要取消录制吗？所有操作将被丢弃。')) {
+      return;
+    }
+  }
+  browser.runtime.sendMessage({
+    type: 'background--recording:stop',
+  });
+}
+function updateFlows(newFlows) {
+  recordingState.flows = newFlows;
+  browser.storage.local.get('recording').then(({ recording }) => {
+    if (recording) {
+      recording.flows = newFlows;
+      browser.storage.local.set({ recording: toRaw(recording) });
+    }
+  });
+}
 function stopRecording() {
   browser.runtime.sendMessage({
     type: 'background--recording:stop',
@@ -472,12 +513,31 @@ onMounted(() => {
   browser.storage.local
     .get(['recording', 'workflows'])
     .then(({ recording, workflows }) => {
-      const workflow = Object.values(workflows).find(
-        ({ id }) => recording.workflowId === id
+      if (recording) {
+        recordingState.name = recording.name || '未命名';
+        recordingState.flows = recording.flows || [];
+        recordingState.description = recording.description || '';
+        recordingState.workflowId = recording.workflowId || null;
+      }
+
+      const workflow = Object.values(workflows || {}).find(
+        ({ id }) => recordingState.workflowId === id
       );
 
       addBlockState.workflowColumns = workflow?.table || [];
     });
+
+  // 监听 storage 变化
+  const storageListener = (changes) => {
+    if (changes.recording && changes.recording.newValue) {
+      const recording = changes.recording.newValue;
+      recordingState.name = recording.name || '未命名';
+      recordingState.flows = recording.flows || [];
+      recordingState.description = recording.description || '';
+      recordingState.workflowId = recording.workflowId || null;
+    }
+  };
+  browser.storage.onChanged.addListener(storageListener);
 });
 onBeforeUnmount(detachListeners);
 </script>
