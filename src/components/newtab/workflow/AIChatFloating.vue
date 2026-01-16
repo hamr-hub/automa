@@ -1,6 +1,6 @@
 <template>
   <div
-    class="fixed top-[20px] left-[20px] z-50 flex flex-col items-start pointer-events-none font-sans"
+    class="fixed top-[20px] left-[80px] z-50 flex flex-col items-start pointer-events-none font-sans"
   >
     <!-- 悬浮球 & 智能提示 (折叠状态) -->
     <div v-if="!isOpen" class="flex items-center space-x-3 pointer-events-auto">
