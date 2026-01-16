@@ -153,12 +153,19 @@ class LangGraphAgent {
         }
       }
 
-      // 2. Construct the full prompt
-      const fullPrompt = workflowGenerationPrompt.user(userInput, targetUrl, pageContext);
+      // 2. Construct the prompt
+      let promptContent;
+      // If history is empty, inject context.
+      if (this.history.length === 0) {
+        promptContent = workflowGenerationPrompt.user(userInput, targetUrl, pageContext);
+      } else {
+        // Multi-turn: Use follow-up prompt to save tokens (don't re-inject DOM)
+        // Unless explicit pageContext change handling is required (omitted for now)
+        promptContent = workflowGenerationPrompt.userFollowUp(userInput);
+      }
 
       // Add user message to history
-      // Note: We push the FULL prompt to the history so the LLM sees the context.
-      this.history.push({ role: 'user', content: fullPrompt });
+      this.history.push({ role: 'user', content: promptContent });
 
       // Execute LangGraph Workflow Generation
       onProgress?.({ step: 'ai', message: 'AI 正在生成工作流...' });

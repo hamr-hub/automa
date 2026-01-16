@@ -132,6 +132,10 @@ const workflowGenerationPrompt = {
     prompt += `\n请根据以上信息，生成详细的数据抓取步骤（严格的 JSON 格式）。\n记住：使用标准 JSON 格式，null 而不是 None，true/false 而不是 True/False。`;
     return prompt;
   },
+
+  userFollowUp: function (userInput) {
+    return `## 用户新需求:\n${userInput}\n\n请基于之前的对话历史和生成的 JSON，更新工作流以满足新需求。\n只返回更新后的 JSON。`;
+  },
 };
 
 const selectorOptimizationPrompt = {
