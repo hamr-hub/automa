@@ -10,15 +10,23 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: 1,
-  reporter: 'html',
+  reporter: [
+    ['html', { outputFolder: 'playwright-report' }],
+    ['json', { outputFile: 'test-results.json' }],
+    ['list'],
+  ],
   use: {
     trace: 'on-first-retry',
-    headless: false, // Extensions work best in headed mode
+    headless: false,
   },
   projects: [
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
+    },
+    {
+      name: 'chromium-headed',
+      use: { ...devices['Desktop Chrome'], headless: false },
     },
   ],
 });

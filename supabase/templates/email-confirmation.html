@@ -1,0 +1,165 @@
+<!-- 邮件验证模板 -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>验证您的邮箱 - Automa</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background-color: #f3f4f6;
+    }
+    .email-container {
+      max-width: 600px;
+      margin: 40px auto;
+      background-color: #ffffff;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    .email-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 40px 20px;
+      text-align: center;
+    }
+    .email-header img {
+      width: 80px;
+      height: 80px;
+      margin-bottom: 16px;
+    }
+    .email-header h1 {
+      color: #ffffff;
+      font-size: 28px;
+      font-weight: 600;
+      margin: 0;
+    }
+    .email-body {
+      padding: 40px 30px;
+    }
+    .email-body p {
+      color: #374151;
+      font-size: 16px;
+      line-height: 1.6;
+      margin: 0 0 20px 0;
+    }
+    .verification-button {
+      display: inline-block;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #ffffff !important;
+      text-decoration: none;
+      padding: 16px 32px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 16px;
+      text-align: center;
+      margin: 20px 0;
+    }
+    .verification-button:hover {
+      opacity: 0.9;
+    }
+    .verification-code {
+      background-color: #f3f4f6;
+      border: 2px dashed #d1d5db;
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
+      margin: 20px 0;
+    }
+    .verification-code code {
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: 8px;
+      color: #667eea;
+      font-family: 'Courier New', monospace;
+    }
+    .email-footer {
+      background-color: #f9fafb;
+      padding: 30px;
+      text-align: center;
+      border-top: 1px solid #e5e7eb;
+    }
+    .email-footer p {
+      color: #6b7280;
+      font-size: 14px;
+      margin: 8px 0;
+    }
+    .email-footer a {
+      color: #667eea;
+      text-decoration: none;
+    }
+    .divider {
+      height: 1px;
+      background-color: #e5e7eb;
+      margin: 30px 0;
+    }
+    .warning-box {
+      background-color: #fef3c7;
+      border-left: 4px solid #f59e0b;
+      padding: 16px;
+      margin: 20px 0;
+      border-radius: 4px;
+    }
+    .warning-box p {
+      color: #92400e;
+      margin: 0;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="email-container">
+    <!-- Header -->
+    <div class="email-header">
+      <img src="{{ .SiteURL }}/logo.png" alt="Automa Logo">
+      <h1>欢迎来到 Automa!</h1>
+    </div>
+
+    <!-- Body -->
+    <div class="email-body">
+      <p>您好,</p>
+      <p>感谢您注册 Automa! 为了完成注册并开始使用我们的服务,请验证您的邮箱地址。</p>
+
+      <!-- 验证按钮 -->
+      <center>
+        <a href="{{ .ConfirmationURL }}" class="verification-button">
+          验证邮箱地址
+        </a>
+      </center>
+
+      <p style="color: #6b7280; font-size: 14px; margin-top: 30px;">
+        如果按钮无法点击,请复制以下链接到浏览器地址栏:
+      </p>
+      <p style="word-break: break-all; color: #667eea; font-size: 14px;">
+        {{ .ConfirmationURL }}
+      </p>
+
+      <div class="divider"></div>
+
+      <!-- 安全提示 -->
+      <div class="warning-box">
+        <p><strong>⚠️ 安全提示:</strong> 如果您没有注册 Automa 账号,请忽略此邮件。您的账号将不会被创建。</p>
+      </div>
+
+      <p style="color: #6b7280; font-size: 14px; margin-top: 30px;">
+        此链接将在 24 小时后失效。
+      </p>
+    </div>
+
+    <!-- Footer -->
+    <div class="email-footer">
+      <p>© 2024 Automa. 保留所有权利。</p>
+      <p>
+        <a href="{{ .SiteURL }}">访问网站</a> |
+        <a href="{{ .SiteURL }}/support">获取帮助</a> |
+        <a href="{{ .SiteURL }}/privacy">隐私政策</a>
+      </p>
+      <p style="margin-top: 20px;">
+        这是一封自动发送的邮件,请勿直接回复。
+      </p>
+    </div>
+  </div>
+</body>
+</html>
