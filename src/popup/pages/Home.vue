@@ -1,28 +1,38 @@
 <template>
   <div
-    :class="[!showTab ? 'h-40' : 'h-44']"
+    :class="[!showTab ? 'h-32' : 'h-36']"
     class="absolute top-0 left-0 w-full bg-gradient-to-br from-blue-600 via-blue-500 to-purple-600 shadow-xl"
     style="border-radius: 0 0 20px 20px"
   />
   <div
     :class="[!showTab ? 'mb-4' : 'mb-2']"
-    class="dark relative z-10 px-5 pt-4 text-white"
+    class="dark relative z-10 px-4 pt-4 text-white"
   >
-    <div class="mb-3 flex items-center">
+    <div class="mb-2 flex items-center">
       <div class="flex items-center space-x-2">
-        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-white/20 backdrop-blur-sm shadow-lg">
-          <svg class="h-5 w-5 text-white" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5zm0 18c-3.86-.95-7-5.04-7-9V8.3l7-3.11 7 3.11V11c0 3.96-3.14 8.05-7 9z"/>
+        <div
+          class="flex h-8 w-8 items-center justify-center rounded-lg bg-white/20 backdrop-blur-sm shadow-lg"
+        >
+          <svg
+            class="h-5 w-5 text-white"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+          >
+            <path
+              d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5zm0 18c-3.86-.95-7-5.04-7-9V8.3l7-3.11 7 3.11V11c0 3.96-3.14 8.05-7 9z"
+            />
           </svg>
         </div>
-        <h1 class="text-xl font-bold tracking-tight text-white drop-shadow-sm">Automa</h1>
+        <h1 class="text-xl font-bold tracking-tight text-white drop-shadow-sm">
+          Automa
+        </h1>
       </div>
       <div class="grow" />
       <div class="flex items-center space-x-1">
         <ui-button
           v-tooltip.group="t('home.aiGenerator.title')"
           icon
-          class="hover:bg-white/20 transition-all duration-200 rounded-lg h-8 w-8"
+          class="hover:bg-white/20 transition-all duration-200 rounded-lg"
           @click="openAIGenerator"
         >
           <v-remixicon name="riRobotLine" size="18" class="text-white" />
@@ -30,7 +40,7 @@
         <ui-button
           v-tooltip.group="t('home.record.title')"
           icon
-          class="hover:bg-white/20 transition-all duration-200 rounded-lg h-8 w-8"
+          class="hover:bg-white/20 transition-all duration-200 rounded-lg"
           @click="startRecording"
         >
           <v-remixicon name="riRecordCircleLine" size="18" class="text-white" />
@@ -38,7 +48,7 @@
         <ui-button
           v-tooltip.group="t('common.dashboard')"
           icon
-          class="hover:bg-white/20 transition-all duration-200 rounded-lg h-8 w-8"
+          class="hover:bg-white/20 transition-all duration-200 rounded-lg"
           :title="t('common.dashboard')"
           @click="openDashboard('')"
         >
@@ -65,12 +75,10 @@
       <ui-tab value="local">
         {{ t(`home.workflow.type.local`) }}
       </ui-tab>
-      <ui-tab v-if="hostedWorkflowStore.toArray.length > 0"
-value="host">
+      <ui-tab v-if="hostedWorkflowStore.toArray.length > 0" value="host">
         {{ t(`home.workflow.type.host`) }}
       </ui-tab>
-      <ui-tab
-v-if="userStore.user?.teams?.length" value="team"> Teams </ui-tab>
+      <ui-tab v-if="userStore.user?.teams?.length" value="team"> Teams </ui-tab>
     </ui-tabs>
   </div>
   <home-team-workflows
@@ -80,10 +88,16 @@ v-if="userStore.user?.teams?.length" value="team"> Teams </ui-tab>
   />
   <div
     v-if="state.activeTab !== 'team'"
-    class="relative z-20 space-y-2 px-5 pb-5"
+    class="relative z-20 space-y-2 px-4 pb-4"
   >
-    <ui-card v-if="workflowStore.getWorkflows.length === 0" class="text-center py-6">
-      <img src="@/assets/svg/alien.svg" class="mx-auto mb-3 h-16 w-16 opacity-60">
+    <ui-card
+      v-if="workflowStore.getWorkflows.length === 0"
+      class="text-center py-6"
+    >
+      <img
+        src="@/assets/svg/alien.svg"
+        class="mx-auto mb-3 h-16 w-16 opacity-60"
+      />
       <p class="font-semibold text-sm text-gray-700 dark:text-gray-300">
         {{ t('message.empty') }}
       </p>
@@ -95,9 +109,18 @@ v-if="userStore.user?.teams?.length" value="team"> Teams </ui-tab>
         {{ t('home.workflow.new') }}
       </ui-button>
     </ui-card>
-    <div v-if="pinnedWorkflows.length > 0" class="mb-3 border-b border-gray-200 pb-3 dark:border-gray-700">
-      <div class="mb-2 flex items-center text-xs font-medium text-gray-600 dark:text-gray-400">
-        <v-remixicon name="riPushpin2Fill" size="14" class="mr-1.5 text-blue-500" />
+    <div
+      v-if="pinnedWorkflows.length > 0"
+      class="mb-3 border-b border-gray-200 pb-3 dark:border-gray-700"
+    >
+      <div
+        class="mb-2 flex items-center text-xs font-medium text-gray-600 dark:text-gray-400"
+      >
+        <v-remixicon
+          name="riPushpin2Fill"
+          size="14"
+          class="mr-1.5 text-blue-500"
+        />
         <span>Pinned Workflows</span>
       </div>
       <div class="space-y-2">
@@ -464,9 +487,19 @@ onMounted(async () => {
   animation: slideIn 0.3s ease-out;
 }
 
-.space-y-2 > *:nth-child(1) { animation-delay: 0.05s; }
-.space-y-2 > *:nth-child(2) { animation-delay: 0.1s; }
-.space-y-2 > *:nth-child(3) { animation-delay: 0.15s; }
-.space-y-2 > *:nth-child(4) { animation-delay: 0.2s; }
-.space-y-2 > *:nth-child(5) { animation-delay: 0.25s; }
+.space-y-2 > *:nth-child(1) {
+  animation-delay: 0.05s;
+}
+.space-y-2 > *:nth-child(2) {
+  animation-delay: 0.1s;
+}
+.space-y-2 > *:nth-child(3) {
+  animation-delay: 0.15s;
+}
+.space-y-2 > *:nth-child(4) {
+  animation-delay: 0.2s;
+}
+.space-y-2 > *:nth-child(5) {
+  animation-delay: 0.25s;
+}
 </style>
