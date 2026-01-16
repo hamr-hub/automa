@@ -156,6 +156,20 @@
           ref="chatContainer"
           class="flex-1 space-y-4 overflow-y-auto p-4 scrollbar-thin"
         >
+          <!-- 空状态提示 -->
+          <div
+            v-if="chatHistory.length === 0"
+            class="flex h-full flex-col items-center justify-center text-gray-400"
+          >
+            <v-remixicon name="riChatSmile3Line" size="48" class="mb-3 opacity-50" />
+            <p class="text-sm">开始与 AI 助手对话</p>
+            <p class="mt-2 text-xs text-center px-4">
+              1. 先选择一个标签页（自动分析）<br />
+              2. 然后描述你的需求
+            </p>
+          </div>
+          
+          <!-- 对话消息 -->
           <div
             v-for="(msg, index) in chatHistory"
             :key="index"
@@ -163,11 +177,13 @@
             :class="msg.role === 'user' ? 'items-end' : 'items-start'"
           >
             <div
-              class="max-w-[90%] rounded-lg p-3 text-sm"
+              class="max-w-[90%] rounded-lg p-3 text-sm shadow-sm"
               :class="[
                 msg.role === 'user'
                   ? 'bg-accent text-white'
-                  : 'bg-gray-100 dark:bg-gray-800 dark:text-gray-200',
+                  : msg.role === 'system' 
+                    ? 'bg-green-50 text-green-800 dark:bg-green-900/30 dark:text-green-300 border border-green-200 dark:border-green-800'
+                    : 'bg-gray-100 dark:bg-gray-800 dark:text-gray-200',
               ]"
             >
               <p class="whitespace-pre-wrap">
@@ -175,7 +191,7 @@
               </p>
             </div>
             <span class="mt-1 text-xs text-gray-400">
-              {{ msg.role === 'user' ? '你' : 'AI 助手' }}
+              {{ msg.role === 'user' ? '你' : msg.role === 'system' ? '系统' : 'AI 助手' }}
             </span>
           </div>
 
@@ -200,15 +216,31 @@
         </div>
 
         <!-- 输入区域 -->
-        <div class="border-t border-gray-200 p-4 dark:border-gray-700">
-          <div v-if="state.hasError" class="mb-2 flex justify-center">
-             <ui-button size="sm" variant="secondary" class="text-red-500" @click="retryGeneration">
-                <v-remixicon name="riRefreshLine" class="mr-1" />
-                重试上一次请求
-             </ui-button>
+        <div class="border-t border-gray-200 p-4 dark:border-gray-700 bg-white dark:bg-gray-800">
+          <!-- 错误提示和重试 -->
+          <div v-if="state.hasError" class="mb-3 flex items-center justify-between gap-2 rounded-lg bg-red-50 dark:bg-red-900/20 p-3">
+            <div class="flex items-center gap-2 flex-1">
+              <v-remixicon name="riErrorWarningLine" class="text-red-500" />
+              <span class="text-sm text-red-600 dark:text-red-400">生成失败，请检查错误或尝试重试</span>
+            </div>
+            <ui-button size="sm" variant="accent" @click="retryGeneration">
+              <v-remixicon name="riRefreshLine" class="mr-1" />
+              重试
+            </ui-button>
           </div>
+          
+          <!-- 已选择页面提示 -->
+          <div 
+            v-if="state.selectedTab && state.pageContext"
+            class="mb-2 flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400"
+          >
+            <v-remixicon name="riCheckLine" class="text-green-500" size="14" />
+            <span>已分析: {{ state.selectedTab.title }}</span>
+          </div>
+          
           <div class="relative">
             <ui-textarea
+              ref="inputTextarea"
               v-model="state.userInput"
               placeholder="描述你的需求，例如：抓取 Amazon 商品价格..."
               :rows="3"
@@ -216,16 +248,29 @@
               @keydown.enter.exact.prevent="sendMessage"
             />
             <button
-              class="absolute bottom-2 right-2 rounded p-2 text-gray-500 hover:bg-gray-100 hover:text-accent dark:hover:bg-gray-700"
+              class="absolute bottom-2 right-2 rounded p-2 transition-colors"
+              :class="[
+                state.isGenerating || !state.userInput.trim()
+                  ? 'text-gray-300 cursor-not-allowed'
+                  : 'text-gray-500 hover:bg-gray-100 hover:text-accent dark:hover:bg-gray-700'
+              ]"
               :disabled="state.isGenerating || !state.userInput.trim()"
               @click="sendMessage"
             >
-              <v-remixicon name="riSendPlaneLine" />
+              <v-remixicon 
+                :name="state.isGenerating ? 'riLoaderLine' : 'riSendPlaneLine'" 
+                :class="{ 'animate-spin': state.isGenerating }"
+              />
             </button>
           </div>
-          <p class="mt-2 text-xs text-gray-400">
-            按 Enter 发送，Shift + Enter 换行
-          </p>
+          <div class="mt-2 flex items-center justify-between">
+            <p class="text-xs text-gray-400">
+              按 Enter 发送，Shift + Enter 换行
+            </p>
+            <span v-if="state.userInput.length > 0" class="text-xs text-gray-400">
+              {{ state.userInput.length }} 字
+            </span>
+          </div>
         </div>
       </div>
 
@@ -233,11 +278,34 @@
       <div class="flex flex-1 flex-col bg-gray-50 dark:bg-gray-900/50">
         <div
           v-if="!state.generatedWorkflow"
-          class="flex h-full flex-col items-center justify-center text-gray-400"
+          class="flex h-full flex-col items-center justify-center text-gray-400 p-8"
         >
           <v-remixicon name="riFlowChart" size="64" class="mb-4 opacity-50" />
-          <p>在左侧输入需求，AI 将为您生成工作流</p>
-          <p class="mt-2 text-sm">或者点击“导入”加载现有工作流</p>
+          <p class="text-lg font-medium">在左侧输入需求，AI 将为您生成工作流</p>
+          <div class="mt-6 space-y-2 text-sm text-center max-w-md">
+            <div class="flex items-start gap-2">
+              <v-remixicon name="ri1" class="text-accent mt-0.5" size="16" />
+              <span class="text-left">选择目标网页（点击顶部“选择目标网页”按钮）</span>
+            </div>
+            <div class="flex items-start gap-2">
+              <v-remixicon name="ri2" class="text-accent mt-0.5" size="16" />
+              <span class="text-left">系统自动分析页面结构</span>
+            </div>
+            <div class="flex items-start gap-2">
+              <v-remixicon name="ri3" class="text-accent mt-0.5" size="16" />
+              <span class="text-left">在左侧聊天框描述你的数据抓取需求</span>
+            </div>
+            <div class="flex items-start gap-2">
+              <v-remixicon name="ri4" class="text-accent mt-0.5" size="16" />
+              <span class="text-left">AI 生成工作流，您可以直接运行或保存</span>
+            </div>
+          </div>
+          <div class="mt-8">
+            <ui-button variant="secondary" @click="importJSON">
+              <v-remixicon name="riUploadLine" class="mr-2" />
+              或点击此处导入现有工作流
+            </ui-button>
+          </div>
         </div>
 
         <div v-else class="flex h-full flex-col">
