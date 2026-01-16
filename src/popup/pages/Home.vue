@@ -1,14 +1,14 @@
 <template>
   <div
-    :class="[!showTab ? 'h-32' : 'h-36']"
+    :class="[!showTab ? 'h-24' : 'h-28']"
     class="absolute top-0 left-0 w-full bg-gradient-to-br from-blue-600 via-blue-500 to-purple-600 shadow-xl"
-    style="border-radius: 0 0 20px 20px"
+    style="border-radius: 0 0 16px 16px"
   />
   <div
-    :class="[!showTab ? 'mb-4' : 'mb-2']"
-    class="dark relative z-10 px-4 pt-4 text-white"
+    :class="[!showTab ? 'mb-2' : 'mb-1.5']"
+    class="dark relative z-10 px-3 pt-3 text-white"
   >
-    <div class="mb-2 flex items-center">
+    <div class="flex items-center">
       <div class="flex items-center space-x-2">
         <div
           class="flex h-8 w-8 items-center justify-center rounded-lg bg-white/20 backdrop-blur-sm shadow-lg"
@@ -23,16 +23,15 @@
             />
           </svg>
         </div>
-        <h1 class="text-xl font-bold tracking-tight text-white drop-shadow-sm">
+        <h1 class="text-base font-bold tracking-tight text-white drop-shadow-sm">
           Automa
         </h1>
       </div>
-      <div class="grow" />
-      <div class="flex items-center space-x-1">
+      <div class="grow" />        <div class="flex items-center space-x-0.5">
         <ui-button
           v-tooltip.group="t('home.aiGenerator.title')"
           icon
-          class="hover:bg-white/20 transition-all duration-200 rounded-lg"
+          class="hover:bg-white/20 transition-all duration-200 rounded-lg p-1.5"
           @click="openAIGenerator"
         >
           <v-remixicon name="riRobotLine" size="18" class="text-white" />
@@ -62,14 +61,14 @@
         :placeholder="`${t('common.search')}...`"
         autocomplete="off"
         prepend-icon="riSearch2Line"
-        class="search-input w-full bg-white/10 backdrop-blur-md border border-white/20 text-white placeholder-white/70 rounded-lg shadow-lg text-sm"
+        class="search-input w-full bg-white/10 backdrop-blur-md border border-white/20 text-white placeholder-white/70 rounded-lg shadow-lg text-xs h-8"
       />
     </div>
     <ui-tabs
       v-if="showTab"
       v-model="state.activeTab"
       fill
-      class="mt-1"
+      class="mt-0.5 text-xs"
       @change="onTabChange"
     >
       <ui-tab value="local">
@@ -88,7 +87,7 @@
   />
   <div
     v-if="state.activeTab !== 'team'"
-    class="relative z-20 space-y-2 px-4 pb-4"
+    class="relative z-20 space-y-1.5 px-3 pb-3"
   >
     <ui-card
       v-if="workflowStore.getWorkflows.length === 0"
@@ -111,19 +110,19 @@
     </ui-card>
     <div
       v-if="pinnedWorkflows.length > 0"
-      class="mb-3 border-b border-gray-200 pb-3 dark:border-gray-700"
+      class="mb-2 border-b border-gray-200 pb-2 dark:border-gray-700"
     >
       <div
-        class="mb-2 flex items-center text-xs font-medium text-gray-600 dark:text-gray-400"
+        class="mb-1.5 flex items-center text-xs font-medium text-gray-600 dark:text-gray-400"
       >
         <v-remixicon
           name="riPushpin2Fill"
-          size="14"
-          class="mr-1.5 text-blue-500"
+          size="12"
+          class="mr-1 text-blue-500"
         />
         <span>Pinned Workflows</span>
       </div>
-      <div class="space-y-2">
+      <div class="space-y-1.5">
         <home-workflow-card
           v-for="workflow in pinnedWorkflows"
           :key="workflow.id"
@@ -140,9 +139,9 @@
       </div>
     </div>
     <div
-      class="flex items-center space-x-2 rounded-lg bg-gray-50 p-2 dark:bg-gray-800/50"
+      class="flex items-center space-x-1.5 rounded-lg bg-gray-50 p-1.5 dark:bg-gray-800/50"
     >
-      <ui-select v-model="state.activeFolder" class="flex-1 text-sm">
+      <ui-select v-model="state.activeFolder" class="flex-1 text-xs h-7">
         <option value="">All Folders</option>
         <option
           v-for="folder in folderStore.items"
@@ -154,8 +153,8 @@
       </ui-select>
       <ui-popover>
         <template #trigger>
-          <ui-button class="shrink-0 text-sm">
-            <v-remixicon name="riSortDesc" class="mr-1.5 -ml-1" size="16" />
+          <ui-button class="shrink-0 text-xs px-2 py-1 h-7">
+            <v-remixicon name="riSortDesc" class="mr-1 -ml-0.5" size="14" />
             <span>Sort</span>
           </ui-button>
         </template>
@@ -177,7 +176,7 @@
         </div>
       </ui-popover>
     </div>
-    <div class="space-y-2">
+    <div class="space-y-1.5">
       <home-workflow-card
         v-for="workflow in workflows"
         :key="workflow.id"

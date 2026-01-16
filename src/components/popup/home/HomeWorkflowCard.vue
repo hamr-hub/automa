@@ -28,26 +28,26 @@
     </div>
 
     <!-- Action Buttons -->
-    <div class="flex shrink-0 items-center space-x-1">
+    <div class="flex shrink-0 items-center space-x-1.5">
       <p v-if="workflow.isDisabled" class="text-xs font-medium text-gray-400 mr-1">Disabled</p>
       <button 
         v-else
         title="Execute" 
-        class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500 text-white transition-all duration-200 hover:bg-blue-600 hover:scale-105 active:scale-95"
+        class="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-500 text-white transition-all duration-200 hover:bg-blue-600 hover:scale-105 active:scale-95"
         @click.stop="$emit('execute', workflow)"
       >
-        <v-remixicon name="riPlayFill" size="16" />
+        <v-remixicon name="riPlayCircleLine" size="18" />
       </button>
       <v-remixicon
         v-if="workflow.isProtected"
         name="riShieldKeyholeLine"
         class="text-green-500"
-        size="16"
+        size="18"
       />
-      <ui-popover v-else class="h-8">
+      <ui-popover v-else>
         <template #trigger>
-          <button class="flex h-8 w-8 items-center justify-center rounded-lg text-gray-500 transition-all duration-200 hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-700 dark:hover:text-gray-100">
-            <v-remixicon name="riMoreFill" size="16" />
+          <button class="flex h-9 w-9 items-center justify-center rounded-lg text-gray-500 transition-all duration-200 hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-700 dark:hover:text-gray-100">
+            <v-remixicon name="riMoreFill" size="18" />
           </button>
         </template>
         <ui-list class="space-y-1" style="min-width: 160px">
@@ -104,8 +104,8 @@ defineEmits(['execute', 'togglePin', 'rename', 'details', 'delete', 'update']);
 const { t } = useI18n();
 
 const menu = [
-  { name: 'rename', icon: 'riPencilLine' },
-  { name: 'delete', icon: 'riDeleteBin7Line' },
+  { name: 'rename', icon: 'riEditLine' },
+  { name: 'delete', icon: 'riDeleteBinLine' },
 ];
 const filteredMenu = menu.filter(({ name }) => {
   if (name === 'rename' && props.tab !== 'local') return false;
