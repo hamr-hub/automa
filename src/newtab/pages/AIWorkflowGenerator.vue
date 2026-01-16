@@ -59,17 +59,7 @@
           </div>
         </ui-popover>
 
-        <ui-button
-          v-if="state.selectedTab"
-          :loading="state.isAnalyzing"
-          variant="accent"
-          title="分析页面结构"
-          class="mr-2"
-          @click="analyzePage"
-        >
-          <v-remixicon name="riMagicLine" class="mr-2" />
-          分析页面
-        </ui-button>
+        <!-- 隐藏分析页面按钮，改为自动分析 -->
 
         <div class="h-6 w-px bg-gray-300 dark:bg-gray-600 mx-2" />
 
@@ -147,6 +137,20 @@
       <div
         class="flex w-[400px] flex-col border-r border-gray-200 dark:border-gray-700"
       >
+        <!-- 聊天工具栏 -->
+        <div class="flex items-center justify-between border-b border-gray-200 px-4 py-2 dark:border-gray-700">
+          <span class="text-sm font-medium text-gray-600 dark:text-gray-400">对话历史</span>
+          <ui-button
+            size="sm"
+            variant="secondary"
+            title="清除所有对话记录"
+            @click="clearChatHistory"
+          >
+            <v-remixicon name="riDeleteBinLine" class="mr-1" />
+            清除历史
+          </ui-button>
+        </div>
+        
         <!-- 消息列表 -->
         <div
           ref="chatContainer"
@@ -713,6 +717,14 @@ function scrollToBottom() {
       chatContainer.value.scrollTop = chatContainer.value.scrollHeight;
     }
   });
+}
+
+function clearChatHistory() {
+  chatHistory.value = [];
+  agent.clearHistory();
+  state.hasError = false;
+  state.lastUserInput = '';
+  toast.success('对话历史已清除');
 }
 
 async function runWorkflow() {
