@@ -182,7 +182,7 @@
         :key="workflow.id"
         :workflow="workflow"
         :tab="state.activeTab"
-        :pinned="state.pinnedWorkflows.includes(workflow.id)"
+        :pinned="workflow._isPinned"
         @details="openWorkflowPage"
         @update="updateWorkflow(workflow.id, $event)"
         @execute="executeWorkflow"
@@ -314,9 +314,15 @@ const localWorkflows = computed(() => {
     data: filteredLocalWorkflows,
   });
 });
-const workflows = computed(() =>
-  state.activeTab === 'local' ? localWorkflows.value : hostedWorkflows.value
-);
+const pinnedWorkflowSet = computed(() => new Set(state.pinnedWorkflows));
+const workflows = computed(() => {
+  const sourceWorkflows = state.activeTab === 'local' ? localWorkflows.value : hostedWorkflows.value;
+  const pinnedSet = pinnedWorkflowSet.value;
+  return sourceWorkflows.map((workflow) => ({
+    ...workflow,
+    _isPinned: pinnedSet.has(workflow.id),
+  }));
+});
 const showTab = computed(
   () =>
     hostedWorkflowStore.toArray.length > 0 || userStore.user?.teams?.length > 0
