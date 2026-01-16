@@ -1,7 +1,7 @@
 /**
  * AI Service 统一门面
  * 所有 Ollama 调用统一通过 LangGraphService,不直接使用 OllamaClient
- * 
+ *
  * 架构设计:
  * - 工作流生成: LangGraphAgent → LangGraphService.run() (复杂状态图)
  * - 简单 AI 调用: LangGraphService.simpleChat() (直接透传给 OllamaClient)
@@ -26,7 +26,7 @@ class AIService {
       // 初始化 LangGraph Agent
       this.langGraphAgent = new LangGraphAgent(config);
       const isHealthy = await this.langGraphAgent.initialize();
-      
+
       if (!isHealthy) {
         throw new Error('Ollama 服务不可用,请确保 Ollama 已启动');
       }
@@ -66,15 +66,25 @@ class AIService {
    * @param {string} pageContext - 页面上下文
    * @returns {Promise<Object>} 工作流对象
    */
-  async generateWorkflow(userInput, targetUrl = '', onProgress, pageContext = null) {
+  async generateWorkflow(
+    userInput,
+    targetUrl = '',
+    onProgress,
+    pageContext = null
+  ) {
     this.ensureInitialized();
-    return await this.langGraphAgent.chat(userInput, targetUrl, onProgress, pageContext);
+    return await this.langGraphAgent.chat(
+      userInput,
+      targetUrl,
+      onProgress,
+      pageContext
+    );
   }
 
   /**
    * 简单 AI 聊天 (通过 LangGraphService.simpleChat)
    * 适用于 AI Block、一次性查询等场景
-   * 
+   *
    * @param {Array} messages - 消息数组 [{role: 'user'|'assistant'|'system', content: '...'}]
    * @param {Object} options - 可选配置
    * @returns {Promise<Object>} AI 响应
@@ -114,7 +124,11 @@ class AIService {
    */
   async generateStream(prompt, onChunk, options = {}) {
     const langGraphService = this.getLangGraphService();
-    return await langGraphService.simpleGenerateStream(prompt, onChunk, options);
+    return await langGraphService.simpleGenerateStream(
+      prompt,
+      onChunk,
+      options
+    );
   }
 
   /**

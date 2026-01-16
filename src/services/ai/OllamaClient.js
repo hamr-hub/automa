@@ -174,7 +174,7 @@ class OllamaClient {
   normalizeUrl(url) {
     // 移除末尾的斜杠
     url = url.replace(/\/+$/, '');
-    
+
     // 如果 URL 已经是完整格式，直接返回
     if (url.startsWith('http://') || url.startsWith('https://')) {
       return url;

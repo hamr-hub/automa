@@ -125,7 +125,12 @@ export default [
     ignores: ['src/lib/google-*', 'node_modules/**', 'build/**'],
   },
   {
-    files: ['webpack.config.js', 'utils/**/*.js', 'scripts/**/*.js', 'eslint.config.js'],
+    files: [
+      'webpack.config.js',
+      'utils/**/*.js',
+      'scripts/**/*.js',
+      'eslint.config.js',
+    ],
     languageOptions: {
       globals: {
         process: 'readonly',

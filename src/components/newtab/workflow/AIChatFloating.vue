@@ -1,53 +1,76 @@
 <template>
   <div
-    class="fixed bottom-6 right-6 z-50 flex flex-col items-end pointer-events-none"
+    class="fixed top-[20px] left-[20px] z-50 flex flex-col items-start pointer-events-none font-sans"
   >
-    <!-- 悬浮球 (折叠状态) -->
-    <transition name="scale">
-      <button
-        v-if="!isOpen"
-        class="pointer-events-auto flex h-14 w-14 items-center justify-center rounded-full bg-blue-600 text-white shadow-lg shadow-blue-500/30 transition-all hover:bg-blue-500 hover:scale-110 active:scale-95 border border-blue-400/50 backdrop-blur-sm"
-        @click="toggleChat"
-      >
-        <v-remixicon name="riRobotLine" size="24" />
-      </button>
-    </transition>
+    <!-- 悬浮球 & 智能提示 (折叠状态) -->
+    <div v-if="!isOpen" class="flex items-center space-x-3 pointer-events-auto">
+      <transition name="scale" appear>
+        <button
+          class="group flex h-10 w-10 items-center justify-center rounded-xl bg-gray-900/80 text-white shadow-lg shadow-black/20 transition-all hover:bg-blue-600 hover:scale-105 active:scale-95 border border-white/10 backdrop-blur-md"
+          @click="toggleChat"
+          @mouseenter="hidePrompt"
+        >
+          <v-remixicon name="riRobotLine" size="20" class="transition-transform group-hover:rotate-12" />
+        </button>
+      </transition>
+
+      <!-- 智能渐显提示 -->
+      <transition name="fade-slide">
+        <div
+          v-if="showPrompt"
+          class="flex items-center space-x-2 rounded-lg bg-gray-900/90 px-3 py-2 text-xs text-gray-200 shadow-xl border border-white/10 backdrop-blur-md cursor-pointer hover:bg-gray-800 transition-colors"
+          @click="toggleChat"
+        >
+          <span>👋 需要帮忙优化工作流吗？</span>
+          <button 
+            @click.stop="showPrompt = false"
+            class="ml-1 rounded p-0.5 text-gray-500 hover:bg-gray-700 hover:text-white"
+          >
+            <v-remixicon name="riCloseLine" size="14" />
+          </button>
+        </div>
+      </transition>
+    </div>
 
     <!-- 聊天窗口 (展开状态) -->
-    <transition name="slide-up">
+    <transition name="slide-down">
       <div
         v-if="isOpen"
-        class="pointer-events-auto flex w-[380px] flex-col overflow-hidden rounded-xl border border-gray-700 bg-gray-900/95 shadow-2xl backdrop-blur-md ring-1 ring-white/10"
-        style="height: 600px; max-height: 80vh"
+        class="pointer-events-auto flex w-[360px] flex-col overflow-hidden rounded-2xl border border-white/10 bg-gray-900/95 shadow-2xl backdrop-blur-xl ring-1 ring-black/5"
+        style="height: 550px; max-height: 80vh"
       >
         <!-- 头部 -->
         <div
-          class="flex items-center justify-between border-b border-gray-700/50 bg-gray-800/50 px-4 py-3"
+          class="flex items-center justify-between border-b border-white/5 bg-white/5 px-4 py-3 backdrop-blur-sm"
         >
-          <div class="flex items-center space-x-2">
-            <div class="relative">
-              <v-remixicon name="riRobotLine" class="text-blue-400" size="20" />
+          <div class="flex items-center space-x-2.5">
+            <div class="relative flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/10 border border-blue-500/20">
+              <v-remixicon name="riRobotLine" class="text-blue-400" size="18" />
               <span
-                class="absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full"
+                class="absolute -top-1 -right-1 h-2 w-2 rounded-full ring-2 ring-gray-900"
                 :class="
                   isGenerating ? 'bg-green-500 animate-pulse' : 'bg-gray-500'
                 "
               ></span>
             </div>
-            <span class="font-mono text-sm font-bold text-gray-100"
-              >AI Workflow Agent</span
-            >
+            <div class="flex flex-col">
+              <span class="text-sm font-bold text-gray-100 tracking-tight">AI Assistant</span>
+              <span class="text-[10px] text-gray-400 font-mono flex items-center gap-1">
+                <span class="h-1 w-1 rounded-full" :class="ollamaStatus === 'connected' ? 'bg-green-500' : 'bg-red-500'"></span>
+                {{ ollamaStatus === 'connected' ? 'ONLINE' : 'OFFLINE' }}
+              </span>
+            </div>
           </div>
           <div class="flex items-center space-x-1">
             <button
-              class="rounded p-1 text-gray-400 hover:bg-gray-700 hover:text-white transition-colors"
+              class="group rounded-lg p-1.5 text-gray-400 hover:bg-white/10 hover:text-white transition-colors"
               title="清除历史"
               @click="clearHistory"
             >
-              <v-remixicon name="riDeleteBinLine" size="16" />
+              <v-remixicon name="riDeleteBinLine" size="16" class="group-hover:text-red-400 transition-colors" />
             </button>
             <button
-              class="rounded p-1 text-gray-400 hover:bg-gray-700 hover:text-white transition-colors"
+              class="rounded-lg p-1.5 text-gray-400 hover:bg-white/10 hover:text-white transition-colors"
               title="最小化"
               @click="toggleChat"
             >
@@ -59,18 +82,18 @@
         <!-- 消息区域 -->
         <div
           ref="chatContainer"
-          class="flex-1 space-y-4 overflow-y-auto p-4 scrollbar-thin"
+          class="flex-1 space-y-4 overflow-y-auto p-4 scrollbar-thin scroll-smooth"
         >
           <!-- 欢迎消息 -->
-          <div v-if="history.length === 0" class="mt-8 text-center">
+          <div v-if="history.length === 0" class="mt-12 flex flex-col items-center justify-center text-center opacity-0 animate-fade-in-up" style="animation-fill-mode: forwards;">
             <div
-              class="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-gray-800 border border-gray-700"
+              class="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 border border-white/5 shadow-inner"
             >
-              <v-remixicon name="riMagicLine" class="text-blue-400" />
+              <v-remixicon name="riMagicLine" class="text-blue-400" size="28" />
             </div>
-            <p class="text-sm text-gray-400">
-              我是您的 AI 助手。<br />
-              告诉我如何修改当前工作流，<br />或者描述一个新的任务。
+            <h3 class="text-sm font-medium text-gray-200 mb-1">我是您的 AI 助手</h3>
+            <p class="text-xs text-gray-400 max-w-[200px] leading-relaxed">
+              我可以帮您修改当前工作流，或者根据描述创建新任务。
             </p>
           </div>
 
@@ -78,20 +101,20 @@
           <div
             v-for="(msg, index) in history"
             :key="index"
-            class="flex flex-col"
+            class="flex flex-col group"
             :class="msg.role === 'user' ? 'items-end' : 'items-start'"
           >
             <div
-              class="max-w-[85%] rounded-lg p-3 text-xs leading-relaxed shadow-sm break-words"
+              class="max-w-[85%] rounded-2xl px-3.5 py-2.5 text-xs leading-relaxed shadow-sm break-words border transition-all"
               :class="[
                 msg.role === 'user'
-                  ? 'bg-blue-600 text-white rounded-br-none'
-                  : 'bg-gray-800 text-gray-200 border border-gray-700 rounded-bl-none',
+                  ? 'bg-blue-600 text-white rounded-br-sm border-blue-500'
+                  : 'bg-gray-800/80 text-gray-200 border-gray-700/50 rounded-bl-sm backdrop-blur-sm',
               ]"
             >
               <p class="whitespace-pre-wrap font-sans">{{ msg.content }}</p>
             </div>
-            <span class="mt-1 text-[10px] text-gray-500 font-mono">
+            <span class="mt-1 text-[10px] text-gray-600 font-mono px-1 opacity-0 group-hover:opacity-100 transition-opacity">
               {{ msg.role === 'user' ? 'YOU' : 'AI' }}
             </span>
           </div>
@@ -99,7 +122,7 @@
           <!-- 加载状态 -->
           <div v-if="isGenerating" class="flex items-start space-x-2">
             <div
-              class="flex items-center space-x-1 rounded-lg bg-gray-800 px-3 py-2 border border-gray-700"
+              class="flex items-center space-x-1 rounded-xl bg-gray-800/50 px-3 py-2.5 border border-gray-700/30"
             >
               <div class="h-1.5 w-1.5 animate-bounce rounded-full bg-blue-400"></div>
               <div
@@ -112,48 +135,45 @@
           </div>
           
            <!-- 错误提示 -->
-           <div v-if="error" class="rounded-md bg-red-900/30 border border-red-800 p-2 text-xs text-red-300">
-              {{ error }}
+           <div v-if="error" class="rounded-lg bg-red-500/10 border border-red-500/20 p-3 flex items-start space-x-2">
+              <v-remixicon name="riErrorWarningLine" class="text-red-400 shrink-0" size="16" />
+              <span class="text-xs text-red-200 leading-tight">{{ error }}</span>
            </div>
         </div>
 
         <!-- 输入区域 -->
-        <div class="border-t border-gray-700/50 bg-gray-800/30 p-3">
-          <div class="relative">
+        <div class="border-t border-white/5 bg-gray-900/40 p-3 backdrop-blur-md">
+          <div class="relative group">
             <textarea
               ref="inputRef"
               v-model="input"
               rows="1"
-              class="w-full resize-none rounded-lg border border-gray-600 bg-gray-900 px-3 py-2.5 pr-10 text-sm text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 scrollbar-hide"
+              class="w-full resize-none rounded-xl border border-gray-700 bg-gray-800/50 px-3.5 py-3 pr-10 text-xs text-white placeholder-gray-500 focus:border-blue-500/50 focus:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 scrollbar-hide transition-all"
               placeholder="输入指令..."
               @keydown.enter.exact.prevent="sendMessage"
               @input="autoResize"
             ></textarea>
             <button
-              class="absolute bottom-1.5 right-1.5 rounded-md p-1.5 transition-colors"
+              class="absolute bottom-1.5 right-1.5 rounded-lg p-1.5 transition-all"
               :class="
                 !input.trim() || isGenerating
-                  ? 'text-gray-600 cursor-not-allowed'
-                  : 'text-blue-400 hover:bg-gray-800 hover:text-blue-300'
+                  ? 'text-gray-600 cursor-not-allowed opacity-50'
+                  : 'text-blue-400 hover:bg-blue-500/10 hover:text-blue-300 active:scale-95'
               "
               :disabled="!input.trim() || isGenerating"
               @click="sendMessage"
             >
               <v-remixicon
-                :name="isGenerating ? 'riLoaderLine' : 'riSendPlaneLine'"
+                :name="isGenerating ? 'riLoaderLine' : 'riSendPlaneFill'"
                 :class="{ 'animate-spin': isGenerating }"
-                size="18"
+                size="16"
               />
             </button>
           </div>
-          <div class="mt-2 flex items-center justify-between px-1">
-             <div class="flex items-center space-x-2">
-                <span class="h-1.5 w-1.5 rounded-full" :class="ollamaStatus === 'connected' ? 'bg-green-500' : 'bg-red-500'"></span>
-                <span class="text-[10px] text-gray-500 uppercase tracking-wider font-mono">
-                   {{ ollamaStatus === 'connected' ? 'ONLINE' : 'OFFLINE' }}
-                </span>
-             </div>
-             <span class="text-[10px] text-gray-500 font-mono">ENTER TO SEND</span>
+          <div class="mt-2 px-1 flex justify-end">
+             <span class="text-[9px] text-gray-600 font-mono flex items-center gap-1">
+               ENTER TO SEND
+             </span>
           </div>
         </div>
       </div>
@@ -177,6 +197,7 @@ const emit = defineEmits(['update-workflow']);
 
 const toast = useToast();
 const isOpen = ref(false);
+const showPrompt = ref(false); // 智能提示控制
 const input = ref('');
 const inputRef = ref(null);
 const chatContainer = ref(null);
@@ -198,11 +219,17 @@ function autoResize() {
 function toggleChat() {
   isOpen.value = !isOpen.value;
   if (isOpen.value) {
+    showPrompt.value = false; // 打开聊天时隐藏提示
     nextTick(() => {
         scrollToBottom();
         inputRef.value?.focus();
     });
   }
+}
+
+function hidePrompt() {
+    // 鼠标悬停在按钮上时，如果提示显示中，可以考虑不隐藏或者延迟隐藏
+    // 这里保持简单，暂不处理，点击关闭或者点击提示卡片进入聊天
 }
 
 function scrollToBottom() {
@@ -268,6 +295,12 @@ async function checkStatus() {
 
 onMounted(() => {
     checkStatus();
+    // 延迟显示智能提示 (模拟智能渐显)
+    setTimeout(() => {
+        if (!isOpen.value) {
+            showPrompt.value = true;
+        }
+    }, 2000);
 });
 
 </script>
@@ -280,7 +313,7 @@ onMounted(() => {
   background: transparent;
 }
 .scrollbar-thin::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: rgba(255, 255, 255, 0.1);
   border-radius: 2px;
 }
 .scrollbar-hide::-webkit-scrollbar {
@@ -295,16 +328,43 @@ onMounted(() => {
 .scale-enter-from,
 .scale-leave-to {
   opacity: 0;
-  transform: scale(0.5);
+  transform: scale(0.8);
 }
 
-.slide-up-enter-active,
-.slide-up-leave-active {
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+.slide-down-enter-active,
+.slide-down-leave-active {
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.slide-up-enter-from,
-.slide-up-leave-to {
+.slide-down-enter-from,
+.slide-down-leave-to {
   opacity: 0;
-  transform: translateY(20px) scale(0.95);
+  transform: translateY(-20px) scale(0.95);
+  transform-origin: top left;
+}
+
+/* Prompt Fade Slide */
+.fade-slide-enter-active,
+.fade-slide-leave-active {
+  transition: all 0.4s ease;
+}
+.fade-slide-enter-from,
+.fade-slide-leave-to {
+  opacity: 0;
+  transform: translateX(-10px);
+}
+
+@keyframes fade-in-up {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.5s ease-out forwards;
 }
 </style>

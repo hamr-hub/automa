@@ -11,7 +11,7 @@ test.describe('AI Multi-turn Dialogue Mechanism', () => {
   test.beforeEach(async () => {
     // Check if build directory exists, if not warn
     // but we proceed hoping for the best or assume user handled it
-    
+
     browserContext = await chromium.launchPersistentContext('', {
       headless: false,
       args: [
@@ -38,17 +38,21 @@ test.describe('AI Multi-turn Dialogue Mechanism', () => {
       if (extensionPage) {
         extensionId = extensionPage.url().split('/')[2];
       } else {
-        // If we can't find the ID, we might fail. 
+        // If we can't find the ID, we might fail.
         // Try to open a known page? No, we need ID to open page.
         // Assuming standard ID if packed? No, it's random in dev.
         // Let's just wait a bit more or fail.
         // Try getting it from targets
         const targets = browserContext.targets();
-        const extTarget = targets.find(t => t.type() === 'background_page' || t.url().startsWith('chrome-extension://'));
+        const extTarget = targets.find(
+          (t) =>
+            t.type() === 'background_page' ||
+            t.url().startsWith('chrome-extension://')
+        );
         if (extTarget) {
-            extensionId = extTarget.url().split('/')[2];
+          extensionId = extTarget.url().split('/')[2];
         } else {
-            throw new Error('Could not find extension ID');
+          throw new Error('Could not find extension ID');
         }
       }
     } else {
@@ -72,17 +76,23 @@ test.describe('AI Multi-turn Dialogue Mechanism', () => {
       const messages = postData.messages;
       const lastMessage = messages[messages.length - 1];
 
-      console.log('Intercepted Ollama Request:', lastMessage.content.substring(0, 50) + '...');
+      console.log(
+        'Intercepted Ollama Request:',
+        lastMessage.content.substring(0, 50) + '...'
+      );
 
-      // Optimization Check: 
+      // Optimization Check:
       // Ensure subsequent requests DO NOT contain the massive "Page Context" block
       // The first request might (if context was passed), but second shouldn't if optimized.
       // We can check message length or content.
-      if (messages.length > 3) { // System + User1 + Assistant1 + User2...
-         // Check if last user message is short (optimized)
-         if (lastMessage.content.length > 5000) {
-             console.warn('WARNING: Request content is very large, optimization might have failed.');
-         }
+      if (messages.length > 3) {
+        // System + User1 + Assistant1 + User2...
+        // Check if last user message is short (optimized)
+        if (lastMessage.content.length > 5000) {
+          console.warn(
+            'WARNING: Request content is very large, optimization might have failed.'
+          );
+        }
       }
 
       let responseContent = '';
@@ -160,15 +170,15 @@ test.describe('AI Multi-turn Dialogue Mechanism', () => {
 
     // Verify loading state
     await expect(page.locator('text=AI 正在生成工作流')).toBeVisible();
-    
+
     // Verify response
     await expect(page.locator('text=已为您生成工作流')).toBeVisible();
-    await expect(page.locator('text=打开网页')).toBeVisible(); 
-    
+    await expect(page.locator('text=打开网页')).toBeVisible();
+
     // Turn 2: Follow up
     await input.fill('Also extract price');
     await page.keyboard.press('Enter');
-    
+
     // Wait for response
     await expect(page.locator('text=已为您生成工作流').nth(1)).toBeVisible();
     await expect(page.locator('text=获取文本')).toBeVisible();
@@ -193,7 +203,7 @@ test.describe('AI Multi-turn Dialogue Mechanism', () => {
     // Verification of History Integrity
     const messages = await page.locator('.whitespace-pre-wrap').allInnerTexts();
     expect(messages.length).toBeGreaterThanOrEqual(10); // 5 user + 5 assistant
-    
+
     console.log('End-to-End Multi-turn Test Passed');
   });
 });

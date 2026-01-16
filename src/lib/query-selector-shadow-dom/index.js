@@ -171,8 +171,8 @@ function findParentOrHost(element, root) {
   return parentNode && parentNode.host && parentNode.nodeType === 11
     ? parentNode.host
     : parentNode === root
-    ? null
-    : parentNode;
+      ? null
+      : parentNode;
 }
 
 const getShadowRoot = (element) => {
@@ -181,7 +181,7 @@ const getShadowRoot = (element) => {
   return BROWSER_TYPE === 'firefox'
     ? element.openOrClosedShadowRoot
     : chrome.dom.openOrClosedShadowRoot(element);
-}
+};
 
 /**
  * Finds all elements on the page, inclusive of those within shadow roots.

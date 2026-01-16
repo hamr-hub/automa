@@ -1,6 +1,6 @@
 /**
  * 端到端测试脚本 - 测试 Ollama 集成
- * 
+ *
  * 使用方法:
  * 1. 在浏览器控制台中运行此脚本
  * 2. 或者在扩展的 background.js 中导入并执行
@@ -14,7 +14,7 @@ export async function runE2ETests() {
     total: 0,
     passed: 0,
     failed: 0,
-    tests: []
+    tests: [],
   };
 
   /**
@@ -54,8 +54,11 @@ export async function runE2ETests() {
   console.log('\n📋 测试 2: Ollama 服务健康检查');
   try {
     const isHealthy = await aiService.checkHealth();
-    logTest('AIService.checkHealth()', isHealthy, 
-      !isHealthy ? new Error('Ollama 服务不可用') : null);
+    logTest(
+      'AIService.checkHealth()',
+      isHealthy,
+      !isHealthy ? new Error('Ollama 服务不可用') : null
+    );
   } catch (error) {
     logTest('AIService.checkHealth()', false, error);
   }
@@ -67,10 +70,13 @@ export async function runE2ETests() {
   try {
     const models = await aiService.listModels();
     const passed = Array.isArray(models) && models.length > 0;
-    logTest('AIService.listModels()', passed,
-      !passed ? new Error('未获取到模型列表') : null);
+    logTest(
+      'AIService.listModels()',
+      passed,
+      !passed ? new Error('未获取到模型列表') : null
+    );
     if (passed) {
-      console.log(`   可用模型: ${models.map(m => m.name).join(', ')}`);
+      console.log(`   可用模型: ${models.map((m) => m.name).join(', ')}`);
     }
   } catch (error) {
     logTest('AIService.listModels()', false, error);
@@ -81,20 +87,23 @@ export async function runE2ETests() {
    */
   console.log('\n📋 测试 4: 简单聊天调用 (通过 LangGraphService)');
   try {
-    const messages = [
-      { role: 'user', content: '请回复"测试成功"' }
-    ];
+    const messages = [{ role: 'user', content: '请回复"测试成功"' }];
     const response = await aiService.chat(messages, {
       model: 'mistral',
-      temperature: 0.1
+      temperature: 0.1,
     });
-    
+
     const passed = response && response.message && response.message.content;
-    logTest('AIService.chat()', passed,
-      !passed ? new Error('未获取到有效响应') : null);
-    
+    logTest(
+      'AIService.chat()',
+      passed,
+      !passed ? new Error('未获取到有效响应') : null
+    );
+
     if (passed) {
-      console.log(`   AI 响应: ${response.message.content.substring(0, 100)}...`);
+      console.log(
+        `   AI 响应: ${response.message.content.substring(0, 100)}...`
+      );
     }
   } catch (error) {
     logTest('AIService.chat()', false, error);
@@ -107,13 +116,16 @@ export async function runE2ETests() {
   try {
     const response = await aiService.generate('说出数字1到3', {
       model: 'mistral',
-      temperature: 0.1
+      temperature: 0.1,
     });
-    
+
     const passed = response && response.text;
-    logTest('AIService.generate()', passed,
-      !passed ? new Error('未获取到有效响应') : null);
-    
+    logTest(
+      'AIService.generate()',
+      passed,
+      !passed ? new Error('未获取到有效响应') : null
+    );
+
     if (passed) {
       console.log(`   AI 响应: ${response.text.substring(0, 100)}...`);
     }
@@ -127,12 +139,16 @@ export async function runE2ETests() {
   console.log('\n📋 测试 6: 验证调用路径');
   try {
     const langGraphService = aiService.getLangGraphService();
-    const passed = langGraphService && 
-                   typeof langGraphService.simpleChat === 'function' &&
-                   typeof langGraphService.simpleGenerate === 'function';
-    
-    logTest('LangGraphService 可访问', passed,
-      !passed ? new Error('无法访问 LangGraphService') : null);
+    const passed =
+      langGraphService &&
+      typeof langGraphService.simpleChat === 'function' &&
+      typeof langGraphService.simpleGenerate === 'function';
+
+    logTest(
+      'LangGraphService 可访问',
+      passed,
+      !passed ? new Error('无法访问 LangGraphService') : null
+    );
   } catch (error) {
     logTest('LangGraphService 可访问', false, error);
   }
@@ -144,9 +160,12 @@ export async function runE2ETests() {
   try {
     const metrics = aiService.getMetrics();
     const passed = metrics && typeof metrics.requests === 'number';
-    logTest('AIService.getMetrics()', passed,
-      !passed ? new Error('未获取到有效指标') : null);
-    
+    logTest(
+      'AIService.getMetrics()',
+      passed,
+      !passed ? new Error('未获取到有效指标') : null
+    );
+
     if (passed) {
       console.log(`   总请求数: ${metrics.requests}`);
       console.log(`   错误数: ${metrics.errors}`);
@@ -163,7 +182,9 @@ export async function runE2ETests() {
   console.log(`总计: ${results.total} 个测试`);
   console.log(`✅ 通过: ${results.passed}`);
   console.log(`❌ 失败: ${results.failed}`);
-  console.log(`成功率: ${((results.passed / results.total) * 100).toFixed(1)}%`);
+  console.log(
+    `成功率: ${((results.passed / results.total) * 100).toFixed(1)}%`
+  );
 
   return results;
 }

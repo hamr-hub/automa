@@ -1145,6 +1145,48 @@ class SupabaseClient {
     });
 
     if (error) throw error;
+    await this.createUserActivityLog('login', { method: 'password' });
+    return data;
+  }
+
+  /**
+   * 使用 OTP (邮箱/手机) 登录
+   * @param {object} options - { email, phone, options }
+   */
+  async signInWithOtp(payload) {
+    const { data, error } = await this.client.auth.signInWithOtp(payload);
+
+    if (error) throw error;
+    return data;
+  }
+
+  /**
+   * 验证 OTP
+   * @param {object} payload - { email/phone, token, type: 'sms'|'email' }
+   */
+  async verifyOtp(payload) {
+    const { data, error } = await this.client.auth.verifyOtp(payload);
+
+    if (error) throw error;
+    await this.createUserActivityLog('login', { method: 'otp' });
+    return data;
+  }
+
+  /**
+   * 使用 OAuth 第三方登录
+   * @param {string} provider - 'google', 'github', etc.
+   * @param {object} options - 额外选项 { redirectTo, scopes }
+   */
+  async signInWithOAuth(provider, options = {}) {
+    const { data, error } = await this.client.auth.signInWithOAuth({
+      provider,
+      options: {
+        redirectTo: window.location.origin,
+        ...options,
+      },
+    });
+
+    if (error) throw error;
     return data;
   }
 
@@ -1164,6 +1206,9 @@ class SupabaseClient {
     });
 
     if (error) throw error;
+    if (data.user) {
+      await this.createUserActivityLog('register', { email });
+    }
     return data;
   }
 
@@ -1171,8 +1216,164 @@ class SupabaseClient {
    * 登出
    */
   async signOut() {
+    await this.createUserActivityLog('logout');
     const { error } = await this.client.auth.signOut();
     if (error) throw error;
+  }
+
+  /**
+   * 重置密码邮件
+   * @param {string} email
+   */
+  async resetPasswordForEmail(email) {
+    const { data, error } = await this.client.auth.resetPasswordForEmail(
+      email,
+      {
+        redirectTo: `${window.location.origin}/#/settings/profile?reset=true`,
+      }
+    );
+    if (error) throw error;
+    return data;
+  }
+
+  /**
+   * 更新用户信息 (包括密码)
+   * @param {object} attributes - { email, password, data }
+   */
+  async updateUser(attributes) {
+    const { data, error } = await this.client.auth.updateUser(attributes);
+    if (error) throw error;
+    await this.createUserActivityLog('update_profile', {
+      attributes: Object.keys(attributes),
+    });
+    return data;
+  }
+
+  // ============================================
+  // MFA (多重认证) 相关操作
+  // ============================================
+
+  /**
+   * 注册 MFA 因子 (TOTP)
+   */
+  async enrollMFA() {
+    const { data, error } = await this.client.auth.mfa.enroll({
+      factorType: 'totp',
+    });
+    if (error) throw error;
+    return data; // contains id, type, totp: { qr_code, secret, uri }
+  }
+
+  /**
+   * 验证并激活 MFA 因子
+   * @param {string} factorId
+   * @param {string} code
+   */
+  async verifyAndEnableMFA(factorId, code) {
+    // 1. Create challenge
+    const { data: challengeData, error: challengeError } =
+      await this.client.auth.mfa.challenge({
+        factorId,
+      });
+    if (challengeError) throw challengeError;
+
+    // 2. Verify
+    const { data, error } = await this.client.auth.mfa.verify({
+      factorId,
+      challengeId: challengeData.id,
+      code,
+    });
+    if (error) throw error;
+
+    await this.createUserActivityLog('enable_mfa');
+    return data;
+  }
+
+  /**
+   * 解绑 MFA 因子
+   * @param {string} factorId
+   */
+  async unenrollMFA(factorId) {
+    const { data, error } = await this.client.auth.mfa.unenroll({ factorId });
+    if (error) throw error;
+    await this.createUserActivityLog('disable_mfa');
+    return data;
+  }
+
+  /**
+   * 获取已注册的 MFA 因子
+   */
+  async listMFAFactors() {
+    const { data, error } = await this.client.auth.mfa.listFactors();
+    if (error) throw error;
+    return data.all;
+  }
+
+  /**
+   * 获取当前 MFA 状态 (等级)
+   */
+  async getMFAAssuranceLevel() {
+    const { data, error } =
+      await this.client.auth.mfa.getAuthenticatorAssuranceLevel();
+    if (error) throw error;
+    return data;
+  }
+
+  // ============================================
+  // 用户行为日志
+  // ============================================
+
+  /**
+   * 创建用户行为日志
+   * @param {string} action
+   * @param {object} details
+   */
+  async createUserActivityLog(action, details = {}) {
+    if (!this.client) return;
+    try {
+      const user = await this.getCurrentUser();
+      if (!user) return; // 匿名操作暂不记录
+
+      // 尝试写入 user_activity_logs 表，如果表不存在可能会报错，所以加 try-catch
+      await this.client.from('user_activity_logs').insert([
+        {
+          user_id: user.id,
+          action,
+          details,
+          ip_address: '0.0.0.0', // 前端无法直接获取真实 IP，通常由后端或 Edge Function 处理
+          user_agent: navigator.userAgent,
+        },
+      ]);
+    } catch (e) {
+      // 忽略日志写入错误，以免影响主流程
+      console.warn('Failed to log user activity:', e);
+    }
+  }
+
+  /**
+   * 获取用户行为日志
+   * @param {number} limit
+   */
+  async getUserActivityLogs(limit = 20) {
+    if (!this.client) return [];
+
+    try {
+      const user = await this.getCurrentUser();
+      if (!user) return [];
+
+      const { data, error } = await this.client
+        .from('user_activity_logs')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(limit);
+
+      if (error) throw error;
+      return data;
+    } catch (e) {
+      console.warn('Failed to fetch user activity logs:', e);
+      return [];
+    }
   }
 
   /**

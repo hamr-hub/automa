@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 @config "../../../tailwind.config.js";
 
 @theme {
@@ -6,7 +6,7 @@
   --color-primary: oklch(0.62 0.21 259.82);
   --color-secondary: oklch(0.72 0.17 237.32);
   --color-accent: oklch(0.25 0 0);
-  
+
   --color-gray-50: oklch(0.98 0 0);
   --color-gray-200: oklch(0.91 0.01 264.53);
   --color-gray-300: oklch(0.85 0.01 258.34);
@@ -14,7 +14,7 @@
   --color-gray-700: oklch(0.41 0.03 259.73);
   --color-gray-800: oklch(0.32 0.03 256.85);
   --color-gray-900: oklch(0.24 0.03 264.67);
-  
+
   /* Breakpoints */
   --breakpoint-sm: 640px;
   --breakpoint-md: 768px;
@@ -33,7 +33,7 @@
   &:hover {
     background-color: rgb(31 41 55 / 0.05);
   }
-  
+
   @media (prefers-color-scheme: dark) {
     &:hover {
       background-color: rgb(229 231 235 / 0.05);
@@ -43,16 +43,16 @@
 
 @utility bg-input {
   background-color: rgb(0 0 0 / 0.05);
-  
+
   &:hover {
     background-color: rgb(0 0 0 / 0.1);
   }
-  
+
   @media (prefers-color-scheme: dark) {
     & {
       background-color: rgb(229 231 235 / 0.05);
     }
-    
+
     &:hover {
       background-color: rgb(229 231 235 / 0.1);
     }
@@ -61,7 +61,7 @@
 
 @utility bg-box-transparent {
   background-color: rgb(0 0 0 / 0.05);
-  
+
   @media (prefers-color-scheme: dark) {
     & {
       background-color: rgb(229 231 235 / 0.05);
@@ -71,7 +71,7 @@
 
 @utility bg-box-transparent-2 {
   background-color: rgb(0 0 0 / 0.1);
-  
+
   @media (prefers-color-scheme: dark) {
     & {
       background-color: rgb(229 231 235 / 0.1);
@@ -87,7 +87,8 @@ html.dark {
   background-color: rgb(17 24 39);
 }
 
-body, :host {
+body,
+:host {
   font-family: 'Inter var', sans-serif !important;
   font-size: 16px !important;
   font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
@@ -139,7 +140,6 @@ select:focus,
   text-overflow: ellipsis;
 }
 
-
 .custom-table thead {
   background-color: rgb(0 0 0 / 0.05);
 }
@@ -166,13 +166,11 @@ select:focus,
   border-top-width: 1px;
 }
 
-
-
 pre {
   font-size: 15px;
 }
 
-.scroll, 
+.scroll,
 .scroll .cm-scroller {
   &::-webkit-scrollbar {
     width: 7px;
@@ -196,7 +194,6 @@ pre {
 .dark .scroll .cm-scroller::-webkit-scrollbar-thumb {
   background-color: rgb(55 65 81);
 }
-
 
 .tippy-box[data-theme~='tooltip-theme'] {
   padding-left: 0.5rem;
@@ -229,7 +226,7 @@ pre {
 }
 
 .ProseMirror img.ProseMirror-selectednode {
-  outline: 3px solid #68CEF8;
+  outline: 3px solid #68cef8;
 }
 
 .input-label {

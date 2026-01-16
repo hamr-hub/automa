@@ -44,8 +44,7 @@ async function validateWorkflow(workflowPath) {
     'variables.Input_Column': 'A',
     'variables.Current_Input_Row': '2',
     'variables.AmazonDomain': 'www.amazon.sg',
-    'globalData@productUrl':
-      'https://www.amazon.sg/dp/B09X636B42',
+    'globalData@productUrl': 'https://www.amazon.sg/dp/B09X636B42',
   };
 
   const renderTemplate = (str) => {
@@ -151,12 +150,14 @@ async function validateWorkflow(workflowPath) {
 
     while (currentNode && stepCount < maxSteps) {
       stepCount++;
-      
+
       // 检测循环：如果同一个节点连续访问超过3次，则退出
       const loopKey = `${currentNode.id}`;
       const loopCount = loopTracker.get(loopKey) || 0;
       if (loopCount > 2) {
-        console.log(`\n⚠️  检测到循环：节点 ${currentNode.label} 被访问超过3次，停止测试`);
+        console.log(
+          `\n⚠️  检测到循环：节点 ${currentNode.label} 被访问超过3次，停止测试`
+        );
         break;
       }
       loopTracker.set(loopKey, loopCount + 1);
@@ -173,25 +174,26 @@ async function validateWorkflow(workflowPath) {
         switch (currentNode.label) {
           case 'tab-url':
           case 'new-window':
-          case 'new-tab': {
-            const url = renderTemplate(currentNode.data.url);
-            if (url && url.startsWith('http')) {
-                  console.log(`     ➡️ 导航到: ${url}`);
-                  await page
-                    .goto(url, {
-                      waitUntil: 'domcontentloaded',
-                      timeout: 15000,
-                    })
-                    .catch((e) => {
-                      const warning = `页面加载超时: ${url}`;
-                      results.warnings.push(warning);
-                      console.log(`     ⚠️  ${warning}`);
-                    });
-                } else if (url) {
-                  const warning = `无效或模板未解析的URL: ${url}`;
-                  results.warnings.push(warning);
-                  console.log(`     ⚠️  ${warning}`);
-                }
+          case 'new-tab':
+            {
+              const url = renderTemplate(currentNode.data.url);
+              if (url && url.startsWith('http')) {
+                console.log(`     ➡️ 导航到: ${url}`);
+                await page
+                  .goto(url, {
+                    waitUntil: 'domcontentloaded',
+                    timeout: 15000,
+                  })
+                  .catch((e) => {
+                    const warning = `页面加载超时: ${url}`;
+                    results.warnings.push(warning);
+                    console.log(`     ⚠️  ${warning}`);
+                  });
+              } else if (url) {
+                const warning = `无效或模板未解析的URL: ${url}`;
+                results.warnings.push(warning);
+                console.log(`     ⚠️  ${warning}`);
+              }
             }
             break;
 

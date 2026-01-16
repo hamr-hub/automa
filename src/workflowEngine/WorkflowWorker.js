@@ -64,7 +64,7 @@ class WorkflowWorker {
     this.childWorkflowId = null;
 
     this.debugAttached = false;
-    
+
     // kwaipilot-fix: MEM-Issue-001/izug9vafykzi3mmd8f9e
     // 添加资源跟踪
     this.timers = new Set();
@@ -636,16 +636,16 @@ class WorkflowWorker {
   cleanup() {
     // Clear timers
     if (this.timers) {
-      this.timers.forEach(timer => clearTimeout(timer));
+      this.timers.forEach((timer) => clearTimeout(timer));
       this.timers.clear();
     }
-    
+
     // Clear intervals
     if (this.intervals) {
-      this.intervals.forEach(interval => clearInterval(interval));
+      this.intervals.forEach((interval) => clearInterval(interval));
       this.intervals.clear();
     }
-    
+
     // Remove message listeners
     if (this.messageListeners) {
       this.messageListeners.forEach((listener, key) => {
@@ -657,7 +657,7 @@ class WorkflowWorker {
       });
       this.messageListeners.clear();
     }
-    
+
     // Clear references
     this.loopEls = [];
     this.loopList = {};

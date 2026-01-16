@@ -1,4 +1,3 @@
-
 /**
  * LangGraph Agent 核心
  * 目标：用户与 AI 对话/指令 => 生成 Automa 工作流
@@ -9,6 +8,7 @@ import OllamaClient from './OllamaClient';
 import LangGraphService from './LangGraphService';
 import Browser from 'webextension-polyfill';
 import { workflowGenerationPrompt } from './prompts/workflow-generation';
+import { getPageContext } from './aiUtils';
 
 class LangGraphAgent {
   constructor(config = {}) {
@@ -61,66 +61,62 @@ class LangGraphAgent {
    * 获取当前标签页的 DOM 上下文
    */
   async getPageContext() {
+    return await getPageContext();
+  }
+
+  /**
+   * Run Interactive Mode
+   */
+  async runInteractive(userInput, onProgress) {
     try {
-      let [tab] = await Browser.tabs.query({
-        active: true,
-        currentWindow: true,
-      });
+      this.state.status = 'interactive';
+      this.state.error = null;
 
-      // If current tab is extension page, try to find Amazon JP tab
-      if (
-        tab?.url &&
-        (tab.url.startsWith('chrome-extension:') ||
-          tab.url.startsWith('moz-extension:'))
-      ) {
-        // Fallback or specific logic if needed
+      if (this.abortController) {
+        this.abortController.abort();
       }
+      this.abortController = new AbortController();
 
-      if (!tab?.id) return null;
-
-      const [result] = await Browser.scripting.executeScript({
-        target: { tabId: tab.id },
-        func: () => {
-          function simplify(root) {
-            if (!root) return '';
-            const clone = root.cloneNode(true);
-            const removeTags = [
-              'SCRIPT',
-              'STYLE',
-              'NOSCRIPT',
-              'IFRAME',
-              'SVG',
-              'PATH',
-              'LINK',
-              'META',
-            ];
-            const walker = document.createTreeWalker(
-              clone,
-              NodeFilter.SHOW_ELEMENT
-            );
-            const nodesToRemove = [];
-            while (walker.nextNode()) {
-              if (removeTags.includes(walker.currentNode.tagName))
-                nodesToRemove.push(walker.currentNode);
-            }
-            nodesToRemove.forEach((n) => n.remove());
-
-            // Simple cleanup
-            return clone.innerHTML.replace(/\s+/g, ' ').trim().slice(0, 30000);
-          }
-
-          return {
-            url: window.location.href,
-            title: document.title,
-            dom: simplify(document.body),
-          };
-        },
+      onProgress?.({
+        step: 'init',
+        message: 'Starting interactive session...',
       });
 
-      return result?.result;
-    } catch (e) {
-      console.warn('Failed to get page context:', e);
-      return null;
+      const workflowSteps = await this.langGraphService.runInteractive(
+        userInput,
+        onProgress,
+        this.abortController.signal
+      );
+
+      this.abortController = null;
+      this.state.status = 'idle';
+
+      // Generate a full workflow object from the steps
+      // We assume no data schema for now, or we could extract it from steps if EXTRACT exists
+      const workflow = this.langGraphService.workflowGenerator.generateWorkflow(
+        { steps: workflowSteps, dataSchema: {} },
+        userInput,
+        ''
+      );
+
+      return {
+        success: true,
+        workflow: workflow,
+        message: 'Interactive session completed.',
+      };
+    } catch (error) {
+      if (error.message === 'Aborted by user') {
+        return { success: false, error: '已停止生成' };
+      }
+      console.error('Interactive Mode Error:', error);
+      this.state.status = 'error';
+      this.state.error = error.message;
+      return {
+        success: false,
+        error: error.message,
+      };
+    } finally {
+      this.abortController = null;
     }
   }
 
@@ -131,11 +127,17 @@ class LangGraphAgent {
    * @param {(progress: {step: string, message: string}) => void} onProgress 进度回调
    * @param {string} pageContext 页面上下文 (可选, JSON string)
    */
-  async chat(userInput, targetUrl = '', onProgress, pageContext = null, currentWorkflow = null) {
+  async chat(
+    userInput,
+    targetUrl = '',
+    onProgress,
+    pageContext = null,
+    currentWorkflow = null
+  ) {
     try {
       this.state.status = 'generating';
       this.state.error = null;
-      
+
       // Cancel previous request if any
       if (this.abortController) {
         this.abortController.abort();
@@ -157,7 +159,11 @@ class LangGraphAgent {
       let promptContent;
       // If history is empty, inject context.
       if (this.history.length === 0) {
-        promptContent = workflowGenerationPrompt.user(userInput, targetUrl, pageContext);
+        promptContent = workflowGenerationPrompt.user(
+          userInput,
+          targetUrl,
+          pageContext
+        );
       } else {
         // Multi-turn: Use follow-up prompt to save tokens (don't re-inject DOM)
         // Unless explicit pageContext change handling is required (omitted for now)
@@ -199,17 +205,17 @@ class LangGraphAgent {
       }
     } catch (error) {
       if (error.message === 'Aborted by user') {
-         return { success: false, error: '已停止生成' };
+        return { success: false, error: '已停止生成' };
       }
       console.error('LangGraph Agent Error:', error);
       this.state.status = 'error';
-      
+
       // 提供更详细的错误信息
       let errorMessage = error.message;
       if (error.message.includes('Failed to generate workflow')) {
         errorMessage = `工作流生成失败: ${error.message}\n\n可能原因:\n1. AI 模型返回了非标准 JSON 格式\n2. 模型输出缺少必需字段 (steps/dataSchema)\n3. 请尝试使用更强大的模型 (如 llama3, qwen2.5)\n4. 检查控制台日志查看详细错误`;
       }
-      
+
       this.state.error = errorMessage;
 
       // 重要：失败时不要将错误消息放入 history

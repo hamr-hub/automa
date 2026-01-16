@@ -1,4 +1,3 @@
-
 /**
  * 简化版状态图管理 (浏览器兼容版本)
  * 替代 @langchain/langgraph 以在浏览器扩展中运行
@@ -8,6 +7,9 @@ import OllamaClient from './OllamaClient.js';
 import WorkflowGenerator from './WorkflowGenerator.js';
 import aiConfig from '../../config/ai.config.js';
 import { workflowGenerationPrompt } from './prompts/workflow-generation.js';
+import { interactiveAgentPrompt } from './prompts/interactive-mode.js';
+import { getPageContext, executeBlockInTab } from './aiUtils.js';
+import Browser from 'webextension-polyfill';
 
 class StateGraph {
   constructor(config) {
@@ -217,8 +219,11 @@ class LangGraphService {
         generatedJson: this.extractJson(content),
       };
     } catch (error) {
-      if (error.message === 'Aborted by user' || (state.abortSignal && state.abortSignal.aborted)) {
-         throw new Error('Aborted by user');
+      if (
+        error.message === 'Aborted by user' ||
+        (state.abortSignal && state.abortSignal.aborted)
+      ) {
+        throw new Error('Aborted by user');
       }
       console.error('[LangGraph] Generation Error:', error);
       return { error: error.message };
@@ -233,7 +238,8 @@ class LangGraphService {
     state.onProgress?.({ step: 'validation', message: '正在验证生成结果...' });
 
     if (!state.generatedJson) {
-      const errorMsg = 'AI 返回的内容中未找到有效的 JSON 格式。请确保模型输出包含 ```json 代码块。';
+      const errorMsg =
+        'AI 返回的内容中未找到有效的 JSON 格式。请确保模型输出包含 ```json 代码块。';
       console.error('[LangGraph]', errorMsg);
       return {
         error: errorMsg,
@@ -288,6 +294,204 @@ class LangGraphService {
   }
 
   /**
+   * Build the Interactive Mode Graph
+   */
+  buildInteractiveGraph() {
+    const graphBuilder = new StateGraph({
+      channels: {
+        messages: { value: (x, y) => x.concat(y), default: () => [] },
+        goal: { value: (x, y) => y || x, default: () => '' },
+        pageContext: { value: (x, y) => y, default: () => '' },
+        history: { value: (x, y) => x.concat(y), default: () => [] },
+        currentWorkflow: { value: (x, y) => y, default: () => [] },
+        lastAction: { value: (x, y) => y, default: () => null },
+        error: { value: (x, y) => y, default: () => null },
+        onProgress: { value: (x, y) => x, default: () => null },
+        abortSignal: { value: (x, y) => x, default: () => null },
+      },
+    });
+
+    graphBuilder.addNode('analyze', this.analyzeNode.bind(this));
+    graphBuilder.addNode('decide', this.decisionNode.bind(this));
+    graphBuilder.addNode('execute', this.executionNode.bind(this));
+
+    graphBuilder.setEntryPoint('analyze');
+
+    graphBuilder.addEdge('analyze', 'decide');
+
+    graphBuilder.addConditionalEdges(
+      'decide',
+      (state) => {
+        if (state.lastAction?.type === 'DONE') {
+          return 'end';
+        }
+        return 'execute';
+      },
+      {
+        end: END,
+        execute: 'execute',
+      }
+    );
+
+    graphBuilder.addEdge('execute', 'analyze');
+
+    return graphBuilder.compile();
+  }
+
+  /**
+   * Node: Analyze Page
+   */
+  async analyzeNode(state) {
+    state.onProgress?.({ step: 'analyze', message: '正在分析页面...' });
+
+    if (state.abortSignal?.aborted) throw new Error('Aborted by user');
+
+    // Wait for page to be ready/stable?
+    // In a real scenario, we might want to wait for network idle.
+    // For now, we assume execution node waited enough.
+
+    const context = await getPageContext();
+    return {
+      pageContext: context ? context.dom : '',
+    };
+  }
+
+  /**
+   * Node: Decide Next Step
+   */
+  async decisionNode(state) {
+    state.onProgress?.({ step: 'decide', message: '正在思考下一步操作...' });
+
+    const prompt = interactiveAgentPrompt.user(
+      state.goal,
+      state.pageContext,
+      state.history,
+      state.currentWorkflow
+    );
+
+    const messages = [
+      { role: 'system', content: interactiveAgentPrompt.system },
+      { role: 'user', content: prompt },
+    ];
+
+    try {
+      const response = await this.ollama.chat(messages, {
+        signal: state.abortSignal,
+        format: 'json', // Try to enforce JSON if possible
+      });
+
+      const content = response.message.content;
+      const action = this.extractJson(content);
+
+      if (!action) {
+        throw new Error('Failed to parse AI action');
+      }
+
+      return {
+        lastAction: action,
+        messages: [{ role: 'assistant', content }],
+      };
+    } catch (error) {
+      console.error('Decision Error:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Node: Execute Action
+   */
+  async executionNode(state) {
+    const action = state.lastAction;
+    state.onProgress?.({
+      step: 'execute',
+      message: `执行操作: ${action.type}`,
+    });
+
+    try {
+      const step = {
+        type: action.type,
+        selector: action.selector,
+        description: action.reason,
+        data: {
+          value: action.value,
+          url: action.url,
+          ...action, // pass all other props
+        },
+      };
+
+      let block = null;
+
+      if (action.type === 'NAVIGATE') {
+        if (action.url) {
+          await Browser.tabs.update({ url: action.url });
+          // Wait for navigation
+          await new Promise((r) => setTimeout(r, 3000));
+        }
+        block = this.workflowGenerator.createNodeFromStep(step, 0);
+      } else if (action.type === 'WAIT') {
+        await new Promise((r) => setTimeout(r, action.time || 2000));
+        block = this.workflowGenerator.createNodeFromStep(step, 0);
+      } else if (action.type !== 'DONE') {
+        block = this.workflowGenerator.createNodeFromStep(step, 0);
+        if (block) {
+          // Execute in Tab
+          // Note: Some blocks like 'loop-start' might not need execution on page,
+          // but usually we want to verify selectors.
+          // For loop-elements, we can try highlighting.
+          // For now, try to execute everything that maps to a block.
+          await executeBlockInTab(block);
+
+          // If click, wait for potential navigation
+          if (action.type === 'CLICK') {
+            await new Promise((r) => setTimeout(r, 2000));
+          }
+        }
+      }
+
+      const newWorkflow = block
+        ? [...state.currentWorkflow, block]
+        : state.currentWorkflow;
+
+      const historyItem = {
+        action: action.type,
+        selector: action.selector,
+        status: 'SUCCESS',
+      };
+
+      return {
+        currentWorkflow: newWorkflow,
+        history: [historyItem],
+      };
+    } catch (error) {
+      console.error('Execution Error:', error);
+      // Don't stop the whole graph, just record failure and maybe AI will retry?
+      // For now, let's throw to stop, or return error state.
+      // If we return error, the next decide node will see it in history.
+      return {
+        history: [
+          { action: action.type, status: 'FAILED', error: error.message },
+        ],
+        // error: error.message // If we set error, it might be global.
+      };
+    }
+  }
+
+  /**
+   * Run Interactive Session
+   */
+  async runInteractive(goal, onProgress, abortSignal) {
+    const graph = this.buildInteractiveGraph();
+    const initialState = {
+      goal,
+      onProgress,
+      abortSignal,
+    };
+
+    const result = await graph.invoke(initialState);
+    return result.currentWorkflow;
+  }
+
+  /**
    * Helper: Extract JSON from text
    */
   extractJson(text) {
@@ -308,11 +512,14 @@ class LangGraphService {
           cleanedJson = cleanedJson.replace(/:\s*True/g, ': true');
           // Replace Python False with false
           cleanedJson = cleanedJson.replace(/:\s*False/g, ': false');
-          
+
           return JSON.parse(cleanedJson);
         } catch (e2) {
           console.error('[LangGraph] JSON Parse Error:', e2.message);
-          console.error('[LangGraph] Attempted to parse:', match[1].substring(0, 200));
+          console.error(
+            '[LangGraph] Attempted to parse:',
+            match[1].substring(0, 200)
+          );
           return null;
         }
       }
@@ -324,25 +531,40 @@ class LangGraphService {
   /**
    * Execute the workflow generation graph
    */
-  async run(userInput, targetUrl = '', history = [], pageContext = '', abortSignal = null, onProgress = null, currentWorkflow = null) {
+  async run(
+    userInput,
+    targetUrl = '',
+    history = [],
+    pageContext = '',
+    abortSignal = null,
+    onProgress = null,
+    currentWorkflow = null
+  ) {
     // Prepend System Prompt to history if needed
     if (history.length === 0 || history[0].role !== 'system') {
-        history.unshift({ role: 'system', content: workflowGenerationPrompt.system });
+      history.unshift({
+        role: 'system',
+        content: workflowGenerationPrompt.system,
+      });
     }
 
     // Inject/Update Current Workflow Context
     if (currentWorkflow) {
-        const workflowJson = JSON.stringify(currentWorkflow);
-        const contextContent = `Current Workflow Context (JSON):\n\`\`\`json\n${workflowJson}\n\`\`\`\n\nTask: Modify this workflow based on the user's latest request. Return the COMPLETE updated workflow JSON.`;
-        
-        const contextIndex = history.findIndex(m => m.role === 'system' && m.content.startsWith('Current Workflow Context'));
-        
-        if (contextIndex !== -1) {
-            history[contextIndex].content = contextContent;
-        } else {
-            // Insert after system prompt (index 1)
-            history.splice(1, 0, { role: 'system', content: contextContent });
-        }
+      const workflowJson = JSON.stringify(currentWorkflow);
+      const contextContent = `Current Workflow Context (JSON):\n\`\`\`json\n${workflowJson}\n\`\`\`\n\nTask: Modify this workflow based on the user's latest request. Return the COMPLETE updated workflow JSON.`;
+
+      const contextIndex = history.findIndex(
+        (m) =>
+          m.role === 'system' &&
+          m.content.startsWith('Current Workflow Context')
+      );
+
+      if (contextIndex !== -1) {
+        history[contextIndex].content = contextContent;
+      } else {
+        // Insert after system prompt (index 1)
+        history.splice(1, 0, { role: 'system', content: contextContent });
+      }
     }
 
     const initialState = {
@@ -360,12 +582,14 @@ class LangGraphService {
 
     if (!result.workflow) {
       // If we have a specific error from the last step (e.g. Validation failed), use it.
-      const specificError = result.error || 'Failed to generate workflow (Unknown error)';
+      const specificError =
+        result.error || 'Failed to generate workflow (Unknown error)';
       // Add context if available
-      const detailedError = result.retryCount >= this.maxRetries 
-        ? `Failed after ${result.retryCount} retries. Last error: ${specificError}` 
-        : specificError;
-        
+      const detailedError =
+        result.retryCount >= this.maxRetries
+          ? `Failed after ${result.retryCount} retries. Last error: ${specificError}`
+          : specificError;
+
       throw new Error(detailedError);
     }
 
@@ -375,7 +599,7 @@ class LangGraphService {
   /**
    * 简单聊天调用 (不需要工作流生成、验证等复杂流程)
    * 适用于 AI Block、一次性查询等场景
-   * 
+   *
    * @param {Array} messages - 消息数组 [{role: 'user'|'assistant'|'system', content: '...'}]
    * @param {Object} options - 可选配置
    * @returns {Promise<Object>} AI 响应
@@ -392,7 +616,7 @@ class LangGraphService {
 
   /**
    * 简单生成调用 (不需要工作流生成、验证等复杂流程)
-   * 
+   *
    * @param {string} prompt - 提示词
    * @param {Object} options - 可选配置
    * @returns {Promise<Object>} AI 响应
@@ -409,7 +633,7 @@ class LangGraphService {
 
   /**
    * 流式聊天调用
-   * 
+   *
    * @param {Array} messages - 消息数组
    * @param {Function} onChunk - 接收文本块的回调
    * @param {Object} options - 可选配置
@@ -425,7 +649,7 @@ class LangGraphService {
 
   /**
    * 流式生成调用
-   * 
+   *
    * @param {string} prompt - 提示词
    * @param {Function} onChunk - 接收文本块的回调
    * @param {Object} options - 可选配置
