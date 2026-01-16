@@ -96,16 +96,27 @@ class="relative h-screen">
     >
       <ui-tab-panel class="h-full"
 value="editor">
-        <workflow-editor
-          v-if="state.retrieved"
-          :id="route.params.id"
-          :key="state.editorKey"
-          :data="workflow.drawflow"
-          :options="editorOptions"
-          :disabled="true"
-          class="h-full w-full"
-          @init="onEditorInit"
-        />
+        <div class="relative h-full w-full">
+          <!-- AI Chat Component -->
+          <AIChatFloating 
+            v-if="workflow" 
+            :workflow="workflow" 
+            :inline="true"
+            @update-workflow="onAIWorkflowUpdate"
+            class="absolute left-4 bottom-4 z-10"
+          />
+          
+          <workflow-editor
+            v-if="state.retrieved"
+            :id="route.params.id"
+            :key="state.editorKey"
+            :data="workflow.drawflow"
+            :options="editorOptions"
+            :disabled="true"
+            class="h-full w-full"
+            @init="onEditorInit"
+          />
+        </div>
       </ui-tab-panel>
     </ui-tab-panels>
   </div>
@@ -125,6 +136,7 @@ import RendererWorkflowService from '@/service/renderer/RendererWorkflowService'
 import { useHostedWorkflowStore } from '@/stores/hostedWorkflow';
 import getTriggerText from '@/utils/triggerText';
 import WorkflowEditor from '@/components/newtab/workflow/WorkflowEditor.vue';
+import AIChatFloating from '@/components/newtab/workflow/AIChatFloating.vue';
 import emitter from '@/lib/mitt';
 
 useGroupTooltip();
@@ -233,6 +245,10 @@ async function retrieveTriggerText() {
 }
 function onEditorInit(editor) {
   editor.setInteractive(false);
+}
+function onAIWorkflowUpdate(updatedWorkflow) {
+  hostedWorkflowStore.update({ id: workflowId, ...updatedWorkflow });
+  state.editorKey += 1;
 }
 
 watch(workflow, () => {

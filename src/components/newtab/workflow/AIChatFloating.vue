@@ -1,6 +1,9 @@
 <template>
   <div
-    class="fixed top-[20px] left-[80px] z-50 flex flex-col items-start pointer-events-none font-sans"
+    :class="[
+      inline ? 'relative' : 'fixed top-[20px] left-[80px]',
+      'z-50 flex flex-col items-start pointer-events-none font-sans'
+    ]"
   >
     <!-- 悬浮球 & 智能提示 (折叠状态) -->
     <div v-if="!isOpen" class="flex items-center space-x-3 pointer-events-auto">
@@ -36,16 +39,25 @@
     <transition name="slide-down">
       <div
         v-if="isOpen"
-        class="pointer-events-auto flex w-[360px] flex-col overflow-hidden rounded-2xl border border-white/10 bg-gray-900/95 shadow-2xl backdrop-blur-xl ring-1 ring-black/5"
-        style="height: 550px; max-height: 80vh"
+        :class="[
+          'pointer-events-auto flex flex-col overflow-hidden rounded-2xl border border-white/10 shadow-2xl backdrop-blur-xl ring-1 ring-black/5',
+          inline ? 'bg-white dark:bg-gray-900/95' : 'bg-gray-900/95'
+        ]"
+        style="height: 550px; max-height: 80vh; width: 360px;"
       >
         <!-- 头部 -->
         <div
-          class="flex items-center justify-between border-b border-white/5 bg-white/5 px-4 py-3 backdrop-blur-sm"
+          :class="[
+            'flex items-center justify-between border-b px-4 py-3 backdrop-blur-sm',
+            inline ? 'border-gray-200 dark:border-white/5 bg-gray-100 dark:bg-white/5' : 'border-white/5 bg-white/5'
+          ]"
         >
           <div class="flex items-center space-x-2.5">
-            <div class="relative flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/10 border border-blue-500/20">
-              <v-remixicon name="riRobotLine" class="text-blue-400" size="18" />
+            <div :class="[
+              'relative flex h-8 w-8 items-center justify-center rounded-lg border',
+              inline ? 'bg-blue-100 dark:bg-blue-500/10 border-blue-300 dark:border-blue-500/20' : 'bg-blue-500/10 border-blue-500/20'
+            ]">
+              <v-remixicon :class="inline ? 'text-blue-600 dark:text-blue-400' : 'text-blue-400'" name="riRobotLine" size="18" />
               <span
                 class="absolute -top-1 -right-1 h-2 w-2 rounded-full ring-2 ring-gray-900"
                 :class="
@@ -54,7 +66,10 @@
               ></span>
             </div>
             <div class="flex flex-col">
-              <span class="text-sm font-bold text-gray-100 tracking-tight">AI Assistant</span>
+              <span :class="[
+                'text-sm font-bold tracking-tight',
+                inline ? 'text-gray-800 dark:text-gray-100' : 'text-gray-100'
+              ]">AI Assistant</span>
               <span class="text-[10px] text-gray-400 font-mono flex items-center gap-1">
                 <span class="h-1 w-1 rounded-full" :class="ollamaStatus === 'connected' ? 'bg-green-500' : 'bg-red-500'"></span>
                 {{ ollamaStatus === 'connected' ? 'ONLINE' : 'OFFLINE' }}
@@ -63,14 +78,20 @@
           </div>
           <div class="flex items-center space-x-1">
             <button
-              class="group rounded-lg p-1.5 text-gray-400 hover:bg-white/10 hover:text-white transition-colors"
+              :class="[
+                'group rounded-lg p-1.5 transition-colors',
+                inline ? 'text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/10 hover:text-gray-800 dark:hover:text-white' : 'text-gray-400 hover:bg-white/10 hover:text-white'
+              ]"
               title="清除历史"
               @click="clearHistory"
             >
-              <v-remixicon name="riDeleteBinLine" size="16" class="group-hover:text-red-400 transition-colors" />
+              <v-remixicon :class="inline ? 'group-hover:text-red-500 dark:group-hover:text-red-400' : 'group-hover:text-red-400'" name="riDeleteBinLine" size="16" class="transition-colors" />
             </button>
             <button
-              class="rounded-lg p-1.5 text-gray-400 hover:bg-white/10 hover:text-white transition-colors"
+              :class="[
+                'rounded-lg p-1.5 transition-colors',
+                inline ? 'text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/10 hover:text-gray-800 dark:hover:text-white' : 'text-gray-400 hover:bg-white/10 hover:text-white'
+              ]"
               title="最小化"
               @click="toggleChat"
             >
@@ -109,7 +130,9 @@
               :class="[
                 msg.role === 'user'
                   ? 'bg-blue-600 text-white rounded-br-sm border-blue-500'
-                  : 'bg-gray-800/80 text-gray-200 border-gray-700/50 rounded-bl-sm backdrop-blur-sm',
+                  : inline
+                    ? 'bg-gray-100 dark:bg-gray-800/80 text-gray-900 dark:text-gray-200 border-gray-300 dark:border-gray-700/50 rounded-bl-sm backdrop-blur-sm'
+                    : 'bg-gray-800/80 text-gray-200 border-gray-700/50 rounded-bl-sm backdrop-blur-sm',
               ]"
             >
               <p class="whitespace-pre-wrap font-sans">{{ msg.content }}</p>
@@ -142,13 +165,21 @@
         </div>
 
         <!-- 输入区域 -->
-        <div class="border-t border-white/5 bg-gray-900/40 p-3 backdrop-blur-md">
+        <div :class="[
+          'border-t p-3 backdrop-blur-md',
+          inline ? 'border-gray-200 dark:border-white/5 bg-gray-50 dark:bg-gray-900/40' : 'border-white/5 bg-gray-900/40'
+        ]">
           <div class="relative group">
             <textarea
               ref="inputRef"
               v-model="input"
               rows="1"
-              class="w-full resize-none rounded-xl border border-gray-700 bg-gray-800/50 px-3.5 py-3 pr-10 text-xs text-white placeholder-gray-500 focus:border-blue-500/50 focus:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 scrollbar-hide transition-all"
+              :class="[
+                'w-full resize-none rounded-xl border px-3.5 py-3 pr-10 text-xs placeholder-gray-500 focus:outline-none focus:ring-2 scrollbar-hide transition-all',
+                inline
+                  ? 'border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800/50 text-gray-900 dark:text-white focus:border-blue-500 dark:focus:border-blue-500/50 focus:bg-white dark:focus:bg-gray-800 focus:ring-blue-500/20'
+                  : 'border-gray-700 bg-gray-800/50 text-white focus:border-blue-500/50 focus:bg-gray-800 focus:ring-blue-500/20'
+              ]"
               placeholder="输入指令..."
               @keydown.enter.exact.prevent="sendMessage"
               @input="autoResize"
@@ -171,7 +202,10 @@
             </button>
           </div>
           <div class="mt-2 px-1 flex justify-end">
-             <span class="text-[9px] text-gray-600 font-mono flex items-center gap-1">
+             <span :class="[
+               'text-[9px] font-mono flex items-center gap-1',
+               inline ? 'text-gray-500 dark:text-gray-600' : 'text-gray-600'
+             ]">
                ENTER TO SEND
              </span>
           </div>
@@ -190,6 +224,10 @@ const props = defineProps({
   workflow: {
     type: Object,
     default: () => null,
+  },
+  inline: {
+    type: Boolean,
+    default: false,
   },
 });
 

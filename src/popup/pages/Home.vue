@@ -1,59 +1,58 @@
 <template>
   <div
-    :class="[!showTab ? 'h-48' : 'h-56']"
-    class="absolute top-0 left-0 w-full rounded-b-2xl bg-accent"
+    :class="[!showTab ? 'h-40' : 'h-44']"
+    class="absolute top-0 left-0 w-full bg-gradient-to-br from-blue-600 via-blue-500 to-purple-600 shadow-xl"
+    style="border-radius: 0 0 20px 20px"
   />
   <div
-    :class="[!showTab ? 'mb-6' : 'mb-2']"
-    class="dark relative z-10 px-5 pt-8 text-white placeholder:text-black"
+    :class="[!showTab ? 'mb-4' : 'mb-2']"
+    class="dark relative z-10 px-5 pt-4 text-white"
   >
-    <div class="mb-4 flex items-center">
-      <h1 class="text-xl font-semibold text-white">Automa</h1>
+    <div class="mb-3 flex items-center">
+      <div class="flex items-center space-x-2">
+        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-white/20 backdrop-blur-sm shadow-lg">
+          <svg class="h-5 w-5 text-white" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5zm0 18c-3.86-.95-7-5.04-7-9V8.3l7-3.11 7 3.11V11c0 3.96-3.14 8.05-7 9z"/>
+          </svg>
+        </div>
+        <h1 class="text-xl font-bold tracking-tight text-white drop-shadow-sm">Automa</h1>
+      </div>
       <div class="grow" />
-      <ui-button
-        v-tooltip.group="t('home.aiGenerator.title')"
-        icon
-        class="mr-2"
-        @click="openAIGenerator"
-      >
-        <v-remixicon name="riRobotLine" />
-      </ui-button>
-      <ui-button
-        v-tooltip.group="
-          'Start recording by opening the dashboard. Click to learn more'
-        "
-        icon
-        class="mr-2"
-        @click="openDocs"
-      >
-        <v-remixicon name="riRecordCircleLine" />
-      </ui-button>
-      <ui-button
-        v-tooltip.group="
-          t(`home.elementSelector.${state.haveAccess ? 'name' : 'noAccess'}`)
-        "
-        icon
-        class="mr-2"
-        @click="initElementSelector"
-      >
-        <v-remixicon name="riFocus3Line" />
-      </ui-button>
-      <ui-button
-        v-tooltip.group="t('common.dashboard')"
-        icon
-        :title="t('common.dashboard')"
-        @click="openDashboard('')"
-      >
-        <v-remixicon name="riHome5Line" />
-      </ui-button>
+      <div class="flex items-center space-x-1">
+        <ui-button
+          v-tooltip.group="t('home.aiGenerator.title')"
+          icon
+          class="hover:bg-white/20 transition-all duration-200 rounded-lg h-8 w-8"
+          @click="openAIGenerator"
+        >
+          <v-remixicon name="riRobotLine" size="18" class="text-white" />
+        </ui-button>
+        <ui-button
+          v-tooltip.group="t('home.record.title')"
+          icon
+          class="hover:bg-white/20 transition-all duration-200 rounded-lg h-8 w-8"
+          @click="startRecording"
+        >
+          <v-remixicon name="riRecordCircleLine" size="18" class="text-white" />
+        </ui-button>
+        <ui-button
+          v-tooltip.group="t('common.dashboard')"
+          icon
+          class="hover:bg-white/20 transition-all duration-200 rounded-lg h-8 w-8"
+          :title="t('common.dashboard')"
+          @click="openDashboard('')"
+        >
+          <v-remixicon name="riHome5Line" size="18" class="text-white" />
+        </ui-button>
+      </div>
     </div>
-    <div class="flex">
+    <div class="relative">
       <ui-input
         v-model="state.query"
         :placeholder="`${t('common.search')}...`"
         autocomplete="off"
         prepend-icon="riSearch2Line"
-        class="search-input w-full"
+        class="search-input w-full bg-white/10 backdrop-blur-md border border-white/20 text-white placeholder-white/70 rounded-lg shadow-lg text-sm"
       />
     </div>
     <ui-tabs
@@ -83,49 +82,45 @@ v-if="userStore.user?.teams?.length" value="team"> Teams </ui-tab>
     v-if="state.activeTab !== 'team'"
     class="relative z-20 space-y-2 px-5 pb-5"
   >
-    <ui-card v-if="workflowStore.getWorkflows.length === 0"
-class="text-center">
-      <img src="@/assets/svg/alien.svg" >
-      <p class="font-semibold">
+    <ui-card v-if="workflowStore.getWorkflows.length === 0" class="text-center py-6">
+      <img src="@/assets/svg/alien.svg" class="mx-auto mb-3 h-16 w-16 opacity-60">
+      <p class="font-semibold text-sm text-gray-700 dark:text-gray-300">
         {{ t('message.empty') }}
       </p>
       <ui-button
         variant="accent"
-        class="mt-6"
+        class="mt-3"
         @click="openDashboard('/workflows')"
       >
         {{ t('home.workflow.new') }}
       </ui-button>
     </ui-card>
-    <div v-if="pinnedWorkflows.length > 0"
-class="mt-1 mb-4 border-b pb-4">
-      <div class="mb-1 flex items-center text-gray-300">
-        <v-remixicon name="riPushpin2Line"
-size="20" class="mr-2" />
-        <span>Pinned workflows</span>
+    <div v-if="pinnedWorkflows.length > 0" class="mb-3 border-b border-gray-200 pb-3 dark:border-gray-700">
+      <div class="mb-2 flex items-center text-xs font-medium text-gray-600 dark:text-gray-400">
+        <v-remixicon name="riPushpin2Fill" size="14" class="mr-1.5 text-blue-500" />
+        <span>Pinned Workflows</span>
       </div>
-      <home-workflow-card
-        v-for="workflow in pinnedWorkflows"
-        :key="workflow.id"
-        :workflow="workflow"
-        :tab="state.activeTab"
-        :pinned="true"
-        class="mb-2"
-        @details="openWorkflowPage"
-        @update="updateWorkflow(workflow.id, $event)"
-        @execute="executeWorkflow"
-        @rename="renameWorkflow"
-        @delete="deleteWorkflow"
-        @toggle-pin="togglePinWorkflow(workflow)"
-      />
+      <div class="space-y-2">
+        <home-workflow-card
+          v-for="workflow in pinnedWorkflows"
+          :key="workflow.id"
+          :workflow="workflow"
+          :tab="state.activeTab"
+          :pinned="true"
+          @details="openWorkflowPage"
+          @update="updateWorkflow(workflow.id, $event)"
+          @execute="executeWorkflow"
+          @rename="renameWorkflow"
+          @delete="deleteWorkflow"
+          @toggle-pin="togglePinWorkflow(workflow)"
+        />
+      </div>
     </div>
     <div
-      :class="{ 'p-2 rounded-lg bg-white': pinnedWorkflows.length === 0 }"
-      class="flex items-center"
+      class="flex items-center space-x-2 rounded-lg bg-gray-50 p-2 dark:bg-gray-800/50"
     >
-      <ui-select v-model="state.activeFolder"
-class="flex-1">
-        <option value="">Folder (all)</option>
+      <ui-select v-model="state.activeFolder" class="flex-1 text-sm">
+        <option value="">All Folders</option>
         <option
           v-for="folder in folderStore.items"
           :key="folder.id"
@@ -134,17 +129,15 @@ class="flex-1">
           {{ folder.name }}
         </option>
       </ui-select>
-      <ui-popover class="ml-2">
+      <ui-popover>
         <template #trigger>
-          <ui-button>
-            <v-remixicon name="riSortDesc"
-class="mr-2 -ml-1" />
+          <ui-button class="shrink-0 text-sm">
+            <v-remixicon name="riSortDesc" class="mr-1.5 -ml-1" size="16" />
             <span>Sort</span>
           </ui-button>
         </template>
-        <div class="w-48">
-          <ui-select v-model="sortState.order"
-block placeholder="Sort order">
+        <div class="w-48 p-2">
+          <ui-select v-model="sortState.order" block placeholder="Sort order">
             <option value="asc">Ascending</option>
             <option value="desc">Descending</option>
           </ui-select>
@@ -154,27 +147,28 @@ block placeholder="Sort order">
             block
             class="mt-2 flex-1"
           >
-            <option v-for="sort in sorts"
-:key="sort" :value="sort">
+            <option v-for="sort in sorts" :key="sort" :value="sort">
               {{ t(`sort.${sort}`) }}
             </option>
           </ui-select>
         </div>
       </ui-popover>
     </div>
-    <home-workflow-card
-      v-for="workflow in workflows"
-      :key="workflow.id"
-      :workflow="workflow"
-      :tab="state.activeTab"
-      :pinned="state.pinnedWorkflows.includes(workflow.id)"
-      @details="openWorkflowPage"
-      @update="updateWorkflow(workflow.id, $event)"
-      @execute="executeWorkflow"
-      @rename="renameWorkflow"
-      @delete="deleteWorkflow"
-      @toggle-pin="togglePinWorkflow(workflow)"
-    />
+    <div class="space-y-2">
+      <home-workflow-card
+        v-for="workflow in workflows"
+        :key="workflow.id"
+        :workflow="workflow"
+        :tab="state.activeTab"
+        :pinned="state.pinnedWorkflows.includes(workflow.id)"
+        @details="openWorkflowPage"
+        @update="updateWorkflow(workflow.id, $event)"
+        @execute="executeWorkflow"
+        @rename="renameWorkflow"
+        @delete="deleteWorkflow"
+        @toggle-pin="togglePinWorkflow(workflow)"
+      />
+    </div>
     <div
       v-if="state.showSettingsPopup"
       class="fixed bottom-5 left-0 m-4 rounded-lg bg-accent p-4 text-white shadow-md dark:text-black z-10"
@@ -306,14 +300,11 @@ const showTab = computed(
     hostedWorkflowStore.toArray.length > 0 || userStore.user?.teams?.length > 0
 );
 
-function openDocs() {
-  window.open(
-    'https://docs.extension.automa.site/guide/quick-start.html#recording-actions',
-    '_blank'
-  );
+function startRecording() {
+  openDashboard('/recording');
 }
 function openAIGenerator() {
-  openDashboard('/ai-workflow-generator');
+  openDashboard('/workflows');
 }
 function closeSettingsPopup() {
   state.showSettingsPopup = false;
@@ -447,4 +438,35 @@ onMounted(async () => {
 .recording-card {
   transition: height 300ms cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
+
+/* 平滑过渡动画 */
+.search-input {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.search-input:focus-within {
+  transform: translateY(-1px);
+}
+
+/* 卡片入场动画 */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.space-y-2 > * {
+  animation: slideIn 0.3s ease-out;
+}
+
+.space-y-2 > *:nth-child(1) { animation-delay: 0.05s; }
+.space-y-2 > *:nth-child(2) { animation-delay: 0.1s; }
+.space-y-2 > *:nth-child(3) { animation-delay: 0.15s; }
+.space-y-2 > *:nth-child(4) { animation-delay: 0.2s; }
+.space-y-2 > *:nth-child(5) { animation-delay: 0.25s; }
 </style>
