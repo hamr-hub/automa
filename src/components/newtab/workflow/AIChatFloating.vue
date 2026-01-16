@@ -85,7 +85,7 @@
               title="清除历史"
               @click="clearHistory"
             >
-              <v-remixicon :class="inline ? 'group-hover:text-red-500 dark:group-hover:text-red-400' : 'group-hover:text-red-400'" name="riDeleteBinLine" size="16" class="transition-colors" />
+              <v-remixicon :class="inline ? 'group-hover:text-red-500 dark:group-hover:text-red-400' : 'group-hover:text-red-400'" name="riDeleteBin7Line" size="16" class="transition-colors" />
             </button>
             <button
               :class="[

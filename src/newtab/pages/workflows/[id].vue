@@ -137,6 +137,15 @@ class="mr-2 -ml-1" />
             @update="onActionUpdated"
           />
         </template>
+        <!-- AI 助手按钮：放入顶部工具栏，避免漂浮在画布上 -->
+        <AIChatFloating
+          v-if="workflow"
+          :workflow="workflow"
+          :inline="true"
+          class="pointer-events-auto mr-2"
+          @update-workflow="onAIWorkflowUpdate"
+        />
+
         <editor-local-actions
           v-else
           :editor="editor"
@@ -310,11 +319,7 @@ size="20" />
     />
   </ui-modal>
   
-  <AIChatFloating 
-    v-if="workflow" 
-    :workflow="workflow" 
-    @update-workflow="onAIWorkflowUpdate" 
-  />
+  <!-- AIChatFloating 已移到顶部工具栏，避免覆盖编辑器画布 -->
 </template>
 <script setup>
 import PackageDetails from '@/components/newtab/package/PackageDetails.vue';

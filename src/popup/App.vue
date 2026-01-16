@@ -60,9 +60,17 @@ onMounted(async () => {
 });
 </script>
 <style>
+html,
 body {
-  height: 400px;
-  width: 350px;
+  height: 200px;
+  width: 175px;
   font-size: 16px;
+  overflow: hidden;
+}
+
+#app {
+  height: 100%;
+  width: 100%;
+  overflow: auto;
 }
 </style>
