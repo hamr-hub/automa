@@ -1313,6 +1313,197 @@ class SupabaseClient {
   }
 
   // ============================================
+  // WebAuthn / Passkeys 相关操作
+  // ============================================
+
+  /**
+   * 检查浏览器是否支持 WebAuthn
+   */
+  isWebAuthnSupported() {
+    return (
+      window.PublicKeyCredential !== undefined &&
+      navigator.credentials !== undefined &&
+      typeof navigator.credentials.create === 'function' &&
+      typeof navigator.credentials.get === 'function'
+    );
+  }
+
+  /**
+   * 注册 Passkey (WebAuthn)
+   * @param {string} email - 用户邮箱
+   */
+  async registerPasskey(email) {
+    if (!this.isWebAuthnSupported()) {
+      throw new Error('WebAuthn is not supported in this browser');
+    }
+
+    const user = await this.getCurrentUser();
+    if (!user) throw new Error('User not authenticated');
+
+    // 1. 从服务器获取注册选项
+    // 注意：Supabase 原生不支持 WebAuthn，需要自行实现后端
+    // 这里提供一个通用的实现框架
+    const { data: options, error: optionsError } = await this.client.functions.invoke(
+      'webauthn-register-options',
+      {
+        body: { email, userId: user.id },
+      }
+    );
+
+    if (optionsError) throw optionsError;
+
+    // 2. 调用浏览器 WebAuthn API
+    const publicKeyCredentialCreationOptions = {
+      challenge: Uint8Array.from(atob(options.challenge), (c) => c.charCodeAt(0)),
+      rp: {
+        name: options.rp.name,
+        id: options.rp.id,
+      },
+      user: {
+        id: Uint8Array.from(atob(options.user.id), (c) => c.charCodeAt(0)),
+        name: options.user.name,
+        displayName: options.user.displayName,
+      },
+      pubKeyCredParams: options.pubKeyCredParams,
+      authenticatorSelection: {
+        authenticatorAttachment: 'platform', // 优先使用设备内置认证器
+        userVerification: 'required',
+        residentKey: 'preferred',
+      },
+      timeout: 60000,
+      attestation: 'none',
+    };
+
+    const credential = await navigator.credentials.create({
+      publicKey: publicKeyCredentialCreationOptions,
+    });
+
+    // 3. 将凭证发送到服务器验证并存储
+    const credentialJSON = {
+      id: credential.id,
+      rawId: btoa(String.fromCharCode(...new Uint8Array(credential.rawId))),
+      response: {
+        attestationObject: btoa(
+          String.fromCharCode(...new Uint8Array(credential.response.attestationObject))
+        ),
+        clientDataJSON: btoa(
+          String.fromCharCode(...new Uint8Array(credential.response.clientDataJSON))
+        ),
+      },
+      type: credential.type,
+    };
+
+    const { data, error } = await this.client.functions.invoke('webauthn-register-verify', {
+      body: { credential: credentialJSON, userId: user.id },
+    });
+
+    if (error) throw error;
+
+    await this.createUserActivityLog('register_passkey', { email });
+    return data;
+  }
+
+  /**
+   * 使用 Passkey 登录
+   * @param {string} email - 用户邮箱
+   */
+  async signInWithPasskey(email) {
+    if (!this.isWebAuthnSupported()) {
+      throw new Error('WebAuthn is not supported in this browser');
+    }
+
+    // 1. 从服务器获取认证选项
+    const { data: options, error: optionsError } = await this.client.functions.invoke(
+      'webauthn-login-options',
+      {
+        body: { email },
+      }
+    );
+
+    if (optionsError) throw optionsError;
+
+    // 2. 调用浏览器 WebAuthn API
+    const publicKeyCredentialRequestOptions = {
+      challenge: Uint8Array.from(atob(options.challenge), (c) => c.charCodeAt(0)),
+      allowCredentials: options.allowCredentials.map((cred) => ({
+        id: Uint8Array.from(atob(cred.id), (c) => c.charCodeAt(0)),
+        type: cred.type,
+      })),
+      timeout: 60000,
+      userVerification: 'required',
+    };
+
+    const assertion = await navigator.credentials.get({
+      publicKey: publicKeyCredentialRequestOptions,
+    });
+
+    // 3. 将认证响应发送到服务器验证
+    const assertionJSON = {
+      id: assertion.id,
+      rawId: btoa(String.fromCharCode(...new Uint8Array(assertion.rawId))),
+      response: {
+        authenticatorData: btoa(
+          String.fromCharCode(...new Uint8Array(assertion.response.authenticatorData))
+        ),
+        clientDataJSON: btoa(
+          String.fromCharCode(...new Uint8Array(assertion.response.clientDataJSON))
+        ),
+        signature: btoa(String.fromCharCode(...new Uint8Array(assertion.response.signature))),
+        userHandle: assertion.response.userHandle
+          ? btoa(String.fromCharCode(...new Uint8Array(assertion.response.userHandle)))
+          : null,
+      },
+      type: assertion.type,
+    };
+
+    const { data, error } = await this.client.functions.invoke('webauthn-login-verify', {
+      body: { assertion: assertionJSON, email },
+    });
+
+    if (error) throw error;
+
+    await this.createUserActivityLog('login', { method: 'passkey', email });
+    return data;
+  }
+
+  /**
+   * 获取用户已注册的 Passkeys
+   */
+  async listPasskeys() {
+    const user = await this.getCurrentUser();
+    if (!user) throw new Error('User not authenticated');
+
+    const { data, error } = await this.client
+      .from('user_passkeys')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return data || [];
+  }
+
+  /**
+   * 删除 Passkey
+   * @param {string} passkeyId
+   */
+  async deletePasskey(passkeyId) {
+    const user = await this.getCurrentUser();
+    if (!user) throw new Error('User not authenticated');
+
+    const { error } = await this.client
+      .from('user_passkeys')
+      .delete()
+      .eq('id', passkeyId)
+      .eq('user_id', user.id);
+
+    if (error) throw error;
+
+    await this.createUserActivityLog('delete_passkey', { passkeyId });
+    return { success: true };
+  }
+
+  // ============================================
   // 用户行为日志
   // ============================================
 

@@ -109,6 +109,30 @@
           </ui-button>
         </form>
 
+        <!-- Passkey Login -->
+        <div v-if="isPasskeySupported" class="mt-4">
+          <div class="relative">
+            <div class="absolute inset-0 flex items-center">
+              <div class="w-full border-t border-gray-300 dark:border-gray-600"></div>
+            </div>
+            <div class="relative flex justify-center text-sm">
+              <span class="bg-gray-50 px-2 text-gray-500 dark:bg-gray-900 dark:text-gray-400">
+                {{ t('auth.or', '或') }}
+              </span>
+            </div>
+          </div>
+          <ui-button
+            class="mt-4 w-full"
+            variant="secondary"
+            :disabled="passkeyLoading"
+            @click="handlePasskeyLogin"
+          >
+            <ui-spinner v-if="passkeyLoading" size="20" class="mr-2" />
+            <v-remixicon v-else name="riFingerprint2Line" class="mr-2" />
+            {{ passkeyLoading ? t('common.processing', '处理中...') : t('auth.signInWithPasskey', '使用 Passkey 登录') }}
+          </ui-button>
+        </div>
+
         <!-- Social Login -->
         <div class="mt-6">
           <SocialLogin @login="handleSocialLogin" />
@@ -237,7 +261,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import supabaseClient from '@/services/supabase/SupabaseClient';
@@ -288,6 +312,15 @@ const registerCaptchaToken = ref('');
 const registerLoading = ref(false);
 const registerError = ref('');
 
+// Passkey State
+const isPasskeySupported = ref(false);
+const passkeyLoading = ref(false);
+
+// Check Passkey support on mount
+onMounted(() => {
+  isPasskeySupported.value = supabaseClient.isWebAuthnSupported();
+});
+
 // Handlers
 async function handleLogin() {
   loading.value = true;
@@ -317,6 +350,31 @@ async function handleSocialLogin(provider) {
   } catch (err) {
     console.error('Social login error:', err);
     error.value = err.message;
+  }
+}
+
+async function handlePasskeyLogin() {
+  passkeyLoading.value = true;
+  error.value = '';
+
+  try {
+    if (!form.value.email) {
+      error.value = t('auth.emailRequired', '请输入邮箱');
+      return;
+    }
+
+    await supabaseClient.signInWithPasskey(form.value.email);
+    router.push('/');
+  } catch (err) {
+    console.error('Passkey login error:', err);
+    
+    if (err.name === 'NotAllowedError') {
+      error.value = t('auth.webauthn.userCancelled', '操作已取消');
+    } else {
+      error.value = err.message || t('auth.webauthn.loginFailed', 'Passkey 登录失败');
+    }
+  } finally {
+    passkeyLoading.value = false;
   }
 }
 

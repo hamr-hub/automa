@@ -64,7 +64,7 @@
         </div>
 
         <!-- MFA -->
-        <div class="p-6">
+        <div class="border-b border-gray-200 p-6 dark:border-gray-700">
           <div class="flex items-center justify-between">
             <div>
               <h3 class="font-medium text-gray-900 dark:text-white">
@@ -79,6 +79,26 @@
               @click="hasMfa ? handleUnenrollMfa() : (showMfaModal = true)"
             >
               {{ hasMfa ? t('common.disable', '关闭') : t('common.enable', '开启') }}
+            </ui-button>
+          </div>
+        </div>
+
+        <!-- Passkey -->
+        <div class="p-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="font-medium text-gray-900 dark:text-white">
+                {{ t('auth.passkey', 'Passkey 无密码登录') }}
+              </h3>
+              <p class="text-sm text-gray-500">
+                {{ t('settings.profile.passkeyDesc', '使用指纹、面容或 PIN 码快速登录，无需记住密码') }}
+              </p>
+            </div>
+            <ui-button 
+              variant="accent" 
+              @click="showPasskeyModal = true"
+            >
+              {{ t('common.manage', '管理') }}
             </ui-button>
           </div>
         </div>
@@ -148,6 +168,11 @@
     <!-- MFA Modal -->
     <ui-modal v-model="showMfaModal" :title="t('auth.mfaSetup', '设置两步验证')">
       <MfaSetup @complete="handleMfaComplete" />
+    </ui-modal>
+
+    <!-- Passkey Modal -->
+    <ui-modal v-model="showPasskeyModal" :title="t('auth.passkeySetup', '管理 Passkey')">
+      <PasskeySetup @complete="handlePasskeyComplete" />
     </ui-modal>
   </div>
 </template>
