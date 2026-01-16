@@ -48,24 +48,76 @@ const workflowGenerationPrompt = {
    - 优先使用 ID (#id), 类名 (.class), 或属性 ([data-testid="..."])。
    - 避免使用过于复杂的 nth-child 链，除非必要。
 
-## 输出格式要求:
-请以 JSON 格式输出，包含以下字段:
+## 输出格式要求 (非常重要):
+你必须返回标准的 JSON 格式，请注意以下规范：
+
+**严格的 JSON 规范：**
+1. 使用双引号 (") 包裹所有字符串，不能使用单引号
+2. null 值必须使用 null，不能使用 None 或 none
+3. 布尔值必须使用 true/false，不能使用 True/False
+4. 数字类型不需要引号
+5. 所有键名必须使用双引号包裹
+6. 不允许有尾随逗号
+7. 必须使用 \`\`\`json 代码块包裹 JSON 内容
+
+**返回格式示例：**
+\`\`\`json
 {
   "steps": [
     {
-      "type": "操作类型",
-      "description": "步骤描述",
-      "selector": "CSS选择器(如果需要)",
-      "data": "相关数据(如果需要，如 wait time, input value, attribute name)"
+      "type": "NAVIGATE",
+      "description": "导航到目标页面",
+      "selector": null,
+      "data": {
+        "url": "https://example.com"
+      }
+    },
+    {
+      "type": "WAIT",
+      "description": "等待页面加载",
+      "selector": null,
+      "data": {
+        "waitTime": 3000
+      }
+    },
+    {
+      "type": "LOOP_ELEMENTS",
+      "description": "遍历商品列表",
+      "selector": ".product-item",
+      "data": {
+        "loopCount": 10
+      }
+    },
+    {
+      "type": "EXTRACT",
+      "description": "提取商品标题",
+      "selector": ".product-title",
+      "data": {
+        "attribute": "text",
+        "columnName": "title"
+      }
+    },
+    {
+      "type": "LOOP_END",
+      "description": "结束商品列表循环",
+      "selector": null,
+      "data": {}
     }
   ],
   "dataSchema": {
-    "字段名": {
-      "description": "字段描述",
-      "type": "string | number | url | ..."
+    "title": {
+      "description": "商品标题",
+      "type": "string"
     }
   }
 }
+\`\`\`
+
+**必需字段：**
+- steps: 必须是数组，每个步骤必须包含 type, description, selector, data 字段
+- dataSchema: 必须是对象，描述要提取的数据字段结构
+
+请务必严格遵循 JSON 规范，否则解析会失败。
 `,
 
   user: function (userInput, targetUrl = '', pageContext = '') {
@@ -77,7 +129,7 @@ const workflowGenerationPrompt = {
       prompt += `\n## 页面上下文 (简化 DOM):\n\`\`\`json\n${pageContext}\n\`\`\`\n`;
       prompt += `\n请根据页面上下文推断最合适的 CSS 选择器。\n`;
     }
-    prompt += `\n请根据以上信息，生成详细的数据抓取步骤（JSON 格式）。`;
+    prompt += `\n请根据以上信息，生成详细的数据抓取步骤（严格的 JSON 格式）。\n记住：使用标准 JSON 格式，null 而不是 None，true/false 而不是 True/False。`;
     return prompt;
   },
 };

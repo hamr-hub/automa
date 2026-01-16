@@ -194,16 +194,23 @@ class LangGraphAgent {
       }
       console.error('LangGraph Agent Error:', error);
       this.state.status = 'error';
-      this.state.error = error.message;
+      
+      // 提供更详细的错误信息
+      let errorMessage = error.message;
+      if (error.message.includes('Failed to generate workflow')) {
+        errorMessage = `工作流生成失败: ${error.message}\n\n可能原因:\n1. AI 模型返回了非标准 JSON 格式\n2. 模型输出缺少必需字段 (steps/dataSchema)\n3. 请尝试使用更强大的模型 (如 llama3, qwen2.5)\n4. 检查控制台日志查看详细错误`;
+      }
+      
+      this.state.error = errorMessage;
 
       this.history.push({
         role: 'assistant',
-        content: `错误: ${error.message}`,
+        content: `错误: ${errorMessage}`,
       });
 
       return {
         success: false,
-        error: error.message,
+        error: errorMessage,
       };
     } finally {
       this.abortController = null;

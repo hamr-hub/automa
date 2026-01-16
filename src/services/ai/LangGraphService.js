@@ -295,8 +295,10 @@ class LangGraphService {
     console.log('[LangGraph] Validating...');
 
     if (!state.generatedJson) {
+      const errorMsg = 'AI 返回的内容中未找到有效的 JSON 格式。请确保模型输出包含 ```json 代码块。';
+      console.error('[LangGraph]', errorMsg);
       return {
-        error: 'No JSON found in response',
+        error: errorMsg,
         retryCount: state.retryCount + 1,
       };
     }
@@ -331,8 +333,16 @@ class LangGraphService {
   async correctionNode(state) {
     console.log('[LangGraph] Applying Correction...');
 
-    const correctionMessage = `The previous JSON was invalid. Error: ${state.error}. 
-    Please fix the JSON and return ONLY the JSON.`;
+    const correctionMessage = `上一次生成的 JSON 格式有误。错误信息: ${state.error}
+
+请注意:
+1. 必须使用标准 JSON 格式
+2. 字符串必须用双引号
+3. null 值必须使用 null（不能使用 None）
+4. 布尔值必须使用 true/false（不能使用 True/False）
+5. 必须包含 steps 数组和 dataSchema 对象
+
+请修正并只返回 JSON（使用 \`\`\`json 代码块包裹）。`;
 
     return {
       messages: [{ role: 'user', content: correctionMessage }],
@@ -352,11 +362,23 @@ class LangGraphService {
         text.match(/```json([\s\S]*?)```/) || text.match(/```([\s\S]*?)```/);
       if (match) {
         try {
-          return JSON.parse(match[1]);
+          // Clean up Python-specific syntax before parsing
+          let cleanedJson = match[1].trim();
+          // Replace Python None with null
+          cleanedJson = cleanedJson.replace(/:\s*None/g, ': null');
+          // Replace Python True with true
+          cleanedJson = cleanedJson.replace(/:\s*True/g, ': true');
+          // Replace Python False with false
+          cleanedJson = cleanedJson.replace(/:\s*False/g, ': false');
+          
+          return JSON.parse(cleanedJson);
         } catch (e2) {
+          console.error('[LangGraph] JSON Parse Error:', e2.message);
+          console.error('[LangGraph] Attempted to parse:', match[1].substring(0, 200));
           return null;
         }
       }
+      console.error('[LangGraph] No JSON code block found in response');
       return null;
     }
   }
