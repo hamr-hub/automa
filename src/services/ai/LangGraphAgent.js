@@ -168,13 +168,14 @@ class LangGraphAgent {
       this.history.push({ role: 'user', content: promptContent });
 
       // Execute LangGraph Workflow Generation
-      onProgress?.({ step: 'ai', message: 'AI 正在生成工作流...' });
+      // onProgress?.({ step: 'ai', message: 'AI 正在生成工作流...' }); // Moved to Service
       const workflow = await this.langGraphService.run(
         userInput,
         targetUrl,
         this.history,
         pageContext,
-        this.abortController.signal
+        this.abortController.signal,
+        onProgress
       );
 
       this.abortController = null;

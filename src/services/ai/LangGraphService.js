@@ -146,6 +146,7 @@ class LangGraphService {
         workflow: { value: (x, y) => y, default: () => null },
         error: { value: (x, y) => y, default: () => null },
         retryCount: { value: (x, y) => y, default: () => 0 },
+        onProgress: { value: (x, y) => x, default: () => null }, // Keep original callback
       },
     });
 
@@ -161,6 +162,7 @@ class LangGraphService {
     // Define Edges
     graphBuilder.setEntryPoint('input_processing');
     graphBuilder.addEdge('input_processing', 'generation');
+    graphBuilder.addEdge('generation', 'validation'); // Added missing edge
     graphBuilder.addEdge('correction', 'generation');
 
     // Conditional Edge from Validation
@@ -265,9 +267,11 @@ class LangGraphService {
    * Node: Generate JSON using Ollama
    */
   async generationNode(state) {
-    console.log(
-      '[LangGraph] Generating (Attempt ' + (state.retryCount + 1) + ')...'
-    );
+    const attempt = state.retryCount + 1;
+    const msg = `正在生成工作流 (第 ${attempt} 次尝试)...`;
+    console.log(`[LangGraph] ${msg}`);
+    console.log('DEBUG: onProgress type:', typeof state.onProgress);
+    state.onProgress?.({ step: 'generation', message: msg, attempt });
 
     try {
       const response = await this.ollama.chat(state.messages, {
@@ -293,6 +297,7 @@ class LangGraphService {
    */
   async validationNode(state) {
     console.log('[LangGraph] Validating...');
+    state.onProgress?.({ step: 'validation', message: '正在验证生成结果...' });
 
     if (!state.generatedJson) {
       const errorMsg = 'AI 返回的内容中未找到有效的 JSON 格式。请确保模型输出包含 ```json 代码块。';
@@ -386,10 +391,8 @@ class LangGraphService {
   /**
    * Execute the workflow generation graph
    */
-  async run(userInput, targetUrl = '', history = [], pageContext = '', abortSignal = null) {
+  async run(userInput, targetUrl = '', history = [], pageContext = '', abortSignal = null, onProgress = null) {
     // Prepend System Prompt to history if needed
-    // This modifies the passed history array, which is referenced by LangGraphAgent.
-    // This is acceptable as we want the Agent to "remember" the system prompt.
     if (history.length === 0 || history[0].role !== 'system') {
         history.unshift({ role: 'system', content: workflowGenerationPrompt.system });
     }
@@ -401,14 +404,20 @@ class LangGraphService {
       pageContext,
       messages: history.length > 0 ? history : [],
       abortSignal,
+      onProgress, // Pass callback to state
     };
 
     const result = await this.graph.invoke(initialState);
 
     if (!result.workflow) {
-      throw new Error(
-        result.error || 'Failed to generate workflow (Unknown error)'
-      );
+      // If we have a specific error from the last step (e.g. Validation failed), use it.
+      const specificError = result.error || 'Failed to generate workflow (Unknown error)';
+      // Add context if available
+      const detailedError = result.retryCount >= this.maxRetries 
+        ? `Failed after ${result.retryCount} retries. Last error: ${specificError}` 
+        : specificError;
+        
+      throw new Error(detailedError);
     }
 
     return result.workflow;

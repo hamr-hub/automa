@@ -21,6 +21,7 @@
     "test": "npm run build && npx playwright test",
     "test:e2e": "npx playwright test --config=playwright.integration.config.js",
     "test:integration": "node tests/run-tests.js",
+    "test:unit:langgraph": "node tests/unit/LangGraphService.test.mjs",
     "test:report": "node tests/run-tests.js"
   },
   "engines": {
