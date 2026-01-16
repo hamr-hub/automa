@@ -597,8 +597,12 @@ function cleanupTabsListener() {
   }
 }
 
-function selectTab(tab) {
+async function selectTab(tab) {
   state.selectedTab = tab;
+  
+  // 自动开始分析页面
+  await nextTick(); // 等待 UI 更新
+  analyzePage();
 }
 
 async function analyzePage() {
