@@ -16,7 +16,7 @@ import SettingsIndex from './pages/settings/SettingsIndex.vue';
 import SettingsAbout from './pages/settings/SettingsAbout.vue';
 import SettingsShortcuts from './pages/settings/SettingsShortcuts.vue';
 import SettingsBackup from './pages/settings/SettingsBackup.vue';
-import SettingsDriveMigration from './pages/settings/SettingsDriveMigration.vue';
+// import SettingsDriveMigration from './pages/settings/SettingsDriveMigration.vue';
 import SettingsEditor from './pages/settings/SettingsEditor.vue';
 import SettingsProfile from './pages/settings/SettingsProfile.vue';
 import Login from './pages/Login.vue';
