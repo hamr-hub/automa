@@ -32,3 +32,4 @@ getPassKey.js
 .idea
 secrets.js
 test-results/
+playwright-report/
