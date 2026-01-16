@@ -210,10 +210,12 @@ class LangGraphAgent {
       
       this.state.error = errorMessage;
 
-      this.history.push({
-        role: 'assistant',
-        content: `错误: ${errorMessage}`,
-      });
+      // 重要：失败时不要将错误消息放入 history
+      // 这样用户重试时，AI 会重新生成，而不是看到之前的错误
+      // this.history.push({
+      //   role: 'assistant',
+      //   content: `错误: ${errorMessage}`,
+      // });
 
       return {
         success: false,
