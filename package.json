@@ -7,7 +7,7 @@
     "url": "https://github.com/AutomaApp/automa.git"
   },
   "scripts": {
-    "build": "node utils/build.js",
+    "build": "NODE_ENV=production node utils/build.js",
     "build:firefox": "cross-env BROWSER=firefox npm run build",
     "build:zip": "node utils/build-zip.js",
     "build:prod": "npm run build:prod-chrome && npm run build:prod-firefox",

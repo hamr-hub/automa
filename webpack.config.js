@@ -71,15 +71,6 @@ const options = {
       'index.js'
     ),
   },
-  chromeExtensionBoilerplate: {
-    notHotReload: [
-      'background',
-      'webService',
-      'contentScript',
-      'recordWorkflow',
-      'elementSelector',
-    ],
-  },
   output: {
     path: path.resolve(__dirname, 'build'),
     filename: '[name].bundle.js',
@@ -246,20 +237,16 @@ const options = {
     }),
   ],
   infrastructureLogging: {
-    level: 'info',
+    level: 'verbose',
   },
+  stats: 'verbose',
 };
 
 if (env.NODE_ENV === 'development') {
   options.devtool = 'cheap-module-source-map';
 } else {
   options.optimization = {
-    minimize: true,
-    minimizer: [
-      new TerserPlugin({
-        extractComments: false,
-      }),
-    ],
+    minimize: false,
   };
 }
 
