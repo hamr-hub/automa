@@ -197,7 +197,7 @@ value="editor" class="w-full" @keydown="onKeydown">
             :disabled="isTeamWorkflow && !haveEditAccess"
             :class="{ 'animate-blocks': state.animateBlocks }"
             class="workflow-editor focus:outline-none"
-            style="height: calc(100vh - 40px)"
+            :style="{ height: state.showRealtimeLogs ? 'calc(100vh - 280px)' : 'calc(100vh - 40px)' }"
             tabindex="0"
             @init="onEditorInit"
             @edit="initEditBlock"
@@ -270,7 +270,51 @@ value="editor" class="w-full" @keydown="onKeydown">
             @duplicate="duplicateElements"
           />
         </ui-tab-panel>
+        <ui-tab-panel value="logs" class="container pt-24">
+          <editor-logs
+            :workflow-id="workflow.id"
+            :workflow-states="workflowStates"
+          />
+        </ui-tab-panel>
       </ui-tab-panels>
+      <!-- 实时日志面板 -->
+      <div
+        v-if="state.showRealtimeLogs && workflowStates.length > 0"
+        class="fixed bottom-0 left-0 right-0 z-40 border-t border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800"
+        style="height: 240px"
+      >
+        <div class="flex h-full flex-col">
+          <div class="flex items-center justify-between border-b border-gray-200 px-4 py-2 dark:border-gray-700">
+            <h3 class="font-semibold">{{ t('common.log', 2) }} - {{ t('workflow.executing') }}</h3>
+            <button
+              class="rounded p-1 hover:bg-gray-100 dark:hover:bg-gray-700"
+              @click="state.showRealtimeLogs = false"
+            >
+              <v-remixicon name="riCloseLine" />
+            </button>
+          </div>
+          <div class="flex-1 overflow-auto p-4">
+            <div v-for="workflowState in workflowStates" :key="workflowState.id" class="mb-4">
+              <div class="mb-2 flex items-center">
+                <ui-spinner color="text-accent" size="20" class="mr-2" />
+                <span class="font-medium">{{ workflowState.name }}</span>
+              </div>
+              <div v-if="workflowState.currentBlock" class="ml-8 space-y-1">
+                <p class="text-sm text-gray-600 dark:text-gray-300">
+                  <v-remixicon name="riPlayLine" class="mr-1 inline-block" />
+                  {{ t('workflow.currentBlock') }}:
+                  <span class="font-medium">
+                    {{ getTranslation(`workflow.blocks.${workflowState.currentBlock[0]?.name}.name`, workflowState.currentBlock[0]?.name) }}
+                  </span>
+                </p>
+                <p v-if="workflowState.currentBlock[0]?.description" class="text-sm text-gray-500 dark:text-gray-400">
+                  {{ workflowState.currentBlock[0].description }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
   <ui-modal
@@ -327,7 +371,7 @@ import PackageSettings from '@/components/newtab/package/PackageSettings.vue';
 import AIChatFloating from '@/components/newtab/workflow/AIChatFloating.vue';
 import SharedPermissionsModal from '@/components/newtab/shared/SharedPermissionsModal.vue';
 import EditorAddPackage from '@/components/newtab/workflow/editor/EditorAddPackage.vue';
-import EditorDebugging from '@/components/newtab/workflow/editor/EditorDebugging.vue';
+import EditorLogs from '@/components/newtab/workflow/editor/EditorLogs.vue';
 import EditorLocalActions from '@/components/newtab/workflow/editor/EditorLocalActions.vue';
 import EditorLocalCtxMenu from '@/components/newtab/workflow/editor/EditorLocalCtxMenu.vue';
 import EditorLocalSavedBlocks from '@/components/newtab/workflow/editor/EditorLocalSavedBlocks.vue';
@@ -398,6 +442,9 @@ const nanoid = customAlphabet('1234567890abcdefghijklmnopqrstuvwxyz', 7);
 useGroupTooltip();
 
 const { t, te } = useI18n();
+const getTranslation = (path, fallback) => {
+  return te(path) ? t(path) : fallback;
+};
 const toast = useToast();
 const route = useRoute();
 const router = useRouter();
@@ -454,6 +501,7 @@ const state = reactive({
   animateBlocks: false,
   isExecuteCommand: false,
   workflowConverted: false,
+  showRealtimeLogs: false,
   activeTab: route.query.tab || 'editor',
 });
 const blockFolderModal = reactive({
@@ -1663,6 +1711,18 @@ watch(
   (isDataChanged) => {
     window.isDataChanged = isDataChanged && haveEditAccess.value;
   }
+);
+watch(
+  () => workflowStates.value,
+  (states) => {
+    // 当工作流开始执行时，自动展示实时日志
+    if (states.length > 0 && state.activeTab === 'editor') {
+      state.showRealtimeLogs = true;
+    } else if (states.length === 0) {
+      state.showRealtimeLogs = false;
+    }
+  },
+  { deep: true }
 );
 
 onDeactivated(() => {

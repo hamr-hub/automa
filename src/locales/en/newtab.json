@@ -191,6 +191,8 @@
     }
   },
   "workflow": {
+    "currentBlock": "Current Block",
+    "executing": "Executing",
     "events": {
       "title": "Workflow Events",
       "add-action": "Add action",

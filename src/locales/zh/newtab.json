@@ -190,6 +190,8 @@
     }
   },
   "workflow": {
+    "currentBlock": "当前执行块",
+    "executing": "执行中",
     "events": {
       "title": "工作流事件",
       "add-action": "添加操作",
