@@ -14,23 +14,6 @@
           />
         </button>
       </transition>
-
-      <!-- 智能渐显提示 -->
-      <transition name="fade-slide">
-        <div
-          v-if="showPrompt"
-          class="flex items-center space-x-2 rounded-lg bg-gray-900/90 px-3 py-2 text-xs text-gray-200 shadow-xl border border-white/10 backdrop-blur-md cursor-pointer hover:bg-gray-800 transition-colors"
-          @click="toggleChat"
-        >
-          <span>👋 需要帮忙优化工作流吗？</span>
-          <button
-            class="ml-1 rounded p-0.5 text-gray-500 hover:bg-gray-700 hover:text-white"
-            @click.stop="showPrompt = false"
-          >
-            <v-remixicon name="riCloseLine" size="14" />
-          </button>
-        </div>
-      </transition>
     </div>
 
     <!-- 聊天窗口 (展开状态) - 可拖动的浮动对话框 -->
@@ -50,64 +33,91 @@
         <!-- 头部 - 可拖动区域 -->
         <div
           ref="headerRef"
-          class="flex items-center justify-between border-b px-4 py-3 backdrop-blur-sm border-white/5 bg-white/5 cursor-move"
-          @mousedown="startDrag"
+          class="flex flex-col border-b backdrop-blur-sm border-white/5 bg-white/5"
         >
-          <div class="flex items-center space-x-2.5">
-            <div
-              class="relative flex h-8 w-8 items-center justify-center rounded-lg border bg-blue-500/10 border-blue-500/20"
-            >
-              <v-remixicon
-                class="text-blue-400"
-                name="riRobotLine"
-                size="18"
-              />
-              <span
-                class="absolute -top-1 -right-1 h-2 w-2 rounded-full ring-2 ring-gray-900"
-                :class="
-                  isGenerating ? 'bg-green-500 animate-pulse' : 'bg-gray-500'
-                "
-              />
-            </div>
-            <div class="flex flex-col">
-
-              <span
-                class="text-sm font-bold tracking-tight text-gray-100"
+          <!-- 标题栏 - 可拖动 -->
+          <div
+            class="flex items-center justify-between px-4 py-3 cursor-move"
+            @mousedown="startDrag"
+          >
+            <div class="flex items-center space-x-2.5">
+              <div
+                class="relative flex h-8 w-8 items-center justify-center rounded-lg border bg-blue-500/10 border-blue-500/20"
               >
-                AI Assistant
-              </span>
-              <span
-                class="text-[10px] text-gray-400 font-mono flex items-center gap-1"
-              >
-                <span
-                  class="h-1 w-1 rounded-full"
-                  :class="
-                    ollamaStatus === 'connected' ? 'bg-green-500' : 'bg-red-500'
-                  "
+                <v-remixicon
+                  class="text-blue-400"
+                  name="riRobotLine"
+                  size="18"
                 />
-                {{ ollamaStatus === 'connected' ? 'ONLINE' : 'OFFLINE' }}
-              </span>
+                <span
+                  class="absolute -top-1 -right-1 h-2 w-2 rounded-full ring-2 ring-gray-900"
+                  :class="
+                    isGenerating ? 'bg-green-500 animate-pulse' : 'bg-gray-500'
+                  "
+                ></span>
+              </div>
+              <div class="flex flex-col">
+                <span class="text-sm font-bold tracking-tight text-gray-100">
+                  AI Assistant
+                </span>
+                <span
+                  class="text-[10px] text-gray-400 font-mono flex items-center gap-1"
+                >
+                  <span
+                    class="h-1 w-1 rounded-full"
+                    :class="
+                      ollamaStatus === 'connected' ? 'bg-green-500' : 'bg-red-500'
+                    "
+                  ></span>
+                  {{ ollamaStatus === 'connected' ? 'ONLINE' : 'OFFLINE' }}
+                </span>
+              </div>
+            </div>
+            <div class="flex items-center space-x-1">
+              <button
+                class="group rounded-lg p-1.5 transition-colors text-gray-400 hover:bg-white/10 hover:text-white"
+                title="清除历史"
+                @click="clearHistory"
+              >
+                <v-remixicon
+                  class="group-hover:text-red-400 transition-colors"
+                  name="riDeleteBin7Line"
+                  size="16"
+                />
+              </button>
+              <button
+                class="rounded-lg p-1.5 transition-colors text-gray-400 hover:bg-white/10 hover:text-white"
+                title="最小化"
+                @click="toggleChat"
+              >
+                <v-remixicon name="riSubtractLine" size="16" />
+              </button>
             </div>
           </div>
-          <div class="flex items-center space-x-1">
-            <button
-              class="group rounded-lg p-1.5 transition-colors text-gray-400 hover:bg-white/10 hover:text-white"
-              title="清除历史"
-              @click="clearHistory"
-            >
-              <v-remixicon
-                class="group-hover:text-red-400 transition-colors"
-                name="riDeleteBin7Line"
-                size="16"
-              />
-            </button>
-            <button
-              class="rounded-lg p-1.5 transition-colors text-gray-400 hover:bg-white/10 hover:text-white"
-              title="最小化"
-              @click="toggleChat"
-            >
-              <v-remixicon name="riSubtractLine" size="16" />
-            </button>
+
+          <!-- 模型选择 -->
+          <div class="px-4 pb-3">
+            <div class="flex items-center space-x-2">
+              <v-remixicon name="riCpuLine" class="text-gray-400" size="14" />
+              <select
+                v-model="selectedModel"
+                :disabled="isLoadingModels || availableModels.length === 0"
+                class="flex-1 text-xs bg-gray-800/50 border border-gray-700 rounded-lg px-2 py-1.5 text-gray-200 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/20 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                @change="onModelChange"
+              >
+                <option v-if="isLoadingModels" value="">加载中...</option>
+                <option v-else-if="availableModels.length === 0" value="">
+                  无可用模型
+                </option>
+                <option
+                  v-for="model in availableModels"
+                  :key="model.name"
+                  :value="model.name"
+                >
+                  {{ model.name }}
+                </option>
+              </select>
+            </div>
           </div>
         </div>
 
@@ -251,6 +261,7 @@ defineProps({
 const emit = defineEmits(['update-workflow']);
 
 const toast = useToast();
+const store = useStore();
 const isOpen = ref(false);
 const input = ref('');
 const inputRef = ref(null);
@@ -398,10 +409,10 @@ function autoResize() {
 function toggleChat() {
   isOpen.value = !isOpen.value;
   if (isOpen.value) {
-    // 初始化对话框位置（右上角）
+    // 初始化对话框位置（右侧，距顶部约80px）
     dialogPosition.value = {
       x: window.innerWidth - 380,
-      y: 20,
+      y: 80,
     };
     nextTick(() => {
       scrollToBottom();
