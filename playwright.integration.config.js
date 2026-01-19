@@ -6,6 +6,7 @@ import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
   testDir: './tests/e2e',
+  outputDir: 'playwright-test-results',
   timeout: 120000,
   expect: {
     timeout: 15000,
@@ -15,8 +16,11 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 1,
   workers: 1,
   reporter: [
-    ['html', { outputFolder: 'test-results/batch-delete-html' }],
-    ['json', { outputFile: 'test-results/batch-delete-results.json' }],
+    ['html', { outputFolder: 'playwright-html-reports/batch-delete' }],
+    [
+      'json',
+      { outputFile: 'playwright-json-reports/batch-delete-results.json' },
+    ],
     ['line'],
   ],
   use: {
@@ -39,13 +43,8 @@ export default defineConfig({
       testMatch: /langgraph-supabase-integration\.spec\.js/,
     },
   ],
-  // Web server configuration for development
-  webServer: {
-    command: 'npm run dev',
-    url: 'http://localhost:8080',
-    reuseExistingServer: !process.env.CI,
-    timeout: 120000,
-  },
+  // Web server configuration - disabled since we use pre-built extension
+  // webServer: false,
   // Cleanup
   use: {
     // ...

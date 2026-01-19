@@ -1,0 +1,282 @@
+{
+  "id": "zEgNRaPyCpGEF0ArS4Js2",
+  "name": "Amazon SG 商品详情抓取",
+  "description": "由 AI 自动生成的数据抓取工作流\n目标: 抓取Amazon商品详情\nURL: https://www.amazon.sg/Bona-Microfiber-Cleaning-Hardwood-Surface/dp/B08W2BD96D/ref=lp_6537768051_1_1?pf_rd_p=e0af6543-05b0-439b-8b10-517ff5e4d285&pf_rd_r=9VW7MFEJSRTKH2WSHQ5Y&sbo=RZvfv%2F%2FHxDF%2BO5021pAnSA%3D%3D",
+  "icon": "riShoppingCartLine",
+  "category": "scrape",
+  "version": "1.0.0",
+  "createdAt": 1768802182845,
+  "updatedAt": 1768802182845,
+  "isDisabled": false,
+  "settings": {
+    "debugMode": true,
+    "saveLog": true,
+    "notification": true,
+    "publicId": "",
+    "onError": "bypass",
+    "executedBlockOnWeb": false,
+    "insertDefaultColumn": false,
+    "inputAutocomplete": true,
+    "blockDelay": 1000,
+    "reuseLastState": false
+  },
+  "drawflow": {
+    "nodes": [
+      {
+        "id": "trigger-4SCNuNZ2Z2KK5j6CBB2iZ",
+        "type": "BlockBasic",
+        "label": "trigger",
+        "position": {
+          "x": 50,
+          "y": 50
+        },
+        "data": {
+          "type": "manual",
+          "description": "手动触发",
+          "disableBlock": false
+        }
+      },
+      {
+        "id": "new-tab-yoMpwQtO8XWiNwhDil5yC",
+        "type": "BlockBasic",
+        "label": "new-tab",
+        "position": {
+          "x": 330,
+          "y": 50
+        },
+        "data": {
+          "url": "https://www.amazon.sg/Bona-Microfiber-Cleaning-Hardwood-Surface/dp/B08W2BD96D/ref=lp_6537768051_1_1?pf_rd_p=e0af6543-05b0-439b-8b10-517ff5e4d285&pf_rd_r=9VW7MFEJSRTKH2WSHQ5Y&sbo=RZvfv%2F%2FHxDF%2BO5021pAnSA%3D%3D",
+          "active": true,
+          "waitTabLoaded": true,
+          "description": "打开商品页面",
+          "disableBlock": false
+        }
+      },
+      {
+        "id": "delay-h2FrzpkvWZdFXf-TRsPx8",
+        "type": "BlockBasic",
+        "label": "delay",
+        "position": {
+          "x": 610,
+          "y": 50
+        },
+        "data": {
+          "time": 3000,
+          "description": "等待页面加载",
+          "disableBlock": false
+        }
+      },
+      {
+        "id": "get-text-voSx4Tyab-RRk2MrfjPRf",
+        "type": "BlockBasic",
+        "label": "get-text",
+        "position": {
+          "x": 50,
+          "y": 200
+        },
+        "data": {
+          "selector": "#productTitle",
+          "dataColumn": "商品标题",
+          "multiple": false,
+          "waitSelector": 5000,
+          "markEl": true,
+          "description": "提取商品标题",
+          "disableBlock": false
+        }
+      },
+      {
+        "id": "get-text-V-sbbgOTfJdvkP30bJO_y",
+        "type": "BlockBasic",
+        "label": "get-text",
+        "position": {
+          "x": 330,
+          "y": 200
+        },
+        "data": {
+          "selector": ".a-price .a-offscreen",
+          "dataColumn": "商品价格",
+          "multiple": false,
+          "waitSelector": 5000,
+          "markEl": true,
+          "description": "提取商品价格",
+          "disableBlock": false
+        }
+      },
+      {
+        "id": "get-text-GiRruUQOIIBK4WTXzT-Sc",
+        "type": "BlockBasic",
+        "label": "get-text",
+        "position": {
+          "x": 610,
+          "y": 200
+        },
+        "data": {
+          "selector": "#acrPopover .a-icon-alt",
+          "dataColumn": "商品评分",
+          "multiple": false,
+          "waitSelector": 5000,
+          "markEl": true,
+          "description": "提取商品评分",
+          "disableBlock": false
+        }
+      },
+      {
+        "id": "attribute-value-HQXWj2PzbAk3tnCocOOaB",
+        "type": "BlockBasic",
+        "label": "attribute-value",
+        "position": {
+          "x": 50,
+          "y": 350
+        },
+        "data": {
+          "selector": "#landingImage",
+          "attributeName": "src",
+          "dataColumn": "商品图片",
+          "multiple": false,
+          "waitSelector": 5000,
+          "markEl": true,
+          "description": "提取商品图片URL",
+          "disableBlock": false
+        }
+      },
+      {
+        "id": "get-text-aMlJJv9YslPIvv891xmGo",
+        "type": "BlockBasic",
+        "label": "get-text",
+        "position": {
+          "x": 330,
+          "y": 350
+        },
+        "data": {
+          "selector": "#feature-bullets li",
+          "dataColumn": "商品描述",
+          "multiple": true,
+          "waitSelector": 5000,
+          "markEl": true,
+          "description": "提取商品特性",
+          "disableBlock": false
+        }
+      },
+      {
+        "id": "export-data-YLkIJRQ7cJW25sRoW4gVd",
+        "type": "BlockBasic",
+        "label": "export-data",
+        "position": {
+          "x": 610,
+          "y": 350
+        },
+        "data": {
+          "type": "json",
+          "dataToExport": "data-columns",
+          "name": "amazon_sg_product",
+          "description": "导出JSON",
+          "onConflict": "uniquify",
+          "disableBlock": false
+        }
+      }
+    ],
+    "edges": [
+      {
+        "id": "edge-fh4DG4NSJug7CuYTB8ZWR",
+        "source": "trigger-4SCNuNZ2Z2KK5j6CBB2iZ",
+        "target": "new-tab-yoMpwQtO8XWiNwhDil5yC",
+        "sourceHandle": "trigger-4SCNuNZ2Z2KK5j6CBB2iZ-output-1",
+        "targetHandle": "new-tab-yoMpwQtO8XWiNwhDil5yC-input",
+        "type": "custom"
+      },
+      {
+        "id": "edge-rigmAopqJ2iSSml7ix134",
+        "source": "new-tab-yoMpwQtO8XWiNwhDil5yC",
+        "target": "delay-h2FrzpkvWZdFXf-TRsPx8",
+        "sourceHandle": "new-tab-yoMpwQtO8XWiNwhDil5yC-output-1",
+        "targetHandle": "delay-h2FrzpkvWZdFXf-TRsPx8-input",
+        "type": "custom"
+      },
+      {
+        "id": "edge-DFe4dSRu9En0CsCHLL3Bj",
+        "source": "delay-h2FrzpkvWZdFXf-TRsPx8",
+        "target": "get-text-voSx4Tyab-RRk2MrfjPRf",
+        "sourceHandle": "delay-h2FrzpkvWZdFXf-TRsPx8-output-1",
+        "targetHandle": "get-text-voSx4Tyab-RRk2MrfjPRf-input",
+        "type": "custom"
+      },
+      {
+        "id": "edge-6NRy2ZjtweUx7pRPJKNwr",
+        "source": "get-text-voSx4Tyab-RRk2MrfjPRf",
+        "target": "get-text-V-sbbgOTfJdvkP30bJO_y",
+        "sourceHandle": "get-text-voSx4Tyab-RRk2MrfjPRf-output-1",
+        "targetHandle": "get-text-V-sbbgOTfJdvkP30bJO_y-input",
+        "type": "custom"
+      },
+      {
+        "id": "edge-j05HMwRcRnXM6YtTbOLgG",
+        "source": "get-text-V-sbbgOTfJdvkP30bJO_y",
+        "target": "get-text-GiRruUQOIIBK4WTXzT-Sc",
+        "sourceHandle": "get-text-V-sbbgOTfJdvkP30bJO_y-output-1",
+        "targetHandle": "get-text-GiRruUQOIIBK4WTXzT-Sc-input",
+        "type": "custom"
+      },
+      {
+        "id": "edge-nds-j4W98eOPWUD4smfRZ",
+        "source": "get-text-GiRruUQOIIBK4WTXzT-Sc",
+        "target": "attribute-value-HQXWj2PzbAk3tnCocOOaB",
+        "sourceHandle": "get-text-GiRruUQOIIBK4WTXzT-Sc-output-1",
+        "targetHandle": "attribute-value-HQXWj2PzbAk3tnCocOOaB-input",
+        "type": "custom"
+      },
+      {
+        "id": "edge-sILi7oewcwFRWW-2k67Th",
+        "source": "attribute-value-HQXWj2PzbAk3tnCocOOaB",
+        "target": "get-text-aMlJJv9YslPIvv891xmGo",
+        "sourceHandle": "attribute-value-HQXWj2PzbAk3tnCocOOaB-output-1",
+        "targetHandle": "get-text-aMlJJv9YslPIvv891xmGo-input",
+        "type": "custom"
+      },
+      {
+        "id": "edge-4iF5jqyIxO7fYFSBmoIx6",
+        "source": "get-text-aMlJJv9YslPIvv891xmGo",
+        "target": "export-data-YLkIJRQ7cJW25sRoW4gVd",
+        "sourceHandle": "get-text-aMlJJv9YslPIvv891xmGo-output-1",
+        "targetHandle": "export-data-YLkIJRQ7cJW25sRoW4gVd-input",
+        "type": "custom"
+      }
+    ],
+    "viewport": {
+      "x": 0,
+      "y": 0,
+      "zoom": 1
+    }
+  },
+  "dataColumns": [
+    {
+      "id": "kndudiQ9U-NEhUehDPEul",
+      "name": "商品标题",
+      "type": "string",
+      "description": "商品名称"
+    },
+    {
+      "id": "T87Kbl5pHQ3Z7WX9wjrjC",
+      "name": "商品价格",
+      "type": "string",
+      "description": "当前售价"
+    },
+    {
+      "id": "2wpG3wuBb9p-BMEMIfXVK",
+      "name": "商品评分",
+      "type": "string",
+      "description": "用户评分"
+    },
+    {
+      "id": "Klkvn8YIeGKtBOratinko",
+      "name": "商品图片",
+      "type": "string",
+      "description": "主图URL"
+    },
+    {
+      "id": "mCDeobjgKHF-4fhbWJZ4r",
+      "name": "商品描述",
+      "type": "array",
+      "description": "商品特性列表"
+    }
+  ]
+}

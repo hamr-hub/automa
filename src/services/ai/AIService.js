@@ -174,7 +174,8 @@ class AIService {
    */
   async checkHealth() {
     if (!this.langGraphAgent) {
-      const tempAgent = new LangGraphAgent();
+      const globalConfig = this.getGlobalOllamaConfig();
+      const tempAgent = new LangGraphAgent({ ollama: globalConfig });
       return await tempAgent.initialize();
     }
     return this.initialized;
@@ -186,7 +187,8 @@ class AIService {
    */
   async listModels() {
     if (!this.langGraphAgent) {
-      const tempAgent = new LangGraphAgent();
+      const globalConfig = this.getGlobalOllamaConfig();
+      const tempAgent = new LangGraphAgent({ ollama: globalConfig });
       await tempAgent.initialize();
       return await tempAgent.langGraphService.ollama.listModels();
     }
