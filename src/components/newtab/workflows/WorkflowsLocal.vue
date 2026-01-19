@@ -95,12 +95,6 @@ class="mr-2" size="20" />
         class="fixed right-0 bottom-0 left-0 mx-auto mb-6 w-fit space-x-2 shadow-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-6 py-4 z-50"
       >
         <div class="flex items-center gap-3">
-          <div class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
-            <v-remixicon name="riCheckboxMultipleLine" size="18" />
-            <span class="font-medium">
-              {{ t('workflow.selected', { count: state.selectedForBatch.length }) }}
-            </span>
-          </div>
           <div class="h-6 w-px bg-gray-300 dark:bg-gray-600"></div>
           <ui-button variant="accent" @click="selectAllWorkflows">
             <v-remixicon 
