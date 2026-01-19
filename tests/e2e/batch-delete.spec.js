@@ -66,11 +66,14 @@ test.describe('Batch Delete Workflows', () => {
 
     // Click the first workflow's checkbox - click the label wrapper (input is opacity:0)
     const firstCheckbox = page.locator('.local-workflow .checkbox-ui').first();
-    await firstCheckbox.click({ timeout: 5000 });
+    await firstCheckbox.click({ force: true });
     console.log('✅ Clicked first checkbox');
 
-    // Wait for the batch delete toolbar to appear
-    await page.waitForSelector('.fixed.right-0.bottom-0', { timeout: 5000 });
+    // Wait a bit for Vue reactivity to update
+    await page.waitForTimeout(500);
+
+    // Wait for the batch delete toolbar button to appear
+    await page.waitForSelector('text=Select all', { timeout: 5000 });
     console.log('✅ Batch delete toolbar displayed');
 
     // Verify toolbar content
