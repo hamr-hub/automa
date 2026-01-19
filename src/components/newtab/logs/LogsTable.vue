@@ -1,5 +1,6 @@
 <template>
-  <div v-if="tableData.body.length === 0" class="text-center">
+  <div v-if="tableData.body.length === 0"
+class="text-center">
     <img
 src="@/assets/svg/files-and-folder.svg" class="mx-auto max-w-sm" />
     <p class="text-xl font-semibold">
@@ -31,7 +32,8 @@ src="@/assets/svg/files-and-folder.svg" class="mx-auto max-w-sm" />
         <template #trigger>
           <ui-button variant="accent">
             <span>{{ t('log.exportData.title') }}</span>
-            <v-remixicon name="riArrowDropDownLine" class="ml-2 -mr-1" />
+            <v-remixicon name="riArrowDropDownLine"
+class="ml-2 -mr-1" />
           </ui-button>
         </template>
         <ui-list class="space-y-1">

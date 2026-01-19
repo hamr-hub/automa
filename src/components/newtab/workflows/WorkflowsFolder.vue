@@ -24,7 +24,8 @@
         @drop="onWorkflowsDrop($event, '')"
         @click="$emit('update:modelValue', '')"
       >
-        <v-remixicon name="riFolderLine" class="mr-2" />
+        <v-remixicon name="riFolderLine"
+class="mr-2" />
         <p class="text-overflow flex-1">All</p>
       </ui-list-item>
       <ui-list-item
@@ -38,7 +39,8 @@
         @drop="onWorkflowsDrop($event, folder.id)"
         @click="$emit('update:modelValue', folder.id)"
       >
-        <v-remixicon name="riFolderLine" class="mr-2" />
+        <v-remixicon name="riFolderLine"
+class="mr-2" />
         <p class="text-overflow flex-1">
           {{ folder.name }}
         </p>
@@ -56,7 +58,8 @@
               class="cursor-pointer"
               @click="exportFolderWorkflows(folder.id)"
             >
-              <v-remixicon name="riDownloadLine" class="mr-2 -ml-1" />
+              <v-remixicon name="riDownloadLine"
+class="mr-2 -ml-1" />
               <span>
                 {{ t('common.export') }}
               </span>
@@ -66,7 +69,8 @@
               class="cursor-pointer"
               @click="renameFolder(folder)"
             >
-              <v-remixicon name="riPencilLine" class="mr-2 -ml-1" />
+              <v-remixicon name="riPencilLine"
+class="mr-2 -ml-1" />
               <span>
                 {{ t('common.rename') }}
               </span>
@@ -76,7 +80,8 @@
               class="cursor-pointer"
               @click="deleteFolder(folder)"
             >
-              <v-remixicon name="riDeleteBin7Line" class="mr-2 -ml-1" />
+              <v-remixicon name="riDeleteBin7Line"
+class="mr-2 -ml-1" />
               <span>
                 {{ t('common.delete') }}
               </span>

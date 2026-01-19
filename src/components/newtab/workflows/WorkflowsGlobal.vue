@@ -18,7 +18,9 @@
         class="w-48"
         @change="loadWorkflows"
       >
-        <option value="">{{ t('workflow.global.allCategories') }}</option>
+        <option value="">
+          {{ t('workflow.global.allCategories') }}
+        </option>
         <option
           v-for="category in categories"
           :key="category.id"
@@ -28,17 +30,23 @@
         </option>
       </ui-select>
 
-      <ui-select v-model="sortBy" class="w-40" @change="loadWorkflows">
-        <option value="created_at">{{ t('workflow.global.newest') }}</option>
+      <ui-select v-model="sortBy"
+class="w-40" @change="loadWorkflows">
+        <option value="created_at">
+          {{ t('workflow.global.newest') }}
+        </option>
         <option value="downloads">
           {{ t('workflow.global.mostDownloaded') }}
         </option>
-        <option value="likes">{{ t('workflow.global.mostLiked') }}</option>
+        <option value="likes">
+          {{ t('workflow.global.mostLiked') }}
+        </option>
       </ui-select>
     </div>
 
     <!-- 加载状态 -->
-    <div v-if="loading" class="flex justify-center py-12">
+    <div v-if="loading"
+class="flex justify-center py-12">
       <ui-spinner />
     </div>
 
@@ -47,7 +55,8 @@
       v-else-if="workflows.length === 0"
       class="md:flex items-center md:text-left text-center py-12"
     >
-      <img src="@/assets/svg/alien.svg" class="w-96" />
+      <img
+src="@/assets/svg/alien.svg" class="w-96" />
       <div class="ml-4">
         <h1 class="mb-6 max-w-md text-2xl font-semibold">
           {{ t('workflow.global.empty') }}
@@ -59,7 +68,8 @@
     </div>
 
     <!-- 工作流列表 -->
-    <div v-else class="workflows-container">
+    <div v-else
+class="workflows-container">
       <div
         v-for="workflow in workflows"
         :key="workflow.id"
@@ -79,8 +89,11 @@
 
           <div class="flex-1 min-w-0">
             <div class="flex items-center gap-2">
-              <h3 class="font-semibold truncate">{{ workflow.name }}</h3>
-              <ui-badge v-if="workflow.isFeatured" variant="warning">
+              <h3 class="font-semibold truncate">
+                {{ workflow.name }}
+              </h3>
+              <ui-badge v-if="workflow.isFeatured"
+variant="warning">
                 {{ t('workflow.global.featured') }}
               </ui-badge>
             </div>
@@ -96,22 +109,27 @@
               class="flex items-center gap-4 mt-3 text-sm text-gray-500 dark:text-gray-500"
             >
               <div class="flex items-center gap-1">
-                <v-remixicon name="riDownloadLine" size="14" />
+                <v-remixicon name="riDownloadLine"
+size="14" />
                 <span>{{ workflow.downloadsCount || 0 }}</span>
               </div>
               <div class="flex items-center gap-1">
-                <v-remixicon name="riHeartLine" size="14" />
+                <v-remixicon name="riHeartLine"
+size="14" />
                 <span>{{ workflow.likesCount || 0 }}</span>
               </div>
-              <div v-if="workflow.authorName" class="flex items-center gap-1">
-                <v-remixicon name="riUserLine" size="14" />
+              <div v-if="workflow.authorName"
+class="flex items-center gap-1">
+                <v-remixicon name="riUserLine"
+size="14" />
                 <span>{{ workflow.authorName }}</span>
               </div>
               <div
                 v-if="workflow.tags && workflow.tags.length > 0"
                 class="flex items-center gap-1"
               >
-                <v-remixicon name="riPriceTag3Line" size="14" />
+                <v-remixicon name="riPriceTag3Line"
+size="14" />
                 <span>{{ workflow.tags.slice(0, 2).join(', ') }}</span>
               </div>
             </div>
@@ -123,7 +141,8 @@
               size="small"
               @click.stop="importWorkflow(workflow)"
             >
-              <v-remixicon name="riDownloadLine" size="16" class="mr-1" />
+              <v-remixicon name="riDownloadLine"
+size="16" class="mr-1" />
               {{ t('workflow.global.import') }}
             </ui-button>
             <ui-button
@@ -132,7 +151,8 @@
               size="small"
               @click.stop="toggleLike(workflow)"
             >
-              <v-remixicon name="riHeartFill" size="16" />
+              <v-remixicon name="riHeartFill"
+size="16" />
             </ui-button>
             <ui-button
               v-else
@@ -140,7 +160,8 @@
               size="small"
               @click.stop="toggleLike(workflow)"
             >
-              <v-remixicon name="riHeartLine" size="16" />
+              <v-remixicon name="riHeartLine"
+size="16" />
             </ui-button>
           </div>
         </div>
@@ -148,8 +169,10 @@
     </div>
 
     <!-- 加载更多 -->
-    <div v-if="hasMore" class="mt-6 text-center">
-      <ui-button variant="secondary" @click="loadMore">
+    <div v-if="hasMore"
+class="mt-6 text-center">
+      <ui-button variant="secondary"
+@click="loadMore">
         {{ t('workflow.global.loadMore') }}
       </ui-button>
     </div>
@@ -160,7 +183,8 @@
       :title="selectedWorkflow?.name"
       width="600px"
     >
-      <div v-if="selectedWorkflow" class="space-y-4">
+      <div v-if="selectedWorkflow"
+class="space-y-4">
         <div class="flex items-center gap-4">
           <div
             class="w-16 h-16 rounded-lg bg-primary-100 dark:bg-primary-900 flex items-center justify-center"
@@ -172,7 +196,9 @@
             />
           </div>
           <div>
-            <h3 class="text-xl font-semibold">{{ selectedWorkflow.name }}</h3>
+            <h3 class="text-xl font-semibold">
+              {{ selectedWorkflow.name }}
+            </h3>
             <p
               v-if="selectedWorkflow.authorName"
               class="text-sm text-gray-600 dark:text-gray-400"
@@ -194,17 +220,21 @@
           class="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400"
         >
           <span class="flex items-center gap-1">
-            <v-remixicon name="riDownloadLine" size="16" />
+            <v-remixicon name="riDownloadLine"
+size="16" />
             {{ selectedWorkflow.downloadsCount || 0 }}
             {{ t('workflow.global.downloads') }}
           </span>
           <span class="flex items-center gap-1">
-            <v-remixicon name="riHeartLine" size="16" />
+            <v-remixicon name="riHeartLine"
+size="16" />
             {{ selectedWorkflow.likesCount || 0 }}
             {{ t('workflow.global.likes') }}
           </span>
-          <span v-if="selectedWorkflow.version" class="flex items-center gap-1">
-            <v-remixicon name="riInformationLine" size="16" />
+          <span v-if="selectedWorkflow.version"
+class="flex items-center gap-1">
+            <v-remixicon name="riInformationLine"
+size="16" />
             v{{ selectedWorkflow.version }}
           </span>
         </div>
@@ -226,8 +256,10 @@
           <ui-button @click="showDetails = false">
             {{ t('common.close') }}
           </ui-button>
-          <ui-button variant="accent" @click="importWorkflow(selectedWorkflow)">
-            <v-remixicon name="riDownloadLine" size="16" class="mr-1" />
+          <ui-button variant="accent"
+@click="importWorkflow(selectedWorkflow)">
+            <v-remixicon name="riDownloadLine"
+size="16" class="mr-1" />
             {{ t('workflow.global.import') }}
           </ui-button>
         </div>
@@ -282,10 +314,9 @@ async function loadWorkflows(reset = false) {
 
   try {
     // 动态导入GlobalWorkflowService
-    const { default: GlobalWorkflowService } = await import(
-      '@/services/workflowSync/GlobalWorkflowService'
-    );
-    
+    const { default: GlobalWorkflowService } =
+      await import('@/services/workflowSync/GlobalWorkflowService');
+
     const result = await GlobalWorkflowService.getWorkflows({
       limit: 12,
       offset: offset.value,
@@ -335,10 +366,9 @@ function openWorkflowDetails(workflow) {
 async function importWorkflow(workflow) {
   try {
     // 动态导入GlobalWorkflowService
-    const { default: GlobalWorkflowService } = await import(
-      '@/services/workflowSync/GlobalWorkflowService'
-    );
-    
+    const { default: GlobalWorkflowService } =
+      await import('@/services/workflowSync/GlobalWorkflowService');
+
     const imported = await GlobalWorkflowService.importToLocal(workflow.id);
 
     if (imported) {
@@ -357,10 +387,9 @@ async function importWorkflow(workflow) {
 async function toggleLike(workflow) {
   try {
     // 动态导入GlobalWorkflowService
-    const { default: GlobalWorkflowService } = await import(
-      '@/services/workflowSync/GlobalWorkflowService'
-    );
-    
+    const { default: GlobalWorkflowService } =
+      await import('@/services/workflowSync/GlobalWorkflowService');
+
     const result = await GlobalWorkflowService.toggleLike(workflow.id);
 
     if (result) {
@@ -382,10 +411,9 @@ onMounted(async () => {
 
   try {
     // 动态导入GlobalWorkflowService
-    const { default: GlobalWorkflowService } = await import(
-      '@/services/workflowSync/GlobalWorkflowService'
-    );
-    
+    const { default: GlobalWorkflowService } =
+      await import('@/services/workflowSync/GlobalWorkflowService');
+
     // 加载分类
     categories.value = GlobalWorkflowService.getCategories();
 

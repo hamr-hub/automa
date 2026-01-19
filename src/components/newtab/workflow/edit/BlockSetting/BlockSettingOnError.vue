@@ -28,7 +28,8 @@
           </label>
         </div>
         <transition-expand>
-          <div v-if="state.retry" class="mt-2">
+          <div v-if="state.retry"
+class="mt-2">
             <div class="inline-flex items-center">
               <span>
                 {{ t('workflow.blocks.base.onError.times.name') }}
@@ -68,7 +69,8 @@
             </div>
           </div>
         </transition-expand>
-        <ui-select v-model="state.toDo" class="mt-2 w-56">
+        <ui-select v-model="state.toDo"
+class="mt-2 w-56">
           <option
             v-for="type in toDoTypes"
             :key="type"
@@ -102,7 +104,8 @@
           </ui-button>
         </div>
         <transition-expand>
-          <table v-if="state.insertData" class="mt-2 w-full">
+          <table v-if="state.insertData"
+class="mt-2 w-full">
             <thead>
               <tr class="text-left text-sm">
                 <th>Type</th>
@@ -112,7 +115,8 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(item, index) in state.dataToInsert" :key="index">
+              <tr v-for="(item, index) in state.dataToInsert"
+:key="index">
                 <td>
                   <ui-select v-model="item.type">
                     <option value="table">
@@ -145,7 +149,8 @@
                   />
                 </td>
                 <td>
-                  <ui-input v-model="item.value" placeholder="EMPTY" />
+                  <ui-input v-model="item.value"
+placeholder="EMPTY" />
                 </td>
                 <td>
                   <v-remixicon

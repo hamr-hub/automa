@@ -15,9 +15,9 @@ const viteConfig = await import('../vite.config.js');
 
 try {
   console.log('🚀 Starting Vite build...');
-  
+
   await build(viteConfig.default);
-  
+
   console.log('✅ Build completed successfully!');
 } catch (err) {
   console.error('❌ Vite build error:', err);

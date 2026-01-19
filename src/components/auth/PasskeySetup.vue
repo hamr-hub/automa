@@ -6,9 +6,7 @@
       class="rounded-md bg-yellow-50 p-4 dark:bg-yellow-900/20"
     >
       <div class="flex">
-        <v-remixicon
-name="riAlertLine" class="text-yellow-400"
-/>
+        <v-remixicon name="riAlertLine" class="text-yellow-400" />
         <div class="ml-3">
           <p class="text-sm text-yellow-800 dark:text-yellow-200">
             {{
@@ -42,9 +40,7 @@ name="riAlertLine" class="text-yellow-400"
     </div>
 
     <!-- Existing Passkeys List -->
-    <div
-v-if="passkeys.length > 0" class="space-y-3"
->
+    <div v-if="passkeys.length > 0" class="space-y-3">
       <h3 class="text-sm font-medium text-gray-900 dark:text-white">
         {{ t('auth.webauthn.registered', '已注册的 Passkey') }}
       </h3>
@@ -94,14 +90,8 @@ v-if="passkeys.length > 0" class="space-y-3"
         variant="accent"
         @click="handleRegisterPasskey"
       >
-        <ui-spinner
-v-if="loading" size="20"
-class="mr-2"
-/>
-        <v-remixicon
-v-else name="riFingerprint2Line"
-class="mr-2"
-/>
+        <ui-spinner v-if="loading" size="20" class="mr-2" />
+        <v-remixicon v-else name="riFingerprint2Line" class="mr-2" />
         {{
           loading
             ? t('common.processing', '处理中...')
@@ -111,13 +101,9 @@ class="mr-2"
     </div>
 
     <!-- Error Message -->
-    <div
-v-if="error" class="rounded-md bg-red-50 p-4 dark:bg-red-900/20"
->
+    <div v-if="error" class="rounded-md bg-red-50 p-4 dark:bg-red-900/20">
       <div class="flex">
-        <v-remixicon
-name="riErrorWarningLine" class="text-red-400"
-/>
+        <v-remixicon name="riErrorWarningLine" class="text-red-400" />
         <div class="ml-3">
           <p class="text-sm text-red-800 dark:text-red-200">
             {{ error }}

@@ -1,6 +1,7 @@
 <template>
   <div class="absolute bottom-0 z-50 w-full p-4">
-    <ui-card class="h-full w-full" padding="p-0">
+    <ui-card class="h-full w-full"
+padding="p-0">
       <div class="flex items-center p-4">
         <ui-input
           v-model="state.query"
@@ -10,7 +11,8 @@
           prepend-icon="riSearch2Line"
         />
         <div class="grow" />
-        <ui-button icon @click="$emit('close')">
+        <ui-button icon
+@click="$emit('close')">
           <v-remixicon name="riCloseLine" />
         </ui-button>
       </div>
@@ -66,7 +68,8 @@
           <div
             class="flex items-center space-x-3 px-4 pb-4 text-gray-600 dark:text-gray-200"
           >
-            <span v-if="item.author" class="text-overflow">
+            <span v-if="item.author"
+class="text-overflow">
               By {{ item.author }}
             </span>
             <div class="grow" />
@@ -76,7 +79,8 @@
               target="_blank"
               title="Open package page"
             >
-              <v-remixicon name="riExternalLinkLine" size="18" />
+              <v-remixicon name="riExternalLinkLine"
+size="18" />
             </a>
             <ui-popover style="height: 18px">
               <template #trigger>

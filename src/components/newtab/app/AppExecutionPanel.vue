@@ -76,16 +76,15 @@
               title="Close"
               @click="closePanel"
             >
-              <v-remixicon
-name="riCloseLine" size="16"
-/>
+              <v-remixicon name="riCloseLine" size="16" />
             </button>
           </div>
         </div>
 
         <!-- Progress Bar -->
-        <div class="h-1 w-full"
-:class="isDark ? 'bg-gray-800' : 'bg-gray-200'">
+        <div
+class="h-1 w-full" :class="isDark ? 'bg-gray-800' : 'bg-gray-200'"
+>
           <div
             class="h-full transition-all duration-300"
             :class="progressBarClass"
@@ -221,10 +220,7 @@ name="riCloseLine" size="16"
               :class="stopButtonClass"
               @click="stopExecution"
             >
-              <v-remixicon
-name="riStopLine" class="mr-1.5 -ml-1"
-size="16"
-/>
+              <v-remixicon name="riStopLine" class="mr-1.5 -ml-1" size="16" />
               停止执行
             </button>
             <button

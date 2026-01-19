@@ -22,7 +22,8 @@
             style="height: 40px; width: 40px"
             alt="Can not display"
           />
-          <span v-else class="bg-box-transparent inline-block rounded-lg p-2">
+          <span v-else
+class="bg-box-transparent inline-block rounded-lg p-2">
             <v-remixicon :name="workflow.icon" />
           </span>
         </template>
@@ -44,18 +45,22 @@ v-else class="py-2">
               <v-remixicon name="riMoreLine" />
             </button>
           </template>
-          <ui-list class="space-y-1" style="min-width: 165px">
+          <ui-list class="space-y-1"
+style="min-width: 165px">
             <ui-list-item
               class="cursor-pointer"
               @click="$emit('toggleDisable')"
             >
-              <v-remixicon name="riToggleLine" class="mr-2 -ml-1" />
+              <v-remixicon name="riToggleLine"
+class="mr-2 -ml-1" />
               <span class="capitalize">
                 {{ t(`common.${workflow.isDisabled ? 'enable' : 'disable'}`) }}
               </span>
             </ui-list-item>
-            <ui-list-item class="cursor-pointer" @click="$emit('togglePin')">
-              <v-remixicon name="riPushpin2Line" class="mr-2 -ml-1" />
+            <ui-list-item class="cursor-pointer"
+@click="$emit('togglePin')">
+              <v-remixicon name="riPushpin2Line"
+class="mr-2 -ml-1" />
               <span>{{
                 t(`workflow.pinWorkflow.${isPinned ? 'unpin' : 'pin'}`)
               }}</span>
@@ -67,7 +72,8 @@ v-else class="py-2">
               class="cursor-pointer"
               @click="item.action(workflow)"
             >
-              <v-remixicon :name="item.icon" class="mr-2 -ml-1" />
+              <v-remixicon :name="item.icon"
+class="mr-2 -ml-1" />
               <span class="capitalize">{{ item.name }}</span>
             </ui-list-item>
           </ui-list>

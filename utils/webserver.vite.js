@@ -14,15 +14,17 @@ const viteConfig = await import('../vite.config.js');
 
 try {
   console.log('🚀 Starting Vite dev server...');
-  
+
   const server = await createServer(viteConfig.default);
-  
+
   await server.listen();
-  
+
   server.printUrls();
-  
+
   console.log('✅ Vite dev server started successfully!');
-  console.log(`📦 Extension files are being written to: ${path.resolve(__dirname, '../build')}`);
+  console.log(
+    `📦 Extension files are being written to: ${path.resolve(__dirname, '../build')}`
+  );
 } catch (err) {
   console.error('❌ Vite dev server error:', err);
   process.exit(1);

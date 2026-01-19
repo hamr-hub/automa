@@ -74,9 +74,7 @@
                 }}
               </p>
             </div>
-            <ui-button
-variant="secondary" @click="showPasswordModal = true"
->
+            <ui-button variant="secondary" @click="showPasswordModal = true">
               {{ t('settings.profile.changePassword', '修改密码') }}
             </ui-button>
           </div>
@@ -127,8 +125,9 @@ variant="secondary" @click="showPasswordModal = true"
                 }}
               </p>
             </div>
-            <ui-button variant="accent"
-@click="showPasskeyModal = true">
+            <ui-button
+variant="accent" @click="showPasskeyModal = true"
+>
               {{ t('common.manage', '管理') }}
             </ui-button>
           </div>
@@ -168,9 +167,7 @@ variant="secondary" @click="showPasswordModal = true"
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-            <tr
-v-for="log in activityLogs" :key="log.id"
->
+            <tr v-for="log in activityLogs" :key="log.id">
               <td
                 class="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900 dark:text-white"
               >
@@ -201,9 +198,7 @@ v-for="log in activityLogs" :key="log.id"
       v-model="showPasswordModal"
       :title="t('settings.profile.changePassword', '修改密码')"
     >
-      <form
-class="space-y-4" @submit.prevent="handleChangePassword"
->
+      <form class="space-y-4" @submit.prevent="handleChangePassword">
         <ui-input
           v-model="passwordForm.password"
           type="password"

@@ -1,6 +1,7 @@
 <template>
   <div class="flex items-center">
-    <ui-popover v-tooltip:bottom="t('packages.icon')" class="mr-2">
+    <ui-popover v-tooltip:bottom="t('packages.icon')"
+class="mr-2">
       <template #trigger>
         <img
           v-if="state.icon.startsWith('http')"
@@ -20,7 +21,8 @@
       <div class="w-64">
         <p>{{ t('packages.icon') }}</p>
         <div class="mt-4 grid grid-cols-6 gap-2">
-          <div v-for="icon in icons" :key="icon">
+          <div v-for="icon in icons"
+:key="icon">
             <span
               :class="{ 'bg-box-transparent': icon === state.icon }"
               class="hoverable inline-block cursor-pointer rounded-lg p-2"
@@ -58,7 +60,8 @@
     <ui-button @click="$emit('cancel')">
       {{ t('common.cancel') }}
     </ui-button>
-    <ui-button variant="accent" class="w-20" @click="$emit('add')">
+    <ui-button variant="accent"
+class="w-20" @click="$emit('add')">
       {{ t('common.add') }}
     </ui-button>
   </div>

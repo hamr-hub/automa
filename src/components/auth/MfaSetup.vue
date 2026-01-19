@@ -9,17 +9,12 @@
           )
         }}
       </p>
-      <ui-button
-variant="accent" :loading="loading"
-@click="startEnroll"
->
+      <ui-button variant="accent" :loading="loading" @click="startEnroll">
         {{ t('auth.startSetup', '开始设置') }}
       </ui-button>
     </div>
 
-    <div
-v-else class="space-y-6"
->
+    <div v-else class="space-y-6">
       <div
         class="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800"
       >

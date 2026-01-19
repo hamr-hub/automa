@@ -14,7 +14,8 @@
         class="bg-input radio-ui__mark absolute top-0 left-0 cursor-pointer rounded-full border"
       />
     </div>
-    <span v-if="$slots.default" class="ml-2 inline-block">
+    <span v-if="$slots.default"
+class="ml-2 inline-block">
       <slot />
     </span>
   </label>

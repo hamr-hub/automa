@@ -15,7 +15,8 @@
         style="min-width: 210px"
         @click="scheduleState.showModal = true"
       >
-        <v-remixicon name="riAddLine" class="-ml-1 mr-2" />
+        <v-remixicon name="riAddLine"
+class="-ml-1 mr-2" />
         Schedule workflow
       </ui-button>
     </div>

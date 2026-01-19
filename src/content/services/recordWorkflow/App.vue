@@ -31,7 +31,8 @@
           style="height: 24px; width: 24px"
           title="Element selector"
         >
-          <v-remixicon name="riCursorLine" class="relative z-10" size="20" />
+          <v-remixicon name="riCursorLine"
+class="relative z-10" size="20" />
         </span>
         <p class="ml-2 font-semibold">Select Element</p>
         <div class="grow" />
@@ -61,7 +62,8 @@
           </p>
           <template v-else>
             <template v-if="selectState.list && !selectState.listId">
-              <label for="list-id" class="ml-1" style="font-size: 14px">
+              <label for="list-id"
+class="ml-1" style="font-size: 14px">
                 Element list id
               </label>
               <input
@@ -95,10 +97,12 @@
                   "
                 >
                   <button @click="selectElementPath('up')">
-                    <v-remixicon name="riArrowLeftLine" rotate="90" />
+                    <v-remixicon name="riArrowLeftLine"
+rotate="90" />
                   </button>
                   <button @click="selectElementPath('down')">
-                    <v-remixicon name="riArrowLeftLine" rotate="-90" />
+                    <v-remixicon name="riArrowLeftLine"
+rotate="-90" />
                   </button>
                 </template>
               </div>
@@ -186,7 +190,8 @@ value="" selected>Select column [none]</option>
               </button>
             </template>
           </template>
-          <p class="mt-4" style="font-size: 14px">
+          <p class="mt-4"
+style="font-size: 14px">
             Press <kbd class="bg-box-transparent rounded-md p-1">Esc</kbd> to
             cancel
           </p>

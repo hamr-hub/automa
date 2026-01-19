@@ -13,7 +13,7 @@
           >
             <p>{{ t('packages.new') }}</p>
           </ui-button>
-          <hr />
+          <hr >
           <ui-popover>
             <template #trigger>
               <ui-button
@@ -63,7 +63,8 @@
               class="ml-4 lg:hidden"
               @click="addState.show = true"
             >
-              <v-remixicon name="riAddLine" class="mr-2 -ml-1" />
+              <v-remixicon name="riAddLine"
+class="mr-2 -ml-1" />
               <span>{{ t('common.packages') }}</span>
             </ui-button>
           </div>
@@ -81,8 +82,10 @@
                 :name="sortState.order === 'asc' ? 'riSortAsc' : 'riSortDesc'"
               />
             </ui-button>
-            <ui-select v-model="sortState.by" :placeholder="t('sort.sortBy')">
-              <option v-for="sort in sorts" :key="sort" :value="sort">
+            <ui-select v-model="sortState.by"
+:placeholder="t('sort.sortBy')">
+              <option v-for="sort in sorts"
+:key="sort" :value="sort">
                 {{ t(`sort.${sort}`) }}
               </option>
             </ui-select>
@@ -104,7 +107,8 @@
                 style="height: 40px; width: 40px"
                 alt="Can not display"
               />
-              <span v-else class="bg-box-transparent rounded-lg p-2">
+              <span v-else
+class="bg-box-transparent rounded-lg p-2">
                 <v-remixicon :name="pkg.icon || 'mdiPackageVariantClosed'" />
               </span>
               <div class="grow" />
@@ -116,7 +120,8 @@
                     class="cursor-pointer text-gray-600 dark:text-gray-200"
                   />
                 </template>
-                <ui-list class="space-y-1" style="min-width: 180px">
+                <ui-list class="space-y-1"
+style="min-width: 180px">
                   <ui-list-item
                     v-if="pkg.isExternal"
                     v-close-popover
@@ -125,7 +130,8 @@
                     target="_blank"
                     class="cursor-pointer"
                   >
-                    <v-remixicon name="riExternalLinkLine" class="mr-2 -ml-1" />
+                    <v-remixicon name="riExternalLinkLine"
+class="mr-2 -ml-1" />
                     <span>Open package page</span>
                   </ui-list-item>
                   <template v-else>
@@ -134,7 +140,8 @@
                       class="cursor-pointer"
                       @click="duplicatePackage(pkg)"
                     >
-                      <v-remixicon name="riFileCopyLine" class="mr-2 -ml-1" />
+                      <v-remixicon name="riFileCopyLine"
+class="mr-2 -ml-1" />
                       <span>{{ t('common.duplicate') }}</span>
                     </ui-list-item>
                     <ui-list-item
@@ -142,7 +149,8 @@
                       class="cursor-pointer"
                       @click="exportPackage(pkg)"
                     >
-                      <v-remixicon name="riDownloadLine" class="mr-2 -ml-1" />
+                      <v-remixicon name="riDownloadLine"
+class="mr-2 -ml-1" />
                       <span>{{ t('common.export') }}</span>
                     </ui-list-item>
                   </template>
@@ -151,7 +159,8 @@
                     class="cursor-pointer text-red-500 dark:text-red-400"
                     @click="deletePackage(pkg)"
                   >
-                    <v-remixicon name="riDeleteBin7Line" class="mr-2 -ml-1" />
+                    <v-remixicon name="riDeleteBin7Line"
+class="mr-2 -ml-1" />
                     <span>{{ t('common.delete') }}</span>
                   </ui-list-item>
                 </ui-list>
@@ -174,7 +183,8 @@
               class="mt-2 flex items-center text-gray-600 dark:text-gray-200"
             >
               <p>{{ dayjs(pkg.createdAt).fromNow() }}</p>
-              <p v-if="pkg.author" class="text-overflow ml-4 flex-1 text-right">
+              <p v-if="pkg.author"
+class="text-overflow ml-4 flex-1 text-right">
                 By {{ pkg.author }}
               </p>
             </div>
@@ -201,10 +211,12 @@
         class="mt-2 w-full"
       />
       <div class="mt-6 flex space-x-4">
-        <ui-button class="flex-1" @click="clearNewPackage">
+        <ui-button class="flex-1"
+@click="clearNewPackage">
           {{ t('common.cancel') }}
         </ui-button>
-        <ui-button class="flex-1" variant="accent" @click="addPackage">
+        <ui-button class="flex-1"
+variant="accent" @click="addPackage">
           {{ t('packages.add') }}
         </ui-button>
       </div>

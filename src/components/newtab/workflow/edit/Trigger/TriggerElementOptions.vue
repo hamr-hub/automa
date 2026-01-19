@@ -1,6 +1,7 @@
 <template>
   <ul class="space-y-2">
-    <li v-for="option in types" :key="option" class="group">
+    <li v-for="option in types"
+:key="option" class="group">
       <ui-checkbox
         :model-value="modelValue[option]"
         @change="

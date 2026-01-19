@@ -51,10 +51,12 @@
         ({{ state.deleteIds.length }})
       </ui-button>
     </div>
-    <div v-if="!state.backupRetrieved" class="content block flex-1 text-center">
+    <div v-if="!state.backupRetrieved"
+class="content block flex-1 text-center">
       <ui-spinner color="text-accent" />
     </div>
-    <div v-else class="ml-4 flex-1 overflow-hidden">
+    <div v-else
+class="ml-4 flex-1 overflow-hidden">
       <template v-if="state.activeTab === 'cloud'">
         <settings-backup-items
           v-slot="{ workflow }"
@@ -78,7 +80,8 @@
             color="text-accent"
             class="ml-4"
           />
-          <div v-else class="invisible ml-4 group-hover:visible">
+          <div v-else
+class="invisible ml-4 group-hover:visible">
             <button
               v-if="workflow.hasLocalCopy"
               title="Sync cloud backup to local"

@@ -11,10 +11,12 @@
     <template #trigger>
       <slot />
     </template>
-    <p v-if="filteredItems.length === 0" class="text-center">
+    <p v-if="filteredItems.length === 0"
+class="text-center">
       {{ t('message.noData') }}
     </p>
-    <ui-list v-else class="space-y-1">
+    <ui-list v-else
+class="space-y-1">
       <ui-list-item
         v-for="(item, index) in filteredItems"
         :id="`list-item-${index}`"
@@ -24,7 +26,8 @@
         @mousedown="selectItem(index, true)"
         @mouseenter="state.activeIndex = index"
       >
-        <slot name="item" :item="item">
+        <slot name="item"
+:item="item">
           {{ getItem(item) }}
         </slot>
       </ui-list-item>

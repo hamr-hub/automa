@@ -67,7 +67,8 @@
       {{ t('workflow.share.update') }}
     </ui-button>
   </ui-card>
-  <ui-modal v-model="state.showModal" custom-content @close="updateDescription">
+  <ui-modal v-model="state.showModal"
+custom-content @close="updateDescription">
     <workflow-share
       :workflow="workflow"
       is-update

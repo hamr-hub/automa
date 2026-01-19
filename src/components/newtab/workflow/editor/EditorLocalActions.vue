@@ -23,7 +23,8 @@
           />
         </button>
       </template>
-      <div :class="{ 'text-center': state.isUploadingHost }" class="w-64">
+      <div :class="{ 'text-center': state.isUploadingHost }"
+class="w-64">
         <div class="flex items-center text-gray-600 dark:text-gray-200">
           <p>
             {{ t('workflow.host.set') }}
@@ -34,10 +35,12 @@
             target="_blank"
             class="ml-1"
           >
-            <v-remixicon name="riInformationLine" size="20" />
+            <v-remixicon name="riInformationLine"
+size="20" />
           </a>
           <div class="grow" />
-          <ui-spinner v-if="state.isUploadingHost" color="text-accent" />
+          <ui-spinner v-if="state.isUploadingHost"
+color="text-accent" />
           <ui-switch
             v-else
             :model-value="Boolean(hosted)"
@@ -75,7 +78,8 @@
           class="cursor-pointer"
           @click="shareWorkflowWithTeam"
         >
-          <v-remixicon name="riTeamLine" class="-ml-1 mr-2" />
+          <v-remixicon name="riTeamLine"
+class="-ml-1 mr-2" />
           With your team
         </ui-list-item>
         <ui-list-item
@@ -83,7 +87,8 @@
           class="cursor-pointer"
           @click="shareWorkflow()"
         >
-          <v-remixicon name="riGroupLine" class="-ml-1 mr-2" />
+          <v-remixicon name="riGroupLine"
+class="-ml-1 mr-2" />
           With the community
         </ui-list-item>
       </ui-list>
@@ -104,7 +109,8 @@
     </button>
   </ui-card>
   <ui-card padding="p-1 ml-4 flex items-center pointer-events-auto">
-    <ui-popover v-if="canEdit" class="md:hidden">
+    <ui-popover v-if="canEdit"
+class="md:hidden">
       <template #trigger>
         <button class="hoverable rounded-lg p-2">
           <v-remixicon name="riMore2Line" />
@@ -117,7 +123,8 @@
           v-close-popover
           @click="$emit('modal', item.id)"
         >
-          <v-remixicon :name="item.icon" class="mr-2 -ml-1" />
+          <v-remixicon :name="item.icon"
+class="mr-2 -ml-1" />
           {{ item.name }}
         </ui-list-item>
       </ui-list>
@@ -178,7 +185,8 @@
           class="cursor-pointer"
           @click="copyWorkflowId"
         >
-          <v-remixicon name="riFileCopyLine" class="mr-2 -ml-1" />
+          <v-remixicon name="riFileCopyLine"
+class="mr-2 -ml-1" />
           Copy workflow Id
         </ui-list-item>
         <ui-list-item
@@ -187,14 +195,16 @@
           class="cursor-pointer"
           @click="syncWorkflow"
         >
-          <v-remixicon name="riRefreshLine" class="mr-2 -ml-1" />
+          <v-remixicon name="riRefreshLine"
+class="mr-2 -ml-1" />
           <span>{{ t('workflow.host.sync.title') }}</span>
         </ui-list-item>
         <ui-list-item
           class="cursor-pointer"
           @click="updateWorkflow({ isDisabled: !workflow.isDisabled })"
         >
-          <v-remixicon name="riToggleLine" class="mr-2 -ml-1" />
+          <v-remixicon name="riToggleLine"
+class="mr-2 -ml-1" />
           {{ t(`common.${workflow.isDisabled ? 'enable' : 'disable'}`) }}
         </ui-list-item>
         <ui-list-item
@@ -205,7 +215,8 @@
           class="cursor-pointer"
           @click="item.action"
         >
-          <v-remixicon :name="item.icon" class="mr-2 -ml-1" />
+          <v-remixicon :name="item.icon"
+class="mr-2 -ml-1" />
           {{ item.name }}
         </ui-list-item>
         <ui-list-item
@@ -218,7 +229,8 @@
           class="cursor-pointer text-red-400 dark:text-red-500"
           @click="deleteFromTeam"
         >
-          <v-remixicon name="riDeleteBin7Line" class="mr-2 -ml-1" />
+          <v-remixicon name="riDeleteBin7Line"
+class="mr-2 -ml-1" />
           <span>Delete from team</span>
         </ui-list-item>
       </ui-list>
@@ -239,7 +251,8 @@
         />
         <span class="relative inline-flex h-3 w-3 rounded-full bg-blue-600" />
       </span>
-      <v-remixicon name="riSaveLine" class="my-1 md:-ml-1" />
+      <v-remixicon name="riSaveLine"
+class="my-1 md:-ml-1" />
       <span class="ml-2 hidden md:block">{{ t('common.save') }}</span>
     </ui-button>
     <ui-button
@@ -249,7 +262,8 @@
       variant="accent"
       @click="syncWorkflow"
     >
-      <v-remixicon name="riRefreshLine" class="mr-2 -ml-1" />
+      <v-remixicon name="riRefreshLine"
+class="mr-2 -ml-1" />
       <span>
         {{ t('workflow.host.sync.title') }}
       </span>
@@ -282,7 +296,8 @@
       </ui-button>
     </template>
   </ui-card>
-  <ui-modal v-model="state.showEditDescription" persist blur custom-content>
+  <ui-modal v-model="state.showEditDescription"
+persist blur custom-content>
     <workflow-share-team
       :workflow="workflow"
       :is-update="true"
@@ -290,7 +305,8 @@
       @close="state.showEditDescription = false"
     />
   </ui-modal>
-  <ui-modal v-model="renameState.showModal" title="Rename">
+  <ui-modal v-model="renameState.showModal"
+title="Rename">
     <ui-input
       v-model="renameState.name"
       :placeholder="t('common.name')"
@@ -310,10 +326,12 @@
       {{ renameState.description.length }}/300
     </p>
     <div class="flex space-x-2">
-      <ui-button class="w-full" @click="clearRenameModal">
+      <ui-button class="w-full"
+@click="clearRenameModal">
         {{ t('common.cancel') }}
       </ui-button>
-      <ui-button variant="accent" class="w-full" @click="renameWorkflow">
+      <ui-button variant="accent"
+class="w-full" @click="renameWorkflow">
         {{ t('common.update') }}
       </ui-button>
     </div>

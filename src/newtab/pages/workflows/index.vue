@@ -22,8 +22,9 @@
                 class="rounded-l-none"
                 variant="accent"
               >
-                <v-remixicon name="riArrowLeftSLine"
-rotate="-90" />
+                <v-remixicon
+name="riArrowLeftSLine" rotate="-90"
+/>
               </ui-button>
             </template>
             <ui-list class="space-y-1">
@@ -162,8 +163,10 @@ rotate="-90" />
             />
             <ui-popover>
               <template #trigger>
-                <ui-button variant="accent" class="ml-4 lg:hidden">
-                  <v-remixicon name="riAddLine" class="mr-2 -ml-1" />
+                <ui-button variant="accent"
+class="ml-4 lg:hidden">
+                  <v-remixicon name="riAddLine"
+class="mr-2 -ml-1" />
                   <span>{{ t('common.workflow') }}</span>
                 </ui-button>
               </template>
@@ -232,7 +235,8 @@ rotate="-90" />
                 :placeholder="t('sort.sortBy')"
                 class="flex-1"
               >
-                <option v-for="sort in sorts" :key="sort" :value="sort">
+                <option v-for="sort in sorts"
+:key="sort" :value="sort">
                   {{ t(`sort.${sort}`) }}
                 </option>
               </ui-select>
@@ -245,17 +249,21 @@ rotate="-90" />
               <option value="local">
                 {{ t('workflow.type.local') }}
               </option>
-              <option v-if="userStore.user" value="shared">
+              <option v-if="userStore.user"
+value="shared">
                 {{ t('workflow.type.shared') }}
               </option>
-              <option v-if="hostedWorkflows?.length > 0" value="host">
+              <option v-if="hostedWorkflows?.length > 0"
+value="host">
                 {{ t('workflow.type.host') }}
               </option>
             </ui-select>
           </div>
         </div>
-        <ui-tab-panels v-model="state.activeTab" class="mt-6 flex-1">
-          <ui-tab-panel value="team" cache>
+        <ui-tab-panels v-model="state.activeTab"
+class="mt-6 flex-1">
+          <ui-tab-panel value="team"
+cache>
             <workflows-user-team
               :active="state.activeTab === 'team'"
               :team-id="state.teamId"
@@ -269,7 +277,8 @@ rotate="-90" />
               :sort="{ by: state.sortBy, order: state.sortOrder }"
             />
           </ui-tab-panel>
-          <ui-tab-panel value="host" class="workflows-container">
+          <ui-tab-panel value="host"
+class="workflows-container">
             <workflows-hosted
               :search="state.query"
               :sort="{ by: state.sortBy, order: state.sortOrder }"
@@ -325,7 +334,8 @@ href="mailto:support@automa.site" target="_blank"
         </ui-card>
       </div>
     </div>
-    <ui-modal v-model="addWorkflowModal.show" title="Workflow">
+    <ui-modal v-model="addWorkflowModal.show"
+title="Workflow">
       <ui-input
         v-model="addWorkflowModal.name"
         :placeholder="t('common.name')"
@@ -348,7 +358,8 @@ href="mailto:support@automa.site" target="_blank"
         {{ addWorkflowModal.description.length }}/300
       </p>
       <div class="flex space-x-2">
-        <ui-button class="w-full" @click="clearAddWorkflowModal">
+        <ui-button class="w-full"
+@click="clearAddWorkflowModal">
           {{ t('common.cancel') }}
         </ui-button>
         <ui-button

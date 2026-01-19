@@ -12,7 +12,8 @@
         :label="t('workflow.blocks.save-assets.contentTypes.title')"
         @change="updateData({ type: $event })"
       >
-        <option v-for="type in types" :key="type" :value="type">
+        <option v-for="type in types"
+:key="type" :value="type">
           {{ t(`workflow.blocks.save-assets.contentTypes.${type}`) }}
         </option>
       </ui-select>
@@ -22,7 +23,8 @@
         <p class="mt-4">
           {{ t('workflow.blocks.handle-download.noPermission') }}
         </p>
-        <ui-button variant="accent" class="mt-2" @click="permission.request">
+        <ui-button variant="accent"
+class="mt-2" @click="permission.request">
           {{ t('workflow.blocks.clipboard.grantPermission') }}
         </ui-button>
       </template>
@@ -54,11 +56,12 @@
         class="mt-2 w-full"
         @change="updateData({ onConflict: $event })"
       >
-        <option v-for="item in onConflict" :key="item" :value="item">
+        <option v-for="item in onConflict"
+:key="item" :value="item">
           {{ t(`workflow.blocks.base.downloads.onConflict.${item}`) }}
         </option>
       </ui-select>
-      <hr class="my-4 w-full" />
+      <hr class="my-4 w-full" >
       <label class="flex items-center">
         <ui-switch
           :model-value="data.saveDownloadIds"

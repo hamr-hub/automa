@@ -5,12 +5,14 @@
     class="mx-4"
     @change="$emit('update', $event)"
   >
-    <ui-tab v-for="tab in tabs" :key="tab" :value="tab">
+    <ui-tab v-for="tab in tabs"
+:key="tab" :value="tab">
       {{ t(`home.record.tabs.${tab}`) }}
     </ui-tab>
   </ui-tabs>
   <ui-tab-panels :model-value="state.activeTab">
-    <ui-tab-panel value="new" class="mt-3 px-4">
+    <ui-tab-panel value="new"
+class="mt-3 px-4">
       <form @submit.prevent="$emit('record', { name: state.workflowName })">
         <ui-input
           v-model="state.workflowName"
@@ -19,12 +21,14 @@
           autofocus
           class="w-full"
         />
-        <ui-button class="mt-6 w-full" variant="accent" type="submit">
+        <ui-button class="mt-6 w-full"
+variant="accent" type="submit">
           {{ t('home.record.button') }}
         </ui-button>
       </form>
     </ui-tab-panel>
-    <ui-tab-panel cache value="existing">
+    <ui-tab-panel cache
+value="existing">
       <home-select-block
         v-if="activeWorkflow"
         :workflow="activeWorkflow"
@@ -56,11 +60,14 @@
               style="height: 32px; width: 32px"
               alt="Can not display"
             />
-            <span v-else class="bg-box-transparent rounded-lg p-2">
-              <v-remixicon :name="workflow.icon" size="20" />
+            <span v-else
+class="bg-box-transparent rounded-lg p-2">
+              <v-remixicon :name="workflow.icon"
+size="20" />
             </span>
             <div class="ml-2 flex-1 overflow-hidden">
-              <p :title="workflow.name" class="text-overflow leading-tight">
+              <p :title="workflow.name"
+class="text-overflow leading-tight">
                 {{ workflow.name }}
               </p>
               <p

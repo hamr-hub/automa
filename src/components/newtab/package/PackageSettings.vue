@@ -5,7 +5,8 @@
       {{ $t('packages.settings.asBlock') }}
     </span>
   </label>
-  <div v-if="packageState.settings.asBlock" class="mt-6 flex space-x-6 pb-8">
+  <div v-if="packageState.settings.asBlock"
+class="mt-6 flex space-x-6 pb-8">
     <div class="flex-1">
       <p class="font-semibold">Block inputs</p>
       <div class="mt-4">
@@ -64,7 +65,7 @@
         </draggable>
       </div>
     </div>
-    <hr class="border-r" />
+    <hr class="border-r" >
     <div class="flex-1">
       <p class="font-semibold">Block outputs</p>
       <div class="mt-4">

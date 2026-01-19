@@ -22,7 +22,10 @@ const alias = {
 
 // Web环境mock
 if (process.env.APP_TARGET === 'web') {
-  alias['webextension-polyfill'] = resolve(__dirname, 'src/utils/mockBrowser.js');
+  alias['webextension-polyfill'] = resolve(
+    __dirname,
+    'src/utils/mockBrowser.js'
+  );
 }
 
 // secrets文件处理
@@ -36,16 +39,17 @@ function copyExtensionAssets() {
   return {
     name: 'copy-extension-assets',
     buildStart() {
-      const manifestSrc = isDev && BROWSER === 'chrome'
-        ? `src/manifest.${BROWSER}.dev.json`
-        : `src/manifest.${BROWSER}.json`;
-      
+      const manifestSrc =
+        isDev && BROWSER === 'chrome'
+          ? `src/manifest.${BROWSER}.dev.json`
+          : `src/manifest.${BROWSER}.json`;
+
       const manifest = fs.readJsonSync(manifestSrc);
       const pkg = fs.readJsonSync('package.json');
-      
+
       manifest.description = pkg.description;
       manifest.version = pkg.version;
-      
+
       // 处理版本号
       if (manifest.version.includes('-')) {
         const [version, preRelease] = manifest.version.split('-');
@@ -56,14 +60,17 @@ function copyExtensionAssets() {
           manifest.version = `${version}${preRelease}`;
         }
       }
-      
+
       // 确保build目录存在
       fs.ensureDirSync('build');
       fs.writeJsonSync('build/manifest.json', manifest, { spaces: 2 });
-      
+
       // 复制图标
       fs.copySync('src/assets/images/icon-128.png', 'build/icon-128.png');
-      fs.copySync('src/assets/images/icon-dev-128.png', 'build/icon-dev-128.png');
+      fs.copySync(
+        'src/assets/images/icon-dev-128.png',
+        'build/icon-dev-128.png'
+      );
     },
   };
 }
@@ -91,28 +98,38 @@ export default defineConfig(({ command, mode }) => {
       'process.env.NODE_ENV': JSON.stringify(NODE_ENV),
       'process.version': JSON.stringify(''),
       'process.browser': JSON.stringify(true),
-      
+
       // Vue 3 feature flags
       __VUE_OPTIONS_API__: true,
       __VUE_PROD_DEVTOOLS__: false,
       __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: false,
-      
+
       // Vue I18n flags
       __VUE_I18N_FULL_INSTALL__: JSON.stringify(true),
       __INTLIFY_PROD_DEVTOOLS__: JSON.stringify(false),
       __VUE_I18N_LEGACY_API__: JSON.stringify(false),
-      
+
       // 环境变量
       'process.env': {
         NODE_ENV: JSON.stringify(NODE_ENV),
         USE_SUPABASE: JSON.stringify(process.env.USE_SUPABASE || 'false'),
         SUPABASE_URL: JSON.stringify(process.env.SUPABASE_URL || ''),
         SUPABASE_ANON_KEY: JSON.stringify(process.env.SUPABASE_ANON_KEY || ''),
-        SUPABASE_SERVICE_KEY: JSON.stringify(process.env.SUPABASE_SERVICE_KEY || ''),
-        SUPABASE_GRAPHQL_ENDPOINT: JSON.stringify(process.env.SUPABASE_GRAPHQL_ENDPOINT || ''),
-        VUE_APP_API_BASE_URL: JSON.stringify(process.env.VUE_APP_API_BASE_URL || ''),
-        VUE_APP_SUPABASE_URL: JSON.stringify(process.env.VUE_APP_SUPABASE_URL || ''),
-        VUE_APP_SUPABASE_ANON_KEY: JSON.stringify(process.env.VUE_APP_SUPABASE_ANON_KEY || ''),
+        SUPABASE_SERVICE_KEY: JSON.stringify(
+          process.env.SUPABASE_SERVICE_KEY || ''
+        ),
+        SUPABASE_GRAPHQL_ENDPOINT: JSON.stringify(
+          process.env.SUPABASE_GRAPHQL_ENDPOINT || ''
+        ),
+        VUE_APP_API_BASE_URL: JSON.stringify(
+          process.env.VUE_APP_API_BASE_URL || ''
+        ),
+        VUE_APP_SUPABASE_URL: JSON.stringify(
+          process.env.VUE_APP_SUPABASE_URL || ''
+        ),
+        VUE_APP_SUPABASE_ANON_KEY: JSON.stringify(
+          process.env.VUE_APP_SUPABASE_ANON_KEY || ''
+        ),
       },
     },
 
@@ -121,7 +138,7 @@ export default defineConfig(({ command, mode }) => {
       emptyOutDir: false, // 不清空输出目录，因为有多个入口点
       sourcemap: isDev ? 'inline' : false,
       minify: !isDev,
-      
+
       rollupOptions: {
         input: {
           newtab: resolve(__dirname, 'src/newtab/index.html'),
@@ -132,21 +149,35 @@ export default defineConfig(({ command, mode }) => {
           offscreen: resolve(__dirname, 'src/offscreen/index.html'),
           background: resolve(__dirname, 'src/background/index.js'),
           contentScript: resolve(__dirname, 'src/content/index.js'),
-          recordWorkflow: resolve(__dirname, 'src/content/services/recordWorkflow/index.js'),
+          recordWorkflow: resolve(
+            __dirname,
+            'src/content/services/recordWorkflow/index.js'
+          ),
           webService: resolve(__dirname, 'src/content/services/webService.js'),
-          elementSelector: resolve(__dirname, 'src/content/elementSelector/index.js'),
+          elementSelector: resolve(
+            __dirname,
+            'src/content/elementSelector/index.js'
+          ),
         },
-        
+
         output: {
           entryFileNames: (chunkInfo) => {
             // 为不同类型的入口文件设置不同的输出路径
             const name = chunkInfo.name;
-            if (['background', 'contentScript', 'recordWorkflow', 'webService', 'elementSelector'].includes(name)) {
+            if (
+              [
+                'background',
+                'contentScript',
+                'recordWorkflow',
+                'webService',
+                'elementSelector',
+              ].includes(name)
+            ) {
               return '[name].bundle.js';
             }
             return 'assets/[name].js';
           },
-          
+
           chunkFileNames: 'assets/[name]-[hash].js',
           assetFileNames: (assetInfo) => {
             const name = assetInfo.name || '';
@@ -160,7 +191,7 @@ export default defineConfig(({ command, mode }) => {
           },
         },
       },
-      
+
       // 增加警告阈值，浏览器扩展体积较大是正常的
       chunkSizeWarningLimit: 1000,
     },

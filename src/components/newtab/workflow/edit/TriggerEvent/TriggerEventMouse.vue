@@ -13,7 +13,8 @@
     class="mt-2 w-full"
     label="Button"
   >
-    <option v-for="button in buttons" :key="button.id" :value="button.id">
+    <option v-for="button in buttons"
+:key="button.id" :value="button.id">
       {{ button.name }}
     </option>
   </ui-select>

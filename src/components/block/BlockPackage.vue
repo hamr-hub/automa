@@ -92,7 +92,8 @@
         title="Open package page"
         class="ml-2"
       >
-        <v-remixicon size="18" name="riExternalLinkLine" />
+        <v-remixicon size="18"
+name="riExternalLinkLine" />
       </a>
     </div>
   </block-base>

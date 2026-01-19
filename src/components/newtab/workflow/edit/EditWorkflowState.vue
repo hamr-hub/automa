@@ -12,7 +12,8 @@
       class="mt-4 w-full"
       @change="updateData({ type: $event })"
     >
-      <optgroup v-for="action in actions" :key="action.id" :label="action.name">
+      <optgroup v-for="action in actions"
+:key="action.id" :label="action.name">
         <option
           v-for="item in actionsItems[action.id]"
           :key="item.id"

@@ -5,11 +5,13 @@
       :placeholder="t('workflow.blocks.base.settings.line.select')"
       class="w-full"
     >
-      <option v-for="edge in state.edges" :key="edge.id" :value="edge.id">
+      <option v-for="edge in state.edges"
+:key="edge.id" :value="edge.id">
         {{ edge.name }}
       </option>
     </ui-select>
-    <div v-if="activeEdge" class="mt-4">
+    <div v-if="activeEdge"
+class="mt-4">
       <ui-input
         :model-value="activeEdge.label"
         :label="t('workflow.blocks.base.settings.line.label')"

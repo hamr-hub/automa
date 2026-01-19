@@ -19,7 +19,8 @@
       class="mt-2 w-full"
       @change="updateData({ method: $event })"
     >
-      <option v-for="method in methods" :key="method.id" :value="method.id">
+      <option v-for="method in methods"
+:key="method.id" :value="method.id">
         {{ method.name }}
       </option>
     </ui-select>
@@ -55,13 +56,15 @@
       </div>
       <ui-popover>
         <template #trigger>
-          <button class="bg-input rounded-lg p-2" title="Flags">
+          <button class="bg-input rounded-lg p-2"
+title="Flags">
             {{ data.flag.length === 0 ? 'flags' : data.flag.join('') }}
           </button>
         </template>
         <p>Flags</p>
         <ul class="mt-2 space-y-1">
-          <li v-for="flag in flags" :key="flag.id">
+          <li v-for="flag in flags"
+:key="flag.id">
             <ui-checkbox
               :model-value="data.flag.includes(flag.id)"
               @change="updateFlag($event, flag.id)"

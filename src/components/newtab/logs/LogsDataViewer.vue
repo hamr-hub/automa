@@ -1,5 +1,6 @@
 <template>
-  <div v-if="state.status === 'loading'" class="py-8 text-center">
+  <div v-if="state.status === 'loading'"
+class="py-8 text-center">
     <ui-spinner color="text-primary" />
   </div>
   <template v-else-if="state.status === 'idle'">
@@ -14,7 +15,8 @@
         <template #trigger>
           <ui-button variant="accent">
             <span>{{ t('log.exportData.title') }}</span>
-            <v-remixicon name="riArrowDropDownLine" class="ml-2 -mr-1" />
+            <v-remixicon name="riArrowDropDownLine"
+class="ml-2 -mr-1" />
           </ui-button>
         </template>
         <ui-list class="space-y-1">
@@ -30,7 +32,8 @@
         </ui-list>
       </ui-popover>
     </div>
-    <ui-tabs v-if="objectHasKey(logsData, 'table')" v-model="state.activeTab">
+    <ui-tabs v-if="objectHasKey(logsData, 'table')"
+v-model="state.activeTab">
       <ui-tab value="table">
         {{ t('workflow.table.title') }}
       </ui-tab>

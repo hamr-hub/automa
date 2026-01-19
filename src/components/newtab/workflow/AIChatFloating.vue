@@ -1,8 +1,10 @@
 <template>
   <div>
     <!-- 悬浮球 (折叠状态) - 固定在工具栏右侧 -->
-    <div v-if="!isOpen" class="flex items-center pointer-events-auto">
-      <transition name="scale" appear>
+    <div v-if="!isOpen"
+class="flex items-center pointer-events-auto">
+      <transition name="scale"
+appear>
         <button
           class="group flex h-10 w-10 items-center justify-center rounded-xl bg-gray-900/80 text-white shadow-lg shadow-black/20 transition-all hover:bg-blue-600 hover:scale-105 active:scale-95 border border-white/10 backdrop-blur-md ml-4"
           @click="toggleChat"
@@ -54,7 +56,7 @@
                   :class="
                     isGenerating ? 'bg-green-500 animate-pulse' : 'bg-gray-500'
                   "
-                ></span>
+                />
               </div>
               <div class="flex flex-col">
                 <span class="text-sm font-bold tracking-tight text-gray-100">
@@ -66,9 +68,11 @@
                   <span
                     class="h-1 w-1 rounded-full"
                     :class="
-                      ollamaStatus === 'connected' ? 'bg-green-500' : 'bg-red-500'
+                      ollamaStatus === 'connected'
+                        ? 'bg-green-500'
+                        : 'bg-red-500'
                     "
-                  ></span>
+                  />
                   {{ ollamaStatus === 'connected' ? 'ONLINE' : 'OFFLINE' }}
                 </span>
               </div>
@@ -90,7 +94,8 @@
                 title="最小化"
                 @click="toggleChat"
               >
-                <v-remixicon name="riSubtractLine" size="16" />
+                <v-remixicon name="riSubtractLine"
+size="16" />
               </button>
             </div>
           </div>
@@ -98,15 +103,18 @@
           <!-- 模型选择 -->
           <div class="px-4 pb-3">
             <div class="flex items-center space-x-2">
-              <v-remixicon name="riCpuLine" class="text-gray-400" size="14" />
+              <v-remixicon name="riCpuLine"
+class="text-gray-400" size="14" />
               <select
                 v-model="selectedModel"
                 :disabled="isLoadingModels || availableModels.length === 0"
                 class="flex-1 text-xs bg-gray-800/50 border border-gray-700 rounded-lg px-2 py-1.5 text-gray-200 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/20 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 @change="onModelChange"
               >
-                <option v-if="isLoadingModels" value="">加载中...</option>
-                <option v-else-if="availableModels.length === 0" value="">
+                <option
+v-if="isLoadingModels" value="">加载中...</option>
+                <option v-else-if="availableModels.length === 0"
+value="">
                   无可用模型
                 </option>
                 <option
@@ -135,7 +143,8 @@
             <div
               class="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 border border-white/5 shadow-inner"
             >
-              <v-remixicon name="riMagicLine" class="text-blue-400" size="28" />
+              <v-remixicon name="riMagicLine"
+class="text-blue-400" size="28" />
             </div>
             <h3 class="text-sm font-medium text-gray-200 mb-1">
               我是您的 AI 助手
@@ -172,7 +181,8 @@
           </div>
 
           <!-- 加载状态 -->
-          <div v-if="isGenerating" class="flex items-start space-x-2">
+          <div v-if="isGenerating"
+class="flex items-start space-x-2">
             <div
               class="flex items-center space-x-1 rounded-xl bg-gray-800/50 px-3 py-2.5 border border-gray-700/30"
             >
@@ -203,7 +213,9 @@
         </div>
 
         <!-- 输入区域 -->
-        <div class="border-t p-3 backdrop-blur-md border-white/5 bg-gray-900/40">
+        <div
+          class="border-t p-3 backdrop-blur-md border-white/5 bg-gray-900/40"
+        >
           <div class="relative group">
             <textarea
               ref="inputRef"
@@ -232,7 +244,9 @@
             </button>
           </div>
           <div class="mt-2 px-1 flex justify-end">
-            <span class="text-[9px] font-mono flex items-center gap-1 text-gray-600">
+            <span
+              class="text-[9px] font-mono flex items-center gap-1 text-gray-600"
+            >
               ENTER TO SEND
             </span>
           </div>
@@ -292,7 +306,7 @@ function startDrag(event) {
     x: event.clientX - rect.left,
     y: event.clientY - rect.top,
   };
-  
+
   document.addEventListener('mousemove', onDrag);
   document.addEventListener('mouseup', stopDrag);
   event.preventDefault();
@@ -303,14 +317,14 @@ function startDrag(event) {
  */
 function onDrag(event) {
   if (!isDragging.value) return;
-  
+
   const newX = event.clientX - dragOffset.value.x;
   const newY = event.clientY - dragOffset.value.y;
-  
+
   // 限制在视窗内
   const maxX = window.innerWidth - 360;
   const maxY = window.innerHeight - 550;
-  
+
   dialogPosition.value = {
     x: Math.max(0, Math.min(newX, maxX)),
     y: Math.max(0, Math.min(newY, maxY)),
@@ -340,10 +354,14 @@ async function loadAvailableModels() {
     // 如果当前没有选择模型，自动选择上次使用的或默认模型
     if (!selectedModel.value && availableModels.value.length > 0) {
       const lastUsedModel = store.settings.ollama?.lastUsedModel;
-      if (lastUsedModel && availableModels.value.some((m) => m.name === lastUsedModel)) {
+      if (
+        lastUsedModel &&
+        availableModels.value.some((m) => m.name === lastUsedModel)
+      ) {
         selectedModel.value = lastUsedModel;
       } else {
-        selectedModel.value = store.settings.ollama?.model || availableModels.value[0].name;
+        selectedModel.value =
+          store.settings.ollama?.model || availableModels.value[0].name;
       }
     }
   } catch (e) {

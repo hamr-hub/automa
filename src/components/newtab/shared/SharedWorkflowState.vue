@@ -24,8 +24,10 @@
       >
         <v-remixicon name="riExternalLinkLine" />
       </ui-button>
-      <ui-button variant="accent" @click="stopWorkflow">
-        <v-remixicon name="riStopLine" class="mr-2 -ml-1" />
+      <ui-button variant="accent"
+@click="stopWorkflow">
+        <v-remixicon name="riStopLine"
+class="mr-2 -ml-1" />
         <span>{{ t('common.stop') }}</span>
       </ui-button>
     </div>
@@ -39,7 +41,8 @@
         <p class="text-overflow ml-2 mr-4 flex-1">
           {{ blocks[block.name].name }}
         </p>
-        <ui-spinner color="text-accent" size="20" />
+        <ui-spinner color="text-accent"
+size="20" />
       </div>
     </div>
     <div
