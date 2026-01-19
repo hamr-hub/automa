@@ -7,8 +7,8 @@ export default defineConfig({
     timeout: 10000,
   },
   fullyParallel: false,
-  forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
+  forbidOnly: false,
+  retries: 0,
   workers: 1,
   reporter: [
     ['html', { outputFolder: 'playwright-report' }],
@@ -22,11 +22,20 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
-    },
-    {
-      name: 'chromium-headed',
-      use: { ...devices['Desktop Chrome'], headless: false },
+      use: {
+        ...devices['Desktop Chrome'],
+        headless: false,
+        // 以开发者模式启动浏览器并加载扩展
+        args: [
+          '--load-extension=./build',
+          '--disable-extensions-except=./build',
+          '--enable-features=ExtensionsOnChromeURLs',
+          '--disable-features=BlockThirdPartyCookies',
+          '--auto-open-devtools-for-tabs',
+          '--no-sandbox',
+          '--disable-setuid-sandbox',
+        ],
+      },
     },
   ],
 });
