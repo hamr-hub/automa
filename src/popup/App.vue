@@ -62,8 +62,9 @@ onMounted(async () => {
 <style>
 html,
 body {
-  height: 200px;
-  width: 175px;
+  min-height: 500px;
+  max-height: 600px;
+  width: 400px;
   font-size: 16px;
   overflow: hidden;
 }
@@ -71,6 +72,7 @@ body {
 #app {
   height: 100%;
   width: 100%;
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 </style>
