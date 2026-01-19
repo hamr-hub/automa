@@ -1,9 +1,36 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+@config "../../../tailwind.config.js";
 
-@layer utilities {
-  .hoverable:hover {
+@theme {
+  /* Colors - use oklch format for Tailwind v4 */
+  --color-primary: oklch(0.62 0.21 259.82);
+  --color-secondary: oklch(0.72 0.17 237.32);
+  --color-accent: oklch(0.25 0 0);
+
+  --color-gray-50: oklch(0.98 0 0);
+  --color-gray-200: oklch(0.91 0.01 264.53);
+  --color-gray-300: oklch(0.85 0.01 258.34);
+  --color-gray-600: oklch(0.47 0.03 256.8);
+  --color-gray-700: oklch(0.41 0.03 259.73);
+  --color-gray-800: oklch(0.32 0.03 256.85);
+  --color-gray-900: oklch(0.24 0.03 264.67);
+
+  /* Breakpoints */
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
+}
+
+.dark {
+  --color-primary: oklch(0.72 0.17 237.32);
+  --color-secondary: oklch(0.62 0.21 259.82);
+  --color-accent: oklch(0.96 0 0);
+}
+
+@utility hoverable {
+  &:hover {
     background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 51, 234, 0.05) 100%);
     box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
     transform: translateY(-1px);
@@ -11,69 +38,69 @@
   }
 
   @media (prefers-color-scheme: dark) {
-    .hoverable:hover {
+    &:hover {
       background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(147, 51, 234, 0.1) 100%);
       box-shadow: 0 4px 16px rgba(59, 130, 246, 0.25), 0 0 20px rgba(147, 51, 234, 0.15);
     }
   }
+}
 
-  .bg-input {
-    background: linear-gradient(135deg, rgb(0 0 0 / 0.03) 0%, rgb(59 130 246 / 0.05) 100%);
-    border: 1px solid rgba(59, 130, 246, 0.1);
-    transition: all 0.3s ease;
-  }
+@utility bg-input {
+  background: linear-gradient(135deg, rgb(0 0 0 / 0.03) 0%, rgb(59 130 246 / 0.05) 100%);
+  border: 1px solid rgba(59, 130, 246, 0.1);
+  transition: all 0.3s ease;
 
-  .bg-input:hover {
+  &:hover {
     background: linear-gradient(135deg, rgb(59 130 246 / 0.08) 0%, rgb(147 51 234 / 0.05) 100%);
     border-color: rgba(59, 130, 246, 0.3);
     box-shadow: 0 0 16px rgba(59, 130, 246, 0.2);
   }
 
-  .bg-input:focus {
+  &:focus {
     border-color: rgba(59, 130, 246, 0.5);
     box-shadow: 0 0 20px rgba(59, 130, 246, 0.3), 0 0 40px rgba(147, 51, 234, 0.15);
   }
 
   @media (prefers-color-scheme: dark) {
-    .bg-input {
+    & {
       background: linear-gradient(135deg, rgb(229 231 235 / 0.05) 0%, rgb(59 130 246 / 0.08) 100%);
       border: 1px solid rgba(59, 130, 246, 0.2);
     }
 
-    .bg-input:hover {
+    &:hover {
       background: linear-gradient(135deg, rgb(59 130 246 / 0.12) 0%, rgb(147 51 234 / 0.08) 100%);
       border-color: rgba(59, 130, 246, 0.4);
       box-shadow: 0 0 20px rgba(59, 130, 246, 0.3), 0 0 30px rgba(147, 51, 234, 0.2);
     }
 
-    .bg-input:focus {
+    &:focus {
       border-color: rgba(59, 130, 246, 0.6);
       box-shadow: 0 0 24px rgba(59, 130, 246, 0.4), 0 0 48px rgba(147, 51, 234, 0.25);
     }
   }
+}
 
-  .bg-box-transparent {
-    background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(147, 51, 234, 0.03) 100%);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(59, 130, 246, 0.1);
-  }
+@utility bg-box-transparent {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(147, 51, 234, 0.03) 100%);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(59, 130, 246, 0.1);
 
   @media (prefers-color-scheme: dark) {
-    .bg-box-transparent {
+    & {
       background: linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(147, 51, 234, 0.05) 100%);
       border: 1px solid rgba(59, 130, 246, 0.15);
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05);
     }
   }
+}
 
-  .bg-box-transparent-2 {
-    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 51, 234, 0.05) 100%);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(59, 130, 246, 0.15);
-  }
+@utility bg-box-transparent-2 {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 51, 234, 0.05) 100%);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(59, 130, 246, 0.15);
 
   @media (prefers-color-scheme: dark) {
-    .bg-box-transparent-2 {
+    & {
       background: linear-gradient(135deg, rgba(59, 130, 246, 0.12) 0%, rgba(147, 51, 234, 0.08) 100%);
       border: 1px solid rgba(59, 130, 246, 0.2);
       box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.08);
@@ -192,31 +219,22 @@ pre {
 
 .scroll,
 .scroll .cm-scroller {
-  scrollbar-width: thin;
-  scrollbar-color: rgb(209 213 219) transparent;
-}
+  &::-webkit-scrollbar {
+    width: 7px;
+    height: 9px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: rgb(209 213 219);
+    border-radius: 8px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
 
-.scroll::-webkit-scrollbar,
-.scroll .cm-scroller::-webkit-scrollbar {
-  width: 7px;
-  height: 9px;
-}
-
-.scroll::-webkit-scrollbar-thumb,
-.scroll .cm-scroller::-webkit-scrollbar-thumb {
-  background-color: rgb(209 213 219);
-  border-radius: 8px;
-}
-
-.scroll::-webkit-scrollbar-track,
-.scroll .cm-scroller::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.scroll.scroll-xs::-webkit-scrollbar,
-.scroll.scroll-xs .cm-scroller::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  &.scroll-xs::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
 }
 
 .dark .scroll::-webkit-scrollbar-thumb,
