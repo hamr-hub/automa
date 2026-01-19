@@ -419,9 +419,12 @@ function togglePinWorkflow(workflow) {
 function toggleSelectWorkflow(workflowId) {
   const index = state.selectedForBatch.indexOf(workflowId);
   if (index === -1) {
-    state.selectedForBatch.push(workflowId);
+    state.selectedForBatch = [...state.selectedForBatch, workflowId];
   } else {
-    state.selectedForBatch.splice(index, 1);
+    state.selectedForBatch = [
+      ...state.selectedForBatch.slice(0, index),
+      ...state.selectedForBatch.slice(index + 1)
+    ];
   }
 }
 
