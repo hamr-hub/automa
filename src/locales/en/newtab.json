@@ -243,6 +243,7 @@
     "deleteBatchConfirm": "Are you sure you want to delete {count} workflows?",
     "selectAll": "Select all",
     "deselectAll": "Deselect all",
+    "selected": "{count} workflow(s) selected",
     "browse": "Browse workflows",
     "name": "Workflow name",
     "rename": "Rename workflow",

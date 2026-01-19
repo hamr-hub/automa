@@ -82,21 +82,45 @@ class="mr-2" size="20" />
         :records="filteredWorkflows.length"
       />
     </div>
-    <ui-card
-      v-if="state.selectedForBatch.length !== 0"
-      class="fixed right-0 bottom-0 m-5 space-x-2 shadow-xl"
+    <transition
+      enter-active-class="transition-all duration-300 ease-out"
+      leave-active-class="transition-all duration-200 ease-in"
+      enter-from-class="opacity-0 translate-y-4"
+      enter-to-class="opacity-100 translate-y-0"
+      leave-from-class="opacity-100 translate-y-0"
+      leave-to-class="opacity-0 translate-y-4"
     >
-      <ui-button @click="selectAllWorkflows">
-        {{
-          t(
-            `workflow.${state.selectedForBatch.length >= allWorkflows.length ? 'deselectAll' : 'selectAll'}`
-          )
-        }}
-      </ui-button>
-      <ui-button variant="danger" @click="deleteBatchWorkflows">
-        {{ t('workflow.deleteSelected') }} ({{ state.selectedForBatch.length }})
-      </ui-button>
-    </ui-card>
+      <ui-card
+        v-if="state.selectedForBatch.length !== 0"
+        class="fixed right-0 bottom-0 left-0 mx-auto mb-6 w-fit space-x-2 shadow-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-6 py-4"
+      >
+        <div class="flex items-center gap-3">
+          <div class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+            <v-remixicon name="riCheckboxMultipleLine" size="18" />
+            <span class="font-medium">
+              {{ t('workflow.selected', { count: state.selectedForBatch.length }) }}
+            </span>
+          </div>
+          <div class="h-6 w-px bg-gray-300 dark:bg-gray-600"></div>
+          <ui-button variant="accent" @click="selectAllWorkflows">
+            <v-remixicon 
+              :name="state.selectedForBatch.length >= allWorkflows.length ? 'riCheckboxIndeterminateLine' : 'riCheckboxMultipleLine'" 
+              size="16" 
+              class="mr-1" 
+            />
+            {{
+              t(
+                `workflow.${state.selectedForBatch.length >= allWorkflows.length ? 'deselectAll' : 'selectAll'}`
+              )
+            }}
+          </ui-button>
+          <ui-button variant="danger" @click="deleteBatchWorkflows">
+            <v-remixicon name="riDeleteBin7Line" size="16" class="mr-1" />
+            {{ t('workflow.deleteSelected') }} ({{ state.selectedForBatch.length }})
+          </ui-button>
+        </div>
+      </ui-card>
+    </transition>
   </template>
   <ui-modal v-model="renameState.show"
 title="Workflow">

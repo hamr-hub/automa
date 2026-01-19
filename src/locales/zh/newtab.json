@@ -242,6 +242,7 @@
     "deleteBatchConfirm": "确定要删除 {count} 个工作流吗？",
     "selectAll": "全选",
     "deselectAll": "取消全选",
+    "selected": "已选择 {count} 个工作流",
     "browse": "浏览工作流",
     "name": "工作流名称",
     "rename": "重命名工作流",
