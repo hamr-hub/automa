@@ -15,8 +15,7 @@
         <label
           class="bg-input flex h-12 items-center rounded-lg px-2 ring-accent transition focus-within:ring-2"
         >
-          <img
-:src="logoUrl" class="h-8 w-8" />
+          <img :src="logoUrl" class="h-8 w-8" />
           <input
             ref="inputRef"
             type="text"
@@ -29,8 +28,7 @@
             @input="onInput"
             @keydown="onInputKeydown"
           />
-          <template v-for="key in state.shortcutKeys"
-:key="key">
+          <template v-for="key in state.shortcutKeys" :key="key">
             <span
               class="bg-box-transparent ml-1 inline-block rounded-md border-2 border-gray-300 p-1 text-center text-xs font-semibold capitalize text-gray-600"
               style="min-width: 29px; font-family: inherit"
@@ -44,8 +42,7 @@
         class="scroll workflows-list overflow-auto px-4 pb-4"
         style="max-height: calc(100vh - 200px)"
       >
-        <div v-if="!state.retrieved"
-class="mb-2 text-center">
+        <div v-if="!state.retrieved" class="mb-2 text-center">
           <ui-spinner color="text-accent" />
         </div>
         <template v-else>
@@ -89,8 +86,7 @@ class="mb-2 text-center">
             >
               Can't find workflows
             </p>
-            <ui-list v-else
-class="space-y-1">
+            <ui-list v-else class="space-y-1">
               <ui-list-item
                 v-for="(workflow, index) in workflows"
                 :id="`list-item-${index}`"
@@ -136,8 +132,7 @@ class="space-y-1">
         </template>
       </div>
       <div class="flex items-center px-4 py-2">
-        <div v-if="paramsState.active"
-class="pl-2 text-gray-500">
+        <div v-if="paramsState.active" class="pl-2 text-gray-500">
           <div class="flex items-center">
             <p class="mr-4">
               {{ paramsState.workflow.description }}
@@ -494,7 +489,7 @@ onMounted(() => {
   });
 
   window.addEventListener('keydown', onKeydown);
-  Object.assign(paramsList, workflowParameters());
+  Object.assign(paramsList, workflowParameters.parameters);
 });
 onBeforeUnmount(() => {
   window.removeEventListener('keydown', onKeydown);
