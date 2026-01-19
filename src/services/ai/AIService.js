@@ -119,6 +119,24 @@ class AIService {
   }
 
   /**
+   * 渐进式生成工作流（支持多轮对话和增量修改）
+   *
+   * @param {Object} options - 配置选项
+   * @param {string} options.userInput - 用户输入
+   * @param {string} options.targetUrl - 目标URL
+   * @param {Function} options.onProgress - 进度回调
+   * @param {Object} options.currentWorkflow - 当前工作流（增量修改时）
+   * @param {boolean} options.incremental - 是否为增量模式
+   * @param {number} options.maxIterations - 最大迭代次数
+   * @returns {Promise<Object>} 生成结果
+   */
+  async generateWorkflowIncremental(options) {
+    this.ensureInitialized();
+    const langGraphService = this.getLangGraphService();
+    return await langGraphService.runIncremental(options);
+  }
+
+  /**
    * 简单 AI 聊天 (通过 LangGraphService.simpleChat)
    * 适用于 AI Block、一次性查询等场景
    *

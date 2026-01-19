@@ -36,9 +36,8 @@
  */
 
 const customBlocks = {
-  // Add your custom blocks here
-  // Example:
-  // 'my-api-block': { ... },
+  // Example: Add your custom blocks here
+  // 'my-block': { ... },
 };
 
 export default function () {

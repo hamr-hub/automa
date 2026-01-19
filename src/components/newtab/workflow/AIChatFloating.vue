@@ -1,10 +1,8 @@
 <template>
   <div>
     <!-- 悬浮球 (折叠状态) - 固定在工具栏右侧 -->
-    <div v-if="!isOpen"
-class="flex items-center pointer-events-auto">
-      <transition name="scale"
-appear>
+    <div v-if="!isOpen" class="flex items-center pointer-events-auto">
+      <transition name="scale" appear>
         <button
           class="group flex h-10 w-10 items-center justify-center rounded-xl bg-gray-900/80 text-white shadow-lg shadow-black/20 transition-all hover:bg-blue-600 hover:scale-105 active:scale-95 border border-white/10 backdrop-blur-md ml-4"
           @click="toggleChat"
@@ -30,7 +28,7 @@ appear>
           zIndex: 1000,
         }"
         class="pointer-events-auto flex flex-col overflow-hidden rounded-2xl border border-white/10 shadow-2xl backdrop-blur-xl ring-1 ring-black/5 bg-gray-900/95"
-        style="height: 550px; max-height: 80vh; width: 360px"
+        style="height: 650px; max-height: 80vh; width: 400px"
       >
         <!-- 头部 - 可拖动区域 -->
         <div
@@ -94,27 +92,23 @@ appear>
                 title="最小化"
                 @click="toggleChat"
               >
-                <v-remixicon name="riSubtractLine"
-size="16" />
+                <v-remixicon name="riSubtractLine" size="16" />
               </button>
             </div>
           </div>
 
-          <!-- 模型选择 -->
-          <div class="px-4 pb-3">
+          <!-- 模型选择和模式选择 -->
+          <div class="px-4 pb-3 space-y-2">
             <div class="flex items-center space-x-2">
-              <v-remixicon name="riCpuLine"
-class="text-gray-400" size="14" />
+              <v-remixicon name="riCpuLine" class="text-gray-400" size="14" />
               <select
                 v-model="selectedModel"
                 :disabled="isLoadingModels || availableModels.length === 0"
                 class="flex-1 text-xs bg-gray-800/50 border border-gray-700 rounded-lg px-2 py-1.5 text-gray-200 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/20 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 @change="onModelChange"
               >
-                <option
-v-if="isLoadingModels" value="">加载中...</option>
-                <option v-else-if="availableModels.length === 0"
-value="">
+                <option v-if="isLoadingModels" value="">加载中...</option>
+                <option v-else-if="availableModels.length === 0" value="">
                   无可用模型
                 </option>
                 <option
@@ -125,6 +119,64 @@ value="">
                   {{ model.name }}
                 </option>
               </select>
+            </div>
+            <!-- 渐进式生成开关 -->
+            <div class="flex items-center space-x-2">
+              <v-remixicon
+                name="riFlowChartLine"
+                class="text-gray-400"
+                size="14"
+              />
+              <label class="flex items-center space-x-2 cursor-pointer">
+                <input
+                  v-model="incrementalMode"
+                  type="checkbox"
+                  class="w-4 h-4 rounded border-gray-600 bg-gray-800 text-blue-500 focus:ring-blue-500/50"
+                />
+                <span class="text-xs text-gray-300">渐进式生成</span>
+              </label>
+              <span
+                v-tooltip="'启用后将逐步生成工作流，支持多轮对话完善'"
+                class="text-gray-500 cursor-help"
+              >
+                <v-remixicon name="riQuestionLine" size="12" />
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 思考过程显示区域 -->
+        <div
+          v-if="thinkingSteps.length > 0 && isGenerating"
+          class="bg-gray-800/50 border-b border-white/5 px-4 py-2 space-y-1 max-h-32 overflow-y-auto"
+        >
+          <div
+            class="text-[10px] text-gray-500 font-mono uppercase tracking-wider mb-1"
+          >
+            思考过程
+          </div>
+          <div
+            v-for="(step, index) in thinkingSteps"
+            :key="index"
+            class="flex items-start space-x-2 text-xs"
+          >
+            <div
+              class="flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold"
+              :class="{
+                'bg-blue-500/20 text-blue-400': step.phase === 'analyze',
+                'bg-green-500/20 text-green-400': step.phase === 'generate',
+                'bg-yellow-500/20 text-yellow-400': step.phase === 'verify',
+                'bg-purple-500/20 text-purple-400': step.phase === 'complete',
+                'bg-red-500/20 text-red-400': step.phase === 'error',
+              }"
+            >
+              {{ step.phase?.charAt(0).toUpperCase() }}
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="text-gray-300">{{ step.thought }}</div>
+              <div v-if="step.details" class="text-gray-500 text-[10px] mt-0.5">
+                {{ formatThinkingDetails(step.details) }}
+              </div>
             </div>
           </div>
         </div>
@@ -143,8 +195,7 @@ value="">
             <div
               class="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 border border-white/5 shadow-inner"
             >
-              <v-remixicon name="riMagicLine"
-class="text-blue-400" size="28" />
+              <v-remixicon name="riMagicLine" class="text-blue-400" size="28" />
             </div>
             <h3 class="text-sm font-medium text-gray-200 mb-1">
               我是您的 AI 助手
@@ -152,6 +203,17 @@ class="text-blue-400" size="28" />
             <p class="text-xs text-gray-400 max-w-[200px] leading-relaxed">
               我可以帮您修改当前工作流,或者根据描述创建新任务。
             </p>
+            <!-- 快速提示 -->
+            <div class="mt-4 space-y-2 text-left">
+              <button
+                v-for="(tip, i) in quickTips"
+                :key="i"
+                class="block w-full text-left px-3 py-2 rounded-lg bg-gray-800/50 hover:bg-gray-800 text-xs text-gray-400 hover:text-gray-200 transition-colors"
+                @click="input = tip"
+              >
+                {{ tip }}
+              </button>
+            </div>
           </div>
 
           <!-- 消息列表 -->
@@ -161,6 +223,20 @@ class="text-blue-400" size="28" />
             class="flex flex-col group"
             :class="msg.role === 'user' ? 'items-end' : 'items-start'"
           >
+            <!-- 迭代信息 -->
+            <div
+              v-if="msg.iterations !== undefined"
+              class="w-full mb-2 px-2 py-1 rounded bg-blue-500/10 border border-blue-500/20 text-[10px] text-blue-400"
+            >
+              <v-remixicon
+                name="riLoopLeftLine"
+                class="inline mr-1"
+                size="12"
+              />
+              完成了 {{ msg.iterations }} 次迭代，生成了
+              {{ msg.nodesCount }} 个节点
+            </div>
+
             <div
               class="max-w-[85%] rounded-2xl px-3.5 py-2.5 text-xs leading-relaxed shadow-sm break-words border transition-all"
               :class="[
@@ -181,8 +257,7 @@ class="text-blue-400" size="28" />
           </div>
 
           <!-- 加载状态 -->
-          <div v-if="isGenerating"
-class="flex items-start space-x-2">
+          <div v-if="isGenerating" class="flex items-start space-x-2">
             <div
               class="flex items-center space-x-1 rounded-xl bg-gray-800/50 px-3 py-2.5 border border-gray-700/30"
             >
@@ -196,6 +271,7 @@ class="flex items-start space-x-2">
                 class="h-1.5 w-1.5 animate-bounce rounded-full bg-blue-400 delay-150"
               />
             </div>
+            <span class="text-xs text-gray-400">{{ generatingStatus }}</span>
           </div>
 
           <!-- 错误提示 -->
@@ -216,13 +292,40 @@ class="flex items-start space-x-2">
         <div
           class="border-t p-3 backdrop-blur-md border-white/5 bg-gray-900/40"
         >
+          <!-- 当前工作流状态 -->
+          <div
+            v-if="currentWorkflow && Object.keys(currentWorkflow).length > 0"
+            class="mb-2 px-2 py-1.5 rounded-lg bg-gray-800/50 border border-gray-700/50 text-xs flex items-center justify-between"
+          >
+            <div class="flex items-center space-x-2">
+              <v-remixicon
+                name="riFlowChartLine"
+                class="text-green-400"
+                size="14"
+              />
+              <span class="text-gray-400">
+                当前工作流:
+                <span class="text-gray-200 font-medium">
+                  {{ currentWorkflow.nodes?.length || 0 }} 个节点
+                </span>
+              </span>
+            </div>
+            <button
+              class="text-gray-500 hover:text-gray-300 transition-colors"
+              title="查看当前工作流"
+              @click="viewCurrentWorkflow"
+            >
+              <v-remixicon name="riEyeLine" size="14" />
+            </button>
+          </div>
+
           <div class="relative group">
             <textarea
               ref="inputRef"
               v-model="input"
               rows="1"
               class="w-full resize-none rounded-xl border px-3.5 py-3 pr-10 text-xs placeholder-gray-500 focus:outline-none focus:ring-2 scrollbar-hide transition-all border-gray-700 bg-gray-800/50 text-white focus:border-blue-500/50 focus:bg-gray-800 focus:ring-blue-500/20"
-              placeholder="输入指令..."
+              placeholder="描述您想要的工作流..."
               @keydown.enter.exact.prevent="sendMessage"
               @input="autoResize"
             />
@@ -243,11 +346,17 @@ class="flex items-start space-x-2">
               />
             </button>
           </div>
-          <div class="mt-2 px-1 flex justify-end">
+          <div class="mt-2 px-1 flex justify-between">
             <span
               class="text-[9px] font-mono flex items-center gap-1 text-gray-600"
             >
               ENTER TO SEND
+            </span>
+            <span
+              v-if="incrementalMode"
+              class="text-[9px] font-mono text-blue-400"
+            >
+              渐进式模式
             </span>
           </div>
         </div>
@@ -257,9 +366,10 @@ class="flex items-start space-x-2">
 </template>
 
 <script setup>
-import { ref, nextTick, onMounted } from 'vue';
+import { ref, nextTick, onMounted, onUnmounted } from 'vue';
 import aiService from '@/services/ai/AIService';
 import { useToast } from 'vue-toastification';
+import { useStore } from '@/stores/main';
 
 defineProps({
   workflow: {
@@ -290,6 +400,11 @@ const ollamaStatus = ref('checking');
 const availableModels = ref([]);
 const selectedModel = ref('');
 const isLoadingModels = ref(false);
+
+// 渐进式生成相关状态
+const incrementalMode = ref(true);
+const thinkingSteps = ref([]);
+const generatingStatus = ref('');
 
 // 对话框拖动相关状态
 const dialogPosition = ref({ x: 100, y: 100 });
@@ -448,6 +563,34 @@ function scrollToBottom() {
 function clearHistory() {
   history.value = [];
   error.value = null;
+  thinkingSteps.value = [];
+}
+
+// 格式化思考过程详情
+function formatThinkingDetails(details) {
+  if (!details) return '';
+  const parts = [];
+  
+  if (details.attempt) {
+    parts.push(`尝试: ${details.attempt}`);
+  }
+  if (details.currentNodesCount !== undefined) {
+    parts.push(`当前节点: ${details.currentNodesCount}`);
+  }
+  if (details.nodesCount !== undefined) {
+    parts.push(`节点数: ${details.nodesCount}`);
+  }
+  if (details.edgesCount !== undefined) {
+    parts.push(`连接数: ${details.edgesCount}`);
+  }
+  if (details.completionScore !== undefined) {
+    parts.push(`完成度: ${details.completionScore}%`);
+  }
+  if (details.action) {
+    parts.push(`操作: ${details.action}`);
+  }
+  
+  return parts.join(', ');
 }
 
 async function sendMessage() {
@@ -456,10 +599,12 @@ async function sendMessage() {
   const content = input.value.trim();
   input.value = '';
   error.value = null;
+  thinkingSteps.value = [];
   autoResize(); // Reset height
 
   history.value.push({ role: 'user', content });
   isGenerating.value = true;
+  generatingStatus.value = '正在分析需求...';
   scrollToBottom();
 
   try {
@@ -468,25 +613,65 @@ async function sendMessage() {
       await aiService.initialize();
     }
 
-    // 通过 aiService 调用，会自动使用 ollama 配置
-    const result = await aiService.generateWorkflow(
-      content,
-      '', // targetUrl (optional)
-      () => {
-        // 这里可以处理进度消息，如果需要
-      },
-      null // pageContext (optional)
-    );
+    // 进度回调处理函数
+    const onProgress = (progress) => {
+      generatingStatus.value = progress.message || '';
+      
+      // 处理思考过程
+      if (progress.thinking) {
+        thinkingSteps.value.push(progress.thinking);
+        // 限制思考步骤数量，只保留最近的10个
+        if (thinkingSteps.value.length > 10) {
+          thinkingSteps.value.shift();
+        }
+      }
+      
+      // 滚动到底部
+      nextTick(() => scrollToBottom());
+    };
 
-    if (result.success) {
-      history.value.push({ role: 'assistant', content: result.message });
+    let result;
+    if (incrementalMode.value) {
+      // 使用渐进式生成
+      result = await aiService.generateWorkflowIncremental({
+        userInput: content,
+        targetUrl: '',
+        onProgress,
+        currentWorkflow: props.workflow,
+        incremental: true,
+        maxIterations: 5,
+      });
+    } else {
+      // 使用普通生成
+      result = await aiService.generateWorkflow(
+        content,
+        '', // targetUrl (optional)
+        onProgress,
+        null // pageContext (optional)
+      );
+    }
+
+    if (result.success || result.workflow) {
+      let message;
+      if (incrementalMode.value) {
+        message = `工作流已更新，完成了 ${result.iterations} 次迭代，生成了 ${result.workflow.nodes.length} 个节点`;
+      } else {
+        message = result.message || '工作流已更新';
+      }
+      
+      history.value.push({
+        role: 'assistant',
+        content: message,
+        iterations: result.iterations,
+        nodesCount: result.workflow?.nodes?.length || 0,
+      });
 
       if (result.workflow) {
         emit('update-workflow', result.workflow);
         toast.success('工作流已更新');
       }
     } else {
-      error.value = result.error;
+      error.value = result.error || '生成失败';
       // Do not push error to history to allow retry
     }
   } catch (error) {
@@ -494,6 +679,7 @@ async function sendMessage() {
     error.value = error.message || '发生未知错误';
   } finally {
     isGenerating.value = false;
+    generatingStatus.value = '';
     scrollToBottom();
   }
 }

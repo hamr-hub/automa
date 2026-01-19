@@ -597,6 +597,608 @@ class LangGraphService {
   }
 
   /**
+   * 运行渐进式工作流生成
+   * 支持分步骤生成、验证、继续的循环
+   *
+   * @param {Object} options - 配置选项
+   * @param {string} options.userInput - 用户输入
+   * @param {string} options.targetUrl - 目标URL
+   * @param {Array} options.history - 对话历史
+   * {Function} options.onProgress - 进度回调
+   * @param {Object} options.abortSignal - 中止信号
+   * @param {Object} options.currentWorkflow - 当前工作流（增量修改时）
+   * @param {boolean} options.incremental - 是否为增量模式
+   * @param {number} options.maxIterations - 最大迭代次数
+   * @returns {Promise<Object>} 生成结果
+   */
+  async runIncremental(options) {
+    const {
+      userInput,
+      targetUrl = '',
+      history = [],
+      onProgress = null,
+      abortSignal = null,
+      currentWorkflow = null,
+      incremental = true,
+      maxIterations = 5,
+    } = options;
+
+    // 构建渐进式图
+    const graph = this.buildIncrementalGraph();
+    const initialState = {
+      ...this.getIncrementalInitialState(),
+      userInput,
+      targetUrl,
+      messages: history.length > 0 ? history : [],
+      abortSignal,
+      onProgress,
+      currentWorkflow: currentWorkflow?.drawflow || null,
+      incremental,
+      maxIterations,
+      iterationCount: 0,
+    };
+
+    const result = await graph.invoke(initialState);
+
+    if (!result.workflow) {
+      throw new Error(result.error || 'Failed to generate workflow');
+    }
+
+    return {
+      workflow: result.workflow,
+      message: result.message,
+      iterations: result.iterationCount,
+      completed: result.completed,
+    };
+  }
+
+  /**
+   * 获取渐进式初始状态
+   */
+  getIncrementalInitialState() {
+    return {
+      messages: [],
+      userInput: '',
+      targetUrl: '',
+      pageContext: '',
+      generatedJson: null,
+      workflow: null,
+      error: null,
+      retryCount: 0,
+      currentWorkflow: null,
+      incremental: true,
+      maxIterations: 5,
+      iterationCount: 0,
+      completed: false,
+      onProgress: null,
+      abortSignal: null,
+    };
+  }
+
+  /**
+   * 构建渐进式图
+   * 支持分步骤生成和验证
+   */
+  buildIncrementalGraph() {
+    const graphBuilder = new StateGraph({
+      channels: {
+        messages: { value: (x, y) => x.concat(y), default: () => [] },
+        userInput: { value: (x, y) => y || x, default: () => '' },
+        targetUrl: { value: (x, y) => y || x, default: () => '' },
+        pageContext: { value: (x, y) => y || x, default: () => '' },
+        generatedJson: { value: (x, y) => y, default: () => null },
+        workflow: { value: (x, y) => y, default: () => null },
+        error: { value: (x, y) => y, default: () => null },
+        retryCount: { value: (x, y) => y, default: () => 0 },
+        onProgress: { value: (x, y) => x, default: () => null },
+        currentWorkflow: { value: (x, y) => y, default: () => null },
+        incremental: { value: (x, y) => y, default: () => true },
+        maxIterations: { value: (x, y) => y, default: () => 5 },
+        iterationCount: { value: (x, y) => y, default: () => 0 },
+        completed: { value: (x, y) => y, default: () => false },
+        thinkingSteps: { value: (x, y) => x.concat(y), default: () => [] },
+      },
+    });
+
+    // 定义节点
+    graphBuilder.addNode('analyze', this.incrementalAnalyzeNode.bind(this));
+    graphBuilder.addNode('generate', this.incrementalGenerateNode.bind(this));
+    graphBuilder.addNode('verify', this.incrementalVerifyNode.bind(this));
+    graphBuilder.addNode('complete', this.incrementalCompleteNode.bind(this));
+    graphBuilder.addNode('error', this.incrementalErrorNode.bind(this));
+
+    // 设置入口点
+    graphBuilder.setEntryPoint('analyze');
+
+    // 定义边
+    graphBuilder.addEdge('analyze', 'generate');
+    graphBuilder.addEdge('generate', 'verify');
+
+    // 条件边：从验证决定下一步
+    graphBuilder.addConditionalEdges(
+      'verify',
+      (state) => {
+        // 如果完成或达到最大迭代次数，进入完成节点
+        if (state.completed || state.iterationCount >= state.maxIterations) {
+          return 'complete';
+        }
+        // 如果有错误，进入错误处理
+        if (state.error) {
+          return 'error';
+        }
+        // 继续生成下一个迭代
+        return 'generate';
+      },
+      {
+        complete: 'complete',
+        error: 'error',
+        generate: 'generate',
+      }
+    );
+
+    // 错误节点：修正后重新生成
+    graphBuilder.addConditionalEdges(
+      'error',
+      (state) => {
+        if (state.retryCount >= 3) {
+          return 'complete';
+        }
+        return 'generate';
+      },
+      {
+        complete: 'complete',
+        generate: 'generate',
+      }
+    );
+
+    return graphBuilder.compile();
+  }
+
+  /**
+   * 节点：分析用户输入和当前工作流状态
+   */
+  async incrementalAnalyzeNode(state) {
+    const msg = '正在分析需求...';
+    state.onProgress?.({
+      step: 'analyze',
+      message: msg,
+      iteration: state.iterationCount + 1,
+      thinking: {
+        phase: 'analyze',
+        thought: '理解用户需求，分析当前工作流状态',
+        details: {
+          userInput: state.userInput,
+          hasCurrentWorkflow: !!state.currentWorkflow,
+          nodesCount: state.currentWorkflow?.nodes?.length || 0,
+        },
+      },
+    });
+
+    return {
+      thinkingSteps: [
+        {
+          phase: 'analyze',
+          thought: '分析用户需求和当前工作流状态',
+          timestamp: Date.now(),
+        },
+      ],
+    };
+  }
+
+  /**
+   * 节点：增量生成工作流节点
+   */
+  async incrementalGenerateNode(state) {
+    const attempt = state.retryCount + 1;
+    const msg = `正在生成工作流 (第 ${state.iterationCount + 1} 次迭代, 第 ${attempt} 次尝试)...`;
+    console.log(`[Incremental] ${msg}`);
+
+    state.onProgress?.({
+      step: 'generate',
+      message: msg,
+      iteration: state.iterationCount + 1,
+      attempt,
+      thinking: {
+        phase: 'generate',
+        thought: '生成新的工作流节点',
+        details: {
+          attempt,
+          currentNodesCount: state.currentWorkflow?.nodes?.length || 0,
+        },
+      },
+    });
+
+    try {
+      // 构建生成提示
+      const messages = this.buildIncrementalPrompt(state);
+
+      const response = await this.ollama.chat(messages, {
+        signal: state.abortSignal,
+      });
+
+      const content = response.message.content;
+      const generatedJson = this.extractJson(content);
+
+      if (!generatedJson) {
+        return {
+          error: 'AI 返回的内容中未找到有效的 JSON 格式',
+          retryCount: state.retryCount + 1,
+        };
+      }
+
+      // 处理AI的思考过程
+      if (generatedJson.thinking) {
+        state.onProgress?.({
+          step: 'thinking',
+          message: 'AI 正在思考...',
+          iteration: state.iterationCount + 1,
+          thinking: {
+            phase: 'ai_thinking',
+            thought: generatedJson.thinking,
+            details: {
+              action: generatedJson.action,
+              reason: generatedJson.reason,
+            },
+          },
+        });
+      }
+
+      // 合并生成的结果到当前工作流
+      const updatedWorkflow = this.mergeWorkflow增量(
+        state.currentWorkflow,
+        generatedJson
+      );
+
+      // 检查AI是否认为工作流已完成
+      const completed = generatedJson.action === 'complete';
+
+      return {
+        messages: [{ role: 'assistant', content }],
+        generatedJson,
+        workflow: updatedWorkflow,
+        iterationCount: state.iterationCount + 1,
+        completed: completed,
+        error: null,
+        retryCount: 0,
+        thinkingSteps: [
+          {
+            phase: 'generate',
+            thought: generatedJson.thinking || '生成了新的工作流节点',
+            timestamp: Date.now(),
+            action: generatedJson.action,
+            reason: generatedJson.reason,
+          },
+        ],
+      };
+    } catch (error) {
+      if (error.message === 'Aborted by user' || state.abortSignal?.aborted) {
+        throw new Error('Aborted by user');
+      }
+      console.error('[Incremental] Generation Error:', error);
+      return { error: error.message, retryCount: state.retryCount + 1 };
+    }
+  }
+
+  /**
+   * 构建增量生成提示
+   */
+  /**
+   * 评估工作流完成度
+   */
+  estimateCompletion(userInput, workflow) {
+    const inputLower = userInput.toLowerCase();
+    let completion = 0;
+    
+    // 基础完成度：有节点就有基础分数
+    if (workflow.nodes.length > 0) {
+      completion += 20;
+    }
+    
+    // 检查是否有触发器
+    if (workflow.nodes.some(node => node.label === 'trigger')) {
+      completion += 15;
+    }
+    
+    // 检查是否有新标签页节点（如果需要）
+    if (inputLower.includes('打开') || inputLower.includes('navigate')) {
+      if (workflow.nodes.some(node => node.label === 'new-tab')) {
+        completion += 15;
+      }
+    }
+    
+    // 检查是否有数据提取节点
+    if (inputLower.includes('提取') || inputLower.includes('获取') || inputLower.includes('scrap')) {
+      if (workflow.nodes.some(node => ['get-text', 'attribute-value'].includes(node.label))) {
+        completion += 20;
+      }
+    }
+    
+    // 检查是否有循环节点（如果需要）
+    if (inputLower.includes('循环') || inputLower.includes('遍历') || inputLower.includes('loop')) {
+      if (workflow.nodes.some(node => ['loop-data', 'loop-elements', 'while-loop'].includes(node.label))) {
+        completion += 15;
+      }
+    }
+    
+    // 检查是否有导出节点
+    if (inputLower.includes('导出') || inputLower.includes('保存') || inputLower.includes('export')) {
+      if (workflow.nodes.some(node => node.label === 'export-data')) {
+        completion += 15;
+      }
+    }
+    
+    // 确保完成度不超过100%
+    return Math.min(completion, 100);
+  }
+
+  /**
+   * 构建增量生成提示
+   */
+  buildIncrementalPrompt(state) {
+    const systemPrompt = '你是一个工作流生成专家。你的任务是根据用户需求逐步生成或修改浏览器自动化工作流。\n\n工作流由以下节点类型组成：\n- trigger: 触发器（手动、定时等）\n- new-tab: 打开新标签页\n- delay: 等待/延迟\n- event-click: 点击元素\n- element-scroll: 滚动元素\n- get-text: 获取文本\n- attribute-value: 获取属性值\n- loop-data: 循环数据\n- loop-elements: 循环元素\n- while-loop: 条件循环\n- export-data: 导出数据\n- forms: 表单输入\n- conditions: 条件判断\n\n重要规则：\n1. 每次只生成 1-3 个新节点，确保生成的节点能够独立执行并验证\n2. 如果是修改现有工作流，基于 currentWorkflow 继续扩展\n3. 确保新节点能正确连接到现有节点\n4. 生成的 JSON 必须使用标准 JSON 格式\n5. 分析当前工作流状态，判断是否需要进一步扩展或完成\n6. 如果工作流还未完成，生成下一组节点以继续实现用户需求\n7. 如果工作流已经完整实现了用户需求，返回 action: \"complete\"\n8. 必须包含详细的思考过程，解释为什么要生成这些节点\n9. 根据当前工作流状态，自动发起新一轮对话直到工作流完成';
+
+    let userPrompt = '用户需求: ' + state.userInput;
+
+    if (state.targetUrl) {
+      userPrompt += '\n目标URL: ' + state.targetUrl;
+    }
+
+    if (state.currentWorkflow && state.currentWorkflow.nodes) {
+      const completion = this.estimateCompletion(state.userInput, state.currentWorkflow);
+      userPrompt += '\n\n当前工作流已有 ' + state.currentWorkflow.nodes.length + ' 个节点:';
+      state.currentWorkflow.nodes.forEach((node, i) => {
+        userPrompt += '\n' + (i + 1) + '. ' + node.label + (node.data?.description ? ': ' + node.data.description : '');
+      });
+      
+      // 添加当前工作流状态分析
+      userPrompt += '\n\n当前工作流状态分析：\n- 已生成 ' + state.currentWorkflow.nodes.length + ' 个节点\n- 节点连接情况：' + state.currentWorkflow.edges.length + ' 条连接\n- 距离用户需求的完成度：' + completion + '%\n\n请基于以上信息，分析当前工作流状态，并生成下一步需要添加的节点。返回格式如下：\n```json\n{\n  \"action\": \"add|modify|complete\",\n  \"reason\": \"为什么要执行这个操作，包括对当前工作流状态的分析\",\n  \"steps\": [\n    {\"type\": \"节点类型\", \"description\": \"节点描述\", \"data\": {...}}\n  ],\n  \"connectFrom\": \"新节点应该连接到的最后一个节点ID（如果有）\",\n  \"thinking\": \"你的思考过程，包括为什么要生成这些节点，它们如何帮助实现用户需求，以及当前工作流的完成情况分析\"\n}\n```\n\n思考过程应该包含：\n1. 分析用户需求的核心目标\n2. 评估当前工作流的完成情况\n3. 确定下一步需要实现的功能\n4. 选择合适的节点类型来实现这些功能\n5. 解释为什么这些节点能够帮助实现用户需求';
+    } else {
+      userPrompt += '\n\n请生成工作流的前几个核心节点（1-3个），包括触发器和初始步骤。返回格式如下：\n```json\n{\n  \"action\": \"create\",\n  \"reason\": \"创建工作流的初始节点\",\n  \"steps\": [\n    {\"type\": \"trigger\", \"description\": \"触发方式\"},\n    {\"type\": \"new-tab\", \"description\": \"打开目标页面\", \"data\": {\"url\": \"...\"}}\n  ],\n  \"thinking\": \"你的思考过程，包括为什么要生成这些初始节点，它们如何帮助实现用户需求\"\n}\n```';
+    }
+
+    return [
+      { role: 'system', content: systemPrompt },
+      ...state.messages.filter((m) => m.role !== 'system'),
+      { role: 'user', content: userPrompt },
+    ];
+  }
+
+  /**
+   * 合并增量生成结果到工作流
+   */
+  mergeWorkflow增量(currentWorkflow, generatedJson) {
+    if (!currentWorkflow) {
+      // 首次创建
+      return this.workflowGenerator.generateWorkflow(
+        {
+          steps: generatedJson.steps || [],
+          dataSchema: generatedJson.dataSchema || {},
+        },
+        '',
+        ''
+      ).drawflow;
+    }
+
+    const { nodes = [], edges = [] } = currentWorkflow;
+
+    // 添加新节点
+    if (generatedJson.steps && Array.isArray(generatedJson.steps)) {
+      const lastNode = nodes.length > 0 ? nodes[nodes.length - 1] : null;
+      const startPosition = lastNode
+        ? { x: lastNode.position.x + 280, y: lastNode.position.y }
+        : { x: 50, y: 50 };
+
+      generatedJson.steps.forEach((step, index) => {
+        const node = this.workflowGenerator.createNodeFromStep(step, index);
+        if (node) {
+          node.position = {
+            x: startPosition.x + index * 280,
+            y: startPosition.y + Math.floor(index / 4) * 150,
+          };
+          nodes.push(node);
+
+          // 添加边（如果需要）
+          if (lastNode || (index > 0 && nodes[nodes.length - 2])) {
+            const sourceNode = index === 0 ? lastNode : nodes[nodes.length - 2];
+            if (sourceNode) {
+              edges.push({
+                id: `edge-${Date.now()}-${index}`,
+                source: sourceNode.id,
+                target: node.id,
+                sourceHandle: `${sourceNode.id}-output-1`,
+                targetHandle: `${node.id}-input`,
+                type: 'custom',
+              });
+            }
+          }
+        }
+      });
+    }
+
+    return { nodes, edges, viewport: { x: 0, y: 0, zoom: 1 } };
+  }
+
+  /**
+   * 节点：验证生成结果
+   */
+  async incrementalVerifyNode(state) {
+    state.onProgress?.({
+      step: 'verify',
+      message: '正在验证生成结果...',
+      iteration: state.iterationCount,
+      thinking: {
+        phase: 'verify',
+        thought: '验证工作流结构和连接',
+        details: {
+          nodesCount: state.workflow?.nodes?.length || 0,
+          edgesCount: state.workflow?.edges?.length || 0,
+          generatedAction: state.generatedJson?.action,
+        },
+      },
+    });
+
+    // 验证工作流结构
+    if (!state.workflow || !state.workflow.nodes) {
+      return {
+        error: '生成的工作流结构无效',
+        completed: false,
+      };
+    }
+
+    // 检查AI是否明确表示工作流已完成
+    const aiCompleted = state.generatedJson?.action === 'complete';
+    
+    // 检查是否满足用户需求
+    const isComplete = aiCompleted || this.checkWorkflowComplete(
+      state.userInput,
+      state.workflow
+    );
+
+    const completionMessage = isComplete 
+      ? '工作流已完成，满足用户需求'
+      : '工作流尚未完全满足用户需求，继续生成更多节点';
+
+    state.onProgress?.({
+      step: 'verify',
+      message: completionMessage,
+      iteration: state.iterationCount,
+      thinking: {
+        phase: 'verify',
+        thought: completionMessage,
+        details: {
+          isComplete: isComplete,
+          aiCompleted: aiCompleted,
+          completionScore: this.estimateCompletion(state.userInput, state.workflow),
+        },
+      },
+    });
+
+    return {
+      completed: isComplete,
+      thinkingSteps: [
+        {
+          phase: 'verify',
+          thought: completionMessage,
+          timestamp: Date.now(),
+          isComplete: isComplete,
+          aiCompleted: aiCompleted,
+          completionScore: this.estimateCompletion(state.userInput, state.workflow),
+        },
+      ],
+    };
+  }
+
+  /**
+   * 检查工作流是否完成
+   */
+  checkWorkflowComplete(userInput, workflow) {
+    const inputLower = userInput.toLowerCase();
+
+    // 检查是否包含必要的节点类型
+    const hasTrigger = workflow.nodes.some((n) => n.label === 'trigger');
+    const hasExport = workflow.nodes.some((n) => n.label === 'export-data');
+
+    // 根据关键词判断
+    const hasScraping =
+      inputLower.includes('抓取') ||
+      inputLower.includes('scrap') ||
+      inputLower.includes('提取');
+    const hasFormFill =
+      inputLower.includes('填写') ||
+      inputLower.includes('fill') ||
+      inputLower.includes('输入');
+    const hasClick =
+      inputLower.includes('点击') || inputLower.includes('click');
+
+    // 基本规则：必须有触发器和导出节点（如果是抓取类任务）
+    if (hasScraping && (!hasTrigger || !hasExport)) {
+      return false;
+    }
+
+    // 如果已经有5个以上节点，并且没有明显的未完成操作，可以认为基本完成
+    if (workflow.nodes.length >= 5) {
+      const lastNode = workflow.nodes[workflow.nodes.length - 1];
+      // 如果最后一个节点不是导出或结束节点，可能还需要继续
+      if (
+        lastNode &&
+        !['export-data', 'close-tab', 'delay'].includes(lastNode.label)
+      ) {
+        // 但如果已经有一定规模，也认为可以结束
+        return workflow.nodes.length >= 8;
+      }
+      return true;
+    }
+
+    return false;
+  }
+
+  /**
+   * 节点：完成处理
+   */
+  async incrementalCompleteNode(state) {
+    const msg = state.error
+      ? `生成完成（有错误）: ${state.error}`
+      : '工作流生成完成！';
+    console.log(`[Incremental] ${msg}`);
+
+    state.onProgress?.({
+      step: 'complete',
+      message: msg,
+      iteration: state.iterationCount,
+      completed: true,
+      thinking: {
+        phase: 'complete',
+        thought: state.error ? `遇到错误: ${state.error}` : '工作流生成完成',
+        details: {
+          totalNodes: state.workflow?.nodes?.length || 0,
+          iterations: state.iterationCount,
+          hasError: !!state.error,
+        },
+      },
+    });
+
+    return {
+      message: state.error
+        ? `工作流已生成，但存在一些问题: ${state.error}`
+        : '工作流已成功生成！',
+      completed: true,
+    };
+  }
+
+  /**
+   * 节点：错误处理
+   */
+  async incrementalErrorNode(state) {
+    const msg = `处理错误: ${state.error}`;
+    console.warn(`[Incremental] ${msg}`);
+
+    state.onProgress?.({
+      step: 'error',
+      message: msg,
+      iteration: state.iterationCount,
+      retryCount: state.retryCount + 1,
+      thinking: {
+        phase: 'error',
+        thought: `遇到错误，尝试修正（${state.retryCount + 1}/3次）`,
+        details: {
+          error: state.error,
+          retryCount: state.retryCount,
+        },
+      },
+    });
+
+    return {
+      messages: [
+        {
+          role: 'user',
+          content: `上一次生成遇到错误: ${state.error}\n\n请修正这个问题并重试。`,
+        },
+      ],
+      error: null, // 清除错误，让下一次迭代继续
+    };
+  }
+
+  /**
    * 简单聊天调用 (不需要工作流生成、验证等复杂流程)
    * 适用于 AI Block、一次性查询等场景
    *

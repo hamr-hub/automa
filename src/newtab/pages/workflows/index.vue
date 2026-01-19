@@ -335,28 +335,82 @@ href="mailto:support@automa.site" target="_blank"
       </div>
     </div>
     <ui-modal v-model="addWorkflowModal.show"
-title="Workflow">
-      <ui-input
-        v-model="addWorkflowModal.name"
-        :placeholder="t('common.name')"
-        autofocus
-        class="mb-4 w-full"
-        @keyup.enter="
-          addWorkflowModal.type === 'manual'
-            ? addWorkflow()
-            : startRecordWorkflow()
-        "
-      />
-      <ui-textarea
-        v-model="addWorkflowModal.description"
-        :placeholder="t('common.description')"
-        height="165px"
-        class="w-full dark:text-gray-200"
-        max="300"
-      />
-      <p class="mb-6 text-right text-gray-600 dark:text-gray-200">
-        {{ addWorkflowModal.description.length }}/300
-      </p>
+title="Create Workflow" size="lg">
+      <div class="mb-6">
+        <div class="flex space-x-4 mb-4">
+          <button 
+            v-for="option in createOptions" 
+            :key="option.value"
+            :class="[
+              'flex-1 py-2 px-4 rounded-lg text-center font-medium transition-colors',
+              addWorkflowModal.mode === option.value 
+                ? 'bg-[var(--color-accent)] text-white' 
+                : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700'
+            ]"
+            @click="addWorkflowModal.mode = option.value"
+          >
+            <v-remixicon :name="option.icon" class="inline-block mr-2" />
+            {{ option.label }}
+          </button>
+        </div>
+        
+        <!-- Tab Selection -->
+        <div v-if="addWorkflowModal.mode === 'manual' || addWorkflowModal.mode === 'template'" class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            {{ t('workflow.basedOnTab') }}
+          </label>
+          <ui-select
+            v-model="addWorkflowModal.basedOnTab"
+            :placeholder="t('workflow.selectTab')"
+            class="w-full"
+          >
+            <option value="current">{{ t('workflow.currentTab') }}</option>
+            <option value="new">{{ t('workflow.newTab') }}</option>
+          </ui-select>
+        </div>
+        
+        <!-- From Template -->
+        <div v-if="addWorkflowModal.mode === 'template'" class="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-96 overflow-y-auto">
+          <div 
+            v-for="template in workflowTemplates" 
+            :key="template.id"
+            class="border rounded-lg p-4 cursor-pointer hover:border-[var(--color-accent)] transition-colors"
+            @click="selectTemplate(template)"
+          >
+            <h3 class="font-semibold mb-2">{{ template.name }}</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-300 mb-3">{{ template.description }}</p>
+            <div class="flex justify-between items-center">
+              <span class="text-xs px-2 py-1 bg-gray-100 rounded dark:bg-gray-800">{{ template.nodesCount }} nodes</span>
+              <v-remixicon name="ri-arrow-right-line" :class="addWorkflowModal.selectedTemplate?.id === template.id ? 'text-[var(--color-accent)]' : ''" />
+            </div>
+          </div>
+        </div>
+        
+        <!-- Manual Creation -->
+        <div v-else>
+          <ui-input
+            v-model="addWorkflowModal.name"
+            :placeholder="t('common.name')"
+            autofocus
+            class="mb-4 w-full"
+            @keyup.enter="
+              addWorkflowModal.type === 'manual'
+                ? addWorkflow()
+                : startRecordWorkflow()
+            "
+          />
+          <ui-textarea
+            v-model="addWorkflowModal.description"
+            :placeholder="t('common.description')"
+            height="165px"
+            class="w-full dark:text-gray-200"
+            max="300"
+          />
+          <p class="mb-6 text-right text-gray-600 dark:text-gray-200">
+            {{ addWorkflowModal.description.length }}/300
+          </p>
+        </div>
+      </div>
       <div class="flex space-x-2">
         <ui-button class="w-full"
 @click="clearAddWorkflowModal">
@@ -366,15 +420,16 @@ title="Workflow">
           variant="accent"
           class="w-full"
           @click="
-            addWorkflowModal.type === 'manual'
-              ? addWorkflow()
-              : startRecordWorkflow()
+            addWorkflowModal.mode === 'template' 
+              ? addWorkflowFromTemplate()
+              : (addWorkflowModal.type === 'manual' ? addWorkflow() : startRecordWorkflow())
           "
+          :disabled="addWorkflowModal.mode === 'template' && !addWorkflowModal.selectedTemplate"
         >
-          {{
-            addWorkflowModal.type === 'manual'
-              ? t('common.add')
-              : t('home.record.button')
+          {{ 
+            addWorkflowModal.mode === 'template' 
+              ? t('common.create')
+              : (addWorkflowModal.type === 'manual' ? t('common.add') : t('home.record.button'))
           }}
         </ui-button>
       </div>
@@ -442,7 +497,34 @@ const addWorkflowModal = shallowReactive({
   show: false,
   type: 'manual',
   description: '',
+  mode: 'manual',
+  selectedTemplate: null,
+  basedOnTab: 'current', // default to current tab
 });
+const createOptions = [
+  {
+    value: 'manual',
+    label: 'Manual',
+    icon: 'riEditLine',
+  },
+  {
+    value: 'template',
+    label: 'From Template',
+    icon: 'riFolderTemplateLine',
+  },
+  {
+    value: 'recording',
+    label: 'Record',
+    icon: 'riRecordVoiceLine',
+  },
+];
+const workflowTemplates = firstWorkflows.map(workflow => ({
+  id: workflow.id,
+  name: workflow.name,
+  description: workflow.description || 'No description',
+  nodesCount: workflow.drawflow?.nodes?.length || 0,
+  data: workflow,
+}));
 const permissionState = shallowReactive({
   items: [],
   showModal: false,
@@ -456,10 +538,14 @@ function clearAddWorkflowModal() {
     show: false,
     type: 'manual',
     description: '',
+    mode: 'manual',
+    selectedTemplate: null,
+    basedOnTab: 'current',
   });
 }
 function initRecordWorkflow() {
   addWorkflowModal.show = true;
+  addWorkflowModal.mode = 'recording';
   addWorkflowModal.type = 'recording';
 }
 function startRecordWorkflow() {
@@ -469,6 +555,33 @@ function startRecordWorkflow() {
   }).then(() => {
     router.push('/recording');
   });
+}
+function selectTemplate(template) {
+  addWorkflowModal.selectedTemplate = template;
+}
+function addWorkflowFromTemplate() {
+  if (!addWorkflowModal.selectedTemplate) return;
+  
+  const template = addWorkflowModal.selectedTemplate;
+  workflowStore
+    .insert({
+      ...template.data,
+      name: addWorkflowModal.name || template.name,
+      description: addWorkflowModal.description || template.description,
+      folderId: state.activeFolder,
+      id: nanoid(), // Generate new ID for the workflow
+      basedOnTab: addWorkflowModal.basedOnTab,
+    })
+    .then((workflows) => {
+      const workflowId = Object.keys(workflows)[0];
+      if (workflowId) {
+        router.push(`/workflows/${workflowId}`);
+      }
+    })
+    .catch((error) => {
+      console.error('Failed to create workflow from template:', error);
+    })
+    .finally(clearAddWorkflowModal);
 }
 async function updateActiveTab(data = {}) {
   if (data.activeTab !== 'team') {
@@ -499,6 +612,7 @@ function addWorkflow() {
       name: addWorkflowModal.name,
       folderId: state.activeFolder,
       description: addWorkflowModal.description,
+      basedOnTab: addWorkflowModal.basedOnTab,
     })
     .then((workflows) => {
       console.log('Workflow created:', workflows);

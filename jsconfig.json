@@ -3,11 +3,11 @@
     "baseUrl": "./",
     "paths": {
       "@/*": ["src/*"],
-      "@business": ["business/dev/*"]
+      "@business/*": ["business/dev/*"]
     },
     "lib": ["ESNext", "DOM"],
     "module": "ESNext",
     "target": "ES2020"
   },
-  "include": ["src/**/*", "utils/**/*"]
+  "include": ["src/**/*", "utils/**/*", "business/**/*"]
 }

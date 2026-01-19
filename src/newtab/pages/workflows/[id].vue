@@ -214,45 +214,68 @@ value="editor" class="w-full" @keydown="onKeydown">
               v-if="!isTeamWorkflow || haveEditAccess"
               #controls-prepend
             >
-              <ui-card padding="p-0 ml-2 undo-redo">
-                <button
-                  v-tooltip.group="
-                    `${t('workflow.undo')} (${getReadableShortcut('mod+z')})`
-                  "
-                  :disabled="!commandManager.state.value.canUndo"
-                  class="rounded-lg p-2 transition-colors"
-                  @click="executeCommand('undo')"
-                >
-                  <v-remixicon name="riArrowGoBackLine" />
-                </button>
-                <button
-                  v-tooltip.group="
-                    `${t('workflow.redo')} (${getReadableShortcut(
-                      'mod+shift+z'
-                    )})`
-                  "
-                  :disabled="!commandManager.state.value.canRedo"
-                  class="rounded-lg p-2 transition-colors"
-                  @click="executeCommand('redo')"
-                >
-                  <v-remixicon name="riArrowGoForwardLine" />
-                </button>
-              </ui-card>
-              <button
-                v-if="!isPackage && haveEditAccess"
-                v-tooltip="t('packages.open')"
-                class="control-button hoverable ml-2"
-                @click="blockFolderModal.showList = !blockFolderModal.showList"
-              >
-                <v-remixicon name="mdiPackageVariantClosed" />
-              </button>
-              <button
-                v-tooltip="t('workflow.autoAlign.title')"
-                class="control-button hoverable ml-2"
-                @click="autoAlign"
-              >
-                <v-remixicon name="riMagicLine" />
-              </button>
+              <div class="flex items-center space-x-2">
+                <ui-card padding="p-0 undo-redo" class="shadow-sm">
+                  <button
+                    v-tooltip.group="
+                      `${t('workflow.undo')} (${getReadableShortcut('mod+z')})`
+                    "
+                    :disabled="!commandManager.state.value.canUndo"
+                    class="rounded-lg p-2 transition-all hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50"
+                    @click="executeCommand('undo')"
+                  >
+                    <v-remixicon name="riArrowGoBackLine" />
+                  </button>
+                  <button
+                    v-tooltip.group="
+                      `${t('workflow.redo')} (${getReadableShortcut(
+                        'mod+shift+z'
+                      )})`
+                    "
+                    :disabled="!commandManager.state.value.canRedo"
+                    class="rounded-lg p-2 transition-all hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50"
+                    @click="executeCommand('redo')"
+                  >
+                    <v-remixicon name="riArrowGoForwardLine" />
+                  </button>
+                </ui-card>
+                
+                <!-- Quick Actions -->
+                <div class="flex space-x-1">
+                  <button
+                    v-if="!isPackage && haveEditAccess"
+                    v-tooltip="t('packages.open')"
+                    class="control-button hoverable p-2 rounded-lg transition-all hover:bg-gray-100 dark:hover:bg-gray-700"
+                    @click="blockFolderModal.showList = !blockFolderModal.showList"
+                  >
+                    <v-remixicon name="mdiPackageVariantClosed" />
+                  </button>
+                  <button
+                    v-tooltip="t('workflow.autoAlign.title')"
+                    class="control-button hoverable p-2 rounded-lg transition-all hover:bg-gray-100 dark:hover:bg-gray-700"
+                    @click="autoAlign"
+                  >
+                    <v-remixicon name="riMagicLine" />
+                  </button>
+                  <button
+                    v-tooltip="t('workflow.fitView')"
+                    class="control-button hoverable p-2 rounded-lg transition-all hover:bg-gray-100 dark:hover:bg-gray-700"
+                    @click="editor.fitView()"
+                  >
+                    <v-remixicon name="riFullscreenLine" />
+                  </button>
+                </div>
+                
+                <!-- Execution Status Indicator -->
+                <div v-if="workflowStates.length > 0" class="ml-2">
+                  <ui-card padding="px-3 py-1" class="shadow-sm">
+                    <div class="flex items-center text-sm">
+                      <ui-spinner color="text-accent" size="16" class="mr-2" />
+                      <span>{{ workflowStates.length }} {{ t('workflow.running') }}</span>
+                    </div>
+                  </ui-card>
+                </div>
+              </div>
             </template>
           </workflow-editor>
           <editor-local-saved-blocks
@@ -490,6 +513,8 @@ const connectedTable = shallowRef(null);
 const sidebarRef = ref(null);
 const sidebarCss = reactive({
   width: 360,
+  minWidth: 320,
+  maxWidth: 600,
   padding: '20px',
   isDragging: false,
   startX: 0,
@@ -498,13 +523,18 @@ const sidebarCss = reactive({
 const drag = (event) => {
   if (sidebarCss.isDragging) {
     const diffX = event.clientX - sidebarCss.startX;
-    sidebarCss.width = Math.max(360, sidebarCss.startWidth + diffX); // min-width : 360px,max-width: 30%
+    let newWidth = sidebarCss.startWidth + diffX;
+    // 限制宽度范围
+    newWidth = Math.max(sidebarCss.minWidth, Math.min(sidebarCss.maxWidth, newWidth));
+    sidebarCss.width = newWidth;
   }
 };
 const stopDrag = () => {
   sidebarCss.isDragging = false;
   document.removeEventListener('mousemove', drag);
   document.removeEventListener('mouseup', stopDrag);
+  // 保存用户偏好的侧边栏宽度
+  localStorage.setItem('workflow:sidebarWidth', sidebarCss.width);
 };
 
 const startDrag = (event) => {
@@ -514,6 +544,12 @@ const startDrag = (event) => {
   document.addEventListener('mousemove', drag);
   document.addEventListener('mouseup', stopDrag);
 };
+
+// 从本地存储恢复侧边栏宽度
+const savedSidebarWidth = localStorage.getItem('workflow:sidebarWidth');
+if (savedSidebarWidth) {
+  sidebarCss.width = parseInt(savedSidebarWidth, 10);
+}
 
 const state = reactive({
   showSidebar: true,
@@ -1332,11 +1368,12 @@ function onEditorInit(instance) {
 }
 function clearHighlightedElements() {
   const elements = document.querySelectorAll(
-    '.dropable-area__node, .dropable-area__handle'
+    '.dropable-area__node, .dropable-area__handle, .dropable-area__edge'
   );
   elements.forEach((element) => {
     element.classList.remove('dropable-area__node');
     element.classList.remove('dropable-area__handle');
+    element.classList.remove('dropable-area__edge');
   });
 }
 function toggleHighlightElement({ target, elClass, classes }) {
@@ -1344,6 +1381,8 @@ function toggleHighlightElement({ target, elClass, classes }) {
 
   if (targetEl) {
     targetEl.classList.add(classes);
+    // 添加视觉反馈动画
+    targetEl.style.transition = 'all 0.2s ease';
   } else {
     const elements = document.querySelectorAll(`.${classes}`);
     elements.forEach((element) => {
@@ -1352,12 +1391,14 @@ function toggleHighlightElement({ target, elClass, classes }) {
   }
 }
 function onDragoverEditor({ target }) {
+  // 高亮可连接的句柄
   toggleHighlightElement({
     target,
     elClass: '.vue-flow__handle.source',
     classes: 'dropable-area__handle',
   });
-
+  
+  // 高亮可连接的节点
   if (!target.closest('.vue-flow__handle')) {
     toggleHighlightElement({
       target,
@@ -1365,6 +1406,13 @@ function onDragoverEditor({ target }) {
       classes: 'dropable-area__node',
     });
   }
+  
+  // 高亮可插入的边
+  toggleHighlightElement({
+    target,
+    elClass: '.vue-flow__edge',
+    classes: 'dropable-area__edge',
+  });
 }
 function onDropInEditor({ dataTransfer, clientX, clientY, target }) {
   const savedBlocks = parseJSON(dataTransfer.getData('savedBlocks'), null);

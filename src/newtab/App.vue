@@ -12,7 +12,7 @@
             {{ t('auth.requireLogin.title', '需要登录') }}
           </p>
           <p class="mt-2 text-gray-600 dark:text-gray-200">
-            {{
+            {{ 
               authRequiredFeature
                 ? t('auth.requireLogin.featureText', '此功能需要登录才能使用：')
                 : t('auth.text')
@@ -81,6 +81,14 @@ class="mr-3 shrink-0" />
       v-model="permissionState.showModal"
       :permissions="permissionState.items"
     />
+    <!-- 新手引导组件 -->
+    <guide-tour
+      v-if="showGuideTour"
+      :is-active="showGuideTour"
+      :steps="guideSteps"
+      @close="handleGuideClose"
+      @finish="handleGuideFinish"
+    />
   </template>
   <div v-else
 class="py-8 text-center">
@@ -94,14 +102,15 @@ import iconFirefox from '@/assets/svg/logoFirefox.svg';
 import AppLogs from '@/components/newtab/app/AppLogs.vue';
 import AppSidebar from '@/components/newtab/app/AppSidebar.vue';
 import SharedPermissionsModal from '@/components/newtab/shared/SharedPermissionsModal.vue';
+import GuideTour from '@/components/newtab/shared/GuideTour.vue';
 import { useTheme } from '@/composable/theme';
 import dbLogs from '@/db/logs';
 import dayjs from '@/lib/dayjs';
 import emitter from '@/lib/mitt';
 import { loadLocaleMessages, setI18nLanguage } from '@/lib/vueI18n';
+import { useStore } from '@/stores/main';
 import { useFolderStore } from '@/stores/folder';
 import { useHostedWorkflowStore } from '@/stores/hostedWorkflow';
-import { useStore } from '@/stores/main';
 import { usePackageStore } from '@/stores/package';
 import { useSharedWorkflowStore } from '@/stores/sharedWorkflow';
 import { useTeamWorkflowStore } from '@/stores/teamWorkflow';
@@ -173,6 +182,58 @@ const permissionState = reactive({
   permissions: [],
   showModal: false,
 });
+
+// 新手引导状态管理
+const showGuideTour = ref(false);
+const guideSteps = [
+  {
+    title: t('guide.welcome.title'),
+    content: t('guide.welcome.content'),
+    target: '.app-sidebar',
+  },
+  {
+    title: t('guide.workflows.title'),
+    content: t('guide.workflows.content'),
+    target: '.workflows-list',
+  },
+  {
+    title: t('guide.createWorkflow.title'),
+    content: t('guide.createWorkflow.content'),
+    target: '.ui-button[variant="accent"]',
+  },
+  {
+    title: t('guide.editor.title'),
+    content: t('guide.editor.content'),
+    target: '.workflow-editor',
+  },
+];
+
+// 处理引导关闭
+function handleGuideClose(skip) {
+  showGuideTour.value = false;
+  if (skip) {
+    localStorage.setItem('guide-tour-complete', 'true');
+  }
+}
+
+// 处理引导完成
+function handleGuideFinish(skip) {
+  showGuideTour.value = false;
+  localStorage.setItem('guide-tour-complete', 'true');
+}
+
+// 检查是否需要显示引导
+function checkShowGuide() {
+  const isGuideComplete = localStorage.getItem('guide-tour-complete');
+  const isFirstTime = localStorage.getItem('isFirstTime');
+  
+  if (!isGuideComplete && isFirstTime === 'true') {
+    // 延迟显示引导，确保页面完全加载
+    setTimeout(() => {
+      showGuideTour.value = true;
+    }, 1000);
+  }
+}
 
 // 监听需要认证的事件
 emitter.on('auth:required', ({ feature }) => {
@@ -380,83 +441,86 @@ watch(
 );
 
 (async () => {
-  try {
-    const { workflowStates } =
-      await browser.storage.local.get('workflowStates');
-    workflowStore.states = Object.values(workflowStates || {});
+    try {
+      const { workflowStates } = 
+        await browser.storage.local.get('workflowStates');
+      workflowStore.states = Object.values(workflowStates || {});
 
-    /*
-    const tabs = await browser.tabs.query({
-      url: browser.runtime.getURL('/newtab.html'),
-    });
-
-    const currentWindow = await browser.windows.getCurrent();
-    if (currentWindow.type !== 'popup') {
-      await browser.tabs.remove([tabs[0].id]);
-      return;
-    }
-
-    if (tabs.length > 1) {
-      const firstTab = tabs.shift();
-      await browser.windows.update(firstTab.windowId, { focused: true });
-      await browser.tabs.update(firstTab.id, { active: true });
-
-      await browser.tabs.remove(tabs.map((tab) => tab.id));
-      return;
-    }
-    */
-
-    const { isFirstTime } = await browser.storage.local.get('isFirstTime');
-    isUpdated.value = !isFirstTime && compare(currentVersion, prevVersion, '>');
-
-    await Promise.allSettled([
-      folderStore.load(),
-      store.loadSettings(),
-      workflowStore.loadData(),
-      teamWorkflowStore.loadData(),
-      hostedWorkflowStore.loadData(),
-      packageStore.loadData(),
-    ]);
-
-    await loadLocaleMessages(store.settings.locale, 'newtab');
-    await setI18nLanguage(store.settings.locale);
-
-    await dataMigration();
-    await userStore.loadUser({ useCache: false, ttl: 2 });
-
-    // 仅在业务模块提供可调用函数时执行，避免运行时 TypeError
-    if (typeof automa === 'function') {
-      await automa('app');
-    }
-
-    retrieved.value = true;
-
-    await Promise.allSettled([
-      sharedWorkflowStore.fetchWorkflows(),
-      fetchUserData(),
-      syncHostedWorkflows(),
-    ]);
-
-    const { isRecording } = await browser.storage.local.get('isRecording');
-    if (isRecording) {
-      router.push('/recording');
-
-      await (browser.action || browser.browserAction).setBadgeBackgroundColor({
-        color: '#ef4444',
+      /*
+      const tabs = await browser.tabs.query({
+        url: browser.runtime.getURL('/newtab.html'),
       });
-      await (browser.action || browser.browserAction).setBadgeText({
-        text: 'rec',
-      });
+
+      const currentWindow = await browser.windows.getCurrent();
+      if (currentWindow.type !== 'popup') {
+        await browser.tabs.remove([tabs[0].id]);
+        return;
+      }
+
+      if (tabs.length > 1) {
+        const firstTab = tabs.shift();
+        await browser.windows.update(firstTab.windowId, { focused: true });
+        await browser.tabs.update(firstTab.id, { active: true });
+
+        await browser.tabs.remove(tabs.map((tab) => tab.id));
+        return;
+      }
+      */
+
+      const { isFirstTime } = await browser.storage.local.get('isFirstTime');
+      isUpdated.value = !isFirstTime && compare(currentVersion, prevVersion, '>');
+
+      await Promise.allSettled([
+        folderStore.load(),
+        store.loadSettings(),
+        workflowStore.loadData(),
+        teamWorkflowStore.loadData(),
+        hostedWorkflowStore.loadData(),
+        packageStore.loadData(),
+      ]);
+
+      await loadLocaleMessages(store.settings.locale, 'newtab');
+      await setI18nLanguage(store.settings.locale);
+
+      await dataMigration();
+      await userStore.loadUser({ useCache: false, ttl: 2 });
+
+      // 仅在业务模块提供可调用函数时执行，避免运行时 TypeError
+      if (typeof automa === 'function') {
+        await automa('app');
+      }
+
+      retrieved.value = true;
+
+      await Promise.allSettled([
+        sharedWorkflowStore.fetchWorkflows(),
+        fetchUserData(),
+        syncHostedWorkflows(),
+      ]);
+
+      const { isRecording } = await browser.storage.local.get('isRecording');
+      if (isRecording) {
+        router.push('/recording');
+
+        await (browser.action || browser.browserAction).setBadgeBackgroundColor({
+          color: '#ef4444',
+        });
+        await (browser.action || browser.browserAction).setBadgeText({
+          text: 'rec',
+        });
+      }
+
+      autoDeleteLogs();
+      
+      // 检查是否需要显示新手引导
+      checkShowGuide();
+    } catch (error) {
+      retrieved.value = true;
+      console.error(error);
     }
 
-    autoDeleteLogs();
-  } catch (error) {
-    retrieved.value = true;
-    console.error(error);
-  }
-
-  localStorage.setItem('ext-version', currentVersion);
-})();
+    localStorage.setItem('ext-version', currentVersion);
+  })();
 </script>
 <style>
 @reference "tailwindcss";

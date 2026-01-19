@@ -111,6 +111,10 @@ export default [
       'import/resolver': {
         node: {
           extensions: ['.js', '.vue'],
+          alias: {
+            '@': './src',
+            '@business': './business/dev',
+          },
         },
       },
     },
