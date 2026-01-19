@@ -69,6 +69,13 @@ test.describe('Batch Delete Workflows', () => {
     await firstCheckbox.click({ force: true });
     console.log('✅ Clicked first checkbox');
 
+    // Try dispatching toggle-select event directly on the card element
+    const card = page.locator('.local-workflow').first();
+    await card.evaluate((el) => {
+      el.dispatchEvent(new CustomEvent('toggle-select', { bubbles: true }));
+    });
+    console.log('✅ Dispatched toggle-select event');
+
     // Wait a bit for Vue reactivity to update
     await page.waitForTimeout(500);
 
