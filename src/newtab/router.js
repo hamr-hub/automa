@@ -6,6 +6,7 @@ import WorkflowContainer from './pages/Workflows.vue';
 import WorkflowHost from './pages/workflows/Host.vue';
 import WorkflowDetails from './pages/workflows/[id].vue';
 import WorkflowShared from './pages/workflows/Shared.vue';
+import WorkflowsGlobal from '@/components/newtab/pages/workflows/Global.vue';
 import ScheduledWorkflow from './pages/ScheduledWorkflow.vue';
 import Storage from './pages/Storage.vue';
 import StorageTables from './pages/storage/Tables.vue';
@@ -64,6 +65,11 @@ const routes = [
         path: '',
         name: 'workflows',
         component: Workflows,
+      },
+      {
+        path: 'global',
+        name: 'workflows-global',
+        component: WorkflowsGlobal,
       },
       {
         path: ':id',

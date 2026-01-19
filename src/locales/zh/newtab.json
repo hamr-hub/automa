@@ -192,6 +192,28 @@
   "workflow": {
     "currentBlock": "当前执行块",
     "executing": "执行中",
+    "global": {
+      "title": "保存到全局",
+      "searchPlaceholder": "搜索工作流...",
+      "allCategories": "所有分类",
+      "newest": "最新",
+      "mostDownloaded": "最多下载",
+      "mostLiked": "最受欢迎",
+      "empty": "暂无全局工作流",
+      "emptyDescription": "成为第一个与社区分享工作流的人！",
+      "featured": "推荐",
+      "import": "导入",
+      "loadMore": "加载更多",
+      "downloads": "次下载",
+      "likes": "次喜欢",
+      "byAuthor": "作者：{author}",
+      "loadError": "加载工作流失败",
+      "importSuccess": "成功导入 \"{name}\"",
+      "importError": "导入工作流失败",
+      "saveConfirm": "确定要与全球社区分享 \"{name}\" 吗？",
+      "saveSuccess": "成功与全球社区分享 \"{name}\"",
+      "saveError": "分享工作流失败"
+    },
     "events": {
       "title": "工作流事件",
       "add-action": "添加操作",

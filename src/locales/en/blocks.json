@@ -815,6 +815,44 @@
       "debugMode": {
         "title": "Debug mode",
         "description": "Execute block using the Chrome DevTools Protocol"
+      },
+      "dataSync": {
+        "name": "Data Sync",
+        "description": "Synchronize scraped data to external API with JSON format",
+        "url": "API URL",
+        "method": "Request Method",
+        "timeout": "Timeout (ms)",
+        "timeoutPlaceholder": "0 to disable",
+        "tabs": {
+          "config": "Config",
+          "headers": "Headers",
+          "response": "Response"
+        },
+        "dataSource": "Data Source",
+        "dataSourceTable": "Data Table",
+        "dataSourceVariable": "Variable",
+        "dataSourceCustom": "Custom JSON",
+        "tableFormat": "Table Format",
+        "tableFormatArray": "Send as array",
+        "tableFormatObject": "Send as object",
+        "tableFormatSingle": "Send single record",
+        "tableFormatBatch": "Batch send",
+        "tableKey": "JSON object key",
+        "batchSize": "Batch size",
+        "variableName": "Variable name",
+        "variableFormat": "Variable format",
+        "formatAsArray": "Send as array",
+        "formatAsObject": "Send as object",
+        "variableKey": "JSON object key",
+        "customJsonTip": "Supports template variables, e.g.: {{table.columnName}}",
+        "responseType": "Response type",
+        "assignResponseVariable": "Save response to variable",
+        "responseVariableName": "Variable name",
+        "saveResponse": "Save response to table",
+        "responseDataColumn": "Table column",
+        "addHeader": "Add Header",
+        "tipTitle": "Usage Tip",
+        "tipContent": "This block is specifically designed for synchronizing scraped data to external systems, supporting multiple data formats and batch processing"
       }
     }
   }

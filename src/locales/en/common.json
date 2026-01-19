@@ -2,6 +2,7 @@
   "common": {
     "dashboard": "Dashboard",
     "workflow": "Workflow | Workflows",
+    "global": "Global",
     "collection": "Collection | Collections",
     "log": "Log | Logs",
     "block": "Block | Blocks",

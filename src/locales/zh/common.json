@@ -2,6 +2,7 @@
   "common": {
     "dashboard": "主面板",
     "workflow": "工作流 | 工作流",
+    "global": "全局",
     "collection": "集合 | 集合",
     "log": "日志 | 日志",
     "block": "单元 | 单元",

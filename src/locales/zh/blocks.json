@@ -809,6 +809,44 @@
       "debugMode": {
         "title": "调试模式",
         "description": "使用 Chrome DevTools 协议执行当前模块"
+      },
+      "dataSync": {
+        "name": "数据同步",
+        "description": "将抓取到的数据通过 JSON 方式同步到其他系统的 API 接口",
+        "url": "API 地址",
+        "method": "请求方法",
+        "timeout": "超时时间 (毫秒)",
+        "timeoutPlaceholder": "0 表示禁用",
+        "tabs": {
+          "config": "配置",
+          "headers": "请求头",
+          "response": "响应处理"
+        },
+        "dataSource": "数据源",
+        "dataSourceTable": "数据表",
+        "dataSourceVariable": "变量",
+        "dataSourceCustom": "自定义 JSON",
+        "tableFormat": "表格格式",
+        "tableFormatArray": "发送为数组",
+        "tableFormatObject": "发送为对象",
+        "tableFormatSingle": "发送单条记录",
+        "tableFormatBatch": "批量发送",
+        "tableKey": "JSON 对象键名",
+        "batchSize": "每批数量",
+        "variableName": "变量名称",
+        "variableFormat": "变量格式",
+        "formatAsArray": "发送为数组",
+        "formatAsObject": "发送为对象",
+        "variableKey": "JSON 对象键名",
+        "customJsonTip": "支持使用模板变量，例如：{{table.columnName}}",
+        "responseType": "响应类型",
+        "assignResponseVariable": "保存响应到变量",
+        "responseVariableName": "变量名称",
+        "saveResponse": "保存响应到表格",
+        "responseDataColumn": "表格列名",
+        "addHeader": "添加请求头",
+        "tipTitle": "使用提示",
+        "tipContent": "此模块专门用于将抓取的数据同步到外部系统，支持多种数据格式和批量处理"
       }
     }
   }

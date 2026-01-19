@@ -3,8 +3,7 @@
     v-if="workflowStore.getWorkflows.length === 0"
     class="md:flex items-center md:text-left text-center py-12"
   >
-    <img
-src="@/assets/svg/alien.svg" class="w-96" />
+    <img src="@/assets/svg/alien.svg" class="w-96" />
     <div class="ml-4">
       <h1 class="mb-6 max-w-md text-2xl font-semibold">
         {{ t('message.empty') }}
@@ -93,9 +92,7 @@ src="@/assets/svg/alien.svg" class="w-96" />
       >
         <div class="flex items-center gap-3">
           <div class="h-6 w-px bg-gray-300 dark:bg-gray-600" />
-          <ui-button
-variant="accent" @click="selectAllWorkflows"
->
+          <ui-button variant="accent" @click="selectAllWorkflows">
             <v-remixicon
               :name="
                 state.selectedForBatch.length >= allWorkflows.length
@@ -111,13 +108,8 @@ variant="accent" @click="selectAllWorkflows"
               )
             }}
           </ui-button>
-          <ui-button
-variant="danger" @click="deleteBatchWorkflows"
->
-            <v-remixicon
-name="riDeleteBin7Line" size="16"
-class="mr-1"
-/>
+          <ui-button variant="danger" @click="deleteBatchWorkflows">
+            <v-remixicon name="riDeleteBin7Line" size="16" class="mr-1" />
             {{ t('workflow.deleteSelected') }} ({{
               state.selectedForBatch.length
             }})
@@ -429,6 +421,26 @@ function toggleSelectWorkflow(workflowId) {
   }
 }
 
+async function saveWorkflowToGlobal(workflow) {
+  dialog.confirm({
+    title: t('workflow.global.title'),
+    body: t('workflow.global.saveConfirm', { name: workflow.name }),
+    onConfirm: async () => {
+      try {
+        const GlobalWorkflowService =
+          await import('@/services/workflowSync/GlobalWorkflowService');
+        await GlobalWorkflowService.default.saveAsGlobal(workflow.id);
+        toast.success(
+          t('workflow.global.saveSuccess', { name: workflow.name })
+        );
+      } catch (error) {
+        console.error('Failed to save workflow to global:', error);
+        toast.error(t('workflow.global.saveError'));
+      }
+    },
+  });
+}
+
 const allWorkflows = computed(() => {
   const pinned = pinnedWorkflows.value;
   const regular = workflows.value;
@@ -495,6 +507,12 @@ const menu = [
     name: t('common.export'),
     icon: 'riDownloadLine',
     action: exportWorkflow,
+  },
+  {
+    id: 'save-global',
+    name: t('workflow.global.title'),
+    icon: 'riGlobalLine',
+    action: saveWorkflowToGlobal,
   },
   {
     id: 'rename',

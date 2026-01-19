@@ -156,7 +156,6 @@
       Teams
     </ui-tab>
   </ui-tabs>
-  </div>
   <home-team-workflows
     v-if="state.retrieved"
     v-show="state.activeTab === 'team'"
@@ -305,7 +304,6 @@
       <kbd class="px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-700 font-mono text-[10px]">/</kbd>
       搜索
     </span>
-  </div>
   </div>
   <div
     v-if="pinnedWorkflows.length > 0"
@@ -487,7 +485,6 @@
       size="20"
       @click="closeSettingsPopup"
     />
-  </div>
   </div>
 </template>
 <script setup>

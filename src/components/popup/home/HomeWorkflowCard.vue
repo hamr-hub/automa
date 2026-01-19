@@ -99,30 +99,6 @@
       </div>
     </div>
 
-    <!-- Meta Row -->
-    <div
-      class="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400"
-    >
-      <span class="flex items-center gap-1">
-        <v-remixicon
-          name="riTimeLine"
-          size="12"
-        />
-        {{ dayjs(workflow.updatedAt || workflow.createdAt).fromNow() }}
-      </span>
-      <span
-        v-if="workflow.executionCount > 0"
-        class="flex items-center gap-1"
-      >
-        <v-remixicon
-          name="riFlashlightLine"
-          size="12"
-        />
-        {{ workflow.executionCount }} runs
-      </span>
-    </div>
-    </div>
-
     <!-- Action Buttons -->
     <div class="flex shrink-0 items-center gap-1">
       <!-- Quick Pin Button -->

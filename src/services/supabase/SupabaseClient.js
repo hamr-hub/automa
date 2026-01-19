@@ -1641,6 +1641,325 @@ class SupabaseClient {
       },
     };
   }
+
+  // ============================================
+  // Global Workflows (全局共享工作流)
+  // ============================================
+
+  /**
+   * 获取全局工作流分类
+   */
+  async getGlobalWorkflowCategories() {
+    if (!this.client) return [];
+
+    try {
+      const { data, error } = await this.client
+        .from('global_workflow_categories')
+        .select('*')
+        .order('sort_order', { ascending: true });
+
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.warn(
+        'Supabase getGlobalWorkflowCategories failed:',
+        error.message
+      );
+      return [];
+    }
+  }
+
+  /**
+   * 获取全局工作流列表
+   * @param {object} options - 查询选项
+   */
+  async getGlobalWorkflows(options = {}) {
+    if (!this.client) return [];
+
+    try {
+      const {
+        limit = 20,
+        offset = 0,
+        categoryId = null,
+        searchQuery = null,
+        sortBy = 'created_at',
+      } = options;
+
+      const { data, error } = await this.client.rpc('get_global_workflows', {
+        p_limit: limit,
+        p_offset: offset,
+        p_category_id: categoryId,
+        p_search_query: searchQuery,
+        p_sort_by: sortBy,
+      });
+
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.warn('Supabase getGlobalWorkflows failed:', error.message);
+      // 如果 RPC 函数不存在，回退到普通查询
+      return this._getGlobalWorkflowsFallback(options);
+    }
+  }
+
+  /**
+   * 回退的全局工作流查询方法
+   */
+  async _getGlobalWorkflowsFallback(options = {}) {
+    const {
+      limit = 20,
+      offset = 0,
+      categoryId = null,
+      searchQuery = null,
+      sortBy = 'created_at',
+    } = options;
+
+    let query = this.client
+      .from('global_workflows')
+      .select('*')
+      .eq('is_active', true);
+
+    if (categoryId) {
+      query = query.eq('category_id', categoryId);
+    }
+
+    if (searchQuery) {
+      query = query.or(
+        `name.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`
+      );
+    }
+
+    switch (sortBy) {
+      case 'downloads':
+        query = query.order('downloads_count', { ascending: false });
+        break;
+      case 'likes':
+        query = query.order('likes_count', { ascending: false });
+        break;
+      default:
+        query = query.order('created_at', { ascending: false });
+    }
+
+    query = query.range(offset, offset + limit - 1);
+
+    const { data, error } = await query;
+
+    if (error) throw error;
+    return data || [];
+  }
+
+  /**
+   * 根据 ID 获取全局工作流
+   * @param {string} id - 工作流 ID
+   */
+  async getGlobalWorkflowById(id) {
+    if (!this.client) throw new Error('Supabase not connected');
+
+    try {
+      const { data, error } = await this.client
+        .from('global_workflows')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.warn('Supabase getGlobalWorkflowById failed:', error.message);
+      throw error;
+    }
+  }
+
+  /**
+   * 创建全局工作流
+   * @param {object} workflow - 工作流数据
+   */
+  async createGlobalWorkflow(workflow) {
+    if (!this.client) throw new Error('Supabase not connected');
+
+    try {
+      const user = await this.getCurrentUser();
+
+      const { data, error } = await this.client
+        .from('global_workflows')
+        .insert([
+          {
+            ...workflow,
+            author_id: user?.id,
+            author_name: user?.email || 'Anonymous',
+          },
+        ])
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.warn('Supabase createGlobalWorkflow failed:', error.message);
+      throw error;
+    }
+  }
+
+  /**
+   * 更新全局工作流
+   * @param {string} id - 工作流 ID
+   * @param {object} updates - 更新的数据
+   */
+  async updateGlobalWorkflow(id, updates) {
+    if (!this.client) throw new Error('Supabase not connected');
+
+    try {
+      const { data, error } = await this.client
+        .from('global_workflows')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.warn('Supabase updateGlobalWorkflow failed:', error.message);
+      throw error;
+    }
+  }
+
+  /**
+   * 删除全局工作流
+   * @param {string} id - 工作流 ID
+   */
+  async deleteGlobalWorkflow(id) {
+    if (!this.client) throw new Error('Supabase not connected');
+
+    try {
+      const { error } = await this.client
+        .from('global_workflows')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+      return { success: true };
+    } catch (error) {
+      console.warn('Supabase deleteGlobalWorkflow failed:', error.message);
+      throw error;
+    }
+  }
+
+  /**
+   * 记录工作流下载
+   * @param {string} workflowId - 工作流 ID
+   */
+  async recordGlobalWorkflowDownload(workflowId) {
+    if (!this.client) return;
+
+    try {
+      await this.client.rpc('record_workflow_download', {
+        p_workflow_id: workflowId,
+      });
+    } catch (error) {
+      console.warn(
+        'Supabase recordGlobalWorkflowDownload failed:',
+        error.message
+      );
+    }
+  }
+
+  /**
+   * 切换工作流点赞
+   * @param {string} workflowId - 工作流 ID
+   */
+  async toggleGlobalWorkflowLike(workflowId) {
+    if (!this.client) return { liked: false, likes_count: 0 };
+
+    try {
+      const { data, error } = await this.client.rpc('toggle_workflow_like', {
+        p_workflow_id: workflowId,
+      });
+
+      if (error) throw error;
+      return data[0];
+    } catch (error) {
+      console.warn('Supabase toggleGlobalWorkflowLike failed:', error.message);
+      return { liked: false, likes_count: 0 };
+    }
+  }
+
+  /**
+   * 搜索全局工作流
+   * @param {string} query - 搜索关键词
+   * @param {number} limit - 返回数量限制
+   */
+  async searchGlobalWorkflows(query, limit = 10) {
+    if (!this.client || !query) return [];
+
+    try {
+      const { data, error } = await this.client
+        .from('global_workflows')
+        .select('*')
+        .eq('is_active', true)
+        .or(
+          `name.ilike.%${query}%,description.ilike.%${query}%,tags.cs.{${query}}`
+        )
+        .order('downloads_count', { ascending: false })
+        .limit(limit);
+
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.warn('Supabase searchGlobalWorkflows failed:', error.message);
+      return [];
+    }
+  }
+
+  /**
+   * 获取推荐的全局工作流
+   * @param {number} limit - 返回数量限制
+   */
+  async getFeaturedGlobalWorkflows(limit = 6) {
+    if (!this.client) return [];
+
+    try {
+      const { data, error } = await this.client
+        .from('global_workflows')
+        .select('*')
+        .eq('is_active', true)
+        .eq('is_featured', true)
+        .order('downloads_count', { ascending: false })
+        .limit(limit);
+
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.warn(
+        'Supabase getFeaturedGlobalWorkflows failed:',
+        error.message
+      );
+      return [];
+    }
+  }
+
+  /**
+   * 获取热门全局工作流
+   * @param {number} limit - 返回数量限制
+   */
+  async getPopularGlobalWorkflows(limit = 10) {
+    if (!this.client) return [];
+
+    try {
+      const { data, error } = await this.client
+        .from('global_workflows')
+        .select('*')
+        .eq('is_active', true)
+        .order('downloads_count', { ascending: false })
+        .limit(limit);
+
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.warn('Supabase getPopularGlobalWorkflows failed:', error.message);
+      return [];
+    }
+  }
 }
 
 // 创建单例实例

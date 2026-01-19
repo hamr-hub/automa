@@ -193,6 +193,28 @@
   "workflow": {
     "currentBlock": "Current Block",
     "executing": "Executing",
+    "global": {
+      "title": "Save to Global",
+      "searchPlaceholder": "Search workflows...",
+      "allCategories": "All Categories",
+      "newest": "Newest",
+      "mostDownloaded": "Most Downloaded",
+      "mostLiked": "Most Liked",
+      "empty": "No Global Workflows",
+      "emptyDescription": "Be the first to share your workflow with the community!",
+      "featured": "Featured",
+      "import": "Import",
+      "loadMore": "Load More",
+      "downloads": "downloads",
+      "likes": "likes",
+      "byAuthor": "By {author}",
+      "loadError": "Failed to load workflows",
+      "importSuccess": "Successfully imported \"{name}\"",
+      "importError": "Failed to import workflow",
+      "saveConfirm": "Are you sure you want to share \"{name}\" with the global community?",
+      "saveSuccess": "Successfully shared \"{name}\" with the global community",
+      "saveError": "Failed to share workflow"
+    },
     "events": {
       "title": "Workflow Events",
       "add-action": "Add action",
