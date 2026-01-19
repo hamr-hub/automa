@@ -40,13 +40,13 @@
           },
         ]"
         :value="modelValue"
-        class="bg-input w-full rounded-lg bg-transparent py-2 px-4 transition"
+        class="bg-input w-full rounded-lg bg-transparent py-1.5 px-3 transition h-8 text-sm"
         @keydown="$emit('keydown', $event)"
         @keyup="$emit('keyup', $event)"
         @blur="$emit('blur', $event)"
         @focus="$emit('focus', $event)"
         @input="emitValue"
-      >
+      />
       <slot name="append" />
     </div>
   </div>

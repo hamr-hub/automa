@@ -1,7 +1,7 @@
 <template>
   <ui-card
-    class="group relative flex w-full items-center space-x-3 overflow-hidden rounded-xl p-3 transition-all duration-300 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 shadow-md hover:shadow-tech-glow-lg hover:scale-[1.02] border border-gray-200/50 dark:border-tech-blue-900/30 hover:border-tech-blue-400/50 dark:hover:border-tech-purple-500/50"
-    :class="{ 'ring-2 ring-tech-blue-500': isSelected }"
+    class="group relative flex w-full items-center space-x-2.5 overflow-hidden rounded-lg p-2.5 transition-all duration-200 bg-white dark:bg-gray-800 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md dark:hover:border-gray-600"
+    :class="{ 'ring-2 ring-accent': isSelected }"
   >
     <!-- Checkbox -->
     <ui-checkbox
@@ -10,72 +10,87 @@
       @click.stop
       @change="$emit('toggleSelect')"
     />
-    
+
     <!-- Prominent Execute Button -->
     <button
       v-if="!workflow.isDisabled"
-      class="group/btn flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-tech-blue-500 to-tech-purple-600 text-white shadow-tech-glow-sm transition-all duration-300 hover:shadow-tech-glow hover:scale-110 active:scale-95 relative overflow-hidden"
-      :class="{ 'animate-glow-pulse': isExecuting }"
+      class="group/btn flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary text-white shadow-sm transition-all duration-200 hover:shadow-md hover:scale-105 active:scale-95"
+      :class="{ 'animate-pulse': isExecuting }"
       title="Execute workflow"
       @click.stop="$emit('execute', workflow)"
     >
-      <!-- Shimmer effect -->
-      <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover/btn:translate-x-[100%] transition-transform duration-700"></div>
-      <v-remixicon 
+      <v-remixicon
         :name="isExecuting ? 'riLoader4Line' : 'riPlayLine'"
         :class="{ 'animate-spin': isExecuting }"
-        size="20"
-        class="relative z-10" 
+        size="18"
       />
     </button>
 
     <!-- Disabled Placeholder -->
     <div
       v-else
-      class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-700"
+      class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-700"
     >
-      <v-remixicon name="riPauseLine" size="20" class="text-gray-400" />
+      <v-remixicon name="riPauseLine" size="18" class="text-gray-400" />
     </div>
 
     <!-- Workflow Info -->
     <div class="flex-1 min-w-0">
       <!-- Title Row -->
-      <div class="flex items-center gap-2 mb-1">
-        <p class="text-overflow text-sm font-semibold leading-tight text-gray-900 dark:text-gray-100">
+      <div class="flex items-center gap-1.5 mb-0.5">
+        <p class="text-overflow text-sm font-medium leading-tight text-gray-900 dark:text-gray-100">
           {{ workflow.name }}
         </p>
         <!-- Status Tags -->
         <span
           v-if="workflow.isDisabled"
-          class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400"
+          class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400"
         >
           {{ t('common.disabled') }}
         </span>
         <span
           v-if="workflow.isProtected"
-          class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-green-50 text-green-600 dark:bg-green-500/10 dark:text-green-400"
+          class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-green-50 text-green-600 dark:bg-green-500/10 dark:text-green-400"
         >
-          <v-remixicon name="riShieldKeyholeLine" size="10" class="mr-0.5" />
+          <v-remixicon name="riShieldKeyholeLine" size="9" class="mr-0.5" />
           Protected
         </span>
         <!-- Last Run Status -->
         <span
           v-if="lastRunStatus"
-          class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium"
+          class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium"
           :class="statusClasses"
         >
-          <span class="h-1.5 w-1.5 rounded-full" :class="statusDotClass"></span>
+          <span class="h-1 w-1 rounded-full" :class="statusDotClass"></span>
           {{ statusText }}
         </span>
       </div>
       
       <!-- Meta Row -->
-      <div class="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
+      <div class="flex items-center gap-2.5 text-xs text-gray-500 dark:text-gray-400">
+        <span class="flex items-center gap-0.5">
+          <v-remixicon name="riTimeLine" size="11" />
+          {{ dayjs(workflow.updatedAt || workflow.createdAt).fromNow() }}
+        </span>
+        <span v-if="workflow.executionCount > 0" class="flex items-center gap-0.5">
+          <v-remixicon name="riFlashlightLine" size="11" />
+          {{ workflow.executionCount }} runs
+        </span>
+      </div>
+    </div>
+
+      <!-- Meta Row -->
+      <div
+        class="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400"
+      >
         <span class="flex items-center gap-1">
           <v-remixicon name="riTimeLine" size="12" />
           {{ dayjs(workflow.updatedAt || workflow.createdAt).fromNow() }}
         </span>
-        <span v-if="workflow.executionCount > 0" class="flex items-center gap-1">
+        <span
+          v-if="workflow.executionCount > 0"
+          class="flex items-center gap-1"
+        >
           <v-remixicon name="riFlashlightLine" size="12" />
           {{ workflow.executionCount }} runs
         </span>
@@ -83,39 +98,39 @@
     </div>
 
     <!-- Action Buttons -->
-    <div class="flex shrink-0 items-center gap-1.5">
+    <div class="flex shrink-0 items-center gap-1">
       <!-- Quick Pin Button -->
       <button
         v-if="tab === 'local'"
-        class="flex h-9 w-9 items-center justify-center rounded-lg transition-all duration-300 hover:scale-110"
-        :class="pinned ? 'text-tech-blue-500 bg-tech-blue-50 dark:bg-tech-blue-500/20 shadow-tech-glow-sm' : 'text-gray-400 hover:bg-gradient-tech dark:hover:bg-gradient-tech-dark hover:text-tech-blue-500'"
+        class="flex h-8 w-8 items-center justify-center rounded-lg transition-all duration-200 hover:scale-105"
+        :class="pinned ? 'text-accent bg-accent/10' : 'text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'"
         :title="pinned ? 'Unpin workflow' : 'Pin workflow'"
         @click.stop="$emit('togglePin')"
       >
-        <v-remixicon :name="pinned ? 'riPushpin2Fill' : 'riPushpin2Line'" size="16" />
+        <v-remixicon :name="pinned ? 'riPushpin2Fill' : 'riPushpin2Line'" size="14" />
       </button>
 
       <!-- More Options -->
       <ui-popover>
         <template #trigger>
-          <button class="flex h-9 w-9 items-center justify-center rounded-lg text-gray-500 transition-all duration-300 hover:bg-gradient-tech dark:hover:bg-gradient-tech-dark hover:text-tech-blue-600 dark:hover:text-tech-blue-400 hover:scale-110">
-            <v-remixicon name="riMore2Line" size="18" />
+          <button class="flex h-8 w-8 items-center justify-center rounded-lg text-gray-500 transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-700 hover:scale-105">
+            <v-remixicon name="riMore2Line" size="16" />
           </button>
         </template>
-        <ui-list class="space-y-1" style="min-width: 160px">
+        <ui-list class="space-y-0.5" style="min-width: 140px">
           <ui-list-item
-            class="cursor-pointer capitalize text-sm"
+            class="cursor-pointer capitalize text-xs"
             @click="$emit('details', workflow)"
           >
-            <v-remixicon name="riEyeLine" class="mr-2 -ml-1" size="16" />
+            <v-remixicon name="riEyeLine" class="mr-1.5 -ml-1" size="14" />
             <span>View Details</span>
           </ui-list-item>
           <template v-if="tab === 'local'">
             <ui-list-item
-              class="cursor-pointer capitalize text-sm"
+              class="cursor-pointer capitalize text-xs"
               @click="$emit('update', { isDisabled: !workflow.isDisabled })"
             >
-              <v-remixicon name="riToggleLine" class="mr-2 -ml-1" size="16" />
+              <v-remixicon name="riToggleLine" class="mr-1.5 -ml-1" size="14" />
               <span>{{ t(`common.${workflow.isDisabled ? 'enable' : 'disable'}`) }}</span>
             </ui-list-item>
           </template>
@@ -123,10 +138,10 @@
             v-for="item in filteredMenu"
             :key="item.name"
             v-close-popover
-            class="cursor-pointer capitalize text-sm"
+            class="cursor-pointer capitalize text-xs"
             @click="$emit(item.name, workflow)"
           >
-            <v-remixicon :name="item.icon" class="mr-2 -ml-1" size="16" />
+            <v-remixicon :name="item.icon" class="mr-1.5 -ml-1" size="14" />
             <span>{{ item.name }}</span>
           </ui-list-item>
         </ui-list>
@@ -155,7 +170,15 @@ const props = defineProps({
     default: false,
   },
 });
-defineEmits(['execute', 'togglePin', 'rename', 'details', 'delete', 'update', 'toggleSelect']);
+defineEmits([
+  'execute',
+  'togglePin',
+  'rename',
+  'details',
+  'delete',
+  'update',
+  'toggleSelect',
+]);
 
 const { t } = useI18n();
 

@@ -2,10 +2,10 @@
   <component
     :is="tag"
     role="button"
-    class="ui-button relative h-10 transition"
+    class="ui-button relative h-9 transition"
     :class="[
       color ? color : variants[btnType][variant],
-      icon ? 'p-2' : 'py-2 px-4',
+      icon ? 'p-1.5' : 'py-1.5 px-3.5',
       circle ? 'rounded-full' : 'rounded-lg',
       {
         'opacity-70': disabled,
@@ -20,8 +20,7 @@
     >
       <slot />
     </span>
-    <div v-if="loading"
-class="button-loading">
+    <div v-if="loading" class="button-loading">
       <ui-spinner
         :color="
           variant === 'default'
