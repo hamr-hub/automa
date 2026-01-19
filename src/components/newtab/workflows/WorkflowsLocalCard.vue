@@ -131,8 +131,7 @@ const props = defineProps({
 defineEmits(['toggleDisable', 'togglePin', 'execute', 'toggleSelect']);
 
 function onCardClick(event) {
-  if (!event.target.closest('.ui-checkbox')) {
-    window.location.href = `#/workflows/${props.workflow.id}`;
-  }
+  if (event?.target?.closest('.ui-checkbox')) return;
+  window.location.href = `#/workflows/${props.workflow.id}`;
 }
 </script>
