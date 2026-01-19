@@ -302,14 +302,31 @@
         :workflow="workflow"
         :tab="state.activeTab"
         :pinned="workflow._isPinned"
+        :is-selected="state.selectedForBatch.includes(workflow.id)"
         @details="openWorkflowPage"
         @update="updateWorkflow(workflow.id, $event)"
         @execute="executeWorkflow"
         @rename="renameWorkflow"
         @delete="deleteWorkflow"
         @toggle-pin="togglePinWorkflow(workflow)"
+        @toggle-select="toggleSelectWorkflow(workflow.id)"
       />
     </div>
+    <ui-card
+      v-if="state.selectedForBatch.length > 0"
+      class="fixed right-0 bottom-0 m-5 space-x-2 shadow-xl z-50"
+    >
+      <ui-button @click="selectAllWorkflows">
+        {{
+          t(
+            `workflow.${state.selectedForBatch.length >= allVisibleWorkflows.length ? 'deselectAll' : 'selectAll'}`
+          )
+        }}
+      </ui-button>
+      <ui-button variant="danger" @click="deleteBatchWorkflows">
+        {{ t('workflow.deleteSelected') }} ({{ state.selectedForBatch.length }})
+      </ui-button>
+    </ui-card>
     <div
       v-if="state.showSettingsPopup"
       class="fixed bottom-5 left-0 m-4 rounded-lg bg-accent p-4 text-white shadow-md dark:text-black z-10"
@@ -382,6 +399,7 @@ const state = shallowReactive({
   haveAccess: true,
   activeTab: 'local',
   pinnedWorkflows: [],
+  selectedForBatch: [],
   activeFolder: savedSorts.activeFolder,
   showSettingsPopup: isMV2
     ? false
@@ -604,6 +622,62 @@ function togglePinWorkflow(workflow) {
   state.pinnedWorkflows = copyData;
   browser.storage.local.set({
     pinnedWorkflows: copyData,
+  });
+}
+
+function toggleSelectWorkflow(workflowId) {
+  const index = state.selectedForBatch.indexOf(workflowId);
+  if (index === -1) {
+    state.selectedForBatch.push(workflowId);
+  } else {
+    state.selectedForBatch.splice(index, 1);
+  }
+}
+
+const allVisibleWorkflows = computed(() => {
+  const pinned = pinnedWorkflows.value;
+  const regular = workflows.value;
+  const seen = new Set();
+  const result = [];
+  
+  [...pinned, ...regular].forEach(workflow => {
+    if (!seen.has(workflow.id)) {
+      seen.add(workflow.id);
+      result.push(workflow);
+    }
+  });
+  
+  return result;
+});
+
+function selectAllWorkflows() {
+  if (state.selectedForBatch.length >= allVisibleWorkflows.value.length) {
+    state.selectedForBatch = [];
+  } else {
+    state.selectedForBatch = allVisibleWorkflows.value.map(w => w.id);
+  }
+}
+
+function deleteBatchWorkflows() {
+  dialog.confirm({
+    title: t('workflow.delete'),
+    okVariant: 'danger',
+    body: t('workflow.deleteBatchConfirm', { count: state.selectedForBatch.length }),
+    onConfirm: async () => {
+      if (state.activeTab === 'local') {
+        await workflowStore.delete(state.selectedForBatch);
+      } else if (state.activeTab === 'host') {
+        // For hosted workflows, delete by hostId
+        const hostIds = state.selectedForBatch
+          .map(id => {
+            const workflow = hostedWorkflowStore.toArray.find(w => w.id === id);
+            return workflow?.hostId;
+          })
+          .filter(Boolean);
+        await Promise.all(hostIds.map(hostId => hostedWorkflowStore.delete(hostId)));
+      }
+      state.selectedForBatch = [];
+    },
   });
 }
 async function executeWorkflow(workflow) {

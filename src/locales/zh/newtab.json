@@ -147,6 +147,7 @@
       "backup": "备份工作流",
       "editor": "编辑器",
       "general": "常规",
+      "ollama": "Ollama",
       "shortcuts": "快捷键",
       "about": "关于"
     },
@@ -214,7 +215,7 @@
         }
       }
     },
-      "previewMode": {
+    "previewMode": {
       "title": "预览模式",
       "description": "正处于预览模式，你所做的修改不会被保存下来"
     },
@@ -237,6 +238,10 @@
     "import": "导入工作流",
     "new": "新建工作流",
     "delete": "删除工作流",
+    "deleteSelected": "删除选中的工作流",
+    "deleteBatchConfirm": "确定要删除 {count} 个工作流吗？",
+    "selectAll": "全选",
+    "deselectAll": "取消全选",
     "browse": "浏览工作流",
     "name": "工作流名称",
     "rename": "重命名工作流",

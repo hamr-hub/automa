@@ -22,8 +22,7 @@
             tag="a"
             @click="navigate"
           >
-            <v-remixicon :name="menu.icon"
-class="mr-2 -ml-1" />
+            <v-remixicon :name="menu.icon" class="mr-2 -ml-1" />
             {{ t(`settings.menu.${menu.id}`) }}
           </ui-list-item>
         </router-link>
@@ -34,8 +33,7 @@ class="mr-2 -ml-1" />
           class="mb-4 w-full md:hidden"
           @change="onSelectChanged"
         >
-          <option v-for="menu in menus"
-:key="menu.id" :value="menu.path">
+          <option v-for="menu in menus" :key="menu.id" :value="menu.path">
             {{ t(`settings.menu.${menu.id}`) }}
           </option>
         </ui-select>
@@ -54,6 +52,7 @@ const router = useRouter();
 const menus = [
   { id: 'profile', path: '/profile', icon: 'riUserLine' },
   { id: 'general', path: '/settings', icon: 'riSettings3Line' },
+  { id: 'ollama', path: '/ollama', icon: 'riRobot2Line' },
   { id: 'backup', path: '/backup', icon: 'riDatabase2Line' },
   { id: 'editor', path: '/editor', icon: 'riMindMap' },
   { id: 'shortcuts', path: '/shortcuts', icon: 'riKeyboardLine' },

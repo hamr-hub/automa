@@ -1,7 +1,16 @@
 <template>
   <ui-card
     class="group relative flex w-full items-center space-x-3 overflow-hidden rounded-xl p-3 transition-all duration-300 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 shadow-md hover:shadow-tech-glow-lg hover:scale-[1.02] border border-gray-200/50 dark:border-tech-blue-900/30 hover:border-tech-blue-400/50 dark:hover:border-tech-purple-500/50"
+    :class="{ 'ring-2 ring-tech-blue-500': isSelected }"
   >
+    <!-- Checkbox -->
+    <ui-checkbox
+      :model-value="isSelected"
+      class="shrink-0"
+      @click.stop
+      @change="$emit('toggleSelect')"
+    />
+    
     <!-- Prominent Execute Button -->
     <button
       v-if="!workflow.isDisabled"
@@ -109,13 +118,6 @@
               <v-remixicon name="riToggleLine" class="mr-2 -ml-1" size="16" />
               <span>{{ t(`common.${workflow.isDisabled ? 'enable' : 'disable'}`) }}</span>
             </ui-list-item>
-            <ui-list-item
-              class="cursor-pointer capitalize text-sm"
-              @click="$emit('rename', workflow)"
-            >
-              <v-remixicon name="riPencilLine" class="mr-2 -ml-1" size="16" />
-              <span>Rename</span>
-            </ui-list-item>
           </template>
           <ui-list-item
             v-for="item in filteredMenu"
@@ -147,12 +149,13 @@ const props = defineProps({
     default: 'local',
   },
   pinned: Boolean,
+  isSelected: Boolean,
   isExecuting: {
     type: Boolean,
     default: false,
   },
 });
-defineEmits(['execute', 'togglePin', 'rename', 'details', 'delete', 'update']);
+defineEmits(['execute', 'togglePin', 'rename', 'details', 'delete', 'update', 'toggleSelect']);
 
 const { t } = useI18n();
 

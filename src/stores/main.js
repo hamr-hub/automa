@@ -19,6 +19,12 @@ export const useStore = defineStore('main', {
       locale: 'en',
       deleteLogAfter: 30,
       logsLimit: 1000,
+      ollama: {
+        baseUrl: 'http://localhost:11434',
+        model: 'mistral',
+        temperature: 0.7,
+        maxTokens: 2000,
+      },
       editor: {
         minZoom: 0.3,
         maxZoom: 1.3,

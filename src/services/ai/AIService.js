@@ -9,11 +9,37 @@
 
 import LangGraphAgent from './LangGraphAgent.js';
 import aiConfig from '../../config/ai.config.js';
+import { useStore } from '@/stores/main';
 
 class AIService {
   constructor() {
     this.langGraphAgent = null;
     this.initialized = false;
+    this.store = null;
+  }
+
+  /**
+   * 获取全局 Ollama 配置
+   * @returns {Object} Ollama 配置
+   */
+  getGlobalOllamaConfig() {
+    if (!this.store) {
+      this.store = useStore();
+    }
+
+    // 优先使用 store 中的设置,如果没有则使用 aiConfig
+    const settingsOllama = this.store.settings?.ollama;
+    if (settingsOllama) {
+      return {
+        baseUrl: settingsOllama.baseUrl || aiConfig.ollama.baseUrl,
+        model: settingsOllama.model || aiConfig.ollama.model,
+        temperature: settingsOllama.temperature ?? aiConfig.ollama.temperature,
+        maxTokens: settingsOllama.maxTokens || aiConfig.ollama.maxTokens,
+        timeout: aiConfig.ollama.timeout,
+      };
+    }
+
+    return aiConfig.ollama;
   }
 
   /**
@@ -23,8 +49,19 @@ class AIService {
    */
   async initialize(config = {}) {
     try {
+      // 合并全局配置和传入的配置
+      const globalConfig = this.getGlobalOllamaConfig();
+      const mergedConfig = {
+        ...globalConfig,
+        ...config,
+        ollama: {
+          ...globalConfig,
+          ...(config.ollama || {}),
+        },
+      };
+
       // 初始化 LangGraph Agent
-      this.langGraphAgent = new LangGraphAgent(config);
+      this.langGraphAgent = new LangGraphAgent(mergedConfig);
       const isHealthy = await this.langGraphAgent.initialize();
 
       if (!isHealthy) {

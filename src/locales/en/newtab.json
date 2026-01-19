@@ -29,7 +29,7 @@
     "nextRun": "Next run",
     "active": "Active",
     "refresh": "Refresh",
-    "schedule":{
+    "schedule": {
       "title": "Schedule",
       "types": {
         "everyDay": "Every day",
@@ -147,6 +147,7 @@
       "backup": "Backup Workflows",
       "editor": "Editor",
       "general": "General",
+      "ollama": "Ollama",
       "shortcuts": "Shortcuts",
       "about": "About",
       "driveMigration": "Google Drive Migration"
@@ -238,6 +239,10 @@
     "import": "Import workflow",
     "new": "New workflow",
     "delete": "Delete workflow",
+    "deleteSelected": "Delete selected workflows",
+    "deleteBatchConfirm": "Are you sure you want to delete {count} workflows?",
+    "selectAll": "Select all",
+    "deselectAll": "Deselect all",
     "browse": "Browse workflows",
     "name": "Workflow name",
     "rename": "Rename workflow",

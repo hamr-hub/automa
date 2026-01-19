@@ -4,10 +4,16 @@
     :data-workflow="workflow.id"
     draggable="true"
     class="local-workflow cursor-default select-none ring-accent"
-    @click="$router.push(`/workflows/${$event.id}`)"
+    @click="onCardClick"
   >
     <template #header>
       <div class="mb-4 flex items-center">
+        <ui-checkbox
+          :model-value="isSelected"
+          class="mr-3"
+          @click.stop
+          @change="$emit('toggleSelect')"
+        />
         <template v-if="workflow && !workflow.isDisabled">
           <ui-img
             v-if="workflow.icon.startsWith('http')"
@@ -100,7 +106,9 @@ class="mr-2 -ml-1" />
 import { useI18n } from 'vue-i18n';
 import SharedCard from '@/components/newtab/shared/SharedCard.vue';
 
-defineProps({
+const { t } = useI18n();
+
+const props = defineProps({
   workflow: {
     type: Object,
     default: () => ({}),
@@ -118,8 +126,13 @@ defineProps({
     default: null,
   },
   isPinned: Boolean,
+  isSelected: Boolean,
 });
-defineEmits(['toggleDisable', 'togglePin', 'execute']);
+defineEmits(['toggleDisable', 'togglePin', 'execute', 'toggleSelect']);
 
-const { t } = useI18n();
+function onCardClick(event) {
+  if (!event.target.closest('.ui-checkbox')) {
+    window.location.href = `#/workflows/${props.workflow.id}`;
+  }
+}
 </script>

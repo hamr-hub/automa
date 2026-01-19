@@ -20,12 +20,10 @@
       >
         <span class="flex justify-between items-center w-full">
           <span class="flex items-center space-x-1">
-            <v-remixicon
-name="riKey" size="16" />
+            <v-remixicon name="riKey" size="16" />
             <span>Configure AI Power Token</span>
           </span>
-          <v-remixicon
-name="riArrowRightLine" size="16" />
+          <v-remixicon name="riArrowRightLine" size="16" />
         </span>
       </ui-button>
 
@@ -44,10 +42,8 @@ name="riArrowRightLine" size="16" />
           @change="onFlowChange"
         >
           <template #footer>
-            <ui-button class="w-full"
-@click="createNewWorkflow">
-              <v-remixicon name="riAddLine"
-class="mr-2" />
+            <ui-button class="w-full" @click="createNewWorkflow">
+              <v-remixicon name="riAddLine" class="mr-2" />
               New AI Workflow
             </ui-button>
           </template>
@@ -131,7 +127,18 @@ class="mr-2" />
         <span
           v-if="isFetchingModels"
           class="absolute right-8 top-9 text-xs text-gray-400"
-        >Loading...</span>
+          >Loading...</span
+        >
+      </div>
+
+      <div class="flex items-center justify-between mb-4">
+        <p class="text-sm text-gray-500">
+          Configure global Ollama settings for all AI blocks
+        </p>
+        <ui-button variant="link" class="text-sm" @click="goToOllamaSettings">
+          <v-remixicon name="riSettings3Line" class="mr-1" />
+          Ollama Settings
+        </ui-button>
       </div>
 
       <ui-textarea
@@ -168,8 +175,7 @@ class="mr-2" />
     </template>
 
     <div class="my-4">
-      <insert-workflow-data :data="data"
-variables @update="updateData" />
+      <insert-workflow-data :data="data" variables @update="updateData" />
     </div>
 
     <template
@@ -199,8 +205,7 @@ variables @update="updateData" />
         <p
           class="font-semibold text-[16px] dark:text-gray-300 leading-[24px] flex items-center"
         >
-          <v-remixicon
-name="riKey" size="16" class="mr-1" />
+          <v-remixicon name="riKey" size="16" class="mr-1" />
           How to get your AI Power Token
         </p>
 
@@ -213,11 +218,9 @@ name="riKey" size="16" class="mr-1" />
           <li>Copy the generated token and paste it below</li>
         </ol>
 
-        <ui-button variant="default"
-@click="goToAIPowerSettings">
+        <ui-button variant="default" @click="goToAIPowerSettings">
           <span class="text-[14px] leading-[24px]">Open AI Power Settings</span>
-          <v-remixicon
-name="riArrowRightUpLine" size="16" />
+          <v-remixicon name="riArrowRightUpLine" size="16" />
         </ui-button>
       </div>
 
@@ -238,8 +241,7 @@ name="riArrowRightUpLine" size="16" />
         >
           Cancel
         </ui-button>
-        <ui-button
-variant="accent" @click="saveAIPowerToken"> Save </ui-button>
+        <ui-button variant="accent" @click="saveAIPowerToken"> Save </ui-button>
       </div>
     </ui-modal>
   </div>
@@ -257,22 +259,18 @@ import {
   getAPWorkflowDetail,
   postUploadFile,
 } from '@/utils/getAIPoweredInfo';
+import { useStore } from '@/stores/main';
 import aiService from '@/services/ai/AIService';
 import cloneDeep from 'lodash.clonedeep';
 import secrets from 'secrets';
-import {
-  computed,
-  shallowReactive,
-  watch,
-  ref,
-  onMounted,
-} from 'vue';
+import { computed, shallowReactive, watch, ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useToast } from 'vue-toastification';
 import browser from 'webextension-polyfill';
 import InsertWorkflowData from './InsertWorkflowData.vue';
 
 const toast = useToast();
+const store = useStore();
 
 const props = defineProps({
   data: {
@@ -366,6 +364,10 @@ const goToAIPowerSettings = () => {
   window.open(url, '_blank');
 };
 
+const goToOllamaSettings = () => {
+  window.open('#/ollama', '_blank');
+};
+
 const updateAIPowerToken = (value) => {
   state.aipowerToken = value;
 };
@@ -441,21 +443,39 @@ watch(
 const ollamaModels = ref([]);
 const isFetchingModels = ref(false);
 
+// Get global Ollama settings as defaults
+const globalOllamaSettings = computed(
+  () =>
+    store.settings?.ollama || {
+      baseUrl: 'http://localhost:11434',
+      model: 'mistral',
+      temperature: 0.7,
+    }
+);
+
 const fetchOllamaModels = async () => {
-  const host = props.data.ollamaHost || 'http://localhost:11434';
+  // Use the block's ollamaHost if set, otherwise fall back to global settings or default
+  const _host =
+    props.data.ollamaHost ||
+    globalOllamaSettings.value.baseUrl ||
+    'http://localhost:11434';
   isFetchingModels.value = true;
   try {
     // 通过 AIService.listModels() 调用,统一经过 LangGraphService
+    // 传入 host 配置以连接到正确的 Ollama 实例
     const models = await aiService.listModels();
     ollamaModels.value = models.map((m) => ({ name: m.name }));
 
-    // Auto select first model if none selected
-    if (!props.data.model && ollamaModels.value.length > 0) {
-      updateData({ model: ollamaModels.value[0].name });
+    // Auto select first model if none selected and use global default
+    if (!props.data.model) {
+      if (ollamaModels.value.length > 0) {
+        updateData({ model: ollamaModels.value[0].name });
+      } else if (globalOllamaSettings.value.model) {
+        updateData({ model: globalOllamaSettings.value.model });
+      }
     }
-  } catch (error) {
-    // console.error('Failed to fetch Ollama models', error);
-    // Silent fail or toast? Toast might be annoying on load.
+  } catch (_error) {
+    // Silent fail - models will be empty and user can select manually
   } finally {
     isFetchingModels.value = false;
   }
@@ -478,6 +498,17 @@ onMounted(() => {
     props.data.provider === 'ollama' ||
     (!props.data.provider && !props.data.flowUuid)
   ) {
+    // Apply global defaults for ollama settings if not already set
+    if (!props.data.ollamaHost && globalOllamaSettings.value.baseUrl) {
+      updateData({ ollamaHost: globalOllamaSettings.value.baseUrl });
+    }
+    if (
+      !props.data.temperature &&
+      globalOllamaSettings.value.temperature != null
+    ) {
+      updateData({ temperature: globalOllamaSettings.value.temperature });
+    }
+
     fetchOllamaModels();
   }
 });
