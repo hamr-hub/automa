@@ -3,18 +3,24 @@
  * 测试数据同步模块的添加、配置、执行等功能
  */
 
-import { test, expect, describe } from '@playwright/test';
-
-const EXTENSION_ID = process.env.EXTENSION_ID || 'your-extension-id';
+import { test, expect, describe, beforeEach } from '@playwright/test';
+import path from 'path';
 
 describe('Data Sync 数据同步功能测试', () => {
   let page;
 
   test.beforeEach(async ({ browser }) => {
     page = await browser.newPage();
-    await page.goto(`chrome-extension://${EXTENSION_ID}/newtab.html`);
-    await page.waitForLoadState('domcontentloaded');
-    await page.waitForTimeout(1000);
+
+    // 使用 file:// 协议加载扩展页面
+    const filePath = path.resolve(__dirname, '../../build/newtab.html');
+    await page.goto(`file://${filePath}`, {
+      waitUntil: 'domcontentloaded',
+      timeout: 30000,
+    });
+
+    await page.waitForLoadState('load');
+    await page.waitForTimeout(3000);
   });
 
   test.afterEach(async () => {
@@ -569,9 +575,16 @@ describe('Data Sync API 集成测试', () => {
 
   test.beforeEach(async ({ browser }) => {
     page = await browser.newPage();
-    await page.goto(`chrome-extension://${EXTENSION_ID}/newtab.html`);
-    await page.waitForLoadState('domcontentloaded');
-    await page.waitForTimeout(1000);
+
+    // 使用 file:// 协议加载扩展页面
+    const filePath = path.resolve(__dirname, '../../build/newtab.html');
+    await page.goto(`file://${filePath}`, {
+      waitUntil: 'domcontentloaded',
+      timeout: 30000,
+    });
+
+    await page.waitForLoadState('load');
+    await page.waitForTimeout(3000);
   });
 
   test.afterEach(async () => {

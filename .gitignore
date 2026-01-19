@@ -5,6 +5,9 @@
 
 # testing
 /coverage
+playwright-report/
+test-results/
+test-results.json
 
 # production
 /build
@@ -19,6 +22,7 @@
 .env.production.local
 .history
 *.log
+nul
 
 # secrets
 secrets.production.js
@@ -31,5 +35,5 @@ getPassKey.js
 
 .idea
 secrets.js
-test-results/
+tests/shared/
 

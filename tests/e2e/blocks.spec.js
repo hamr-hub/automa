@@ -8,35 +8,32 @@ import path from 'path';
 
 describe('工作流块操作测试', () => {
   let page;
-  let extensionId;
 
   test.beforeEach(async ({ browser }) => {
-    // 使用正确的Chrome扩展加载方式
-    const extensionPath = path.resolve(__dirname, '../../build');
-
-    // 使用chromium浏览器并加载扩展
+    // 使用Playwright创建浏览器上下文
     const context = await browser.newContext({
       ignoreHTTPSErrors: true,
     });
 
-    // 创建新页面并导航到扩展的newtab.html
-    // 注意：对于未打包的扩展，Chrome会自动分配一个ID
-    // 我们使用about:blank作为基础，然后通过背景页面获取真实ID
+    // 创建新页面
     page = await context.newPage();
 
-    // 直接导航到本地构建的扩展页面
-    await page.goto(`file://${extensionPath}/newtab.html`);
-    await page.waitForLoadState('domcontentloaded');
-    await page.waitForTimeout(2000);
+    // 直接使用file://协议加载扩展页面
+    const filePath = path.resolve(__dirname, '../../build/newtab.html');
+    console.log('加载文件路径:', filePath);
 
-    // 获取页面URL来验证扩展是否加载
-    const currentUrl = page.url();
-    console.log('当前页面URL:', currentUrl);
-
-    // 如果是file:// URL，说明扩展已加载
-    if (currentUrl.includes('newtab.html')) {
-      console.log('扩展页面加载成功');
+    try {
+      await page.goto(`file://${filePath}`, {
+        waitUntil: 'domcontentloaded',
+        timeout: 30000,
+      });
+      console.log('成功加载扩展页面');
+    } catch (e) {
+      console.log('加载扩展页面失败:', e.message);
     }
+
+    await page.waitForLoadState('load');
+    await page.waitForTimeout(3000);
   });
 
   test.afterEach(async () => {

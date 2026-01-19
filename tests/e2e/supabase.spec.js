@@ -4,17 +4,23 @@
  */
 
 import { test, expect, describe, beforeEach } from '@playwright/test';
-
-const EXTENSION_ID = process.env.EXTENSION_ID || 'your-extension-id';
+import path from 'path';
 
 describe('Supabase集成测试', () => {
   let page;
 
   test.beforeEach(async ({ browser }) => {
     page = await browser.newPage();
-    await page.goto(`chrome-extension://${EXTENSION_ID}/newtab.html`);
-    await page.waitForLoadState('domcontentloaded');
-    await page.waitForTimeout(1000);
+
+    // 使用 file:// 协议加载扩展页面
+    const filePath = path.resolve(__dirname, '../../build/newtab.html');
+    await page.goto(`file://${filePath}`, {
+      waitUntil: 'domcontentloaded',
+      timeout: 30000,
+    });
+
+    await page.waitForLoadState('load');
+    await page.waitForTimeout(3000);
   });
 
   test.afterEach(async () => {

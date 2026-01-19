@@ -53,22 +53,6 @@
           "**/*.@(spec|test).?(c|m)[jt]s?(x)"
         ],
         "timeout": 60000
-      },
-      {
-        "outputDir": "D:/codespace/automa/test-results",
-        "repeatEach": 1,
-        "retries": 0,
-        "metadata": {
-          "actualWorkers": 1
-        },
-        "id": "chromium-headed",
-        "name": "chromium-headed",
-        "testDir": "D:/codespace/automa/tests/e2e",
-        "testIgnore": [],
-        "testMatch": [
-          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
-        ],
-        "timeout": 60000
       }
     ],
     "shard": null,
@@ -81,20 +65,873 @@
   },
   "suites": [
     {
-      "title": "simple.spec.js",
-      "file": "simple.spec.js",
+      "title": "data-sync.spec.js",
+      "file": "data-sync.spec.js",
       "column": 0,
       "line": 0,
       "specs": [],
       "suites": [
         {
-          "title": "扩展加载测试",
-          "file": "simple.spec.js",
-          "line": 8,
+          "title": "Data Sync 数据同步功能测试",
+          "file": "data-sync.spec.js",
+          "line": 9,
+          "column": 9,
+          "specs": [],
+          "suites": [
+            {
+              "title": "Data Sync 块添加测试",
+              "file": "data-sync.spec.js",
+              "line": 30,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "TC-DS-001: 添加 Data Sync 块到工作流",
+                  "ok": false,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "failed",
+                          "duration": 8830,
+                          "error": {
+                            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[class*=\"block\"], [class*=\"Block\"], [class*=\"node\"]').first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[class*=\"block\"], [class*=\"Block\"], [class*=\"node\"]').first()\u001b[22m\n",
+                            "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[class*=\"block\"], [class*=\"Block\"], [class*=\"node\"]').first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[class*=\"block\"], [class*=\"Block\"], [class*=\"node\"]').first()\u001b[22m\n\n    at D:\\codespace\\automa\\tests\\e2e\\data-sync.spec.js:84:38\n    at D:\\codespace\\automa\\tests\\e2e\\data-sync.spec.js:79:18",
+                            "location": {
+                              "file": "D:\\codespace\\automa\\tests\\e2e\\data-sync.spec.js",
+                              "column": 38,
+                              "line": 84
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 82 |\u001b[39m           \u001b[32m'[class*=\"block\"], [class*=\"Block\"], [class*=\"node\"]'\u001b[39m\n \u001b[90m 83 |\u001b[39m         )\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 84 |\u001b[39m         \u001b[36mawait\u001b[39m expect(blocks\u001b[33m.\u001b[39mfirst())\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m5000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 85 |\u001b[39m       })\u001b[33m;\u001b[39m\n \u001b[90m 86 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 87 |\u001b[39m\u001b[0m"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "D:\\codespace\\automa\\tests\\e2e\\data-sync.spec.js",
+                                "column": 38,
+                                "line": 84
+                              },
+                              "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[class*=\"block\"], [class*=\"Block\"], [class*=\"node\"]').first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[class*=\"block\"], [class*=\"Block\"], [class*=\"node\"]').first()\u001b[22m\n\n\n\u001b[0m \u001b[90m 82 |\u001b[39m           \u001b[32m'[class*=\"block\"], [class*=\"Block\"], [class*=\"node\"]'\u001b[39m\n \u001b[90m 83 |\u001b[39m         )\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 84 |\u001b[39m         \u001b[36mawait\u001b[39m expect(blocks\u001b[33m.\u001b[39mfirst())\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m5000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 85 |\u001b[39m       })\u001b[33m;\u001b[39m\n \u001b[90m 86 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 87 |\u001b[39m\u001b[0m\n\u001b[2m    at D:\\codespace\\automa\\tests\\e2e\\data-sync.spec.js:84:38\u001b[22m\n\u001b[2m    at D:\\codespace\\automa\\tests\\e2e\\data-sync.spec.js:79:18\u001b[22m"
+                            }
+                          ],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "steps": [
+                            {
+                              "title": "打开或创建工作流",
+                              "duration": 59
+                            },
+                            {
+                              "title": "点击添加块按钮",
+                              "duration": 16
+                            },
+                            {
+                              "title": "查找并点击 Data Sync 块",
+                              "duration": 12
+                            },
+                            {
+                              "title": "验证 Data Sync 块已添加",
+                              "duration": 5019,
+                              "error": {
+                                "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[class*=\"block\"], [class*=\"Block\"], [class*=\"node\"]').first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[class*=\"block\"], [class*=\"Block\"], [class*=\"node\"]').first()\u001b[22m\n",
+                                "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[class*=\"block\"], [class*=\"Block\"], [class*=\"node\"]').first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[class*=\"block\"], [class*=\"Block\"], [class*=\"node\"]').first()\u001b[22m\n\n    at D:\\codespace\\automa\\tests\\e2e\\data-sync.spec.js:84:38\n    at D:\\codespace\\automa\\tests\\e2e\\data-sync.spec.js:79:18",
+                                "location": {
+                                  "file": "D:\\codespace\\automa\\tests\\e2e\\data-sync.spec.js",
+                                  "column": 38,
+                                  "line": 84
+                                },
+                                "snippet": "\u001b[0m \u001b[90m 82 |\u001b[39m           \u001b[32m'[class*=\"block\"], [class*=\"Block\"], [class*=\"node\"]'\u001b[39m\n \u001b[90m 83 |\u001b[39m         )\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 84 |\u001b[39m         \u001b[36mawait\u001b[39m expect(blocks\u001b[33m.\u001b[39mfirst())\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m5000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 85 |\u001b[39m       })\u001b[33m;\u001b[39m\n \u001b[90m 86 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 87 |\u001b[39m\u001b[0m"
+                              }
+                            }
+                          ],
+                          "startTime": "2026-01-19T12:35:24.723Z",
+                          "annotations": [],
+                          "attachments": [],
+                          "errorLocation": {
+                            "file": "D:\\codespace\\automa\\tests\\e2e\\data-sync.spec.js",
+                            "column": 38,
+                            "line": 84
+                          }
+                        }
+                      ],
+                      "status": "unexpected"
+                    }
+                  ],
+                  "id": "7bc8589f092eefef1987-f8153438486f4f7ae67d",
+                  "file": "data-sync.spec.js",
+                  "line": 31,
+                  "column": 9
+                },
+                {
+                  "title": "TC-DS-002: 添加多个 Data Sync 块",
+                  "ok": false,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 1,
+                          "parallelIndex": 0,
+                          "status": "failed",
+                          "duration": 4146,
+                          "error": {
+                            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: >= \u001b[32m2\u001b[39m\nReceived:    \u001b[31m0\u001b[39m",
+                            "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: >= \u001b[32m2\u001b[39m\nReceived:    \u001b[31m0\u001b[39m\n    at D:\\codespace\\automa\\tests\\e2e\\data-sync.spec.js:120:28\n    at D:\\codespace\\automa\\tests\\e2e\\data-sync.spec.js:116:7",
+                            "location": {
+                              "file": "D:\\codespace\\automa\\tests\\e2e\\data-sync.spec.js",
+                              "column": 28,
+                              "line": 120
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 118 |\u001b[39m           \u001b[33m.\u001b[39mlocator(\u001b[32m'[class*=\"block\"], [class*=\"Block\"]'\u001b[39m)\n \u001b[90m 119 |\u001b[39m           \u001b[33m.\u001b[39mcount()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 120 |\u001b[39m         expect(blockCount)\u001b[33m.\u001b[39mtoBeGreaterThanOrEqual(\u001b[35m2\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                            \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 121 |\u001b[39m       })\u001b[33m;\u001b[39m\n \u001b[90m 122 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 123 |\u001b[39m   })\u001b[33m;\u001b[39m\u001b[0m"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "D:\\codespace\\automa\\tests\\e2e\\data-sync.spec.js",
+                                "column": 28,
+                                "line": 120
+                              },
+                              "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: >= \u001b[32m2\u001b[39m\nReceived:    \u001b[31m0\u001b[39m\n\n\u001b[0m \u001b[90m 118 |\u001b[39m           \u001b[33m.\u001b[39mlocator(\u001b[32m'[class*=\"block\"], [class*=\"Block\"]'\u001b[39m)\n \u001b[90m 119 |\u001b[39m           \u001b[33m.\u001b[39mcount()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 120 |\u001b[39m         expect(blockCount)\u001b[33m.\u001b[39mtoBeGreaterThanOrEqual(\u001b[35m2\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                            \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 121 |\u001b[39m       })\u001b[33m;\u001b[39m\n \u001b[90m 122 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 123 |\u001b[39m   })\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at D:\\codespace\\automa\\tests\\e2e\\data-sync.spec.js:120:28\u001b[22m\n\u001b[2m    at D:\\codespace\\automa\\tests\\e2e\\data-sync.spec.js:116:7\u001b[22m"
+                            }
+                          ],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "steps": [
+                            {
+                              "title": "添加第一个 Data Sync 块",
+                              "duration": 71
+                            },
+                            {
+                              "title": "添加第二个 Data Sync 块",
+                              "duration": 524
+                            },
+                            {
+                              "title": "验证两个块都已添加",
+                              "duration": 21,
+                              "error": {
+                                "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: >= \u001b[32m2\u001b[39m\nReceived:    \u001b[31m0\u001b[39m",
+                                "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: >= \u001b[32m2\u001b[39m\nReceived:    \u001b[31m0\u001b[39m\n    at D:\\codespace\\automa\\tests\\e2e\\data-sync.spec.js:120:28\n    at D:\\codespace\\automa\\tests\\e2e\\data-sync.spec.js:116:7",
+                                "location": {
+                                  "file": "D:\\codespace\\automa\\tests\\e2e\\data-sync.spec.js",
+                                  "column": 28,
+                                  "line": 120
+                                },
+                                "snippet": "\u001b[0m \u001b[90m 118 |\u001b[39m           \u001b[33m.\u001b[39mlocator(\u001b[32m'[class*=\"block\"], [class*=\"Block\"]'\u001b[39m)\n \u001b[90m 119 |\u001b[39m           \u001b[33m.\u001b[39mcount()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 120 |\u001b[39m         expect(blockCount)\u001b[33m.\u001b[39mtoBeGreaterThanOrEqual(\u001b[35m2\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                            \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 121 |\u001b[39m       })\u001b[33m;\u001b[39m\n \u001b[90m 122 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 123 |\u001b[39m   })\u001b[33m;\u001b[39m\u001b[0m"
+                              }
+                            }
+                          ],
+                          "startTime": "2026-01-19T12:35:38.131Z",
+                          "annotations": [],
+                          "attachments": [],
+                          "errorLocation": {
+                            "file": "D:\\codespace\\automa\\tests\\e2e\\data-sync.spec.js",
+                            "column": 28,
+                            "line": 120
+                          }
+                        }
+                      ],
+                      "status": "unexpected"
+                    }
+                  ],
+                  "id": "7bc8589f092eefef1987-230c6e07f79b4907de62",
+                  "file": "data-sync.spec.js",
+                  "line": 88,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "Data Sync 块配置测试",
+              "file": "data-sync.spec.js",
+              "line": 125,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "TC-DS-003: 配置 API 地址",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 2,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 4216,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "steps": [
+                            {
+                              "title": "点击打开配置面板",
+                              "duration": 13
+                            },
+                            {
+                              "title": "输入 API 地址",
+                              "duration": 22
+                            },
+                            {
+                              "title": "验证 URL 已保存",
+                              "duration": 0
+                            }
+                          ],
+                          "startTime": "2026-01-19T12:35:45.509Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "7bc8589f092eefef1987-925ffe61c17bf6a14687",
+                  "file": "data-sync.spec.js",
+                  "line": 141,
+                  "column": 9
+                },
+                {
+                  "title": "TC-DS-004: 配置请求方法",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 2,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 4135,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "steps": [
+                            {
+                              "title": "点击打开配置面板",
+                              "duration": 16
+                            },
+                            {
+                              "title": "选择请求方法",
+                              "duration": 10
+                            },
+                            {
+                              "title": "验证方法已更改",
+                              "duration": 0
+                            }
+                          ],
+                          "startTime": "2026-01-19T12:35:50.707Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "7bc8589f092eefef1987-149d52f6bc47e64e15cc",
+                  "file": "data-sync.spec.js",
+                  "line": 185,
+                  "column": 9
+                },
+                {
+                  "title": "TC-DS-005: 配置数据源 - 数据表",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 2,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 4072,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "steps": [
+                            {
+                              "title": "点击打开配置面板",
+                              "duration": 6
+                            },
+                            {
+                              "title": "选择数据源为数据表",
+                              "duration": 8
+                            },
+                            {
+                              "title": "验证数据表格式选项出现",
+                              "duration": 1
+                            }
+                          ],
+                          "startTime": "2026-01-19T12:35:54.880Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "7bc8589f092eefef1987-4656f70e87a2ab9be21a",
+                  "file": "data-sync.spec.js",
+                  "line": 219,
+                  "column": 9
+                },
+                {
+                  "title": "TC-DS-006: 配置数据源 - 变量",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 2,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 4078,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "steps": [
+                            {
+                              "title": "点击打开配置面板",
+                              "duration": 6
+                            },
+                            {
+                              "title": "选择数据源为变量",
+                              "duration": 6
+                            },
+                            {
+                              "title": "输入变量名称",
+                              "duration": 5
+                            }
+                          ],
+                          "startTime": "2026-01-19T12:35:58.983Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "7bc8589f092eefef1987-266ea377f813323b8fc8",
+                  "file": "data-sync.spec.js",
+                  "line": 253,
+                  "column": 9
+                },
+                {
+                  "title": "TC-DS-007: 配置自定义 JSON",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 2,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 4101,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "steps": [
+                            {
+                              "title": "点击打开配置面板",
+                              "duration": 8
+                            },
+                            {
+                              "title": "选择自定义 JSON",
+                              "duration": 10
+                            },
+                            {
+                              "title": "编辑 JSON 内容",
+                              "duration": 7
+                            }
+                          ],
+                          "startTime": "2026-01-19T12:36:03.101Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "7bc8589f092eefef1987-5b9f8697227ac2e10186",
+                  "file": "data-sync.spec.js",
+                  "line": 279,
+                  "column": 9
+                },
+                {
+                  "title": "TC-DS-008: 配置请求头",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 2,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 4114,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "steps": [
+                            {
+                              "title": "点击打开配置面板",
+                              "duration": 43
+                            },
+                            {
+                              "title": "切换到请求头标签",
+                              "duration": 8
+                            },
+                            {
+                              "title": "添加认证头",
+                              "duration": 23
+                            }
+                          ],
+                          "startTime": "2026-01-19T12:36:07.228Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "7bc8589f092eefef1987-f30855f06c829beabe27",
+                  "file": "data-sync.spec.js",
+                  "line": 309,
+                  "column": 9
+                },
+                {
+                  "title": "TC-DS-009: 配置响应处理",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 2,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 4086,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "steps": [
+                            {
+                              "title": "点击打开配置面板",
+                              "duration": 7
+                            },
+                            {
+                              "title": "切换到响应处理标签",
+                              "duration": 13
+                            },
+                            {
+                              "title": "启用保存响应到变量",
+                              "duration": 5
+                            },
+                            {
+                              "title": "输入变量名称",
+                              "duration": 9
+                            }
+                          ],
+                          "startTime": "2026-01-19T12:36:11.364Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "7bc8589f092eefef1987-80dc1657c9e97486d01a",
+                  "file": "data-sync.spec.js",
+                  "line": 350,
+                  "column": 9
+                },
+                {
+                  "title": "TC-DS-010: 配置批量发送",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 2,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 4110,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "steps": [
+                            {
+                              "title": "点击打开配置面板",
+                              "duration": 5
+                            },
+                            {
+                              "title": "选择批量发送格式",
+                              "duration": 6
+                            },
+                            {
+                              "title": "配置批次大小",
+                              "duration": 6
+                            }
+                          ],
+                          "startTime": "2026-01-19T12:36:15.467Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "7bc8589f092eefef1987-d97a7ab40f351f8d1fec",
+                  "file": "data-sync.spec.js",
+                  "line": 388,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "Data Sync 边界情况测试",
+              "file": "data-sync.spec.js",
+              "line": 416,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "TC-DS-011: 空 URL 测试",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 2,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 3538,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "steps": [
+                            {
+                              "title": "添加 Data Sync 块",
+                              "duration": 37
+                            },
+                            {
+                              "title": "不填写 URL 尝试运行",
+                              "duration": 7
+                            },
+                            {
+                              "title": "验证错误提示",
+                              "duration": 1
+                            }
+                          ],
+                          "startTime": "2026-01-19T12:36:19.594Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "7bc8589f092eefef1987-c9c60781821dbf5dc376",
+                  "file": "data-sync.spec.js",
+                  "line": 417,
+                  "column": 9
+                },
+                {
+                  "title": "TC-DS-012: 无效 URL 测试",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 2,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 4528,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "steps": [
+                            {
+                              "title": "添加 Data Sync 块",
+                              "duration": 57
+                            },
+                            {
+                              "title": "填写无效 URL",
+                              "duration": 8
+                            },
+                            {
+                              "title": "尝试运行",
+                              "duration": 1009
+                            },
+                            {
+                              "title": "验证错误提示",
+                              "duration": 1
+                            }
+                          ],
+                          "startTime": "2026-01-19T12:36:23.153Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "7bc8589f092eefef1987-92e795eca68fb4c811ba",
+                  "file": "data-sync.spec.js",
+                  "line": 448,
+                  "column": 9
+                },
+                {
+                  "title": "TC-DS-013: 无效 JSON 测试",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 2,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 4647,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "steps": [
+                            {
+                              "title": "添加 Data Sync 块",
+                              "duration": 67
+                            },
+                            {
+                              "title": "选择自定义 JSON",
+                              "duration": 5
+                            },
+                            {
+                              "title": "填写无效 JSON",
+                              "duration": 8
+                            },
+                            {
+                              "title": "尝试运行",
+                              "duration": 1014
+                            },
+                            {
+                              "title": "验证 JSON 错误提示",
+                              "duration": 1
+                            }
+                          ],
+                          "startTime": "2026-01-19T12:36:27.706Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "7bc8589f092eefef1987-d6e60afe29a0a3af7af7",
+                  "file": "data-sync.spec.js",
+                  "line": 486,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "Data Sync 回退连接测试",
+              "file": "data-sync.spec.js",
+              "line": 533,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "TC-DS-014: 配置回退连接",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 2,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 3546,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "steps": [
+                            {
+                              "title": "添加 Data Sync 块",
+                              "duration": 41
+                            },
+                            {
+                              "title": "添加回退连接",
+                              "duration": 11
+                            },
+                            {
+                              "title": "验证回退连接已建立",
+                              "duration": 0
+                            }
+                          ],
+                          "startTime": "2026-01-19T12:36:32.372Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "7bc8589f092eefef1987-d6b01c81e42f49b433c6",
+                  "file": "data-sync.spec.js",
+                  "line": 534,
+                  "column": 9
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Data Sync API 集成测试",
+          "file": "data-sync.spec.js",
+          "line": 573,
           "column": 9,
           "specs": [
             {
-              "title": "验证扩展加载成功",
+              "title": "TC-DS-015: 与提取数据块配合使用",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3589,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "添加提取数据块",
+                          "duration": 50
+                        },
+                        {
+                          "title": "添加 Data Sync 块",
+                          "duration": 9
+                        },
+                        {
+                          "title": "连接两个块",
+                          "duration": 10
+                        },
+                        {
+                          "title": "配置 Data Sync 使用表格数据",
+                          "duration": 9
+                        }
+                      ],
+                      "startTime": "2026-01-19T12:36:35.970Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "7bc8589f092eefef1987-50e6d778f33f2790415b",
+              "file": "data-sync.spec.js",
+              "line": 594,
+              "column": 7
+            },
+            {
+              "title": "TC-DS-016: 与循环块配合使用",
               "ok": false,
               "tags": [],
               "tests": [
@@ -106,49 +943,73 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 0,
+                      "workerIndex": 2,
                       "parallelIndex": 0,
                       "status": "failed",
-                      "duration": 1997,
+                      "duration": 13647,
                       "error": {
-                        "message": "Error: page.goto: Target page, context or browser has been closed\nCall log:\n\u001b[2m  - navigating to \"chrome://extensions/\", waiting until \"load\"\u001b[22m\n",
-                        "stack": "Error: page.goto: Target page, context or browser has been closed\nCall log:\n\u001b[2m  - navigating to \"chrome://extensions/\", waiting until \"load\"\u001b[22m\n\n    at D:\\codespace\\automa\\tests\\e2e\\simple.spec.js:11:16",
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Data Sync, text=数据同步').first()\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Data Sync, text=数据同步').first()\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Data Sync, text=数据同步').first()\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Data Sync, text=数据同步').first()\u001b[22m\n\n    at D:\\codespace\\automa\\tests\\e2e\\data-sync.spec.js:680:35\n    at D:\\codespace\\automa\\tests\\e2e\\data-sync.spec.js:675:16",
                         "location": {
-                          "file": "D:\\codespace\\automa\\tests\\e2e\\simple.spec.js",
-                          "column": 16,
-                          "line": 11
+                          "file": "D:\\codespace\\automa\\tests\\e2e\\data-sync.spec.js",
+                          "column": 35,
+                          "line": 680
                         },
-                        "snippet": "\u001b[0m \u001b[90m  9 |\u001b[39m   test(\u001b[32m'验证扩展加载成功'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 10 |\u001b[39m     \u001b[90m// 访问Chrome扩展管理页面\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 11 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'chrome://extensions/'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 12 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForLoadState(\u001b[32m'domcontentloaded'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 13 |\u001b[39m     \n \u001b[90m 14 |\u001b[39m     \u001b[90m// 验证扩展列表中存在Automa扩展\u001b[39m\u001b[0m"
+                        "snippet": "\u001b[0m \u001b[90m 678 |\u001b[39m         \u001b[33m.\u001b[39mlocator(\u001b[32m'text=Data Sync, text=数据同步'\u001b[39m)\n \u001b[90m 679 |\u001b[39m         \u001b[33m.\u001b[39mfirst()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 680 |\u001b[39m       \u001b[36mawait\u001b[39m expect(dataSyncBlock)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                   \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 681 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 682 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 683 |\u001b[39m })\u001b[33m;\u001b[39m\u001b[0m"
                       },
                       "errors": [
                         {
                           "location": {
-                            "file": "D:\\codespace\\automa\\tests\\e2e\\simple.spec.js",
-                            "column": 16,
-                            "line": 11
+                            "file": "D:\\codespace\\automa\\tests\\e2e\\data-sync.spec.js",
+                            "column": 35,
+                            "line": 680
                           },
-                          "message": "Error: page.goto: Target page, context or browser has been closed\nCall log:\n\u001b[2m  - navigating to \"chrome://extensions/\", waiting until \"load\"\u001b[22m\n\n\n\u001b[0m \u001b[90m  9 |\u001b[39m   test(\u001b[32m'验证扩展加载成功'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 10 |\u001b[39m     \u001b[90m// 访问Chrome扩展管理页面\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 11 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'chrome://extensions/'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 12 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForLoadState(\u001b[32m'domcontentloaded'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 13 |\u001b[39m     \n \u001b[90m 14 |\u001b[39m     \u001b[90m// 验证扩展列表中存在Automa扩展\u001b[39m\u001b[0m\n\u001b[2m    at D:\\codespace\\automa\\tests\\e2e\\simple.spec.js:11:16\u001b[22m"
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Data Sync, text=数据同步').first()\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Data Sync, text=数据同步').first()\u001b[22m\n\n\n\u001b[0m \u001b[90m 678 |\u001b[39m         \u001b[33m.\u001b[39mlocator(\u001b[32m'text=Data Sync, text=数据同步'\u001b[39m)\n \u001b[90m 679 |\u001b[39m         \u001b[33m.\u001b[39mfirst()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 680 |\u001b[39m       \u001b[36mawait\u001b[39m expect(dataSyncBlock)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                   \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 681 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 682 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 683 |\u001b[39m })\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at D:\\codespace\\automa\\tests\\e2e\\data-sync.spec.js:680:35\u001b[22m\n\u001b[2m    at D:\\codespace\\automa\\tests\\e2e\\data-sync.spec.js:675:16\u001b[22m"
                         }
                       ],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-01-19T11:16:24.591Z",
+                      "steps": [
+                        {
+                          "title": "添加循环块",
+                          "duration": 57
+                        },
+                        {
+                          "title": "添加 Data Sync 块",
+                          "duration": 13
+                        },
+                        {
+                          "title": "在循环内配置 Data Sync",
+                          "duration": 10017,
+                          "error": {
+                            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Data Sync, text=数据同步').first()\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Data Sync, text=数据同步').first()\u001b[22m\n",
+                            "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Data Sync, text=数据同步').first()\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Data Sync, text=数据同步').first()\u001b[22m\n\n    at D:\\codespace\\automa\\tests\\e2e\\data-sync.spec.js:680:35\n    at D:\\codespace\\automa\\tests\\e2e\\data-sync.spec.js:675:16",
+                            "location": {
+                              "file": "D:\\codespace\\automa\\tests\\e2e\\data-sync.spec.js",
+                              "column": 35,
+                              "line": 680
+                            },
+                            "snippet": "\u001b[0m \u001b[90m 678 |\u001b[39m         \u001b[33m.\u001b[39mlocator(\u001b[32m'text=Data Sync, text=数据同步'\u001b[39m)\n \u001b[90m 679 |\u001b[39m         \u001b[33m.\u001b[39mfirst()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 680 |\u001b[39m       \u001b[36mawait\u001b[39m expect(dataSyncBlock)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                   \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 681 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 682 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 683 |\u001b[39m })\u001b[33m;\u001b[39m\u001b[0m"
+                          }
+                        }
+                      ],
+                      "startTime": "2026-01-19T12:36:39.579Z",
                       "annotations": [],
                       "attachments": [],
                       "errorLocation": {
-                        "file": "D:\\codespace\\automa\\tests\\e2e\\simple.spec.js",
-                        "column": 16,
-                        "line": 11
+                        "file": "D:\\codespace\\automa\\tests\\e2e\\data-sync.spec.js",
+                        "column": 35,
+                        "line": 680
                       }
                     }
                   ],
                   "status": "unexpected"
                 }
               ],
-              "id": "e4b5c8d80389f648a894-6533286c99dd1f9c0479",
-              "file": "simple.spec.js",
-              "line": 9,
+              "id": "7bc8589f092eefef1987-826fa7b683236ca9c34e",
+              "file": "data-sync.spec.js",
+              "line": 650,
               "column": 7
             }
           ]
@@ -158,11 +1019,11 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-01-19T11:16:23.229Z",
-    "duration": 4747.772999999999,
-    "expected": 0,
+    "startTime": "2026-01-19T12:35:22.812Z",
+    "duration": 91129.54800000001,
+    "expected": 13,
     "skipped": 0,
-    "unexpected": 1,
+    "unexpected": 3,
     "flaky": 0
   }
 }
