@@ -6,12 +6,8 @@
     ]"
   >
     <!-- 悬浮球 & 智能提示 (折叠状态) -->
-    <div
-v-if="!isOpen" class="flex items-center space-x-3 pointer-events-auto"
->
-      <transition
-name="scale" appear
->
+    <div v-if="!isOpen" class="flex items-center space-x-3 pointer-events-auto">
+      <transition name="scale" appear>
         <button
           class="group flex h-10 w-10 items-center justify-center rounded-xl bg-gray-900/80 text-white shadow-lg shadow-black/20 transition-all hover:bg-blue-600 hover:scale-105 active:scale-95 border border-white/10 backdrop-blur-md"
           @click="toggleChat"
@@ -37,9 +33,7 @@ name="scale" appear
             class="ml-1 rounded p-0.5 text-gray-500 hover:bg-gray-700 hover:text-white"
             @click.stop="showPrompt = false"
           >
-            <v-remixicon
-name="riCloseLine" size="14"
-/>
+            <v-remixicon name="riCloseLine" size="14" />
           </button>
         </div>
       </transition>
@@ -93,7 +87,9 @@ name="riCloseLine" size="14"
                   'text-sm font-bold tracking-tight',
                   inline ? 'text-gray-800 dark:text-gray-100' : 'text-gray-100',
                 ]"
-              >AI Assistant</span>
+              >
+                AI Assistant
+              </span>
               <span
                 class="text-[10px] text-gray-400 font-mono flex items-center gap-1"
               >
@@ -139,9 +135,7 @@ name="riCloseLine" size="14"
               title="最小化"
               @click="toggleChat"
             >
-              <v-remixicon
-name="riSubtractLine" size="16"
-/>
+              <v-remixicon name="riSubtractLine" size="16" />
             </button>
           </div>
         </div>
@@ -160,10 +154,7 @@ name="riSubtractLine" size="16"
             <div
               class="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 border border-white/5 shadow-inner"
             >
-              <v-remixicon
-name="riMagicLine" class="text-blue-400"
-size="28"
-/>
+              <v-remixicon name="riMagicLine" class="text-blue-400" size="28" />
             </div>
             <h3 class="text-sm font-medium text-gray-200 mb-1">
               我是您的 AI 助手
@@ -202,9 +193,7 @@ size="28"
           </div>
 
           <!-- 加载状态 -->
-          <div
-v-if="isGenerating" class="flex items-start space-x-2"
->
+          <div v-if="isGenerating" class="flex items-start space-x-2">
             <div
               class="flex items-center space-x-1 rounded-xl bg-gray-800/50 px-3 py-2.5 border border-gray-700/30"
             >
@@ -292,11 +281,11 @@ v-if="isGenerating" class="flex items-start space-x-2"
 </template>
 
 <script setup>
-import { ref, watch, nextTick, onMounted, computed } from 'vue';
+import { ref, nextTick, onMounted } from 'vue';
 import aiService from '@/services/ai/AIService';
 import { useToast } from 'vue-toastification';
 
-const props = defineProps({
+defineProps({
   workflow: {
     type: Object,
     default: () => null,
@@ -377,7 +366,7 @@ async function sendMessage() {
     const result = await aiService.generateWorkflow(
       content,
       '', // targetUrl (optional)
-      (progress) => {
+      () => {
         // 这里可以处理进度消息，如果需要
       },
       null // pageContext (optional)
@@ -394,9 +383,9 @@ async function sendMessage() {
       error.value = result.error;
       // Do not push error to history to allow retry
     }
-  } catch (e) {
-    console.error(e);
-    error.value = e.message || '发生未知错误';
+  } catch (error) {
+    console.error(error);
+    error.value = error.message || '发生未知错误';
   } finally {
     isGenerating.value = false;
     scrollToBottom();
@@ -407,7 +396,7 @@ async function checkStatus() {
   try {
     const isHealthy = await aiService.initialize();
     ollamaStatus.value = isHealthy ? 'connected' : 'disconnected';
-  } catch (e) {
+  } catch {
     ollamaStatus.value = 'disconnected';
   }
 }

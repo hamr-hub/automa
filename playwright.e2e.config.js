@@ -81,8 +81,3 @@ export default defineConfig({
   ],
   webServer: false,
 });
-
-process.env.SUPABASE_URL = process.env.SUPABASE_URL || '';
-process.env.SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || '';
-process.env.OLLAMA_HOST = process.env.OLLAMA_HOST || 'http://localhost:11434';
-process.env.EXTENSION_ID = process.env.EXTENSION_ID || '';
