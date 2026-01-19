@@ -217,7 +217,7 @@
 
 <script setup>
 import { ref, watch, nextTick, onMounted, computed } from 'vue';
-import LangGraphAgent from '@/services/ai/LangGraphAgent';
+import aiService from '@/services/ai/AIService';
 import { useToast } from 'vue-toastification';
 
 const props = defineProps({
@@ -243,8 +243,6 @@ const isGenerating = ref(false);
 const error = ref(null);
 const history = ref([]);
 const ollamaStatus = ref('checking');
-
-const agent = new LangGraphAgent();
 
 // 自动调整输入框高度
 function autoResize() {
@@ -278,7 +276,6 @@ function scrollToBottom() {
 
 function clearHistory() {
   history.value = [];
-  agent.clearHistory();
   error.value = null;
 }
 
@@ -295,15 +292,19 @@ async function sendMessage() {
   scrollToBottom();
 
   try {
-    // 传递当前工作流作为上下文
-    const result = await agent.chat(
+    // 确保 aiService 已经初始化
+    if (!aiService.initialized) {
+      await aiService.initialize();
+    }
+    
+    // 通过 aiService 调用，会自动使用 ollama 配置
+    const result = await aiService.generateWorkflow(
       content,
       '', // targetUrl (optional)
       (progress) => {
           // 这里可以处理进度消息，如果需要
       },
-      null, // pageContext (optional)
-      props.workflow // Inject current workflow!
+      null // pageContext (optional)
     );
 
     if (result.success) {
@@ -327,8 +328,12 @@ async function sendMessage() {
 }
 
 async function checkStatus() {
-    const isHealthy = await agent.initialize();
-    ollamaStatus.value = isHealthy ? 'connected' : 'disconnected';
+    try {
+      const isHealthy = await aiService.initialize();
+      ollamaStatus.value = isHealthy ? 'connected' : 'disconnected';
+    } catch(e) {
+      ollamaStatus.value = 'disconnected';
+    }
 }
 
 onMounted(() => {

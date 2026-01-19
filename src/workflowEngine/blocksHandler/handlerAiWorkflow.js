@@ -95,6 +95,11 @@ async function aiWorkflow(block, { refData }) {
   Object.assign(replacedValueList, renderedSystemPrompt.list);
 
   try {
+    // 确保 AIService 已初始化（会自动读取用户的 ollama 配置）
+    if (!aiService.initialized) {
+      await aiService.initialize();
+    }
+
     const messages = [];
     if (renderedSystemPrompt.value) {
       messages.push({ role: 'system', content: renderedSystemPrompt.value });
