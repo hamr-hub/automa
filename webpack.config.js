@@ -119,7 +119,7 @@ const options = {
         ],
       },
       {
-        test: /\.(json5?|ya?ml)$/, // target json, json5, yaml and yml files
+        test: /\.(ya?ml)$/, // only target yaml and yml files, not json
         type: 'javascript/auto',
         // Use `Rule.include` to specify the files of locale messages to be pre-compiled
         include: [path.resolve(__dirname, './src/locales')],
