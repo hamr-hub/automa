@@ -190,25 +190,26 @@ test.describe('Workflow Recording Functionality', () => {
     await page.goto('https://example.com', { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(1000);
 
-    // Simulate recording state by interacting with storage
-    const storage = await page.evaluate(async () => {
-      await chrome.storage.local.set({
-        isRecording: true,
-        recording: {
-          name: 'Test Recording',
-          flows: [
-            {
-              id: 'new-tab',
-              description: 'example.com',
-              data: { url: 'https://example.com' },
-            },
-          ],
-          activeTab: { id: 1, url: 'https://example.com' },
-        },
+    // Use background page to set storage (external pages can't access chrome.storage)
+    const serviceWorkers = browserContext.serviceWorkers();
+    if (serviceWorkers.length > 0) {
+      await serviceWorkers[0].evaluate(async () => {
+        await chrome.storage.local.set({
+          isRecording: true,
+          recording: {
+            name: 'Test Recording',
+            flows: [
+              {
+                id: 'new-tab',
+                description: 'example.com',
+                data: { url: 'https://example.com' },
+              },
+            ],
+            activeTab: { id: 1, url: 'https://example.com' },
+          },
+        });
       });
-      return { success: true };
-    });
-    console.log('Storage set:', storage);
+    }
 
     // Wait for recording to be detected
     await page.waitForTimeout(1000);
@@ -221,29 +222,31 @@ test.describe('Workflow Recording Functionality', () => {
   });
 
   test('Test 4: Save Workflow', async () => {
-    // Create a test recording in storage
-    const result = await page.evaluate(async () => {
-      await chrome.storage.local.set({
-        isRecording: true,
-        recording: {
-          name: 'Save Test Workflow',
-          flows: [
-            {
-              id: 'new-tab',
-              description: 'https://example.com',
-              data: { url: 'https://example.com' },
-            },
-            {
-              id: 'event-click',
-              description: 'Example Domain',
-              data: { selector: 'body' },
-            },
-          ],
-          activeTab: { id: 1, url: 'https://example.com' },
-        },
+    // Create a test recording in storage using background page
+    const serviceWorkers = browserContext.serviceWorkers();
+    if (serviceWorkers.length > 0) {
+      await serviceWorkers[0].evaluate(async () => {
+        await chrome.storage.local.set({
+          isRecording: true,
+          recording: {
+            name: 'Save Test Workflow',
+            flows: [
+              {
+                id: 'new-tab',
+                description: 'https://example.com',
+                data: { url: 'https://example.com' },
+              },
+              {
+                id: 'event-click',
+                description: 'Example Domain',
+                data: { selector: 'body' },
+              },
+            ],
+            activeTab: { id: 1, url: 'https://example.com' },
+          },
+        });
       });
-      return { success: true };
-    });
+    }
 
     // Navigate to the recording page
     const recordingUrl = `chrome-extension://${extensionId}/newtab.html#/recording`;
@@ -260,23 +263,26 @@ test.describe('Workflow Recording Functionality', () => {
   });
 
   test('Test 5: Cancel Recording', async () => {
-    // Set up a recording with flows
-    await page.evaluate(async () => {
-      await chrome.storage.local.set({
-        isRecording: true,
-        recording: {
-          name: 'Cancel Test Workflow',
-          flows: [
-            {
-              id: 'new-tab',
-              description: 'https://example.com',
-              data: { url: 'https://example.com' },
-            },
-          ],
-          activeTab: { id: 1, url: 'https://example.com' },
-        },
+    // Set up a recording with flows using background page
+    const serviceWorkers = browserContext.serviceWorkers();
+    if (serviceWorkers.length > 0) {
+      await serviceWorkers[0].evaluate(async () => {
+        await chrome.storage.local.set({
+          isRecording: true,
+          recording: {
+            name: 'Cancel Test Workflow',
+            flows: [
+              {
+                id: 'new-tab',
+                description: 'https://example.com',
+                data: { url: 'https://example.com' },
+              },
+            ],
+            activeTab: { id: 1, url: 'https://example.com' },
+          },
+        });
       });
-    });
+    }
 
     // Navigate to recording page
     await page.goto(
@@ -307,23 +313,26 @@ test.describe('Workflow Recording Functionality', () => {
     await page.goto('https://example.com', { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(500);
 
-    // Set recording state
-    await page.evaluate(async () => {
-      await chrome.storage.local.set({
-        isRecording: true,
-        recording: {
-          name: 'Cross Page Test',
-          flows: [
-            {
-              id: 'new-tab',
-              description: 'https://example.com',
-              data: { url: 'https://example.com' },
-            },
-          ],
-          activeTab: { id: 1, url: 'https://example.com' },
-        },
+    // Set recording state using background page
+    const serviceWorkers = browserContext.serviceWorkers();
+    if (serviceWorkers.length > 0) {
+      await serviceWorkers[0].evaluate(async () => {
+        await chrome.storage.local.set({
+          isRecording: true,
+          recording: {
+            name: 'Cross Page Test',
+            flows: [
+              {
+                id: 'new-tab',
+                description: 'https://example.com',
+                data: { url: 'https://example.com' },
+              },
+            ],
+            activeTab: { id: 1, url: 'https://example.com' },
+          },
+        });
       });
-    });
+    }
 
     // Navigate to second page
     await page.goto('https://httpbin.org/html', {
@@ -332,17 +341,19 @@ test.describe('Workflow Recording Functionality', () => {
     await page.waitForTimeout(1000);
 
     // Add another flow to simulate cross-page recording
-    await page.evaluate(async () => {
-      const { recording } = await chrome.storage.local.get('recording');
-      if (recording) {
-        recording.flows.push({
-          id: 'new-tab',
-          description: 'https://httpbin.org/html',
-          data: { url: 'https://httpbin.org/html' },
-        });
-        await chrome.storage.local.set({ recording });
-      }
-    });
+    if (serviceWorkers.length > 0) {
+      await serviceWorkers[0].evaluate(async () => {
+        const { recording } = await chrome.storage.local.get('recording');
+        if (recording) {
+          recording.flows.push({
+            id: 'new-tab',
+            description: 'https://httpbin.org/html',
+            data: { url: 'https://httpbin.org/html' },
+          });
+          await chrome.storage.local.set({ recording });
+        }
+      });
+    }
 
     await page.waitForTimeout(1000);
 
@@ -357,16 +368,20 @@ test.describe('Workflow Recording Functionality', () => {
       data: { selector: `#element-${i}` },
     }));
 
-    await page.evaluate(async () => {
-      await chrome.storage.local.set({
-        isRecording: true,
-        recording: {
-          name: 'Performance Test',
-          flows: manyActions,
-          activeTab: { id: 1, url: 'https://example.com' },
-        },
-      });
-    });
+    // Set recording state using background page
+    const serviceWorkers = browserContext.serviceWorkers();
+    if (serviceWorkers.length > 0) {
+      await serviceWorkers[0].evaluate(async (actions) => {
+        await chrome.storage.local.set({
+          isRecording: true,
+          recording: {
+            name: 'Performance Test',
+            flows: actions,
+            activeTab: { id: 1, url: 'https://example.com' },
+          },
+        });
+      }, manyActions);
+    }
 
     // Load recording page
     await page.goto(
@@ -391,23 +406,28 @@ test.describe('Workflow Recording Functionality', () => {
   });
 
   test('Test 8: Verify Recording Badge Display', async () => {
-    // Check if extension badge shows "rec" when recording
-    await page.evaluate(async () => {
-      // Set recording state
-      const action = chrome.action || chrome.browserAction;
-      await action.setBadgeBackgroundColor({ color: '#ef4444' });
-      await action.setBadgeText({ text: 'rec' });
-    });
+    // Check if extension badge shows "rec" when recording using background page
+    const serviceWorkers = browserContext.serviceWorkers();
+    if (serviceWorkers.length > 0) {
+      await serviceWorkers[0].evaluate(async () => {
+        const action = chrome.action || chrome.browserAction;
+        await action.setBadgeBackgroundColor({ color: '#ef4444' });
+        await action.setBadgeText({ text: 'rec' });
+      });
+    }
 
     // Wait a moment
     await page.waitForTimeout(500);
 
-    // Check badge is set (this might not be visible in headless mode)
-    const badgeText = await page.evaluate(async () => {
-      const action = chrome.action || chrome.browserAction;
-      const result = await action.getBadgeText({});
-      return result;
-    });
+    // Check badge is set using background page
+    let badgeText = '';
+    if (serviceWorkers.length > 0) {
+      badgeText = await serviceWorkers[0].evaluate(async () => {
+        const action = chrome.action || chrome.browserAction;
+        const result = await action.getBadgeText({});
+        return result;
+      });
+    }
 
     console.log(`Badge text: "${badgeText}"`);
     expect(badgeText).toBe('rec');
@@ -476,28 +496,31 @@ test.describe('Workflow Recorder Component Integration', () => {
   });
 
   test('WorkflowRecorder component renders correctly', async () => {
-    // Set recording state
-    await page.evaluate(async () => {
-      await chrome.storage.local.set({
-        isRecording: true,
-        recording: {
-          name: 'Test Workflow',
-          flows: [
-            {
-              id: 'new-tab',
-              description: 'https://example.com',
-              data: { url: 'https://example.com' },
-            },
-            {
-              id: 'event-click',
-              description: 'Click button',
-              data: { selector: '#submit' },
-            },
-          ],
-          activeTab: { id: 1, url: 'https://example.com' },
-        },
+    // Set recording state using background page
+    const serviceWorkers = browserContext.serviceWorkers();
+    if (serviceWorkers.length > 0) {
+      await serviceWorkers[0].evaluate(async () => {
+        await chrome.storage.local.set({
+          isRecording: true,
+          recording: {
+            name: 'Test Workflow',
+            flows: [
+              {
+                id: 'new-tab',
+                description: 'https://example.com',
+                data: { url: 'https://example.com' },
+              },
+              {
+                id: 'event-click',
+                description: 'Click button',
+                data: { selector: '#submit' },
+              },
+            ],
+            activeTab: { id: 1, url: 'https://example.com' },
+          },
+        });
       });
-    });
+    }
 
     // Load a page with content script (where recorder component should be)
     await page.goto('https://example.com', { waitUntil: 'domcontentloaded' });
@@ -536,26 +559,32 @@ test.describe('Workflow Recorder Component Integration', () => {
       },
     ];
 
-    // Set initial state
-    await page.evaluate(async (flows) => {
-      await chrome.storage.local.set({
-        isRecording: true,
-        recording: {
-          name: 'Sync Test',
-          flows: flows,
-          activeTab: { id: 1, url: 'https://example.com' },
-        },
-      });
-    }, testFlows);
+    // Set initial state using background page
+    const serviceWorkers = browserContext.serviceWorkers();
+    if (serviceWorkers.length > 0) {
+      await serviceWorkers[0].evaluate(async (flows) => {
+        await chrome.storage.local.set({
+          isRecording: true,
+          recording: {
+            name: 'Sync Test',
+            flows: flows,
+            activeTab: { id: 1, url: 'https://example.com' },
+          },
+        });
+      }, testFlows);
+    }
 
-    // Get state back
-    const state = await page.evaluate(async () => {
-      const result = await chrome.storage.local.get([
-        'isRecording',
-        'recording',
-      ]);
-      return result;
-    });
+    // Get state back using background page
+    let state = { isRecording: false, recording: null };
+    if (serviceWorkers.length > 0) {
+      state = await serviceWorkers[0].evaluate(async () => {
+        const result = await chrome.storage.local.get([
+          'isRecording',
+          'recording',
+        ]);
+        return result;
+      });
+    }
 
     console.log('State retrieved:', {
       isRecording: state.isRecording,
@@ -565,22 +594,27 @@ test.describe('Workflow Recorder Component Integration', () => {
     expect(state.isRecording).toBe(true);
     expect(state.recording?.flows?.length).toBe(3);
 
-    // Update state
-    await page.evaluate(async () => {
-      const { recording } = await chrome.storage.local.get('recording');
-      recording.flows.push({
-        id: 'press-key',
-        description: 'Press: Enter',
-        data: { keys: 'Enter' },
+    // Update state using background page
+    if (serviceWorkers.length > 0) {
+      await serviceWorkers[0].evaluate(async () => {
+        const { recording } = await chrome.storage.local.get('recording');
+        recording.flows.push({
+          id: 'press-key',
+          description: 'Press: Enter',
+          data: { keys: 'Enter' },
+        });
+        await chrome.storage.local.set({ recording });
       });
-      await chrome.storage.local.set({ recording });
-    });
+    }
 
-    // Verify update
-    const updatedState = await page.evaluate(async () => {
-      const result = await chrome.storage.local.get(['recording']);
-      return result;
-    });
+    // Verify update using background page
+    let updatedState = { recording: { flows: [] } };
+    if (serviceWorkers.length > 0) {
+      updatedState = await serviceWorkers[0].evaluate(async () => {
+        const result = await chrome.storage.local.get(['recording']);
+        return result;
+      });
+    }
 
     expect(updatedState.recording.flows.length).toBe(4);
     console.log('State synchronization test completed successfully');
