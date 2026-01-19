@@ -1,19 +1,22 @@
 <template>
   <ui-card
-    class="group relative flex w-full items-center space-x-3 overflow-hidden rounded-xl bg-white p-3 shadow-sm transition-all duration-200 hover:shadow-lg hover:ring-2 hover:ring-blue-500/30 dark:bg-gray-800 dark:hover:ring-blue-400/30"
+    class="group relative flex w-full items-center space-x-3 overflow-hidden rounded-xl p-3 transition-all duration-300 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 shadow-md hover:shadow-tech-glow-lg hover:scale-[1.02] border border-gray-200/50 dark:border-tech-blue-900/30 hover:border-tech-blue-400/50 dark:hover:border-tech-purple-500/50"
   >
     <!-- Prominent Execute Button -->
     <button
       v-if="!workflow.isDisabled"
-      class="group/btn flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/25 transition-all duration-200 hover:from-blue-600 hover:to-blue-700 hover:scale-105 active:scale-95"
-      :class="{ 'animate-pulse': isExecuting }"
+      class="group/btn flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-tech-blue-500 to-tech-purple-600 text-white shadow-tech-glow-sm transition-all duration-300 hover:shadow-tech-glow hover:scale-110 active:scale-95 relative overflow-hidden"
+      :class="{ 'animate-glow-pulse': isExecuting }"
       title="Execute workflow"
       @click.stop="$emit('execute', workflow)"
     >
+      <!-- Shimmer effect -->
+      <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover/btn:translate-x-[100%] transition-transform duration-700"></div>
       <v-remixicon 
         :name="isExecuting ? 'riLoader4Line' : 'riPlayLine'"
         :class="{ 'animate-spin': isExecuting }"
-        size="20" 
+        size="20"
+        class="relative z-10" 
       />
     </button>
 
@@ -75,8 +78,8 @@
       <!-- Quick Pin Button -->
       <button
         v-if="tab === 'local'"
-        class="flex h-9 w-9 items-center justify-center rounded-lg transition-all duration-200"
-        :class="pinned ? 'text-blue-500 bg-blue-50 dark:bg-blue-500/10' : 'text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'"
+        class="flex h-9 w-9 items-center justify-center rounded-lg transition-all duration-300 hover:scale-110"
+        :class="pinned ? 'text-tech-blue-500 bg-tech-blue-50 dark:bg-tech-blue-500/20 shadow-tech-glow-sm' : 'text-gray-400 hover:bg-gradient-tech dark:hover:bg-gradient-tech-dark hover:text-tech-blue-500'"
         :title="pinned ? 'Unpin workflow' : 'Pin workflow'"
         @click.stop="$emit('togglePin')"
       >
@@ -86,7 +89,7 @@
       <!-- More Options -->
       <ui-popover>
         <template #trigger>
-          <button class="flex h-9 w-9 items-center justify-center rounded-lg text-gray-500 transition-all duration-200 hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-700 dark:hover:text-gray-100">
+          <button class="flex h-9 w-9 items-center justify-center rounded-lg text-gray-500 transition-all duration-300 hover:bg-gradient-tech dark:hover:bg-gradient-tech-dark hover:text-tech-blue-600 dark:hover:text-tech-blue-400 hover:scale-110">
             <v-remixicon name="riMore2Line" size="18" />
           </button>
         </template>

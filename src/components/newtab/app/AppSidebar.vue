@@ -1,6 +1,6 @@
 <template>
   <aside
-    class="fixed left-0 top-0 z-50 flex h-screen w-16 flex-col items-center bg-white py-6 dark:bg-gray-800"
+    class="fixed left-0 top-0 z-50 flex h-screen w-16 flex-col items-center py-6 bg-gradient-to-b from-white via-gray-50 to-white dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 border-r border-gray-200 dark:border-tech-blue-900/30 shadow-lg dark:shadow-tech-glow-sm backdrop-blur-xl"
   >
     <img
       :title="`v${extensionVersion}`"
@@ -32,16 +32,16 @@
           "
           :class="{ 'is-active': isActive }"
           :href="tab.id === 'log' ? '#' : href"
-          class="tab relative z-10 flex w-full items-center justify-center"
+          class="tab relative z-10 flex w-full items-center justify-center transition-all duration-300 hover:scale-110"
           @click="navigateLink($event, navigate, tab)"
           @mouseenter="hoverHandler"
         >
-          <div class="inline-block rounded-lg p-2 transition-colors">
+          <div class="inline-block rounded-lg p-2 transition-all duration-300">
             <v-remixicon :name="tab.icon" />
           </div>
           <span
             v-if="tab.id === 'log' && runningWorkflowsLen > 0"
-            class="absolute -top-1 right-2 h-4 w-4 rounded-full bg-accent text-xs text-white dark:text-black"
+            class="absolute -top-1 right-2 h-4 w-4 rounded-full bg-tech-blue-500 text-xs text-white dark:text-black shadow-tech-glow-sm animate-glow-pulse"
           >
             {{ runningWorkflowsLen }}
           </span>
@@ -270,11 +270,23 @@ async function handleSignOut() {
   top: 0;
   height: 100%;
   width: 4px;
-  background-color: var(--color-accent);
+  background: linear-gradient(180deg, #3b82f6 0%, #9333ea 100%);
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.8), 0 0 20px rgba(147, 51, 234, 0.6);
+  border-radius: 4px 0 0 4px;
+  animation: glow-pulse 2s ease-in-out infinite;
   @media (prefers-color-scheme: dark) {
     & {
-      background-color: rgb(243 244 246);
+      box-shadow: 0 0 15px rgba(59, 130, 246, 1), 0 0 30px rgba(147, 51, 234, 0.8);
     }
+  }
+}
+
+@keyframes glow-pulse {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.8), 0 0 20px rgba(147, 51, 234, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 15px rgba(59, 130, 246, 1), 0 0 30px rgba(147, 51, 234, 0.8);
   }
 }
 </style>

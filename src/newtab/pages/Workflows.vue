@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col">
-    <div class="flex h-10 items-center border-b">
+    <div class="flex h-10 items-center border-b border-gray-200 dark:border-tech-blue-900/30 bg-gradient-to-r from-transparent via-tech-blue-50/30 to-transparent dark:from-transparent dark:via-tech-blue-900/20 dark:to-transparent">
       <draggable
         v-model="state.tabs"
         item-key="id"
@@ -11,14 +11,14 @@
             :value="tab.id"
             :class="[
               state.activeTab === tab.id
-                ? 'border-accent dark:border-accent'
+                ? 'border-tech-blue-500 dark:border-tech-purple-500'
                 : 'border-transparent dark:border-transparent',
               {
-                'bg-box-transparent text-black dark:text-gray-100':
+                'bg-gradient-tech dark:bg-gradient-tech-dark text-black dark:text-gray-100 shadow-tech-glow-sm':
                   state.activeTab === tab.id,
               },
             ]"
-            class="hoverable flex h-full cursor-default items-center border-b-2 px-4 focus:ring-0"
+            class="hoverable flex h-full cursor-default items-center border-b-2 px-4 focus:ring-0 transition-all duration-300"
             @click="state.activeTab = tab.id"
           >
             <p
@@ -28,7 +28,7 @@
               {{ tab.name }}
             </p>
             <span
-              class="hoverable rounded-full p-0.5 text-gray-600 dark:text-gray-300"
+              class="hoverable rounded-full p-0.5 text-gray-600 dark:text-gray-300 transition-all duration-200 hover:bg-red-500/20 hover:text-red-500 dark:hover:bg-red-500/30 dark:hover:text-red-400"
               title="Close tab"
               @click.stop="closeTab(index, tab)"
             >
@@ -38,7 +38,7 @@ size="20" />
           </button>
         </template>
       </draggable>
-      <button class="h-full px-2"
+      <button class="h-full px-2 hover:bg-tech-blue-50 dark:hover:bg-tech-blue-900/30 transition-all duration-200"
 @click="addTab()">
         <v-remixicon name="riAddLine" />
       </button>
