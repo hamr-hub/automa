@@ -332,10 +332,9 @@ onBeforeUnmount(() => {
 });
 </script>
 <style>
-@reference "tailwindcss";
-
 @import '@vue-flow/core/dist/style.css';
 @import '@vue-flow/core/dist/theme-default.css';
+@reference "tailwindcss";
 
 .control-button {
   @apply p-2 rounded-lg bg-white dark:bg-gray-800 transition-colors;

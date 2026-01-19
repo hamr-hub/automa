@@ -240,7 +240,6 @@
 import { ref, computed, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useToast } from 'vue-toastification';
-import GlobalWorkflowService from '@/services/workflowSync/GlobalWorkflowService';
 import { useWorkflowStore } from '@/stores/workflow';
 
 const { t } = useI18n();
@@ -282,6 +281,11 @@ async function loadWorkflows(reset = false) {
   loading.value = true;
 
   try {
+    // 动态导入GlobalWorkflowService
+    const { default: GlobalWorkflowService } = await import(
+      '@/services/workflowSync/GlobalWorkflowService'
+    );
+    
     const result = await GlobalWorkflowService.getWorkflows({
       limit: 12,
       offset: offset.value,
@@ -330,6 +334,11 @@ function openWorkflowDetails(workflow) {
 // 导入工作流
 async function importWorkflow(workflow) {
   try {
+    // 动态导入GlobalWorkflowService
+    const { default: GlobalWorkflowService } = await import(
+      '@/services/workflowSync/GlobalWorkflowService'
+    );
+    
     const imported = await GlobalWorkflowService.importToLocal(workflow.id);
 
     if (imported) {
@@ -347,6 +356,11 @@ async function importWorkflow(workflow) {
 // 切换点赞
 async function toggleLike(workflow) {
   try {
+    // 动态导入GlobalWorkflowService
+    const { default: GlobalWorkflowService } = await import(
+      '@/services/workflowSync/GlobalWorkflowService'
+    );
+    
     const result = await GlobalWorkflowService.toggleLike(workflow.id);
 
     if (result) {
@@ -367,6 +381,11 @@ onMounted(async () => {
   loading.value = true;
 
   try {
+    // 动态导入GlobalWorkflowService
+    const { default: GlobalWorkflowService } = await import(
+      '@/services/workflowSync/GlobalWorkflowService'
+    );
+    
     // 加载分类
     categories.value = GlobalWorkflowService.getCategories();
 
