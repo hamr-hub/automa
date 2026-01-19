@@ -15,8 +15,8 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 1,
   workers: 1,
   reporter: [
-    ['html', { outputFolder: 'test-results/html' }],
-    ['json', { outputFile: 'test-results/results.json' }],
+    ['html', { outputFolder: 'test-results/batch-delete-html' }],
+    ['json', { outputFile: 'test-results/batch-delete-results.json' }],
     ['line'],
   ],
   use: {

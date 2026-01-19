@@ -27,11 +27,13 @@ class="mr-2" size="20" />
           :is-hosted="userStore.hostedWorkflows[workflow.id]"
           :is-shared="sharedWorkflowStore.getById(workflow.id)"
           :is-pinned="true"
+          :is-selected="state.selectedForBatch.includes(workflow.id)"
           :menu="menu"
           @dragstart="onDragStart"
           @execute="RendererWorkflowService.executeWorkflow(workflow)"
           @toggle-pin="togglePinWorkflow(workflow)"
           @toggle-disable="toggleDisableWorkflow(workflow)"
+          @toggle-select="toggleSelectWorkflow(workflow.id)"
         />
       </div>
     </div>

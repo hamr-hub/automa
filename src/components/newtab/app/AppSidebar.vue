@@ -48,7 +48,7 @@
         </a>
       </router-link>
     </div>
-    <hr class="my-4 w-8/12" >
+    <hr class="my-4 w-8/12" />
     <button
       v-tooltip:right.group="$t('home.elementSelector.name')"
       class="focus:ring-0"
@@ -69,10 +69,17 @@
       <template #trigger>
         <span class="bg-box-transparent inline-block rounded-full p-1">
           <img
+            v-if="userStore.user.avatar_url"
             :src="userStore.user.avatar_url"
             height="32"
             width="32"
             class="rounded-full"
+          />
+          <v-remixicon
+            v-else
+            name="riAccountCircleLine"
+            class="text-gray-500 dark:text-gray-400"
+            size="32"
           />
         </span>
       </template>
@@ -89,19 +96,17 @@
             {{ userStore.user.subscription }}
           </span>
         </div>
-        <hr >
+        <hr />
         <button
           class="w-full rounded-md bg-red-50 px-3 py-2 text-left text-sm text-red-600 hover:bg-red-100 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/30"
           @click="handleSignOut"
         >
-          <v-remixicon name="riLogoutBoxLine"
-class="mr-2 inline-block" />
+          <v-remixicon name="riLogoutBoxLine" class="mr-2 inline-block" />
           {{ t('auth.signOut', '退出登录') }}
         </button>
       </div>
     </ui-popover>
-    <ui-popover trigger="mouseenter"
-placement="right" class="my-4">
+    <ui-popover trigger="mouseenter" placement="right" class="my-4">
       <template #trigger>
         <v-remixicon name="riGroupLine" />
       </template>
@@ -118,16 +123,13 @@ placement="right" class="my-4">
           target="_blank"
           rel="noopener"
         >
-          <v-remixicon :name="item.icon"
-class="mr-2" />
+          <v-remixicon :name="item.icon" class="mr-2" />
           {{ item.name }}
         </ui-list-item>
       </ui-list>
     </ui-popover>
-    <router-link v-tooltip:right.group="t('settings.menu.about')"
-to="/about">
-      <v-remixicon class="cursor-pointer"
-name="riInformationLine" />
+    <router-link v-tooltip:right.group="t('settings.menu.about')" to="/about">
+      <v-remixicon class="cursor-pointer" name="riInformationLine" />
     </router-link>
   </aside>
 </template>
@@ -271,22 +273,31 @@ async function handleSignOut() {
   height: 100%;
   width: 4px;
   background: linear-gradient(180deg, #3b82f6 0%, #9333ea 100%);
-  box-shadow: 0 0 10px rgba(59, 130, 246, 0.8), 0 0 20px rgba(147, 51, 234, 0.6);
+  box-shadow:
+    0 0 10px rgba(59, 130, 246, 0.8),
+    0 0 20px rgba(147, 51, 234, 0.6);
   border-radius: 4px 0 0 4px;
   animation: glow-pulse 2s ease-in-out infinite;
   @media (prefers-color-scheme: dark) {
     & {
-      box-shadow: 0 0 15px rgba(59, 130, 246, 1), 0 0 30px rgba(147, 51, 234, 0.8);
+      box-shadow:
+        0 0 15px rgba(59, 130, 246, 1),
+        0 0 30px rgba(147, 51, 234, 0.8);
     }
   }
 }
 
 @keyframes glow-pulse {
-  0%, 100% {
-    box-shadow: 0 0 10px rgba(59, 130, 246, 0.8), 0 0 20px rgba(147, 51, 234, 0.6);
+  0%,
+  100% {
+    box-shadow:
+      0 0 10px rgba(59, 130, 246, 0.8),
+      0 0 20px rgba(147, 51, 234, 0.6);
   }
   50% {
-    box-shadow: 0 0 15px rgba(59, 130, 246, 1), 0 0 30px rgba(147, 51, 234, 0.8);
+    box-shadow:
+      0 0 15px rgba(59, 130, 246, 1),
+      0 0 30px rgba(147, 51, 234, 0.8);
   }
 }
 </style>

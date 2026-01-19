@@ -248,12 +248,14 @@
           :workflow="workflow"
           :tab="state.activeTab"
           :pinned="true"
+          :is-selected="state.selectedForBatch.includes(workflow.id)"
           @details="openWorkflowPage"
           @update="updateWorkflow(workflow.id, $event)"
           @execute="executeWorkflow"
           @rename="renameWorkflow"
           @delete="deleteWorkflow"
           @toggle-pin="togglePinWorkflow(workflow)"
+          @toggle-select="toggleSelectWorkflow(workflow.id)"
         />
       </div>
     </div>
