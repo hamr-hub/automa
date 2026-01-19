@@ -22,9 +22,7 @@
                 class="rounded-l-none"
                 variant="accent"
               >
-                <v-remixicon
-name="riArrowLeftSLine" rotate="-90"
-/>
+                <v-remixicon name="riArrowLeftSLine" rotate="-90" />
               </ui-button>
             </template>
             <ui-list class="space-y-1">
@@ -163,10 +161,8 @@ name="riArrowLeftSLine" rotate="-90"
             />
             <ui-popover>
               <template #trigger>
-                <ui-button variant="accent"
-class="ml-4 lg:hidden">
-                  <v-remixicon name="riAddLine"
-class="mr-2 -ml-1" />
+                <ui-button variant="accent" class="ml-4 lg:hidden">
+                  <v-remixicon name="riAddLine" class="mr-2 -ml-1" />
                   <span>{{ t('common.workflow') }}</span>
                 </ui-button>
               </template>
@@ -235,8 +231,7 @@ class="mr-2 -ml-1" />
                 :placeholder="t('sort.sortBy')"
                 class="flex-1"
               >
-                <option v-for="sort in sorts"
-:key="sort" :value="sort">
+                <option v-for="sort in sorts" :key="sort" :value="sort">
                   {{ t(`sort.${sort}`) }}
                 </option>
               </ui-select>
@@ -249,21 +244,17 @@ class="mr-2 -ml-1" />
               <option value="local">
                 {{ t('workflow.type.local') }}
               </option>
-              <option v-if="userStore.user"
-value="shared">
+              <option v-if="userStore.user" value="shared">
                 {{ t('workflow.type.shared') }}
               </option>
-              <option v-if="hostedWorkflows?.length > 0"
-value="host">
+              <option v-if="hostedWorkflows?.length > 0" value="host">
                 {{ t('workflow.type.host') }}
               </option>
             </ui-select>
           </div>
         </div>
-        <ui-tab-panels v-model="state.activeTab"
-class="mt-6 flex-1">
-          <ui-tab-panel value="team"
-cache>
+        <ui-tab-panels v-model="state.activeTab" class="mt-6 flex-1">
+          <ui-tab-panel value="team" cache>
             <workflows-user-team
               :active="state.activeTab === 'team'"
               :team-id="state.teamId"
@@ -277,8 +268,7 @@ cache>
               :sort="{ by: state.sortBy, order: state.sortOrder }"
             />
           </ui-tab-panel>
-          <ui-tab-panel value="host"
-class="workflows-container">
+          <ui-tab-panel value="host" class="workflows-container">
             <workflows-hosted
               :search="state.query"
               :sort="{ by: state.sortBy, order: state.sortOrder }"
@@ -317,8 +307,7 @@ class="workflows-container">
                 rel="noreferer"
                 >the community</a
               >, or email us at
-              <a
-href="mailto:support@automa.site" target="_blank"
+              <a href="mailto:support@automa.site" target="_blank"
                 >support@automa.site</a
               >
             </li>
@@ -334,18 +323,17 @@ href="mailto:support@automa.site" target="_blank"
         </ui-card>
       </div>
     </div>
-    <ui-modal v-model="addWorkflowModal.show"
-title="Create Workflow" size="lg">
+    <ui-modal v-model="addWorkflowModal.show" title="Create Workflow" size="lg">
       <div class="mb-6">
         <div class="flex space-x-4 mb-4">
-          <button 
-            v-for="option in createOptions" 
+          <button
+            v-for="option in createOptions"
             :key="option.value"
             :class="[
               'flex-1 py-2 px-4 rounded-lg text-center font-medium transition-colors',
-              addWorkflowModal.mode === option.value 
-                ? 'bg-[var(--color-accent)] text-white' 
-                : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700'
+              addWorkflowModal.mode === option.value
+                ? 'bg-[var(--color-accent)] text-white'
+                : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700',
             ]"
             @click="addWorkflowModal.mode = option.value"
           >
@@ -353,10 +341,18 @@ title="Create Workflow" size="lg">
             {{ option.label }}
           </button>
         </div>
-        
+
         <!-- Tab Selection -->
-        <div v-if="addWorkflowModal.mode === 'manual' || addWorkflowModal.mode === 'template'" class="mb-4">
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+        <div
+          v-if="
+            addWorkflowModal.mode === 'manual' ||
+            addWorkflowModal.mode === 'template'
+          "
+          class="mb-4"
+        >
+          <label
+            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+          >
             {{ t('workflow.basedOnTab') }}
           </label>
           <ui-select
@@ -368,24 +364,39 @@ title="Create Workflow" size="lg">
             <option value="new">{{ t('workflow.newTab') }}</option>
           </ui-select>
         </div>
-        
+
         <!-- From Template -->
-        <div v-if="addWorkflowModal.mode === 'template'" class="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-96 overflow-y-auto">
-          <div 
-            v-for="template in workflowTemplates" 
+        <div
+          v-if="addWorkflowModal.mode === 'template'"
+          class="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-96 overflow-y-auto"
+        >
+          <div
+            v-for="template in workflowTemplates"
             :key="template.id"
             class="border rounded-lg p-4 cursor-pointer hover:border-[var(--color-accent)] transition-colors"
             @click="selectTemplate(template)"
           >
             <h3 class="font-semibold mb-2">{{ template.name }}</h3>
-            <p class="text-sm text-gray-600 dark:text-gray-300 mb-3">{{ template.description }}</p>
+            <p class="text-sm text-gray-600 dark:text-gray-300 mb-3">
+              {{ template.description }}
+            </p>
             <div class="flex justify-between items-center">
-              <span class="text-xs px-2 py-1 bg-gray-100 rounded dark:bg-gray-800">{{ template.nodesCount }} nodes</span>
-              <v-remixicon name="ri-arrow-right-line" :class="addWorkflowModal.selectedTemplate?.id === template.id ? 'text-[var(--color-accent)]' : ''" />
+              <span
+                class="text-xs px-2 py-1 bg-gray-100 rounded dark:bg-gray-800"
+                >{{ template.nodesCount }} nodes</span
+              >
+              <v-remixicon
+                name="ri-arrow-right-line"
+                :class="
+                  addWorkflowModal.selectedTemplate?.id === template.id
+                    ? 'text-[var(--color-accent)]'
+                    : ''
+                "
+              />
             </div>
           </div>
         </div>
-        
+
         <!-- Manual Creation -->
         <div v-else>
           <ui-input
@@ -412,24 +423,30 @@ title="Create Workflow" size="lg">
         </div>
       </div>
       <div class="flex space-x-2">
-        <ui-button class="w-full"
-@click="clearAddWorkflowModal">
+        <ui-button class="w-full" @click="clearAddWorkflowModal">
           {{ t('common.cancel') }}
         </ui-button>
         <ui-button
           variant="accent"
           class="w-full"
           @click="
-            addWorkflowModal.mode === 'template' 
+            addWorkflowModal.mode === 'template'
               ? addWorkflowFromTemplate()
-              : (addWorkflowModal.type === 'manual' ? addWorkflow() : startRecordWorkflow())
+              : addWorkflowModal.type === 'manual'
+                ? addWorkflow()
+                : startRecordWorkflow()
           "
-          :disabled="addWorkflowModal.mode === 'template' && !addWorkflowModal.selectedTemplate"
+          :disabled="
+            addWorkflowModal.mode === 'template' &&
+            !addWorkflowModal.selectedTemplate
+          "
         >
-          {{ 
-            addWorkflowModal.mode === 'template' 
+          {{
+            addWorkflowModal.mode === 'template'
               ? t('common.create')
-              : (addWorkflowModal.type === 'manual' ? t('common.add') : t('home.record.button'))
+              : addWorkflowModal.type === 'manual'
+                ? t('common.add')
+                : t('home.record.button')
           }}
         </ui-button>
       </div>
@@ -459,6 +476,8 @@ import { getWorkflowById } from '@/utils/api';
 import { findTriggerBlock, isWhitespace } from '@/utils/helper';
 import { getWorkflowPermissions, importWorkflow } from '@/utils/workflowData';
 import { registerWorkflowTrigger } from '@/utils/workflowTrigger';
+import firstWorkflows from '@/utils/firstWorkflows';
+import { nanoid } from 'nanoid';
 import { computed, onMounted, shallowReactive, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
@@ -518,7 +537,7 @@ const createOptions = [
     icon: 'riRecordVoiceLine',
   },
 ];
-const workflowTemplates = firstWorkflows.map(workflow => ({
+const workflowTemplates = firstWorkflows.map((workflow) => ({
   id: workflow.id,
   name: workflow.name,
   description: workflow.description || 'No description',
@@ -561,7 +580,7 @@ function selectTemplate(template) {
 }
 function addWorkflowFromTemplate() {
   if (!addWorkflowModal.selectedTemplate) return;
-  
+
   const template = addWorkflowModal.selectedTemplate;
   workflowStore
     .insert({

@@ -951,10 +951,9 @@ class LangGraphService {
       });
       
       // 添加当前工作流状态分析
-      userPrompt += '\n\n当前工作流状态分析：\n- 已生成 ' + state.currentWorkflow.nodes.length + ' 个节点\n- 节点连接情况：' + state.currentWorkflow.edges.length + ' 条连接\n- 距离用户需求的完成度：' + completion + '%\n\n请基于以上信息，分析当前工作流状态，并生成下一步需要添加的节点。返回格式如下：\n```json\n{\n  \"action\": \"add|modify|complete\",\n  \"reason\": \"为什么要执行这个操作，包括对当前工作流状态的分析\",\n  \"steps\": [\n    {\"type\": \"节点类型\", \"description\": \"节点描述\", \"data\": {...}}\n  ],\n  \"connectFrom\": \"新节点应该连接到的最后一个节点ID（如果有）\",\n  \"thinking\": \"你的思考过程，包括为什么要生成这些节点，它们如何帮助实现用户需求，以及当前工作流的完成情况分析\"\n}\n```\n\n思考过程应该包含：\n1. 分析用户需求的核心目标\n2. 评估当前工作流的完成情况\n3. 确定下一步需要实现的功能\n4. 选择合适的节点类型来实现这些功能\n5. 解释为什么这些节点能够帮助实现用户需求';
+      userPrompt += '\n\n当前工作流状态分析：\n- 已生成 ' + state.currentWorkflow.nodes.length + ' 个节点\n- 节点连接情况：' + state.currentWorkflow.edges.length + ' 条连接\n- 距离用户需求的完成度：' + completion + '%\n\n请基于以上信息，分析当前工作流状态，并生成下一步需要添加的节点。返回格式如下：\n```json\n{\n  "action": "add|modify|complete",\n  "reason": "为什么要执行这个操作，包括对当前工作流状态的分析",\n  "steps": [\n    {"type": "节点类型", "description": "节点描述", "data": {...}}\n  ],\n  "connectFrom": "新节点应该连接到的最后一个节点ID（如果有）",\n  "thinking": "你的思考过程，包括为什么要生成这些节点，它们如何帮助实现用户需求，以及当前工作流的完成情况分析"\n}\n```\n\n思考过程应该包含：\n1. 分析用户需求的核心目标\n2. 评估当前工作流的完成情况\n3. 确定下一步需要实现的功能\n4. 选择合适的节点类型来实现这些功能\n5. 解释为什么这些节点能够帮助实现用户需求';
     } else {
-      userPrompt += '\n\n请生成工作流的前几个核心节点（1-3个），包括触发器和初始步骤。返回格式如下：\n```json\n{\n  \"action\": \"create\",\n  \"reason\": \"创建工作流的初始节点\",\n  \"steps\": [\n    {\"type\": \"trigger\", \"description\": \"触发方式\"},\n    {\"type\": \"new-tab\", \"description\": \"打开目标页面\", \"data\": {\"url\": \"...\"}}\n  ],\n  \"thinking\": \"你的思考过程，包括为什么要生成这些初始节点，它们如何帮助实现用户需求\"\n}\n```';
-    }
+      userPrompt += '\n\n请生成工作流的前几个核心节点（1-3个），包括触发器和初始步骤。返回格式如下：\n```json\n{\n  "action": "create",\n  "reason": "创建工作流的初始节点",\n  "steps": [\n    {"type": "trigger", "description": "触发方式"},\n    {"type": "new-tab", "description": "打开目标页面", "data": {"url": "..."}}\n  ],\n  "thinking": "你的思考过程，包括为什么要生成这些初始节点，它们如何帮助实现用户需求"\n}\n```';
 
     return [
       { role: 'system', content: systemPrompt },
@@ -966,7 +965,7 @@ class LangGraphService {
   /**
    * 合并增量生成结果到工作流
    */
-  mergeWorkflow增量(currentWorkflow, generatedJson) {
+  mergeWorkflowDelta(currentWorkflow, generatedJson) {
     if (!currentWorkflow) {
       // 首次创建
       return this.workflowGenerator.generateWorkflow(
@@ -1103,12 +1102,6 @@ class LangGraphService {
       inputLower.includes('抓取') ||
       inputLower.includes('scrap') ||
       inputLower.includes('提取');
-    const hasFormFill =
-      inputLower.includes('填写') ||
-      inputLower.includes('fill') ||
-      inputLower.includes('输入');
-    const hasClick =
-      inputLower.includes('点击') || inputLower.includes('click');
 
     // 基本规则：必须有触发器和导出节点（如果是抓取类任务）
     if (hasScraping && (!hasTrigger || !hasExport)) {
