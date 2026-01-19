@@ -24,14 +24,18 @@ describe('AI集成测试', () => {
   test.describe('AI工作流生成', () => {
     test('TC-AI-001: 打开AI工作流生成器', async () => {
       await test.step('点击AI生成按钮', async () => {
-        const aiBtn = page.locator('text=AI生成, text=AI, [aria-label*="AI"]').first();
+        const aiBtn = page
+          .locator('text=AI生成, text=AI, [aria-label*="AI"]')
+          .first();
         if (await aiBtn.isVisible()) {
           await aiBtn.click();
         }
       });
 
       await test.step('验证AI面板打开', async () => {
-        const aiPanel = page.locator('[class*="ai-panel"], [class*="AI-panel"], [class*="chat"]').first();
+        const aiPanel = page
+          .locator('[class*="ai-panel"], [class*="AI-panel"], [class*="chat"]')
+          .first();
         if (await aiPanel.isVisible()) {
           expect(await aiPanel.isVisible()).toBe(true);
         }
@@ -47,14 +51,22 @@ describe('AI集成测试', () => {
       });
 
       await test.step('输入提示词', async () => {
-        const inputArea = page.locator('textarea[placeholder*="描述"], input[placeholder*="描述"], [contenteditable]').first();
+        const inputArea = page
+          .locator(
+            'textarea[placeholder*="描述"], input[placeholder*="描述"], [contenteditable]'
+          )
+          .first();
         if (await inputArea.isVisible()) {
           await inputArea.fill('创建一个工作流，点击页面上的按钮');
         }
       });
 
       await test.step('发送请求', async () => {
-        const sendBtn = page.locator('button:has-text("生成"), button:has-text("发送"), [aria-label="发送"]').first();
+        const sendBtn = page
+          .locator(
+            'button:has-text("生成"), button:has-text("发送"), [aria-label="发送"]'
+          )
+          .first();
         if (await sendBtn.isVisible()) {
           await sendBtn.click();
         }
@@ -62,7 +74,9 @@ describe('AI集成测试', () => {
 
       await test.step('验证生成过程', async () => {
         await page.waitForTimeout(3000);
-        const loadingIndicator = page.locator('text=生成中, text=正在处理, [class*="loading"]').first();
+        const loadingIndicator = page
+          .locator('text=生成中, text=正在处理, [class*="loading"]')
+          .first();
         if (await loadingIndicator.isVisible()) {
           expect(await loadingIndicator.isVisible()).toBe(true);
         }
@@ -103,7 +117,9 @@ describe('AI集成测试', () => {
 
         const inputArea = page.locator('textarea').first();
         if (await inputArea.isVisible()) {
-          await inputArea.fill('创建一个工作流，遍历页面上的所有产品链接，提取产品名称和价格，然后保存到表格中');
+          await inputArea.fill(
+            '创建一个工作流，遍历页面上的所有产品链接，提取产品名称和价格，然后保存到表格中'
+          );
         }
       });
 
@@ -171,7 +187,9 @@ describe('AI集成测试', () => {
 
       await test.step('验证错误处理', async () => {
         await page.waitForTimeout(5000);
-        const errorMsg = page.locator('text=错误, text=失败, text=无法生成').first();
+        const errorMsg = page
+          .locator('text=错误, text=失败, text=无法生成')
+          .first();
         if (await errorMsg.isVisible()) {
           expect(await errorMsg.isVisible()).toBe(true);
         }
@@ -202,7 +220,9 @@ describe('AI集成测试', () => {
 
       await test.step('验证网络错误提示', async () => {
         await page.waitForTimeout(5000);
-        const errorMsg = page.locator('text=网络错误, text=连接失败, text=请重试').first();
+        const errorMsg = page
+          .locator('text=网络错误, text=连接失败, text=请重试')
+          .first();
         if (await errorMsg.isVisible()) {
           expect(await errorMsg.isVisible()).toBe(true);
         }
@@ -257,7 +277,9 @@ describe('AI集成测试', () => {
 
         const inputArea = page.locator('textarea').first();
         if (await inputArea.isVisible()) {
-          await inputArea.fill('创建一个非常复杂的工作流，包含多个步骤和条件判断');
+          await inputArea.fill(
+            '创建一个非常复杂的工作流，包含多个步骤和条件判断'
+          );
         }
 
         const sendBtn = page.locator('button:has-text("生成")').first();
@@ -269,7 +291,9 @@ describe('AI集成测试', () => {
       });
 
       await test.step('取消请求', async () => {
-        const cancelBtn = page.locator('button:has-text("取消"), [aria-label="取消"]').first();
+        const cancelBtn = page
+          .locator('button:has-text("取消"), [aria-label="取消"]')
+          .first();
         if (await cancelBtn.isVisible()) {
           await cancelBtn.click();
         }
@@ -287,7 +311,9 @@ describe('AI集成测试', () => {
   test.describe('AI配置', () => {
     test('TC-AI-010: 配置AI服务', async () => {
       await test.step('打开设置', async () => {
-        const settingsBtn = page.locator('text=设置, [aria-label="设置"]').first();
+        const settingsBtn = page
+          .locator('text=设置, [aria-label="设置"]')
+          .first();
         if (await settingsBtn.isVisible()) {
           await settingsBtn.click();
         }
@@ -301,7 +327,9 @@ describe('AI集成测试', () => {
       });
 
       await test.step('配置API地址', async () => {
-        const apiInput = page.locator('input[placeholder*="API"], input[placeholder*="地址"]').first();
+        const apiInput = page
+          .locator('input[placeholder*="API"], input[placeholder*="地址"]')
+          .first();
         if (await apiInput.isVisible()) {
           await apiInput.fill('http://localhost:11434');
         }
@@ -310,7 +338,9 @@ describe('AI集成测试', () => {
 
     test('TC-AI-011: 测试AI连接', async () => {
       await test.step('点击测试连接', async () => {
-        const testBtn = page.locator('button:has-text("测试连接"), button:has-text("测试")]').first();
+        const testBtn = page
+          .locator('button:has-text("测试连接"), button:has-text("测试")]')
+          .first();
         if (await testBtn.isVisible()) {
           await testBtn.click();
         }
@@ -318,7 +348,9 @@ describe('AI集成测试', () => {
 
       await test.step('验证连接结果', async () => {
         await page.waitForTimeout(5000);
-        const successMsg = page.locator('text=连接成功, text=Connected').first();
+        const successMsg = page
+          .locator('text=连接成功, text=Connected')
+          .first();
         const errorMsg = page.locator('text=连接失败, text=Error').first();
 
         if (await successMsg.isVisible()) {
@@ -356,7 +388,9 @@ describe('AI集成测试', () => {
       });
 
       await test.step('选择模板', async () => {
-        const templateOption = page.locator('text=网页抓取, text=数据提取').first();
+        const templateOption = page
+          .locator('text=网页抓取, text=数据提取')
+          .first();
         if (await templateOption.isVisible()) {
           await templateOption.click();
         }
@@ -385,7 +419,9 @@ describe('AI集成测试', () => {
       });
 
       await test.step('验证历史列表', async () => {
-        const historyList = page.locator('[class*="history"], [class*="History"]').first();
+        const historyList = page
+          .locator('[class*="history"], [class*="History"]')
+          .first();
         if (await historyList.isVisible()) {
           expect(await historyList.isVisible()).toBe(true);
         }
@@ -401,14 +437,18 @@ describe('AI集成测试', () => {
       });
 
       await test.step('选择历史条目', async () => {
-        const historyItem = page.locator('[class*="history-item"], [class*="history-entry"]').first();
+        const historyItem = page
+          .locator('[class*="history-item"], [class*="history-entry"]')
+          .first();
         if (await historyItem.isVisible()) {
           await historyItem.click();
         }
       });
 
       await test.step('点击重新生成', async () => {
-        const regenerateBtn = page.locator('button:has-text("重新生成")]').first();
+        const regenerateBtn = page
+          .locator('button:has-text("重新生成")]')
+          .first();
         if (await regenerateBtn.isVisible()) {
           await regenerateBtn.click();
         }
@@ -470,7 +510,9 @@ describe('AI集成测试', () => {
 
       await test.step('验证提示', async () => {
         await page.waitForTimeout(1000);
-        const warningMsg = page.locator('text=请输入描述, text=不能为空').first();
+        const warningMsg = page
+          .locator('text=请输入描述, text=不能为空')
+          .first();
         if (await warningMsg.isVisible()) {
           expect(await warningMsg.isVisible()).toBe(true);
         }

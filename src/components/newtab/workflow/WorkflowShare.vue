@@ -20,12 +20,10 @@
       </p>
     </template>
     <template v-else>
-      <div v-if="!isUpdate"
-class="mb-4 flex items-center">
+      <div v-if="!isUpdate" class="mb-4 flex items-center">
         <p>{{ t('workflow.share.title') }}</p>
         <div class="grow" />
-        <ui-button class="mr-2"
-@click="$emit('close')">
+        <ui-button class="mr-2" @click="$emit('close')">
           {{ t('common.cancel') }}
         </ui-button>
         <ui-button

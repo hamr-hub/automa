@@ -7,8 +7,7 @@
       @change="updateData({ description: $event })"
     />
     <div class="my-4 flex items-center space-x-2">
-      <p v-if="state.showSettings"
-class="font-semibold">
+      <p v-if="state.showSettings" class="font-semibold">
         {{ t('common.settings') }}
       </p>
       <ui-button
@@ -41,8 +40,7 @@ class="font-semibold">
           {{ t('workflow.blocks.conditions.retryConditions') }}
         </span>
       </label>
-      <div v-if="data.retryConditions"
-class="mt-2">
+      <div v-if="data.retryConditions" class="mt-2">
         <ui-input
           :model-value="data.retryCount"
           :title="t('workflow.blocks.element-exists.tryFor.title')"
@@ -73,10 +71,8 @@ class="mt-2">
     >
       <template #item="{ element, index }">
         <ui-list-item class="group cursor-move">
-          <v-remixicon name="riGuideLine"
-size="20" class="mr-2 -ml-1" />
-          <p class="text-overflow flex-1"
-:title="element.name">
+          <v-remixicon name="riGuideLine" size="20" class="mr-2 -ml-1" />
+          <p class="text-overflow flex-1" :title="element.name">
             {{ element.name }}
           </p>
           <v-remixicon
@@ -94,10 +90,8 @@ size="20" class="mr-2 -ml-1" />
         </ui-list-item>
       </template>
     </draggable>
-    <ui-modal v-model="state.showModal"
-custom-content>
-      <ui-card padding="p-0"
-class="w-full max-w-3xl">
+    <ui-modal v-model="state.showModal" custom-content>
+      <ui-card padding="p-0" class="w-full max-w-3xl">
         <div class="flex items-center px-4 pt-4">
           <p class="flex-1">
             {{ t('workflow.conditionBuilder.title') }}

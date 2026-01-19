@@ -23,8 +23,8 @@ module.exports = {
   // check if imports actually resolve
   settings: {
     'import/resolver': {
-      webpack: {
-        config: './webpack.config.js',
+      node: {
+        extensions: ['.js', '.vue'],
       },
     },
   },
@@ -52,9 +52,10 @@ module.exports = {
     ],
     'import/extensions': [
       'error',
-      'always',
+      'ignorePackages',
       {
         js: 'never',
+        vue: 'never',
       },
     ],
     // disallow reassignment of function parameters

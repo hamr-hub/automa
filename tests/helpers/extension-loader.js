@@ -41,8 +41,9 @@ async function getExtensionIds(extensionPath = EXTENSION_PATH) {
 
   const extensions = await page.evaluate(() => {
     const items = document.querySelectorAll('extensions-item-list > template');
-    return Array.from(items).map(item => {
-      const name = item.shadowRoot?.querySelector('div.name')?.textContent || 'Unknown';
+    return Array.from(items).map((item) => {
+      const name =
+        item.shadowRoot?.querySelector('div.name')?.textContent || 'Unknown';
       const id = item.getAttribute('id') || 'Unknown';
       return { name, id };
     });
@@ -68,7 +69,9 @@ async function installExtension(page, extensionPath = EXTENSION_PATH) {
 
     const dialog = page.locator('dialog[open], [role="dialog"]').first();
     if (await dialog.isVisible()) {
-      const input = dialog.locator('input[type="directory"], input[webkitdirectory]').first();
+      const input = dialog
+        .locator('input[type="directory"], input[webkitdirectory]')
+        .first();
       if (await input.isVisible()) {
         await input.setInputFiles(extensionPath);
       }

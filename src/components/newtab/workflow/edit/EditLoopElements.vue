@@ -38,8 +38,7 @@
         class="mt-2 w-full"
         @change="updateData({ loadMoreAction: $event })"
       >
-        <option v-for="action in actions"
-:key="action" :value="action">
+        <option v-for="action in actions" :key="action" :value="action">
           {{ t(`workflow.blocks.loop-elements.actions.${action}`) }}
         </option>
       </ui-select>

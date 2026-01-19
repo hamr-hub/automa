@@ -1,6 +1,5 @@
 <template>
-  <edit-interaction-base v-bind="{ data }"
-@change="updateData">
+  <edit-interaction-base v-bind="{ data }" @change="updateData">
     <ui-checkbox
       :model-value="data.openInNewTab"
       class="mt-4"

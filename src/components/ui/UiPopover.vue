@@ -1,6 +1,5 @@
 <template>
-  <div class="ui-popover inline-block"
-:class="{ hidden: to }">
+  <div class="ui-popover inline-block" :class="{ hidden: to }">
     <div
       ref="targetEl"
       :class="triggerClass"

@@ -14,8 +14,7 @@
       @change="updateData({ variableName: $event })"
     />
     <ul class="mt-4 space-y-2">
-      <li v-for="param in params"
-:key="param.id">
+      <li v-for="param in params" :key="param.id">
         <ui-checkbox
           :model-value="data[param.toggleKey]"
           @change="updateData({ [param.toggleKey]: $event })"

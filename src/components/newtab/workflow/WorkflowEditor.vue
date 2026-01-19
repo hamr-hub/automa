@@ -38,7 +38,7 @@
         >
           <v-remixicon name="riSubtractLine" />
         </button>
-        <hr class="inline-block h-6 border-r" >
+        <hr class="inline-block h-6 border-r" />
         <button
           v-tooltip.group="t('workflow.editor.zoomIn')"
           class="rounded-lg p-2"
@@ -48,8 +48,7 @@
         </button>
       </div>
     </div>
-    <template v-for="(node, name) in nodeTypes"
-:key="name" #[name]="nodeProps">
+    <template v-for="(node, name) in nodeTypes" :key="name" #[name]="nodeProps">
       <component
         :is="node"
         v-bind="{

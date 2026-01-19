@@ -1,6 +1,5 @@
 <template>
-  <div v-if="workflow"
-class="relative h-screen">
+  <div v-if="workflow" class="relative h-screen">
     <div class="absolute top-0 left-0 z-10 flex w-full items-center p-4">
       <ui-card
         padding="px-2"
@@ -13,8 +12,7 @@ class="relative h-screen">
             :src="workflow.icon"
             class="h-8 w-8"
           />
-          <v-remixicon v-else
-:name="workflow.icon" size="26" />
+          <v-remixicon v-else :name="workflow.icon" size="26" />
         </span>
         <div class="ml-2 max-w-sm">
           <p
@@ -39,8 +37,7 @@ class="relative h-screen">
         <ui-tab value="editor">
           {{ t('common.editor') }}
         </ui-tab>
-        <ui-tab value="logs"
-@click="openLogs">
+        <ui-tab value="logs" @click="openLogs">
           {{ t('common.log', 2) }}
           <span
             v-if="workflowStates.length > 0"
@@ -94,18 +91,17 @@ class="relative h-screen">
       :class="{ 'container pb-4 pt-24': state.activeTab !== 'editor' }"
       class="h-full"
     >
-      <ui-tab-panel class="h-full"
-value="editor">
+      <ui-tab-panel class="h-full" value="editor">
         <div class="relative h-full w-full">
           <!-- AI Chat Component -->
-          <AIChatFloating 
-            v-if="workflow" 
-            :workflow="workflow" 
+          <AIChatFloating
+            v-if="workflow"
+            :workflow="workflow"
             :inline="true"
-            @update-workflow="onAIWorkflowUpdate"
             class="absolute left-4 bottom-4 z-10"
+            @update-workflow="onAIWorkflowUpdate"
           />
-          
+
           <workflow-editor
             v-if="state.retrieved"
             :id="route.params.id"

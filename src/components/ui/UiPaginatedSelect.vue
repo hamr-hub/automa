@@ -61,8 +61,7 @@
         >
           {{ option[optionLabelKey] }}
         </li>
-        <li v-if="isLoading"
-class="px-4 py-2 text-center text-gray-500">
+        <li v-if="isLoading" class="px-4 py-2 text-center text-gray-500">
           Loading...
         </li>
         <li
@@ -90,13 +89,7 @@ class="px-4 py-2 text-center text-gray-500">
 
 <script setup>
 import { useComponentId } from '@/composable/componentId';
-import {
-  computed,
-  onBeforeUnmount,
-  onMounted,
-  ref,
-  watch,
-} from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 
 const props = defineProps({
   modelValue: {

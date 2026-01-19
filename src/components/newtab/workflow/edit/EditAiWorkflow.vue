@@ -20,10 +20,14 @@
       >
         <span class="flex justify-between items-center w-full">
           <span class="flex items-center space-x-1">
-            <v-remixicon name="riKey" size="16" />
+            <v-remixicon
+name="riKey" size="16"
+/>
             <span>Configure AI Power Token</span>
           </span>
-          <v-remixicon name="riArrowRightLine" size="16" />
+          <v-remixicon
+name="riArrowRightLine" size="16"
+/>
         </span>
       </ui-button>
 
@@ -42,8 +46,12 @@
           @change="onFlowChange"
         >
           <template #footer>
-            <ui-button class="w-full" @click="createNewWorkflow">
-              <v-remixicon name="riAddLine" class="mr-2" />
+            <ui-button
+class="w-full" @click="createNewWorkflow"
+>
+              <v-remixicon
+name="riAddLine" class="mr-2"
+/>
               New AI Workflow
             </ui-button>
           </template>
@@ -135,8 +143,13 @@
         <p class="text-sm text-gray-500">
           Configure global Ollama settings for all AI blocks
         </p>
-        <ui-button variant="link" class="text-sm" @click="goToOllamaSettings">
-          <v-remixicon name="riSettings3Line" class="mr-1" />
+        <ui-button
+variant="link" class="text-sm"
+@click="goToOllamaSettings"
+>
+          <v-remixicon
+name="riSettings3Line" class="mr-1"
+/>
           Ollama Settings
         </ui-button>
       </div>
@@ -175,7 +188,10 @@
     </template>
 
     <div class="my-4">
-      <insert-workflow-data :data="data" variables @update="updateData" />
+      <insert-workflow-data
+:data="data" variables
+@update="updateData"
+/>
     </div>
 
     <template
@@ -205,7 +221,10 @@
         <p
           class="font-semibold text-[16px] dark:text-gray-300 leading-[24px] flex items-center"
         >
-          <v-remixicon name="riKey" size="16" class="mr-1" />
+          <v-remixicon
+name="riKey" size="16"
+class="mr-1"
+/>
           How to get your AI Power Token
         </p>
 
@@ -218,9 +237,13 @@
           <li>Copy the generated token and paste it below</li>
         </ol>
 
-        <ui-button variant="default" @click="goToAIPowerSettings">
+        <ui-button
+variant="default" @click="goToAIPowerSettings"
+>
           <span class="text-[14px] leading-[24px]">Open AI Power Settings</span>
-          <v-remixicon name="riArrowRightUpLine" size="16" />
+          <v-remixicon
+name="riArrowRightUpLine" size="16"
+/>
         </ui-button>
       </div>
 
@@ -241,7 +264,8 @@
         >
           Cancel
         </ui-button>
-        <ui-button variant="accent" @click="saveAIPowerToken"> Save </ui-button>
+        <ui-button
+variant="accent" @click="saveAIPowerToken"> Save </ui-button>
       </div>
     </ui-modal>
   </div>

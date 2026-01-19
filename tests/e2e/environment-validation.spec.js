@@ -37,7 +37,9 @@ describe('测试环境验证', () => {
       </html>
     `);
 
-    await expect(page.locator('#dynamic')).toHaveText('更新内容', { timeout: 2000 });
+    await expect(page.locator('#dynamic')).toHaveText('更新内容', {
+      timeout: 2000,
+    });
   });
 
   test('TC-ENV-005: 交互操作可用', async ({ page }) => {
@@ -120,7 +122,7 @@ describe('测试环境验证', () => {
   test('TC-ENV-010: 异常处理可用', async ({ page }) => {
     let errorThrown = false;
 
-    page.on('pageerror', (error) => {
+    page.on('pageerror', () => {
       errorThrown = true;
     });
 

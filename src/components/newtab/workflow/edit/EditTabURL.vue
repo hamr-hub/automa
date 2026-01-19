@@ -12,13 +12,11 @@
       class="mt-4 w-full"
       @change="updateData({ type: $event })"
     >
-      <option v-for="type in types"
-:key="type" :value="type">
+      <option v-for="type in types" :key="type" :value="type">
         {{ t(`workflow.blocks.tab-url.types.${type}`) }}
       </option>
     </ui-select>
-    <div v-if="data.type === 'all'"
-class="mt-4 rounded-lg border p-2">
+    <div v-if="data.type === 'all'" class="mt-4 rounded-lg border p-2">
       <p class="text-sm text-gray-600">
         {{ t('workflow.blocks.tab-url.query.title') }}
       </p>
@@ -39,8 +37,7 @@ class="mt-4 rounded-lg border p-2">
         @change="updateData({ qTitle: $event })"
       />
     </div>
-    <insert-workflow-data :data="data"
-variables @update="updateData" />
+    <insert-workflow-data :data="data" variables @update="updateData" />
   </div>
 </template>
 <script setup>

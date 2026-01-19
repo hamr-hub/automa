@@ -1,6 +1,5 @@
 <template>
-  <ui-card padding="p-0"
-class="workflow-settings w-full max-w-2xl">
+  <ui-card padding="p-0" class="workflow-settings w-full max-w-2xl">
     <div class="flex items-center px-4 pt-4">
       <p class="flex-1">
         {{ t('common.settings') }}
@@ -12,10 +11,8 @@ class="workflow-settings w-full max-w-2xl">
       />
     </div>
     <div class="space-x-2 px-4 pt-2">
-      <ui-tabs v-model="activeTab"
-class="space-x-2">
-        <ui-tab v-for="tab in tabs"
-:key="tab.value" :value="tab.value">
+      <ui-tabs v-model="activeTab" class="space-x-2">
+        <ui-tab v-for="tab in tabs" :key="tab.value" :value="tab.value">
           {{ tab.name }}
         </ui-tab>
       </ui-tabs>
@@ -25,8 +22,7 @@ class="space-x-2">
       class="scroll settings-content overflow-auto p-4"
       style="height: calc(100vh - 10rem); max-height: 600px"
     >
-      <ui-tab-panel v-for="tab in tabs"
-:key="tab.value" :value="tab.value">
+      <ui-tab-panel v-for="tab in tabs" :key="tab.value" :value="tab.value">
         <component
           :is="tab.component"
           :settings="settings"

@@ -27,8 +27,7 @@
         class="w-full"
         @click="fileInput.click()"
       >
-        <v-remixicon name="riUploadLine"
-class="mr-2 -ml-1" />
+        <v-remixicon name="riUploadLine" class="mr-2 -ml-1" />
         Choose File
       </ui-button>
       <p
@@ -41,12 +40,7 @@ class="mr-2 -ml-1" />
   </div>
 </template>
 <script setup>
-import {
-  computed,
-  onMounted,
-  ref,
-  shallowRef,
-} from 'vue';
+import { computed, onMounted, ref, shallowRef } from 'vue';
 import { useToast } from 'vue-toastification';
 import UiButton from './UiButton.vue';
 

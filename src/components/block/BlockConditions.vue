@@ -10,15 +10,13 @@
     @update="$emit('update', $event)"
     @settings="$emit('settings', $event)"
   >
-    <Handle :id="`${id}-input-1`"
-type="target" :position="Position.Left" />
+    <Handle :id="`${id}-input-1`" type="target" :position="Position.Left" />
     <div class="flex items-center">
       <div
         :class="data.disableBlock ? 'bg-box-transparent' : block.category.color"
         class="mr-4 inline-block rounded-lg p-2 text-sm dark:text-black"
       >
-        <v-remixicon name="riAB"
-size="20" class="mr-1 inline-block" />
+        <v-remixicon name="riAB" size="20" class="mr-1 inline-block" />
         <span>{{ t('workflow.blocks.conditions.name') }}</span>
       </div>
     </div>

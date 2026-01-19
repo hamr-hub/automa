@@ -24,8 +24,7 @@
         :key="label"
         :label="label"
       >
-        <option v-for="event in events"
-:key="event.id" :value="event.id">
+        <option v-for="event in events" :key="event.id" :value="event.id">
           {{ event.name }}
         </option>
       </optgroup>

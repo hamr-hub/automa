@@ -25,8 +25,8 @@ class FindElement {
       : data.selector;
 
     // 支持多个备选选择器（逗号分隔）
-    const selectorParts = selector.split(',').map(s => s.trim());
-    
+    const selectorParts = selector.split(',').map((s) => s.trim());
+
     if (specialSelectorsRegex.test(selector)) {
       // Fix Sizzle incorrect context in iframe, passed as context of iframe
       const elements = Sizzle(selector, documentCtx);

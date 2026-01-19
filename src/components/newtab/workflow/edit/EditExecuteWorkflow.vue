@@ -22,8 +22,7 @@
           {{ workflow.name }}
         </option>
       </optgroup>
-      <optgroup v-if="route.params.teamId"
-label="Team">
+      <optgroup v-if="route.params.teamId" label="Team">
         <option
           v-for="workflow in teamWorkflows"
           :key="workflow.id"

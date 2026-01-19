@@ -10,14 +10,12 @@
       class="ml-1 text-gray-600 dark:text-gray-200"
       size="20"
     />
-    <label v-if="false"
-class="ml-4 flex items-center">
+    <label v-if="false" class="ml-4 flex items-center">
       <ui-switch v-model="options.unmaskValue" />
       <span class="ml-2">Return unmask value</span>
     </label>
   </div>
-  <div v-if="options.useMask"
-class="mt-2">
+  <div v-if="options.useMask" class="mt-2">
     <p>Masks</p>
     <div class="space-y-2">
       <div
@@ -29,8 +27,7 @@ class="mt-2">
           v-model="options.masks[index].mask"
           placeholder="aaa-aaa-aaa"
         />
-        <ui-checkbox v-model="mask.isRegex"
-class="ml-4">
+        <ui-checkbox v-model="mask.isRegex" class="ml-4">
           Is RegEx
         </ui-checkbox>
         <div class="grow" />

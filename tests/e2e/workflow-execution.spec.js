@@ -42,14 +42,20 @@ describe('工作流执行测试', () => {
       });
 
       await test.step('点击运行按钮', async () => {
-        const runBtn = page.locator('button:has-text("运行"), [aria-label="运行"], [class*="run"] button').first();
+        const runBtn = page
+          .locator(
+            'button:has-text("运行"), [aria-label="运行"], [class*="run"] button'
+          )
+          .first();
         if (await runBtn.isVisible()) {
           await runBtn.click();
         }
       });
 
       await test.step('验证执行状态', async () => {
-        const runningIndicator = page.locator('text=运行中, [class*="running"], [class*="executing"]').first();
+        const runningIndicator = page
+          .locator('text=运行中, [class*="running"], [class*="executing"]')
+          .first();
         if (await runningIndicator.isVisible({ timeout: 5000 })) {
           expect(await runningIndicator.isVisible()).toBe(true);
         }
@@ -81,7 +87,9 @@ describe('工作流执行测试', () => {
           await navBlock.click();
         }
 
-        const urlInput = page.locator('input[placeholder*="URL"], input[placeholder*="网址"]').first();
+        const urlInput = page
+          .locator('input[placeholder*="URL"], input[placeholder*="网址"]')
+          .first();
         if (await urlInput.isVisible()) {
           await urlInput.fill('https://example.com');
         }
@@ -96,7 +104,9 @@ describe('工作流执行测试', () => {
 
       await test.step('验证执行进度', async () => {
         await page.waitForTimeout(3000);
-        const progressIndicator = page.locator('text=进度, [class*="progress"], [class*="step"]').first();
+        const progressIndicator = page
+          .locator('text=进度, [class*="progress"], [class*="step"]')
+          .first();
         if (await progressIndicator.isVisible()) {
           expect(await progressIndicator.isVisible()).toBe(true);
         }
@@ -127,7 +137,9 @@ describe('工作流执行测试', () => {
       });
 
       await test.step('验证警告或提示', async () => {
-        const warningMsg = page.locator('text=空, text=没有块, text=警告').first();
+        const warningMsg = page
+          .locator('text=空, text=没有块, text=警告')
+          .first();
         if (await warningMsg.isVisible({ timeout: 2000 })) {
           expect(await warningMsg.isVisible()).toBe(true);
         }
@@ -196,14 +208,20 @@ describe('工作流执行测试', () => {
       await test.step('等待后停止', async () => {
         await page.waitForTimeout(2000);
 
-        const stopBtn = page.locator('button:has-text("停止"), [aria-label="停止"], [class*="stop"] button').first();
+        const stopBtn = page
+          .locator(
+            'button:has-text("停止"), [aria-label="停止"], [class*="stop"] button'
+          )
+          .first();
         if (await stopBtn.isVisible()) {
           await stopBtn.click();
         }
       });
 
       await test.step('验证执行已停止', async () => {
-        const stoppedIndicator = page.locator('text=已停止, text=取消, [class*="stopped"]').first();
+        const stoppedIndicator = page
+          .locator('text=已停止, text=取消, [class*="stopped"]')
+          .first();
         if (await stoppedIndicator.isVisible({ timeout: 3000 })) {
           expect(await stoppedIndicator.isVisible()).toBe(true);
         }
@@ -238,14 +256,18 @@ describe('工作流执行测试', () => {
 
       await test.step('打开日志面板', async () => {
         await page.waitForTimeout(1000);
-        const logsBtn = page.locator('text=日志, [aria-label="日志"], [class*="log"] button').first();
+        const logsBtn = page
+          .locator('text=日志, [aria-label="日志"], [class*="log"] button')
+          .first();
         if (await logsBtn.isVisible()) {
           await logsBtn.click();
         }
       });
 
       await test.step('验证日志显示', async () => {
-        const logPanel = page.locator('[class*="log"], [class*="Log"], [class*="logs"]').first();
+        const logPanel = page
+          .locator('[class*="log"], [class*="Log"], [class*="logs"]')
+          .first();
         if (await logPanel.isVisible()) {
           expect(await logPanel.isVisible()).toBe(true);
         }
@@ -262,7 +284,9 @@ describe('工作流执行测试', () => {
 
       await test.step('检查日志条目', async () => {
         await page.waitForTimeout(2000);
-        const logEntries = page.locator('[class*="log-entry"], [class*="LogEntry"], [class*="log-item"]');
+        const logEntries = page.locator(
+          '[class*="log-entry"], [class*="LogEntry"], [class*="log-item"]'
+        );
         const count = await logEntries.count();
 
         if (count > 0) {
@@ -281,7 +305,9 @@ describe('工作流执行测试', () => {
       });
 
       await test.step('验证时间戳显示', async () => {
-        const logWithTime = page.locator('[class*="log"]:has-text(":")').first();
+        const logWithTime = page
+          .locator('[class*="log"]:has-text(":")')
+          .first();
         if (await logWithTime.isVisible()) {
           expect(await logWithTime.isVisible()).toBe(true);
         }
@@ -297,7 +323,9 @@ describe('工作流执行测试', () => {
       });
 
       await test.step('点击导出', async () => {
-        const exportBtn = page.locator('button:has-text("导出"), [aria-label="导出"]').first();
+        const exportBtn = page
+          .locator('button:has-text("导出"), [aria-label="导出"]')
+          .first();
         if (await exportBtn.isVisible()) {
           await exportBtn.click();
         }
@@ -308,14 +336,18 @@ describe('工作流执行测试', () => {
   test.describe('执行历史', () => {
     test('TC-EXEC-011: 查看执行历史', async () => {
       await test.step('打开执行历史页面', async () => {
-        const historyBtn = page.locator('text=历史, [aria-label="历史"]').first();
+        const historyBtn = page
+          .locator('text=历史, [aria-label="历史"]')
+          .first();
         if (await historyBtn.isVisible()) {
           await historyBtn.click();
         }
       });
 
       await test.step('验证历史记录显示', async () => {
-        const historyList = page.locator('[class*="history"], [class*="History"]').first();
+        const historyList = page
+          .locator('[class*="history"], [class*="History"]')
+          .first();
         if (await historyList.isVisible()) {
           expect(await historyList.isVisible()).toBe(true);
         }
@@ -331,14 +363,18 @@ describe('工作流执行测试', () => {
       });
 
       await test.step('点击查看详情', async () => {
-        const historyItem = page.locator('[class*="history-item"], [class*="history-entry"]').first();
+        const historyItem = page
+          .locator('[class*="history-item"], [class*="history-entry"]')
+          .first();
         if (await historyItem.isVisible()) {
           await historyItem.click();
         }
       });
 
       await test.step('验证详情内容', async () => {
-        const detailPanel = page.locator('[class*="detail"], [class*="Detail"]').first();
+        const detailPanel = page
+          .locator('[class*="detail"], [class*="Detail"]')
+          .first();
         if (await detailPanel.isVisible()) {
           expect(await detailPanel.isVisible()).toBe(true);
         }
@@ -354,12 +390,16 @@ describe('工作流执行测试', () => {
       });
 
       await test.step('清空历史', async () => {
-        const clearBtn = page.locator('button:has-text("清空"), button:has-text("清除")').first();
+        const clearBtn = page
+          .locator('button:has-text("清空"), button:has-text("清除")')
+          .first();
         if (await clearBtn.isVisible()) {
           await clearBtn.click();
         }
 
-        const confirmBtn = page.locator('button:has-text("确认"), button:has-text("是")').first();
+        const confirmBtn = page
+          .locator('button:has-text("确认"), button:has-text("是")')
+          .first();
         if (await confirmBtn.isVisible()) {
           await confirmBtn.click();
         }
@@ -379,7 +419,9 @@ describe('工作流执行测试', () => {
           await clickBlock.click();
         }
 
-        const selectorInput = page.locator('input[placeholder*="选择器"]').first();
+        const selectorInput = page
+          .locator('input[placeholder*="选择器"]')
+          .first();
         if (await selectorInput.isVisible()) {
           await selectorInput.fill('#non-existent-element');
         }
@@ -394,7 +436,9 @@ describe('工作流执行测试', () => {
 
       await test.step('验证错误提示', async () => {
         await page.waitForTimeout(3000);
-        const errorMsg = page.locator('text=未找到, text=错误, text=失败').first();
+        const errorMsg = page
+          .locator('text=未找到, text=错误, text=失败')
+          .first();
         if (await errorMsg.isVisible()) {
           expect(await errorMsg.isVisible()).toBe(true);
         }
@@ -425,7 +469,9 @@ describe('工作流执行测试', () => {
         }
 
         await page.waitForTimeout(5000);
-        const errorMsg = page.locator('text=网络, text=连接, text=错误').first();
+        const errorMsg = page
+          .locator('text=网络, text=连接, text=错误')
+          .first();
         if (await errorMsg.isVisible()) {
           expect(await errorMsg.isVisible()).toBe(true);
         }

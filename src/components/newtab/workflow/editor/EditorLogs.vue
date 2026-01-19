@@ -3,9 +3,8 @@
     v-if="(!logs || logs.length === 0) && workflowStates.length === 0"
     class="text-center"
   >
-    <img src="@/assets/svg/files-and-folder.svg"
-class="mx-auto max-w-sm"
-/>
+    <img
+src="@/assets/svg/files-and-folder.svg" class="mx-auto max-w-sm" />
     <p class="text-xl font-semibold">
       {{ t('message.noData') }}
     </p>

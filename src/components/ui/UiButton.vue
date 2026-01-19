@@ -20,7 +20,9 @@
     >
       <slot />
     </span>
-    <div v-if="loading" class="button-loading">
+    <div
+v-if="loading" class="button-loading"
+>
       <ui-spinner
         :color="
           variant === 'default'

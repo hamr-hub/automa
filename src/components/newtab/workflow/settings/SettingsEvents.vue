@@ -4,8 +4,7 @@
       <p class="flex-1">
         {{ t('workflow.events.description') }}
       </p>
-      <ui-button variant="accent"
-@click="updateModalState({ show: true })">
+      <ui-button variant="accent" @click="updateModalState({ show: true })">
         {{ t('workflow.events.add-action') }}
       </ui-button>
     </div>

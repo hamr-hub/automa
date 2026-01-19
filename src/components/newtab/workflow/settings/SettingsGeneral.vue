@@ -12,8 +12,7 @@
       :model-value="settings.onError"
       @change="updateSetting('onError', $event)"
     >
-      <option v-for="item in onError"
-:key="item.id" :value="item.id">
+      <option v-for="item in onError" :key="item.id" :value="item.id">
         {{ t(`workflow.settings.onError.items.${item.name}`) }}
       </option>
     </ui-select>
@@ -33,8 +32,7 @@
       </span>
     </div>
   </div>
-  <div v-if="!isFirefox"
-class="flex items-center pt-4">
+  <div v-if="!isFirefox" class="flex items-center pt-4">
     <div class="mr-4 flex-1">
       <p>Workflow Execution</p>
       <p class="text-sm leading-tight text-gray-600 dark:text-gray-200">
@@ -77,8 +75,7 @@ class="flex items-center pt-4">
       :model-value="settings.notification"
       @change="updateSetting('notification', $event)"
     />
-    <ui-button v-else
-@click="permissions.request(true)">
+    <ui-button v-else @click="permissions.request(true)">
       {{ t('workflow.blocks.clipboard.grantPermission') }}
     </ui-button>
   </div>
@@ -101,8 +98,7 @@ class="flex items-center pt-4">
           })
         }}
       </p>
-      <p v-else
-class="text-sm leading-tight text-gray-600 dark:text-gray-200">
+      <p v-else class="text-sm leading-tight text-gray-600 dark:text-gray-200">
         {{ item.description }}
       </p>
     </div>

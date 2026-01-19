@@ -40,8 +40,7 @@
         class="mr-2 flex-1"
         step="1"
       />
-      <ui-button variant="accent"
-@click="addTime">
+      <ui-button variant="accent" @click="addTime">
         {{ t('workflow.blocks.trigger.addTime') }}
       </ui-button>
     </div>

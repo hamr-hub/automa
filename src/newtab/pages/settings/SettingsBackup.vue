@@ -42,8 +42,7 @@
           </ui-button>
         </div>
       </template>
-      <div v-else
-class="py-4 text-center">
+      <div v-else class="py-4 text-center">
         <p>
           {{ t('settings.backupWorkflows.needSignin') }}
         </p>
@@ -75,12 +74,10 @@ class="py-4 text-center">
       <div class="w-6/12 rounded-lg border p-4 dark:border-gray-700">
         <div class="text-center">
           <span class="bg-box-transparent inline-block rounded-full p-4">
-            <v-remixicon name="riDownloadLine"
-size="36" />
+            <v-remixicon name="riDownloadLine" size="36" />
           </span>
         </div>
-        <ui-checkbox v-model="state.encrypt"
-class="mt-12 mb-4">
+        <ui-checkbox v-model="state.encrypt" class="mt-12 mb-4">
           {{ t('settings.backupWorkflows.backup.encrypt') }}
         </ui-checkbox>
         <div class="flex items-center gap-2">
@@ -176,8 +173,7 @@ class="mt-12 mb-4">
               </template>
             </div>
           </ui-popover>
-          <ui-button class="flex-1"
-@click="backupWorkflows">
+          <ui-button class="flex-1" @click="backupWorkflows">
             {{ t('settings.backupWorkflows.backup.button') }}
           </ui-button>
         </div>
@@ -185,16 +181,13 @@ class="mt-12 mb-4">
       <div class="w-6/12 rounded-lg border p-4 dark:border-gray-700">
         <div class="text-center">
           <span class="bg-box-transparent inline-block rounded-full p-4">
-            <v-remixicon name="riUploadLine"
-size="36" />
+            <v-remixicon name="riUploadLine" size="36" />
           </span>
         </div>
-        <ui-checkbox v-model="state.updateIfExists"
-class="mt-6 mb-4">
+        <ui-checkbox v-model="state.updateIfExists" class="mt-6 mb-4">
           {{ t('settings.backupWorkflows.restore.update') }}
         </ui-checkbox>
-        <ui-button class="w-full"
-@click="restoreWorkflows">
+        <ui-button class="w-full" @click="restoreWorkflows">
           {{ t('settings.backupWorkflows.restore.button') }}
         </ui-button>
       </div>

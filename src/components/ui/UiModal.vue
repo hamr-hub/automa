@@ -1,14 +1,11 @@
 <template>
   <div class="modal-ui">
-    <div v-if="$slots.activator"
-class="modal-ui__activator">
+    <div v-if="$slots.activator" class="modal-ui__activator">
       <slot
 name="activator" v-bind="{ open: () => (show = true) }" />
     </div>
-    <teleport :to="teleportTo"
-:disabled="disabledTeleport">
-      <transition name="modal"
-mode="out-in">
+    <teleport :to="teleportTo" :disabled="disabledTeleport">
+      <transition name="modal" mode="out-in">
         <div
           v-if="show"
           :class="[positions[contentPosition]]"

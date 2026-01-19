@@ -24,8 +24,7 @@
           title="Delete block"
           @click.stop="$emit('delete')"
         >
-          <v-remixicon size="20"
-name="riDeleteBin7Line" />
+          <v-remixicon size="20" name="riDeleteBin7Line" />
         </button>
         <button
           :title="$t('workflow.blocks.base.settings.title')"
@@ -33,8 +32,7 @@ name="riDeleteBin7Line" />
             $emit('settings', { details: blockData.details, data, blockId })
           "
         >
-          <v-remixicon size="20"
-name="riSettings3Line" />
+          <v-remixicon size="20" name="riSettings3Line" />
         </button>
         <button
           v-if="!excludeGroupBlocks.includes(blockData.details?.id)"
@@ -44,8 +42,7 @@ name="riSettings3Line" />
           @dragstart="handleStartDrag"
           @mousedown.stop
         >
-          <v-remixicon name="riDragDropLine"
-size="20" />
+          <v-remixicon name="riDragDropLine" size="20" />
         </button>
         <button
           v-if="blockData.details?.id !== 'trigger'"
@@ -57,25 +54,21 @@ size="20" />
             :name="data.disableBlock ? 'riToggleLine' : 'riToggleFill'"
           />
         </button>
-        <button title="Run workflow from here"
-@click.stop="runWorkflow">
-          <v-remixicon size="20"
-name="riPlayLine" />
+        <button title="Run workflow from here" @click.stop="runWorkflow">
+          <v-remixicon size="20" name="riPlayLine" />
         </button>
         <button
           v-if="!blockData.details?.disableEdit"
           title="Edit block"
           @click="$emit('edit')"
         >
-          <v-remixicon size="20"
-name="riPencilLine" />
+          <v-remixicon size="20" name="riPencilLine" />
         </button>
         <slot name="action" />
       </div>
     </div>
     <slot name="prepend" />
-    <ui-card :class="contentClass"
-class="block-base__content relative z-10">
+    <ui-card :class="contentClass" class="block-base__content relative z-10">
       <v-remixicon
         v-if="workflow?.data?.value.testingMode"
         :class="{ 'text-red-500 dark:text-red-400': data.$breakpoint }"

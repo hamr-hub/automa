@@ -1,11 +1,13 @@
 <template>
   <div class="space-y-2">
-    <div class="flex h-2 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
+    <div
+      class="flex h-2 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700"
+    >
       <div
         class="h-full transition-all duration-300"
         :class="strengthColor"
         :style="{ width: `${strengthScore * 25}%` }"
-      ></div>
+      />
     </div>
     <p class="text-xs text-gray-500 dark:text-gray-400 text-right">
       {{ strengthText }}
@@ -29,13 +31,13 @@ const { t } = useI18n();
 const strengthScore = computed(() => {
   const pwd = props.password;
   if (!pwd) return 0;
-  
+
   let score = 0;
   if (pwd.length >= 8) score++;
   if (/[A-Z]/.test(pwd)) score++;
   if (/[0-9]/.test(pwd)) score++;
   if (/[^A-Za-z0-9]/.test(pwd)) score++;
-  
+
   return score; // 0-4
 });
 

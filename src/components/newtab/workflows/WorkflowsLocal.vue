@@ -12,11 +12,9 @@ src="@/assets/svg/alien.svg" class="w-96" />
     </div>
   </div>
   <template v-else>
-    <div v-if="pinnedWorkflows.length > 0"
-class="mb-8 border-b pb-8">
+    <div v-if="pinnedWorkflows.length > 0" class="mb-8 border-b pb-8">
       <div class="flex items-center">
-        <v-remixicon name="riPushpin2Line"
-class="mr-2" size="20" />
+        <v-remixicon name="riPushpin2Line" class="mr-2" size="20" />
         <span>{{ t('workflow.pinWorkflow.pinned') }}</span>
       </div>
       <div class="workflows-container mt-4">
@@ -65,8 +63,7 @@ class="mr-2" size="20" />
           class="bg-input rounded-md p-1"
           @change="onPerPageChange"
         >
-          <option v-for="num in [18, 32, 64, 128]"
-:key="num" :value="num">
+          <option v-for="num in [18, 32, 64, 128]" :key="num" :value="num">
             {{ num }}
           </option>
         </select>
@@ -95,12 +92,18 @@ class="mr-2" size="20" />
         class="fixed right-0 bottom-0 left-0 mx-auto mb-6 w-fit space-x-2 shadow-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-6 py-4 z-50"
       >
         <div class="flex items-center gap-3">
-          <div class="h-6 w-px bg-gray-300 dark:bg-gray-600"></div>
-          <ui-button variant="accent" @click="selectAllWorkflows">
-            <v-remixicon 
-              :name="state.selectedForBatch.length >= allWorkflows.length ? 'riCheckboxIndeterminateLine' : 'riCheckboxMultipleLine'" 
-              size="16" 
-              class="mr-1" 
+          <div class="h-6 w-px bg-gray-300 dark:bg-gray-600" />
+          <ui-button
+variant="accent" @click="selectAllWorkflows"
+>
+            <v-remixicon
+              :name="
+                state.selectedForBatch.length >= allWorkflows.length
+                  ? 'riCheckboxIndeterminateLine'
+                  : 'riCheckboxMultipleLine'
+              "
+              size="16"
+              class="mr-1"
             />
             {{
               t(
@@ -108,16 +111,22 @@ class="mr-2" size="20" />
               )
             }}
           </ui-button>
-          <ui-button variant="danger" @click="deleteBatchWorkflows">
-            <v-remixicon name="riDeleteBin7Line" size="16" class="mr-1" />
-            {{ t('workflow.deleteSelected') }} ({{ state.selectedForBatch.length }})
+          <ui-button
+variant="danger" @click="deleteBatchWorkflows"
+>
+            <v-remixicon
+name="riDeleteBin7Line" size="16"
+class="mr-1"
+/>
+            {{ t('workflow.deleteSelected') }} ({{
+              state.selectedForBatch.length
+            }})
           </ui-button>
         </div>
       </ui-card>
     </transition>
   </template>
-  <ui-modal v-model="renameState.show"
-title="Workflow">
+  <ui-modal v-model="renameState.show" title="Workflow">
     <ui-input
       v-model="renameState.name"
       :placeholder="t('common.name')"
@@ -137,12 +146,10 @@ title="Workflow">
       {{ renameState.description.length }}/300
     </p>
     <div class="flex space-x-2">
-      <ui-button class="w-full"
-@click="clearRenameModal">
+      <ui-button class="w-full" @click="clearRenameModal">
         {{ t('common.cancel') }}
       </ui-button>
-      <ui-button variant="accent"
-class="w-full" @click="renameWorkflow">
+      <ui-button variant="accent" class="w-full" @click="renameWorkflow">
         {{ t('common.update') }}
       </ui-button>
     </div>
@@ -417,7 +424,7 @@ function toggleSelectWorkflow(workflowId) {
   } else {
     state.selectedForBatch = [
       ...state.selectedForBatch.slice(0, index),
-      ...state.selectedForBatch.slice(index + 1)
+      ...state.selectedForBatch.slice(index + 1),
     ];
   }
 }
@@ -427,14 +434,14 @@ const allWorkflows = computed(() => {
   const regular = workflows.value;
   const seen = new Set();
   const result = [];
-  
-  [...pinned, ...regular].forEach(workflow => {
+
+  [...pinned, ...regular].forEach((workflow) => {
     if (!seen.has(workflow.id)) {
       seen.add(workflow.id);
       result.push(workflow);
     }
   });
-  
+
   return result;
 });
 
@@ -442,7 +449,7 @@ function selectAllWorkflows() {
   if (state.selectedForBatch.length >= allWorkflows.value.length) {
     state.selectedForBatch = [];
   } else {
-    state.selectedForBatch = allWorkflows.value.map(w => w.id);
+    state.selectedForBatch = allWorkflows.value.map((w) => w.id);
   }
 }
 
@@ -450,7 +457,9 @@ function deleteBatchWorkflows() {
   dialog.confirm({
     title: t('workflow.delete'),
     okVariant: 'danger',
-    body: t('workflow.deleteBatchConfirm', { count: state.selectedForBatch.length }),
+    body: t('workflow.deleteBatchConfirm', {
+      count: state.selectedForBatch.length,
+    }),
     onConfirm: async () => {
       await workflowStore.delete(state.selectedForBatch);
       state.selectedForBatch = [];

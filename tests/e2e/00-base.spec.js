@@ -3,7 +3,14 @@
  * Comprehensive tests for all core functionality modules
  */
 
-import { test, describe, expect, beforeAll, afterAll, beforeEach } from '@playwright/test';
+import {
+  test,
+  describe,
+  expect,
+  beforeAll,
+  afterAll,
+  beforeEach,
+} from '@playwright/test';
 
 const EXTENSION_ID = process.env.EXTENSION_ID || 'your-extension-id';
 

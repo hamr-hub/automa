@@ -1,12 +1,8 @@
 <template>
   <div class="flex justify-center">
     <!-- Cloudflare Turnstile Widget -->
-    <div
-      v-if="useTurnstile"
-      ref="turnstileContainer"
-      class="cf-turnstile"
-    ></div>
-    
+    <div v-if="useTurnstile" ref="turnstileContainer" class="cf-turnstile" />
+
     <!-- Fallback: Simple Click-to-Verify for Development -->
     <div
       v-else
@@ -24,11 +20,17 @@
           />
         </div>
         <span class="ml-3 text-sm text-gray-700 dark:text-gray-300">
-          {{ verified ? t('auth.captchaVerified', '验证通过') : t('auth.captchaClick', '点击进行人机验证') }}
+          {{
+            verified
+              ? t('auth.captchaVerified', '验证通过')
+              : t('auth.captchaClick', '点击进行人机验证')
+          }}
         </span>
       </div>
       <div class="ml-4">
-        <v-remixicon name="riShieldCheckLine" class="text-gray-400" />
+        <v-remixicon
+name="riShieldCheckLine" class="text-gray-400"
+/>
       </div>
     </div>
   </div>
@@ -71,14 +73,19 @@ function initTurnstile() {
   if (!window.turnstile || !turnstileContainer.value) return;
 
   try {
-    turnstileWidgetId.value = window.turnstile.render(turnstileContainer.value, {
-      sitekey: TURNSTILE_SITE_KEY,
-      callback: onTurnstileVerify,
-      'error-callback': onTurnstileError,
-      'expired-callback': onTurnstileExpire,
-      theme: document.documentElement.classList.contains('dark') ? 'dark' : 'light',
-      size: 'normal',
-    });
+    turnstileWidgetId.value = window.turnstile.render(
+      turnstileContainer.value,
+      {
+        sitekey: TURNSTILE_SITE_KEY,
+        callback: onTurnstileVerify,
+        'error-callback': onTurnstileError,
+        'expired-callback': onTurnstileExpire,
+        theme: document.documentElement.classList.contains('dark')
+          ? 'dark'
+          : 'light',
+        size: 'normal',
+      }
+    );
   } catch (error) {
     console.error('Failed to initialize Turnstile:', error);
   }
@@ -102,7 +109,7 @@ function loadTurnstileScript() {
 // 开发模式下的简单验证
 function handleFallbackVerify() {
   if (verified.value) return;
-  
+
   setTimeout(() => {
     verified.value = true;
     emit('verify', 'dev-token-' + Date.now());

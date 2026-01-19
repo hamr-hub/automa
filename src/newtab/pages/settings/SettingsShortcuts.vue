@@ -1,6 +1,5 @@
 <template>
-  <p v-if="recording.isChanged"
-class="mb-4 text-gray-600 dark:text-gray-200">
+  <p v-if="recording.isChanged" class="mb-4 text-gray-600 dark:text-gray-200">
     {{ t('settings.language.reloadPage') }}
   </p>
   <div class="mb-8 rounded-lg border border-gray-200 p-4 dark:border-gray-800">
@@ -9,8 +8,7 @@ class="mb-4 text-gray-600 dark:text-gray-200">
       <ui-list-item class="group">
         <p class="flex-1">Shortcut</p>
         <template v-if="recording.id === 'automa:shortcut'">
-          <kbd v-for="key in recording.keys"
-:key="key">
+          <kbd v-for="key in recording.keys" :key="key">
             {{ getReadableShortcut(key) }}
           </kbd>
           <button
@@ -42,8 +40,7 @@ class="mb-4 text-gray-600 dark:text-gray-200">
           >
             <v-remixicon name="riRecordCircleLine" />
           </button>
-          <kbd v-for="key in automaShortcut.split('+')"
-:key="key">
+          <kbd v-for="key in automaShortcut.split('+')" :key="key">
             {{ key }}
           </kbd>
         </template>
@@ -68,8 +65,7 @@ class="mb-4 text-gray-600 dark:text-gray-200">
           {{ shortcut.name }}
         </p>
         <template v-if="recording.id === shortcut.id">
-          <kbd v-for="key in recording.keys"
-:key="key">
+          <kbd v-for="key in recording.keys" :key="key">
             {{ getReadableShortcut(key) }}
           </kbd>
           <button
@@ -94,8 +90,7 @@ class="mb-4 text-gray-600 dark:text-gray-200">
           >
             <v-remixicon name="riRecordCircleLine" />
           </button>
-          <kbd v-for="key in shortcut.keys"
-:key="key">
+          <kbd v-for="key in shortcut.keys" :key="key">
             {{ key }}
           </kbd>
         </template>

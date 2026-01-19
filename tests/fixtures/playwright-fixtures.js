@@ -4,18 +4,16 @@
  */
 
 import { test as base, expect } from '@playwright/test';
-import { launchBrowserWithExtension, getExtensionIds } from './extension-loader.js';
+import {
+  launchBrowserWithExtension,
+  getExtensionIds,
+} from './extension-loader';
 
 const EXTENSION_PATH = process.env.EXTENSION_PATH || './dist/chrome';
 
-async function createExtensionPage({ browser }) {
-  const { context, page } = await launchBrowserWithExtension(EXTENSION_PATH);
-  return { context, page };
-}
-
 export const test = base.extend({
-  extensionPage: async ({ browser }, use) => {
-    const { context, page } = await launchBrowserWithExtension();
+  extensionPage: async (_, use) => {
+    const { context, page } = await launchBrowserWithExtension(EXTENSION_PATH);
     await use({ context, page });
     await context.close();
   },

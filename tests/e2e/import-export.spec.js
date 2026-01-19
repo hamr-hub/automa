@@ -24,14 +24,18 @@ describe('导入导出测试', () => {
   test.describe('导出工作流', () => {
     test('TC-IMPORT-001: 导出工作流为JSON文件', async () => {
       await test.step('选择工作流', async () => {
-        const workflowCard = page.locator('[class*="workflow-card"], [class*="WorkflowCard"]').first();
+        const workflowCard = page
+          .locator('[class*="workflow-card"], [class*="WorkflowCard"]')
+          .first();
         if (await workflowCard.isVisible()) {
           await workflowCard.click();
         }
       });
 
       await test.step('打开导出菜单', async () => {
-        const moreBtn = page.locator('[class*="more"], [class*="menu"], button:has-text("更多")]').first();
+        const moreBtn = page
+          .locator('[class*="more"], [class*="menu"], button:has-text("更多")]')
+          .first();
         if (await moreBtn.isVisible()) {
           await moreBtn.click();
         }
@@ -45,7 +49,9 @@ describe('导入导出测试', () => {
       });
 
       await test.step('确认导出', async () => {
-        const confirmBtn = page.locator('button:has-text("确认"), button:has-text("下载")]').first();
+        const confirmBtn = page
+          .locator('button:has-text("确认"), button:has-text("下载")]')
+          .first();
         if (await confirmBtn.isVisible()) {
           await confirmBtn.click();
         }
@@ -61,14 +67,18 @@ describe('导入导出测试', () => {
       });
 
       await test.step('打开导出菜单', async () => {
-        const moreBtn = page.locator('button:has-text("更多"), [aria-label="更多"]').first();
+        const moreBtn = page
+          .locator('button:has-text("更多"), [aria-label="更多"]')
+          .first();
         if (await moreBtn.isVisible()) {
           await moreBtn.click();
         }
       });
 
       await test.step('选择图片导出', async () => {
-        const imageExportBtn = page.locator('text=图片, text=Image, text=PNG').first();
+        const imageExportBtn = page
+          .locator('text=图片, text=Image, text=PNG')
+          .first();
         if (await imageExportBtn.isVisible()) {
           await imageExportBtn.click();
         }
@@ -119,7 +129,9 @@ describe('导入导出测试', () => {
       });
 
       await test.step('验证警告', async () => {
-        const warningMsg = page.locator('text=空, text=没有数据, text=警告').first();
+        const warningMsg = page
+          .locator('text=空, text=没有数据, text=警告')
+          .first();
         if (await warningMsg.isVisible({ timeout: 2000 })) {
           expect(await warningMsg.isVisible()).toBe(true);
         }
@@ -137,14 +149,18 @@ describe('导入导出测试', () => {
       });
 
       await test.step('选择文件', async () => {
-        const fileInput = page.locator('input[type="file"], input[accept=".json"]').first();
+        const fileInput = page
+          .locator('input[type="file"], input[accept=".json"]')
+          .first();
         if (await fileInput.isVisible()) {
           await fileInput.setInputFiles('tests/fixtures/amazon-workflow.json');
         }
       });
 
       await test.step('确认导入', async () => {
-        const confirmBtn = page.locator('button:has-text("确认"), button:has-text("导入")]').first();
+        const confirmBtn = page
+          .locator('button:has-text("确认"), button:has-text("导入")]')
+          .first();
         if (await confirmBtn.isVisible()) {
           await confirmBtn.click();
         }
@@ -175,7 +191,9 @@ describe('导入导出测试', () => {
       });
 
       await test.step('验证错误提示', async () => {
-        const errorMsg = page.locator('text=无效, text=错误, text=解析失败').first();
+        const errorMsg = page
+          .locator('text=无效, text=错误, text=解析失败')
+          .first();
         if (await errorMsg.isVisible({ timeout: 2000 })) {
           expect(await errorMsg.isVisible()).toBe(true);
         }
@@ -264,14 +282,18 @@ describe('导入导出测试', () => {
       });
 
       await test.step('打开分享菜单', async () => {
-        const shareBtn = page.locator('text=分享, text=Share, [aria-label="分享"]').first();
+        const shareBtn = page
+          .locator('text=分享, text=Share, [aria-label="分享"]')
+          .first();
         if (await shareBtn.isVisible()) {
           await shareBtn.click();
         }
       });
 
       await test.step('生成链接', async () => {
-        const generateBtn = page.locator('button:has-text("生成链接"), button:has-text("创建链接")]').first();
+        const generateBtn = page
+          .locator('button:has-text("生成链接"), button:has-text("创建链接")]')
+          .first();
         if (await generateBtn.isVisible()) {
           await generateBtn.click();
         }
@@ -279,7 +301,9 @@ describe('导入导出测试', () => {
 
       await test.step('验证链接已生成', async () => {
         await page.waitForTimeout(2000);
-        const linkInput = page.locator('input[placeholder*="http"], [class*="share-link"]').first();
+        const linkInput = page
+          .locator('input[placeholder*="http"], [class*="share-link"]')
+          .first();
         if (await linkInput.isVisible()) {
           const link = await linkInput.inputValue();
           expect(link).toContain('http');
@@ -298,7 +322,9 @@ describe('导入导出测试', () => {
       });
 
       await test.step('复制链接', async () => {
-        const copyBtn = page.locator('button:has-text("复制"), [aria-label="复制"]').first();
+        const copyBtn = page
+          .locator('button:has-text("复制"), [aria-label="复制"]')
+          .first();
         if (await copyBtn.isVisible()) {
           await copyBtn.click();
         }
@@ -314,12 +340,16 @@ describe('导入导出测试', () => {
 
     test('TC-IMPORT-012: 通过链接导入工作流', async () => {
       await test.step('访问分享链接', async () => {
-        await page.goto(`chrome-extension://${EXTENSION_ID}/newtab.html?import=shared-workflow-id`);
+        await page.goto(
+          `chrome-extension://${EXTENSION_ID}/newtab.html?import=shared-workflow-id`
+        );
         await page.waitForLoadState('domcontentloaded');
       });
 
       await test.step('确认导入', async () => {
-        const importBtn = page.locator('button:has-text("导入"), button:has-text("确认")]').first();
+        const importBtn = page
+          .locator('button:has-text("导入"), button:has-text("确认")]')
+          .first();
         if (await importBtn.isVisible()) {
           await importBtn.click();
         }
@@ -327,7 +357,9 @@ describe('导入导出测试', () => {
 
       await test.step('验证导入成功', async () => {
         await page.waitForTimeout(2000);
-        const workflowEditor = page.locator('[class*="workflow-editor"], [class*="editor"]').first();
+        const workflowEditor = page
+          .locator('[class*="workflow-editor"], [class*="editor"]')
+          .first();
         if (await workflowEditor.isVisible()) {
           expect(await workflowEditor.isVisible()).toBe(true);
         }
@@ -343,7 +375,9 @@ describe('导入导出测试', () => {
       });
 
       await test.step('设置权限', async () => {
-        const permissionSelect = page.locator('select, [class*="permission"]').first();
+        const permissionSelect = page
+          .locator('select, [class*="permission"]')
+          .first();
         if (await permissionSelect.isVisible()) {
           await permissionSelect.selectOption('public');
         }
@@ -354,7 +388,9 @@ describe('导入导出测试', () => {
   test.describe('备份恢复', () => {
     test('TC-IMPORT-014: 创建备份', async () => {
       await test.step('打开设置', async () => {
-        const settingsBtn = page.locator('text=设置, [aria-label="设置"]').first();
+        const settingsBtn = page
+          .locator('text=设置, [aria-label="设置"]')
+          .first();
         if (await settingsBtn.isVisible()) {
           await settingsBtn.click();
         }
@@ -368,7 +404,9 @@ describe('导入导出测试', () => {
       });
 
       await test.step('创建备份', async () => {
-        const createBtn = page.locator('button:has-text("创建备份"), button:has-text("下载")]').first();
+        const createBtn = page
+          .locator('button:has-text("创建备份"), button:has-text("下载")]')
+          .first();
         if (await createBtn.isVisible()) {
           await createBtn.click();
         }
@@ -398,7 +436,9 @@ describe('导入导出测试', () => {
       });
 
       await test.step('确认恢复', async () => {
-        const confirmBtn = page.locator('button:has-text("确认"), button:has-text("恢复")]').first();
+        const confirmBtn = page
+          .locator('button:has-text("确认"), button:has-text("恢复")]')
+          .first();
         if (await confirmBtn.isVisible()) {
           await confirmBtn.click();
         }
@@ -409,7 +449,9 @@ describe('导入导出测试', () => {
   test.describe('批量操作', () => {
     test('TC-IMPORT-016: 批量导出', async () => {
       await test.step('选择多个工作流', async () => {
-        const checkboxes = page.locator('input[type="checkbox"], [class*="checkbox"]');
+        const checkboxes = page.locator(
+          'input[type="checkbox"], [class*="checkbox"]'
+        );
         const count = await checkboxes.count();
 
         for (let i = 0; i < Math.min(3, count); i++) {
@@ -420,7 +462,9 @@ describe('导入导出测试', () => {
       });
 
       await test.step('批量导出', async () => {
-        const bulkExportBtn = page.locator('button:has-text("批量导出"), button:has-text("导出选中")]').first();
+        const bulkExportBtn = page
+          .locator('button:has-text("批量导出"), button:has-text("导出选中")]')
+          .first();
         if (await bulkExportBtn.isVisible()) {
           await bulkExportBtn.click();
         }

@@ -101,13 +101,7 @@ export default [
           endOfLine: 'auto',
         },
       ],
-      'import/extensions': [
-        'error',
-        'always',
-        {
-          js: 'never',
-        },
-      ],
+      'import/extensions': 'off',
       'no-param-reassign': 'off',
       'import/no-extraneous-dependencies': 'off',
       'import/prefer-default-export': 'off',
@@ -115,8 +109,8 @@ export default [
     },
     settings: {
       'import/resolver': {
-        webpack: {
-          config: './webpack.config.js',
+        node: {
+          extensions: ['.js', '.vue'],
         },
       },
     },
@@ -130,6 +124,8 @@ export default [
       'utils/**/*.js',
       'scripts/**/*.js',
       'eslint.config.js',
+      'tests/**/*.js',
+      'playwright.e2e.config.js',
     ],
     languageOptions: {
       globals: {

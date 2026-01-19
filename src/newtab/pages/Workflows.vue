@@ -1,6 +1,8 @@
 <template>
   <div class="flex flex-col">
-    <div class="flex h-10 items-center border-b border-gray-200 dark:border-tech-blue-900/30 bg-gradient-to-r from-transparent via-tech-blue-50/30 to-transparent dark:from-transparent dark:via-tech-blue-900/20 dark:to-transparent">
+    <div
+      class="flex h-10 items-center border-b border-gray-200 dark:border-tech-blue-900/30 bg-gradient-to-r from-transparent via-tech-blue-50/30 to-transparent dark:from-transparent dark:via-tech-blue-900/20 dark:to-transparent"
+    >
       <draggable
         v-model="state.tabs"
         item-key="id"
@@ -32,14 +34,15 @@
               title="Close tab"
               @click.stop="closeTab(index, tab)"
             >
-              <v-remixicon name="riCloseLine"
-size="20" />
+              <v-remixicon name="riCloseLine" size="20" />
             </span>
           </button>
         </template>
       </draggable>
-      <button class="h-full px-2 hover:bg-tech-blue-50 dark:hover:bg-tech-blue-900/30 transition-all duration-200"
-@click="addTab()">
+      <button
+        class="h-full px-2 hover:bg-tech-blue-50 dark:hover:bg-tech-blue-900/30 transition-all duration-200"
+        @click="addTab()"
+      >
         <v-remixicon name="riAddLine" />
       </button>
     </div>

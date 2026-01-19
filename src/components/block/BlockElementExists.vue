@@ -10,14 +10,12 @@
     @update="$emit('update', $event)"
     @settings="$emit('settings', $event)"
   >
-    <Handle :id="`${id}-input-1`"
-type="target" :position="Position.Left" />
+    <Handle :id="`${id}-input-1`" type="target" :position="Position.Left" />
     <div
       :class="data.disableBlock ? 'bg-box-transparent' : block.category.color"
       class="mb-2 inline-block rounded-lg p-2 text-sm dark:text-black"
     >
-      <v-remixicon name="riFocus3Line"
-size="20" class="mr-1 inline-block" />
+      <v-remixicon name="riFocus3Line" size="20" class="mr-1 inline-block" />
       <span>{{ t('workflow.blocks.element-exists.name') }}</span>
     </div>
     <p
@@ -38,8 +36,7 @@ size="20" class="mr-1 inline-block" />
       </span>
       {{ t('common.fallback') }}
     </p>
-    <Handle :id="`${id}-output-1`"
-type="source" :position="Position.Right" />
+    <Handle :id="`${id}-output-1`" type="source" :position="Position.Right" />
     <Handle
       :id="`${id}-output-2`"
       type="source"

@@ -9,12 +9,13 @@
       class="absolute left-0 top-0 z-50 h-full w-full cursor-pointer opacity-0"
       v-bind="{ disabled, readonly: disabled || null }"
       @input="emitEvent"
-    />
+    >
     <div
       class="ui-switch__ball absolute z-40 flex h-4 w-4 items-center justify-center rounded-full bg-white shadow-xl"
     >
-      <slot
-v-if="$slots.ball" name="ball" />
+      <slot v-if="$slots.ball"
+name="ball"
+/>
     </div>
     <div
       class="ui-switch__background absolute left-0 top-0 h-full w-full rounded-md"

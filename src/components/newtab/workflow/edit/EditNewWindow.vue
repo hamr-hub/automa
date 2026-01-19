@@ -12,8 +12,7 @@
       label="Type"
       @change="updateData({ type: $event })"
     >
-      <option v-for="type in windowType"
-:key="type" :value="type">
+      <option v-for="type in windowType" :key="type" :value="type">
         {{ type }}
       </option>
     </ui-select>
@@ -30,8 +29,7 @@
       :label="t('workflow.blocks.new-window.windowState.placeholder')"
       @change="updateData({ windowState: $event })"
     >
-      <option v-for="state in windowStates"
-:key="state" :value="state">
+      <option v-for="state in windowStates" :key="state" :value="state">
         {{ t(`workflow.blocks.new-window.windowState.options.${state}`) }}
       </option>
     </ui-select>
@@ -46,8 +44,7 @@
         &#128712;
       </span>
     </ui-checkbox>
-    <div v-if="data.windowState === 'normal'"
-class="mt-2">
+    <div v-if="data.windowState === 'normal'" class="mt-2">
       <div
         :title="t('workflow.blocks.new-window.position')"
         class="mb-1 flex items-center space-x-2"

@@ -1,12 +1,22 @@
 <template>
   <div class="space-y-6">
     <!-- Browser Support Check -->
-    <div v-if="!isSupported" class="rounded-md bg-yellow-50 p-4 dark:bg-yellow-900/20">
+    <div
+      v-if="!isSupported"
+      class="rounded-md bg-yellow-50 p-4 dark:bg-yellow-900/20"
+    >
       <div class="flex">
-        <v-remixicon name="riAlertLine" class="text-yellow-400" />
+        <v-remixicon
+name="riAlertLine" class="text-yellow-400"
+/>
         <div class="ml-3">
           <p class="text-sm text-yellow-800 dark:text-yellow-200">
-            {{ t('auth.webauthn.notSupported', '您的浏览器不支持 Passkey，请使用最新版 Chrome、Safari 或 Edge') }}
+            {{
+              t(
+                'auth.webauthn.notSupported',
+                '您的浏览器不支持 Passkey，请使用最新版 Chrome、Safari 或 Edge'
+              )
+            }}
           </p>
         </div>
       </div>
@@ -15,17 +25,26 @@
     <!-- Introduction -->
     <div class="text-sm text-gray-600 dark:text-gray-400">
       <p class="mb-2">
-        {{ t('auth.webauthn.intro', 'Passkey 是一种更安全、更便捷的无密码登录方式。使用设备的指纹、面容或 PIN 码即可登录。') }}
+        {{
+          t(
+            'auth.webauthn.intro',
+            'Passkey 是一种更安全、更便捷的无密码登录方式。使用设备的指纹、面容或 PIN 码即可登录。'
+          )
+        }}
       </p>
       <ul class="ml-5 list-disc space-y-1">
         <li>{{ t('auth.webauthn.benefit1', '无需记住密码') }}</li>
         <li>{{ t('auth.webauthn.benefit2', '防止钓鱼攻击') }}</li>
-        <li>{{ t('auth.webauthn.benefit3', '支持多设备同步 (需浏览器支持)') }}</li>
+        <li>
+          {{ t('auth.webauthn.benefit3', '支持多设备同步 (需浏览器支持)') }}
+        </li>
       </ul>
     </div>
 
     <!-- Existing Passkeys List -->
-    <div v-if="passkeys.length > 0" class="space-y-3">
+    <div
+v-if="passkeys.length > 0" class="space-y-3"
+>
       <h3 class="text-sm font-medium text-gray-900 dark:text-white">
         {{ t('auth.webauthn.registered', '已注册的 Passkey') }}
       </h3>
@@ -37,15 +56,23 @@
         >
           <div class="flex items-center space-x-3">
             <v-remixicon
-              :name="passkey.device_type === 'platform' ? 'riSmartphoneLine' : 'riUsbLine'"
+              :name="
+                passkey.device_type === 'platform'
+                  ? 'riSmartphoneLine'
+                  : 'riUsbLine'
+              "
               class="text-gray-400"
             />
             <div>
               <p class="text-sm font-medium text-gray-900 dark:text-white">
-                {{ passkey.device_name || t('auth.webauthn.unnamedDevice', '未命名设备') }}
+                {{
+                  passkey.device_name ||
+                    t('auth.webauthn.unnamedDevice', '未命名设备')
+                }}
               </p>
               <p class="text-xs text-gray-500">
-                {{ t('common.created', '创建于') }}: {{ new Date(passkey.created_at).toLocaleDateString() }}
+                {{ t('common.created', '创建于') }}:
+                {{ new Date(passkey.created_at).toLocaleDateString() }}
               </p>
             </div>
           </div>
@@ -67,18 +94,34 @@
         variant="accent"
         @click="handleRegisterPasskey"
       >
-        <ui-spinner v-if="loading" size="20" class="mr-2" />
-        <v-remixicon v-else name="riFingerprint2Line" class="mr-2" />
-        {{ loading ? t('common.processing', '处理中...') : t('auth.webauthn.register', '注册新 Passkey') }}
+        <ui-spinner
+v-if="loading" size="20"
+class="mr-2"
+/>
+        <v-remixicon
+v-else name="riFingerprint2Line"
+class="mr-2"
+/>
+        {{
+          loading
+            ? t('common.processing', '处理中...')
+            : t('auth.webauthn.register', '注册新 Passkey')
+        }}
       </ui-button>
     </div>
 
     <!-- Error Message -->
-    <div v-if="error" class="rounded-md bg-red-50 p-4 dark:bg-red-900/20">
+    <div
+v-if="error" class="rounded-md bg-red-50 p-4 dark:bg-red-900/20"
+>
       <div class="flex">
-        <v-remixicon name="riErrorWarningLine" class="text-red-400" />
+        <v-remixicon
+name="riErrorWarningLine" class="text-red-400"
+/>
         <div class="ml-3">
-          <p class="text-sm text-red-800 dark:text-red-200">{{ error }}</p>
+          <p class="text-sm text-red-800 dark:text-red-200">
+            {{ error }}
+          </p>
         </div>
       </div>
     </div>
@@ -126,20 +169,24 @@ async function handleRegisterPasskey() {
     }
 
     await supabaseClient.registerPasskey(user.email);
-    
+
     window.alert(t('auth.webauthn.registerSuccess', 'Passkey 注册成功！'));
     await loadPasskeys();
     emit('complete');
   } catch (err) {
     console.error('Passkey registration failed:', err);
-    
+
     // 用户友好的错误信息
     if (err.name === 'NotAllowedError') {
       error.value = t('auth.webauthn.userCancelled', '操作已取消');
     } else if (err.name === 'InvalidStateError') {
-      error.value = t('auth.webauthn.alreadyRegistered', '此设备已注册过 Passkey');
+      error.value = t(
+        'auth.webauthn.alreadyRegistered',
+        '此设备已注册过 Passkey'
+      );
     } else {
-      error.value = err.message || t('auth.webauthn.registerFailed', '注册失败，请重试');
+      error.value =
+        err.message || t('auth.webauthn.registerFailed', '注册失败，请重试');
     }
   } finally {
     loading.value = false;
@@ -147,7 +194,11 @@ async function handleRegisterPasskey() {
 }
 
 async function handleDeletePasskey(passkeyId) {
-  if (!window.confirm(t('auth.webauthn.confirmDelete', '确定要删除这个 Passkey 吗？'))) {
+  if (
+    !window.confirm(
+      t('auth.webauthn.confirmDelete', '确定要删除这个 Passkey 吗？')
+    )
+  ) {
     return;
   }
 

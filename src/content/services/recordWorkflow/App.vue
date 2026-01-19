@@ -20,195 +20,192 @@
         transform: `translate(${draggingState.xPos}px, ${draggingState.yPos}px)`,
       }"
     >
-    <div
-      class="hoverable flex select-none items-center px-4 py-2 transition"
-      :class="[draggingState.dragging ? 'cursor-grabbing' : 'cursor-grab']"
-      @mouseup="toggleDragging(false, $event)"
-      @mousedown="toggleDragging(true, $event)"
-    >
-      <span
-        class="relative flex cursor-pointer items-center justify-center rounded-full bg-blue-500"
-        style="height: 24px; width: 24px"
-        title="Element selector"
+      <div
+        class="hoverable flex select-none items-center px-4 py-2 transition"
+        :class="[draggingState.dragging ? 'cursor-grabbing' : 'cursor-grab']"
+        @mouseup="toggleDragging(false, $event)"
+        @mousedown="toggleDragging(true, $event)"
       >
-        <v-remixicon
-          name="riCursorLine"
-          class="relative z-10"
-          size="20"
-        />
-      </span>
-      <p class="ml-2 font-semibold">Select Element</p>
-      <div class="grow" />
-      <v-remixicon name="mdiDragHorizontal" />
-    </div>
-    <div class="p-4">
-      <template v-if="selectState.status === 'idle'">
-        <button
-          class="bg-input w-full rounded-lg px-4 py-2 transition"
-          @click="startSelecting()"
+        <span
+          class="relative flex cursor-pointer items-center justify-center rounded-full bg-blue-500"
+          style="height: 24px; width: 24px"
+          title="Element selector"
         >
-          Select element
-        </button>
-        <button
-          class="bg-input mt-2 w-full rounded-lg px-4 py-2 transition"
-          @click="startSelecting(true)"
+          <v-remixicon name="riCursorLine" class="relative z-10" size="20" />
+        </span>
+        <p class="ml-2 font-semibold">Select Element</p>
+        <div class="grow" />
+        <v-remixicon name="mdiDragHorizontal" />
+      </div>
+      <div class="p-4">
+        <template v-if="selectState.status === 'idle'">
+          <button
+            class="bg-input w-full rounded-lg px-4 py-2 transition"
+            @click="startSelecting()"
+          >
+            Select element
+          </button>
+          <button
+            class="bg-input mt-2 w-full rounded-lg px-4 py-2 transition"
+            @click="startSelecting(true)"
+          >
+            Select list element
+          </button>
+        </template>
+        <div
+          v-else-if="selectState.status === 'selecting'"
+          class="leading-tight"
         >
-          Select list element
-        </button>
-      </template>
-      <div v-else-if="selectState.status === 'selecting'"
-class="leading-tight">
-        <p v-if="selectState.selectedElements.length === 0">
-          Select an element by clicking on it
-        </p>
-        <template v-else>
-          <template v-if="selectState.list && !selectState.listId">
-            <label for="list-id"
-class="ml-1" style="font-size: 14px">
-              Element list id
-            </label>
-            <input
-              id="list-id"
-              v-model="tempListId"
-              placeholder="listId"
-              class="bg-input w-full rounded-lg px-4 py-2"
-              @keyup.enter="saveElementListId"
-            />
-            <button
-              :class="{ 'opacity-75 pointer-events-none': !tempListId }"
-              class="mt-2 w-full rounded-lg bg-accent px-4 py-2 text-white"
-              @click="saveElementListId"
-            >
-              Save
-            </button>
-          </template>
+          <p v-if="selectState.selectedElements.length === 0">
+            Select an element by clicking on it
+          </p>
           <template v-else>
-            <div class="flex w-full items-center space-x-2">
+            <template v-if="selectState.list && !selectState.listId">
+              <label for="list-id" class="ml-1" style="font-size: 14px">
+                Element list id
+              </label>
               <input
-                :value="selectState.childSelector || selectState.parentSelector"
+                id="list-id"
+                v-model="tempListId"
+                placeholder="listId"
                 class="bg-input w-full rounded-lg px-4 py-2"
-                readonly
-              />
+                @keyup.enter="saveElementListId"
+              >
+              <button
+                :class="{ 'opacity-75 pointer-events-none': !tempListId }"
+                class="mt-2 w-full rounded-lg bg-accent px-4 py-2 text-white"
+                @click="saveElementListId"
+              >
+                Save
+              </button>
+            </template>
+            <template v-else>
+              <div class="flex w-full items-center space-x-2">
+                <input
+                  :value="
+                    selectState.childSelector || selectState.parentSelector
+                  "
+                  class="bg-input w-full rounded-lg px-4 py-2"
+                  readonly
+                />
+                <template
+                  v-if="
+                    !selectState.list &&
+                    !selectState.childSelector.includes('|>')
+                  "
+                >
+                  <button @click="selectElementPath('up')">
+                    <v-remixicon name="riArrowLeftLine" rotate="90" />
+                  </button>
+                  <button @click="selectElementPath('down')">
+                    <v-remixicon name="riArrowLeftLine" rotate="-90" />
+                  </button>
+                </template>
+              </div>
+              <select
+                v-model="addBlockState.activeBlock"
+                class="bg-input mt-2 w-full rounded-lg px-4 py-2"
+              >
+                <option
+value="" disabled selected>Select what to do</option>
+                <option
+                  v-for="block in addBlockState.blocks"
+                  :key="block"
+                  :value="block"
+                >
+                  {{ tasks[block].name }}
+                </option>
+              </select>
               <template
                 v-if="
-                  !selectState.list && !selectState.childSelector.includes('|>')
+                  ['get-text', 'attribute-value'].includes(
+                    addBlockState.activeBlock
+                  )
                 "
               >
-                <button @click="selectElementPath('up')">
-                  <v-remixicon name="riArrowLeftLine"
-rotate="90" />
-                </button>
-                <button @click="selectElementPath('down')">
-                  <v-remixicon name="riArrowLeftLine"
-rotate="-90" />
-                </button>
-              </template>
-            </div>
-            <select
-              v-model="addBlockState.activeBlock"
-              class="bg-input mt-2 w-full rounded-lg px-4 py-2"
-            >
-              <option
-value="" disabled selected>Select what to do</option>
-              <option
-                v-for="block in addBlockState.blocks"
-                :key="block"
-                :value="block"
-              >
-                {{ tasks[block].name }}
-              </option>
-            </select>
-            <template
-              v-if="
-                ['get-text', 'attribute-value'].includes(
-                  addBlockState.activeBlock
-                )
-              "
-            >
-              <select
-                v-if="addBlockState.activeBlock === 'attribute-value'"
-                v-model="addBlockState.activeAttr"
-                class="bg-input mt-2 block w-full rounded-lg px-4 py-2"
-              >
-                <option
+                <select
+                  v-if="addBlockState.activeBlock === 'attribute-value'"
+                  v-model="addBlockState.activeAttr"
+                  class="bg-input mt-2 block w-full rounded-lg px-4 py-2"
+                >
+                  <option
 value="" selected disabled>Select attribute</option>
-                <option
-                  v-for="(value, name) in addBlockState.attributes"
-                  :key="name"
-                  :value="name"
+                  <option
+                    v-for="(value, name) in addBlockState.attributes"
+                    :key="name"
+                    :value="name"
+                  >
+                    {{ name }}({{ value.slice(0, 64) }})
+                  </option>
+                </select>
+                <label
+                  for="variable-name"
+                  class="ml-2 mt-2 text-sm text-gray-600"
                 >
-                  {{ name }}({{ value.slice(0, 64) }})
-                </option>
-              </select>
-              <label
-                for="variable-name"
-                class="ml-2 mt-2 text-sm text-gray-600"
-              >
-                Assign to variable
-              </label>
-              <input
-                id="variable-name"
-                v-model="addBlockState.varName"
-                placeholder="Variable name"
-                class="bg-input w-full rounded-lg px-4 py-2"
-              />
-              <label
-                for="select-column"
-                class="ml-2 mt-2 text-sm text-gray-600"
-              >
-                Insert to table
-              </label>
-              <select
-                id="select-column"
-                v-model="addBlockState.column"
-                class="bg-input block w-full rounded-lg px-4 py-2"
-              >
-                <option
+                  Assign to variable
+                </label>
+                <input
+                  id="variable-name"
+                  v-model="addBlockState.varName"
+                  placeholder="Variable name"
+                  class="bg-input w-full rounded-lg px-4 py-2"
+                >
+                <label
+                  for="select-column"
+                  class="ml-2 mt-2 text-sm text-gray-600"
+                >
+                  Insert to table
+                </label>
+                <select
+                  id="select-column"
+                  v-model="addBlockState.column"
+                  class="bg-input block w-full rounded-lg px-4 py-2"
+                >
+                  <option
 value="" selected>Select column [none]</option>
-                <option
-                  v-for="column in addBlockState.workflowColumns"
-                  :key="column.id"
-                  :value="column.id"
-                >
-                  {{ column.name }}
-                </option>
-              </select>
+                  <option
+                    v-for="column in addBlockState.workflowColumns"
+                    :key="column.id"
+                    :value="column.id"
+                  >
+                    {{ column.name }}
+                  </option>
+                </select>
+              </template>
+              <button
+                v-if="addBlockState.activeBlock"
+                :class="{
+                  'pointer-events-none opacity-75':
+                    addBlockState.activeBlock === 'attribute-value' &&
+                    !addBlockState.activeAttr,
+                }"
+                class="mt-4 block w-full rounded-lg bg-accent px-4 py-2 text-white"
+                @click="addFlowItem"
+              >
+                Save
+              </button>
             </template>
-            <button
-              v-if="addBlockState.activeBlock"
-              :class="{
-                'pointer-events-none opacity-75':
-                  addBlockState.activeBlock === 'attribute-value' &&
-                  !addBlockState.activeAttr,
-              }"
-              class="mt-4 block w-full rounded-lg bg-accent px-4 py-2 text-white"
-              @click="addFlowItem"
-            >
-              Save
-            </button>
           </template>
-        </template>
-        <p class="mt-4"
-style="font-size: 14px">
-          Press <kbd class="bg-box-transparent rounded-md p-1">Esc</kbd> to
-          cancel
-        </p>
+          <p class="mt-4" style="font-size: 14px">
+            Press <kbd class="bg-box-transparent rounded-md p-1">Esc</kbd> to
+            cancel
+          </p>
+        </div>
       </div>
     </div>
-  </div>
-  <shared-element-selector
-    v-if="selectState.isSelecting"
-    :selected-els="selectState.selectedElements"
-    with-attributes
-    only-in-list
-    :list="selectState.list"
-    :pause="
-      selectState.selectedElements.length > 0 &&
-      selectState.list &&
-      !selectState.listId
-    "
-    @selected="onElementsSelected"
-  />
+    <shared-element-selector
+      v-if="selectState.isSelecting"
+      :selected-els="selectState.selectedElements"
+      with-attributes
+      only-in-list
+      :list="selectState.list"
+      :pause="
+        selectState.selectedElements.length > 0 &&
+        selectState.list &&
+          !selectState.listId
+      "
+      @selected="onElementsSelected"
+    />
   </div>
 </template>
 <script setup>

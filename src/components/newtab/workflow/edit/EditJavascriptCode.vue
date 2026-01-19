@@ -61,11 +61,9 @@
         Run before page loaded
       </ui-checkbox>
     </template>
-    <ui-modal v-model="state.showCodeModal"
-content-class="max-w-4xl">
+    <ui-modal v-model="state.showCodeModal" content-class="max-w-4xl">
       <template #header>
-        <ui-tabs v-model="state.activeTab"
-class="border-none">
+        <ui-tabs v-model="state.activeTab" class="border-none">
           <ui-tab value="code">
             {{ t('workflow.blocks.javascript-code.modal.tabs.code') }}
           </ui-tab>
@@ -79,8 +77,7 @@ class="border-none">
         class="overflow-auto"
         style="height: calc(100vh - 9rem)"
       >
-        <ui-tab-panel value="code"
-class="h-full">
+        <ui-tab-panel value="code" class="h-full">
           <shared-codemirror
             v-model="state.code"
             :extensions="codemirrorExts"
@@ -143,8 +140,7 @@ class="h-full">
               {{ t('workflow.blocks.javascript-code.removeAfterExec') }}
             </ui-checkbox>
           </div>
-          <ui-button variant="accent"
-class="mt-4 w-20" @click="addScript">
+          <ui-button variant="accent" class="mt-4 w-20" @click="addScript">
             {{ t('common.add') }}
           </ui-button>
         </ui-tab-panel>

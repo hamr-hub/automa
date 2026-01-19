@@ -29,8 +29,7 @@
       class="mb-2 w-full"
       @change="updateData({ port: $event })"
     />
-    <label for="input-bypass"
-class="input-label">
+    <label for="input-bypass" class="input-label">
       {{ t('workflow.blocks.proxy.bypass.label') }}
       <a
         href="https://developer.chrome.com/docs/extensions/reference/proxy/#bypass-list"

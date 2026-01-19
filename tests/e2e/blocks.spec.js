@@ -31,7 +31,11 @@ describe('工作流块操作测试', () => {
       });
 
       await test.step('点击添加块按钮', async () => {
-        const addBlockBtn = page.locator('[class*="add-block"], [class*="AddBlock"], button:has-text("添加块")').first();
+        const addBlockBtn = page
+          .locator(
+            '[class*="add-block"], [class*="AddBlock"], button:has-text("添加块")'
+          )
+          .first();
         if (await addBlockBtn.isVisible()) {
           await addBlockBtn.click();
         }
@@ -58,7 +62,9 @@ describe('工作流块操作测试', () => {
       });
 
       await test.step('验证块已添加', async () => {
-        const blocks = page.locator('[class*="block"], [class*="Block"], [class*="node"]');
+        const blocks = page.locator(
+          '[class*="block"], [class*="Block"], [class*="node"]'
+        );
         await expect(blocks.first()).toBeVisible({ timeout: 5000 });
       });
     });
@@ -68,7 +74,9 @@ describe('工作流块操作测试', () => {
 
       for (const blockType of blockTypes) {
         await test.step(`添加${blockType}块`, async () => {
-          const addBtn = page.locator('[class*="add-block"], button[class*="add"]').first();
+          const addBtn = page
+            .locator('[class*="add-block"], button[class*="add"]')
+            .first();
           if (await addBtn.isVisible()) {
             await addBtn.click();
           }
@@ -83,7 +91,9 @@ describe('工作流块操作测试', () => {
       }
 
       await test.step('验证所有块已添加', async () => {
-        const blockCount = await page.locator('[class*="block"], [class*="Block"]').count();
+        const blockCount = await page
+          .locator('[class*="block"], [class*="Block"]')
+          .count();
         expect(blockCount).toBeGreaterThanOrEqual(blockTypes.length);
       });
     });
@@ -129,12 +139,18 @@ describe('工作流块操作测试', () => {
       });
 
       await test.step('修改块属性', async () => {
-        const selectorInput = page.locator('input[placeholder*="选择器"], input[placeholder*="selector"]').first();
+        const selectorInput = page
+          .locator(
+            'input[placeholder*="选择器"], input[placeholder*="selector"]'
+          )
+          .first();
         if (await selectorInput.isVisible()) {
           await selectorInput.fill('#submit-button');
         }
 
-        const saveBtn = page.locator('button:has-text("保存"), button:has-text("确认")').first();
+        const saveBtn = page
+          .locator('button:has-text("保存"), button:has-text("确认")')
+          .first();
         if (await saveBtn.isVisible()) {
           await saveBtn.click();
         }
@@ -154,7 +170,9 @@ describe('工作流块操作测试', () => {
       });
 
       await test.step('配置时间参数', async () => {
-        const timeInput = page.locator('input[type="number"], input[placeholder*="时间"]').first();
+        const timeInput = page
+          .locator('input[type="number"], input[placeholder*="时间"]')
+          .first();
         if (await timeInput.isVisible()) {
           await timeInput.fill('5000');
         }
@@ -174,14 +192,18 @@ describe('工作流块操作测试', () => {
       });
 
       await test.step('输入无效选择器', async () => {
-        const selectorInput = page.locator('input[placeholder*="选择器"]').first();
+        const selectorInput = page
+          .locator('input[placeholder*="选择器"]')
+          .first();
         if (await selectorInput.isVisible()) {
           await selectorInput.fill('invalid!!!selector###');
         }
       });
 
       await test.step('验证错误提示', async () => {
-        const errorMsg = page.locator('text=无效, text=错误, [class*="error"]').first();
+        const errorMsg = page
+          .locator('text=无效, text=错误, [class*="error"]')
+          .first();
         if (await errorMsg.isVisible()) {
           expect(await errorMsg.isVisible()).toBe(true);
         }
@@ -199,7 +221,9 @@ describe('工作流块操作测试', () => {
         const secondBlock = blocks.nth(1);
 
         await test.step('拖拽连接线', async () => {
-          const connector = firstBlock.locator('[class*="output"], [class*="connector"]').first();
+          const connector = firstBlock
+            .locator('[class*="output"], [class*="connector"]')
+            .first();
           if (await connector.isVisible()) {
             await connector.dragTo(secondBlock);
           }
@@ -208,12 +232,16 @@ describe('工作流块操作测试', () => {
     });
 
     test('TC-BLOCK-008: 断开块连接', async () => {
-      const connection = page.locator('[class*="connection"], [class*="edge"]').first();
+      const connection = page
+        .locator('[class*="connection"], [class*="edge"]')
+        .first();
       if (await connection.isVisible()) {
         await connection.click({ force: true });
       }
 
-      const deleteBtn = page.locator('button:has-text("删除"), button[aria-label="删除"]').first();
+      const deleteBtn = page
+        .locator('button:has-text("删除"), button[aria-label="删除"]')
+        .first();
       if (await deleteBtn.isVisible()) {
         await deleteBtn.click();
       }
@@ -248,14 +276,18 @@ describe('工作流块操作测试', () => {
         });
 
         await test.step('删除块', async () => {
-          const deleteBtn = page.locator('button:has-text("删除"), [aria-label="删除"]').first();
+          const deleteBtn = page
+            .locator('button:has-text("删除"), [aria-label="删除"]')
+            .first();
           if (await deleteBtn.isVisible()) {
             await deleteBtn.click();
           }
         });
 
         await test.step('确认删除', async () => {
-          const confirmBtn = page.locator('button:has-text("确认"), button:has-text("是")').first();
+          const confirmBtn = page
+            .locator('button:has-text("确认"), button:has-text("是")')
+            .first();
           if (await confirmBtn.isVisible()) {
             await confirmBtn.click();
           }
@@ -299,7 +331,9 @@ describe('工作流块操作测试', () => {
           await deleteBtn.click();
         }
 
-        const undoBtn = page.locator('button:has-text("撤销"), [aria-label="撤销"]').first();
+        const undoBtn = page
+          .locator('button:has-text("撤销"), [aria-label="撤销"]')
+          .first();
         if (await undoBtn.isVisible()) {
           await undoBtn.click();
         }
@@ -321,7 +355,9 @@ describe('工作流块操作测试', () => {
         });
 
         await test.step('复制块', async () => {
-          const copyBtn = page.locator('button:has-text("复制"), [aria-label="复制"]').first();
+          const copyBtn = page
+            .locator('button:has-text("复制"), [aria-label="复制"]')
+            .first();
           if (await copyBtn.isVisible()) {
             await copyBtn.click();
           }
@@ -348,7 +384,9 @@ describe('工作流块操作测试', () => {
         if (await newBlock.isVisible()) {
           await newBlock.click();
 
-          const selectorInput = page.locator('input[placeholder*="选择器"]').first();
+          const selectorInput = page
+            .locator('input[placeholder*="选择器"]')
+            .first();
           if (await selectorInput.isVisible()) {
             await selectorInput.fill('#new-selector');
           }
@@ -365,9 +403,12 @@ describe('工作流块操作测试', () => {
       const initialPosition = await firstBlock.boundingBox();
 
       await test.step('拖拽块到新位置', async () => {
-        await firstBlock.dragTo(page.locator('[class*="canvas"], [class*="workspace"]').first(), {
-          targetPosition: { x: 100, y: 100 },
-        });
+        await firstBlock.dragTo(
+          page.locator('[class*="canvas"], [class*="workspace"]').first(),
+          {
+            targetPosition: { x: 100, y: 100 },
+          }
+        );
       });
 
       await test.step('验证块位置已改变', async () => {

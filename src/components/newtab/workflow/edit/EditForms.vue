@@ -1,7 +1,6 @@
 <template>
-  <edit-interaction-base v-bind="{ data, hide: hideBase }"
-@change="updateData">
-    <hr >
+  <edit-interaction-base v-bind="{ data, hide: hideBase }" @change="updateData">
+    <hr />
     <ui-checkbox
       :model-value="data.getValue"
       @change="updateData({ getValue: $event })"
@@ -21,8 +20,7 @@
         :placeholder="t('workflow.blocks.forms.type')"
         @change="updateData({ type: $event })"
       >
-        <option v-for="form in forms"
-:key="form" :value="form">
+        <option v-for="form in forms" :key="form" :value="form">
           {{ t(`workflow.blocks.forms.${form}.name`) }}
         </option>
       </ui-select>
@@ -63,8 +61,7 @@
             <option value="custom-position">Custom</option>
           </optgroup>
         </ui-select>
-        <div v-if="data.selectOptionBy === 'value'"
-class="mt-2">
+        <div v-if="data.selectOptionBy === 'value'" class="mt-2">
           <edit-autocomplete class="mb-1 w-full">
             <ui-textarea
               :model-value="data.value"

@@ -14,14 +14,20 @@
       <h2 class="text-lg font-medium text-gray-900 dark:text-white">
         {{ t('settings.profile.basicInfo', '基本信息') }}
       </h2>
-      <div class="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
+      <div
+        class="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800"
+      >
         <div class="grid gap-6 md:grid-cols-2">
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            <label
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
               {{ t('auth.email', '邮箱') }}
             </label>
             <div class="mt-1 flex items-center">
-              <span class="text-gray-900 dark:text-white">{{ user?.email }}</span>
+              <span class="text-gray-900 dark:text-white">{{
+                user?.email
+              }}</span>
               <span
                 v-if="user?.email_confirmed_at"
                 class="ml-2 inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900 dark:text-green-200"
@@ -31,10 +37,14 @@
             </div>
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            <label
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
               {{ t('settings.profile.userId', '用户 ID') }}
             </label>
-            <div class="mt-1 text-sm text-gray-500 font-mono">{{ user?.id }}</div>
+            <div class="mt-1 text-sm text-gray-500 font-mono">
+              {{ user?.id }}
+            </div>
           </div>
         </div>
       </div>
@@ -45,7 +55,9 @@
       <h2 class="text-lg font-medium text-gray-900 dark:text-white">
         {{ t('settings.profile.security', '账号安全') }}
       </h2>
-      <div class="rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
+      <div
+        class="rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800"
+      >
         <!-- Change Password -->
         <div class="border-b border-gray-200 p-6 dark:border-gray-700">
           <div class="flex items-center justify-between">
@@ -54,10 +66,17 @@
                 {{ t('auth.password', '登录密码') }}
               </h3>
               <p class="text-sm text-gray-500">
-                {{ t('settings.profile.passwordDesc', '定期修改密码可以保护账号安全') }}
+                {{
+                  t(
+                    'settings.profile.passwordDesc',
+                    '定期修改密码可以保护账号安全'
+                  )
+                }}
               </p>
             </div>
-            <ui-button variant="secondary" @click="showPasswordModal = true">
+            <ui-button
+variant="secondary" @click="showPasswordModal = true"
+>
               {{ t('settings.profile.changePassword', '修改密码') }}
             </ui-button>
           </div>
@@ -71,14 +90,23 @@
                 {{ t('auth.mfa', '两步验证 (2FA)') }}
               </h3>
               <p class="text-sm text-gray-500">
-                {{ t('settings.profile.mfaDesc', '使用 Google Authenticator 等应用进行二次验证') }}
+                {{
+                  t(
+                    'settings.profile.mfaDesc',
+                    '使用 Google Authenticator 等应用进行二次验证'
+                  )
+                }}
               </p>
             </div>
-            <ui-button 
-              :variant="hasMfa ? 'danger' : 'accent'" 
+            <ui-button
+              :variant="hasMfa ? 'danger' : 'accent'"
               @click="hasMfa ? handleUnenrollMfa() : (showMfaModal = true)"
             >
-              {{ hasMfa ? t('common.disable', '关闭') : t('common.enable', '开启') }}
+              {{
+                hasMfa
+                  ? t('common.disable', '关闭')
+                  : t('common.enable', '开启')
+              }}
             </ui-button>
           </div>
         </div>
@@ -91,13 +119,16 @@
                 {{ t('auth.passkey', 'Passkey 无密码登录') }}
               </h3>
               <p class="text-sm text-gray-500">
-                {{ t('settings.profile.passkeyDesc', '使用指纹、面容或 PIN 码快速登录，无需记住密码') }}
+                {{
+                  t(
+                    'settings.profile.passkeyDesc',
+                    '使用指纹、面容或 PIN 码快速登录，无需记住密码'
+                  )
+                }}
               </p>
             </div>
-            <ui-button 
-              variant="accent" 
-              @click="showPasskeyModal = true"
-            >
+            <ui-button variant="accent"
+@click="showPasskeyModal = true">
               {{ t('common.manage', '管理') }}
             </ui-button>
           </div>
@@ -110,24 +141,39 @@
       <h2 class="text-lg font-medium text-gray-900 dark:text-white">
         {{ t('settings.profile.activity', '近期活动') }}
       </h2>
-      <div class="overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
+      <div
+        class="overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800"
+      >
         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
           <thead class="bg-gray-50 dark:bg-gray-900">
             <tr>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th
+                scope="col"
+                class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+              >
                 {{ t('common.action', '操作') }}
               </th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th
+                scope="col"
+                class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+              >
                 {{ t('common.time', '时间') }}
               </th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th
+                scope="col"
+                class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+              >
                 Details
               </th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-            <tr v-for="log in activityLogs" :key="log.id">
-              <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">
+            <tr
+v-for="log in activityLogs" :key="log.id"
+>
+              <td
+                class="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900 dark:text-white"
+              >
                 {{ log.action }}
               </td>
               <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
@@ -138,7 +184,10 @@
               </td>
             </tr>
             <tr v-if="activityLogs.length === 0">
-              <td colspan="3" class="px-6 py-4 text-center text-sm text-gray-500">
+              <td
+                colspan="3"
+                class="px-6 py-4 text-center text-sm text-gray-500"
+              >
                 {{ t('common.noData', '暂无数据') }}
               </td>
             </tr>
@@ -148,8 +197,13 @@
     </section>
 
     <!-- Password Modal -->
-    <ui-modal v-model="showPasswordModal" :title="t('settings.profile.changePassword', '修改密码')">
-      <form class="space-y-4" @submit.prevent="handleChangePassword">
+    <ui-modal
+      v-model="showPasswordModal"
+      :title="t('settings.profile.changePassword', '修改密码')"
+    >
+      <form
+class="space-y-4" @submit.prevent="handleChangePassword"
+>
         <ui-input
           v-model="passwordForm.password"
           type="password"
@@ -159,19 +213,30 @@
           :placeholder="t('auth.newPassword', '新密码')"
         />
         <PasswordStrength :password="passwordForm.password" />
-        <ui-button type="submit" class="w-full" variant="accent" :loading="passwordLoading">
+        <ui-button
+          type="submit"
+          class="w-full"
+          variant="accent"
+          :loading="passwordLoading"
+        >
           {{ t('common.save', '保存') }}
         </ui-button>
       </form>
     </ui-modal>
 
     <!-- MFA Modal -->
-    <ui-modal v-model="showMfaModal" :title="t('auth.mfaSetup', '设置两步验证')">
+    <ui-modal
+      v-model="showMfaModal"
+      :title="t('auth.mfaSetup', '设置两步验证')"
+    >
       <MfaSetup @complete="handleMfaComplete" />
     </ui-modal>
 
     <!-- Passkey Modal -->
-    <ui-modal v-model="showPasskeyModal" :title="t('auth.passkeySetup', '管理 Passkey')">
+    <ui-modal
+      v-model="showPasskeyModal"
+      :title="t('auth.passkeySetup', '管理 Passkey')"
+    >
       <PasskeySetup @complete="handlePasskeyComplete" />
     </ui-modal>
   </div>
@@ -213,7 +278,10 @@ async function loadLogs() {
 async function checkMfaStatus() {
   try {
     const factors = await supabaseClient.listMFAFactors();
-    hasMfa.value = factors && factors.length > 0 && factors.some(f => f.status === 'verified');
+    hasMfa.value =
+      factors &&
+      factors.length > 0 &&
+      factors.some((f) => f.status === 'verified');
   } catch (e) {
     console.error(e);
   }
@@ -247,11 +315,16 @@ function handlePasskeyComplete() {
 }
 
 async function handleUnenrollMfa() {
-  if (!window.confirm(t('auth.confirmDisableMfa', '确定要关闭两步验证吗？账号安全性将降低。'))) return;
-  
+  if (
+    !window.confirm(
+      t('auth.confirmDisableMfa', '确定要关闭两步验证吗？账号安全性将降低。')
+    )
+  )
+    return;
+
   try {
     const factors = await supabaseClient.listMFAFactors();
-    const totp = factors.find(f => f.factor_type === 'totp');
+    const totp = factors.find((f) => f.factor_type === 'totp');
     if (totp) {
       await supabaseClient.unenrollMFA(totp.id);
       hasMfa.value = false;

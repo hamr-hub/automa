@@ -31,7 +31,9 @@ describe('数据提取测试', () => {
       });
 
       await test.step('选择提取数据块', async () => {
-        const extractBlock = page.locator('text=提取数据, text=Get Text, text=获取文本').first();
+        const extractBlock = page
+          .locator('text=提取数据, text=Get Text, text=获取文本')
+          .first();
         if (await extractBlock.isVisible()) {
           await extractBlock.click();
         }
@@ -63,14 +65,20 @@ describe('数据提取测试', () => {
       });
 
       await test.step('配置选择器', async () => {
-        const selectorInput = page.locator('input[placeholder*="选择器"], input[placeholder*="selector"]').first();
+        const selectorInput = page
+          .locator(
+            'input[placeholder*="选择器"], input[placeholder*="selector"]'
+          )
+          .first();
         if (await selectorInput.isVisible()) {
           await selectorInput.fill('.content p');
         }
       });
 
       await test.step('配置变量名', async () => {
-        const varInput = page.locator('input[placeholder*="变量"], input[placeholder*="variable"]').first();
+        const varInput = page
+          .locator('input[placeholder*="变量"], input[placeholder*="variable"]')
+          .first();
         if (await varInput.isVisible()) {
           await varInput.fill('extractedText');
         }
@@ -97,7 +105,9 @@ describe('数据提取测试', () => {
       });
 
       await test.step('配置批量选择器', async () => {
-        const selectorInput = page.locator('input[placeholder*="选择器"]').first();
+        const selectorInput = page
+          .locator('input[placeholder*="选择器"]')
+          .first();
         if (await selectorInput.isVisible()) {
           await selectorInput.fill('.items li');
         }
@@ -119,7 +129,9 @@ describe('数据提取测试', () => {
       });
 
       await test.step('配置CSS选择器', async () => {
-        const selectorInput = page.locator('input[placeholder*="选择器"]').first();
+        const selectorInput = page
+          .locator('input[placeholder*="选择器"]')
+          .first();
         if (await selectorInput.isVisible()) {
           await selectorInput.fill('#main-content .item');
         }
@@ -153,7 +165,9 @@ describe('数据提取测试', () => {
       });
 
       await test.step('配置XPath选择器', async () => {
-        const selectorInput = page.locator('input[placeholder*="选择器"]').first();
+        const selectorInput = page
+          .locator('input[placeholder*="选择器"]')
+          .first();
         if (await selectorInput.isVisible()) {
           await selectorInput.fill('//div[@class="content"]//p');
         }
@@ -173,14 +187,18 @@ describe('数据提取测试', () => {
       });
 
       await test.step('输入选择器', async () => {
-        const selectorInput = page.locator('input[placeholder*="选择器"]').first();
+        const selectorInput = page
+          .locator('input[placeholder*="选择器"]')
+          .first();
         if (await selectorInput.isVisible()) {
           await selectorInput.fill('h1');
         }
       });
 
       await test.step('查看预览', async () => {
-        const previewBtn = page.locator('button:has-text("预览"), [aria-label="预览"]').first();
+        const previewBtn = page
+          .locator('button:has-text("预览"), [aria-label="预览"]')
+          .first();
         if (await previewBtn.isVisible()) {
           await previewBtn.click();
         }
@@ -200,14 +218,18 @@ describe('数据提取测试', () => {
       });
 
       await test.step('输入无效选择器', async () => {
-        const selectorInput = page.locator('input[placeholder*="选择器"]').first();
+        const selectorInput = page
+          .locator('input[placeholder*="选择器"]')
+          .first();
         if (await selectorInput.isVisible()) {
           await selectorInput.fill('!!!invalid!!!selector###');
         }
       });
 
       await test.step('验证错误提示', async () => {
-        const errorMsg = page.locator('text=无效, text=错误, [class*="error"]').first();
+        const errorMsg = page
+          .locator('text=无效, text=错误, [class*="error"]')
+          .first();
         if (await errorMsg.isVisible({ timeout: 2000 })) {
           expect(await errorMsg.isVisible()).toBe(true);
         }
@@ -276,7 +298,11 @@ describe('数据提取测试', () => {
       });
 
       await test.step('指定属性名', async () => {
-        const attrInput = page.locator('input[placeholder*="属性"], input[placeholder*="attribute"]').first();
+        const attrInput = page
+          .locator(
+            'input[placeholder*="属性"], input[placeholder*="attribute"]'
+          )
+          .first();
         if (await attrInput.isVisible()) {
           await attrInput.fill('href');
         }
@@ -303,7 +329,9 @@ describe('数据提取测试', () => {
       });
 
       await test.step('配置表格选择器', async () => {
-        const selectorInput = page.locator('input[placeholder*="选择器"]').first();
+        const selectorInput = page
+          .locator('input[placeholder*="选择器"]')
+          .first();
         if (await selectorInput.isVisible()) {
           await selectorInput.fill('table.data');
         }
@@ -345,7 +373,9 @@ describe('数据提取测试', () => {
       });
 
       await test.step('选择剪贴板导出', async () => {
-        const clipboardOption = page.locator('text=剪贴板, text=Clipboard').first();
+        const clipboardOption = page
+          .locator('text=剪贴板, text=Clipboard')
+          .first();
         if (await clipboardOption.isVisible()) {
           await clipboardOption.click();
         }
@@ -372,7 +402,9 @@ describe('数据提取测试', () => {
       });
 
       await test.step('配置文件名', async () => {
-        const filenameInput = page.locator('input[placeholder*="文件名"], input[placeholder*="文件"]').first();
+        const filenameInput = page
+          .locator('input[placeholder*="文件名"], input[placeholder*="文件"]')
+          .first();
         if (await filenameInput.isVisible()) {
           await filenameInput.fill('extracted_data.json');
         }
@@ -392,7 +424,9 @@ describe('数据提取测试', () => {
       });
 
       await test.step('选择Google Sheets', async () => {
-        const sheetsOption = page.locator('text=Google Sheets, text=表格').first();
+        const sheetsOption = page
+          .locator('text=Google Sheets, text=表格')
+          .first();
         if (await sheetsOption.isVisible()) {
           await sheetsOption.click();
         }
@@ -456,7 +490,9 @@ describe('数据提取测试', () => {
           await extractBlock.click();
         }
 
-        const selectorInput = page.locator('input[placeholder*="选择器"]').first();
+        const selectorInput = page
+          .locator('input[placeholder*="选择器"]')
+          .first();
         if (await selectorInput.isVisible()) {
           await selectorInput.fill('.non-existent-elements');
         }
@@ -523,7 +559,9 @@ describe('数据提取测试', () => {
       });
 
       await test.step('验证变量已创建', async () => {
-        const varList = page.locator('[class*="variable"], [class*="Variable"]').first();
+        const varList = page
+          .locator('[class*="variable"], [class*="Variable"]')
+          .first();
         if (await varList.isVisible()) {
           expect(await varList.isVisible()).toBe(true);
         }
@@ -536,7 +574,9 @@ describe('数据提取测试', () => {
         if (await addBtn.isVisible()) {
           await addBtn.click();
         }
-        const transformBlock = page.locator('text=转换, text=Transform').first();
+        const transformBlock = page
+          .locator('text=转换, text=Transform')
+          .first();
         if (await transformBlock.isVisible()) {
           await transformBlock.click();
         }

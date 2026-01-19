@@ -60,8 +60,7 @@
             >
               {{ countDuration(block.startedAt, Date.now()) }}
             </span>
-            <ui-spinner size="16"
-class="mr-2" color="text-accent" />
+            <ui-spinner size="16" class="mr-2" color="text-accent" />
             <p class="flex-1">
               {{ t(`workflow.blocks.${block.name}.name`) }}
             </p>

@@ -12,8 +12,7 @@
         class="mt-4 w-full"
         @change="updateData({ type: $event })"
       >
-        <option v-for="type in types"
-:key="type" :value="type">
+        <option v-for="type in types" :key="type" :value="type">
           {{ t(`workflow.blocks.cookie.types.${type}`) }}
         </option>
       </ui-select>
@@ -129,18 +128,15 @@
           </ui-checkbox>
         </div>
       </template>
-      <div v-if="data.type === 'get'"
-class="cookie-data mt-4 border-t pt-4">
-        <insert-workflow-data :data="data"
-variables @update="updateData" />
+      <div v-if="data.type === 'get'" class="cookie-data mt-4 border-t pt-4">
+        <insert-workflow-data :data="data" variables @update="updateData" />
       </div>
     </template>
     <template v-else>
       <p class="mt-4">
         This block requires "Cookies" permission to work properly
       </p>
-      <ui-button variant="accent"
-class="mt-2" @click="permission.request">
+      <ui-button variant="accent" class="mt-2" @click="permission.request">
         {{ t('workflow.blocks.clipboard.grantPermission') }}
       </ui-button>
     </template>

@@ -3,14 +3,11 @@
     <div
       v-if="isVisible"
       class="execution-panel fixed bottom-0 left-0 right-0 z-50 mx-auto max-w-2xl px-4 pb-4"
-      style="max-width: calc(100vw - 2rem);"
+      style="max-width: calc(100vw - 2rem)"
     >
       <div
         class="rounded-2xl border border-white/10 shadow-2xl backdrop-blur-xl"
-        :class="[
-          isDark ? 'bg-gray-900/95' : 'bg-white/95',
-          statusColorClass
-        ]"
+        :class="[isDark ? 'bg-gray-900/95' : 'bg-white/95', statusColorClass]"
       >
         <!-- Header -->
         <div
@@ -34,10 +31,16 @@
               />
             </div>
             <div>
-              <h3 class="text-sm font-semibold" :class="isDark ? 'text-gray-100' : 'text-gray-900'">
+              <h3
+                class="text-sm font-semibold"
+                :class="isDark ? 'text-gray-100' : 'text-gray-900'"
+              >
                 {{ workflowName }}
               </h3>
-              <p class="text-xs" :class="isDark ? 'text-gray-400' : 'text-gray-500'">
+              <p
+                class="text-xs"
+                :class="isDark ? 'text-gray-400' : 'text-gray-500'"
+              >
                 {{ statusText }}
               </p>
             </div>
@@ -58,24 +61,31 @@
               :title="isPaused ? 'Resume' : 'Pause'"
               @click="togglePause"
             >
-              <v-remixicon :name="isPaused ? 'riPlayLine' : 'riPauseLine'" size="16" />
+              <v-remixicon
+                :name="isPaused ? 'riPlayLine' : 'riPauseLine'"
+                size="16"
+              />
             </button>
             <button
               class="flex h-8 w-8 items-center justify-center rounded-lg transition-colors"
-              :class="isDark ? 'hover:bg-white/10 text-gray-400' : 'hover:bg-gray-100 text-gray-500'"
+              :class="
+                isDark
+                  ? 'hover:bg-white/10 text-gray-400'
+                  : 'hover:bg-gray-100 text-gray-500'
+              "
               title="Close"
               @click="closePanel"
             >
-              <v-remixicon name="riCloseLine" size="16" />
+              <v-remixicon
+name="riCloseLine" size="16"
+/>
             </button>
           </div>
         </div>
 
         <!-- Progress Bar -->
-        <div
-          class="h-1 w-full"
-          :class="isDark ? 'bg-gray-800' : 'bg-gray-200'"
-        >
+        <div class="h-1 w-full"
+:class="isDark ? 'bg-gray-800' : 'bg-gray-200'">
           <div
             class="h-full transition-all duration-300"
             :class="progressBarClass"
@@ -97,11 +107,16 @@
                 size="14"
                 class="text-blue-500"
               />
-              <span class="text-xs font-medium uppercase tracking-wide text-gray-500">
+              <span
+                class="text-xs font-medium uppercase tracking-wide text-gray-500"
+              >
                 当前步骤
               </span>
             </div>
-            <p class="text-sm font-medium" :class="isDark ? 'text-gray-200' : 'text-gray-800'">
+            <p
+              class="text-sm font-medium"
+              :class="isDark ? 'text-gray-200' : 'text-gray-800'"
+            >
               {{ currentBlockName }}
             </p>
             <p
@@ -115,24 +130,42 @@
 
           <!-- Execution Stats -->
           <div class="grid grid-cols-3 gap-3 mb-4">
-            <div class="text-center rounded-lg p-2" :class="isDark ? 'bg-white/5' : 'bg-gray-50'">
-              <p class="text-lg font-bold" :class="isDark ? 'text-gray-100' : 'text-gray-900'">
+            <div
+              class="text-center rounded-lg p-2"
+              :class="isDark ? 'bg-white/5' : 'bg-gray-50'"
+            >
+              <p
+                class="text-lg font-bold"
+                :class="isDark ? 'text-gray-100' : 'text-gray-900'"
+              >
                 {{ executedBlocks }}
               </p>
               <p class="text-[10px] uppercase tracking-wide text-gray-500">
                 已执行
               </p>
             </div>
-            <div class="text-center rounded-lg p-2" :class="isDark ? 'bg-white/5' : 'bg-gray-50'">
-              <p class="text-lg font-bold" :class="isDark ? 'text-gray-100' : 'text-gray-900'">
+            <div
+              class="text-center rounded-lg p-2"
+              :class="isDark ? 'bg-white/5' : 'bg-gray-50'"
+            >
+              <p
+                class="text-lg font-bold"
+                :class="isDark ? 'text-gray-100' : 'text-gray-900'"
+              >
                 {{ totalBlocks }}
               </p>
               <p class="text-[10px] uppercase tracking-wide text-gray-500">
                 总步骤
               </p>
             </div>
-            <div class="text-center rounded-lg p-2" :class="isDark ? 'bg-white/5' : 'bg-gray-50'">
-              <p class="text-lg font-bold" :class="isDark ? 'text-gray-100' : 'text-gray-900'">
+            <div
+              class="text-center rounded-lg p-2"
+              :class="isDark ? 'bg-white/5' : 'bg-gray-50'"
+            >
+              <p
+                class="text-lg font-bold"
+                :class="isDark ? 'text-gray-100' : 'text-gray-900'"
+              >
                 {{ elapsedTime }}
               </p>
               <p class="text-[10px] uppercase tracking-wide text-gray-500">
@@ -142,10 +175,17 @@
           </div>
 
           <!-- Recent Logs (Collapsible) -->
-          <div class="border-t" :class="isDark ? 'border-white/10' : 'border-gray-200'">
+          <div
+            class="border-t"
+            :class="isDark ? 'border-white/10' : 'border-gray-200'"
+          >
             <button
               class="flex w-full items-center justify-between py-2 text-xs transition-colors"
-              :class="isDark ? 'text-gray-400 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'"
+              :class="
+                isDark
+                  ? 'text-gray-400 hover:text-gray-300'
+                  : 'text-gray-500 hover:text-gray-700'
+              "
               @click="showLogs = !showLogs"
             >
               <span>最近执行记录</span>
@@ -181,24 +221,43 @@
               :class="stopButtonClass"
               @click="stopExecution"
             >
-              <v-remixicon name="riStopLine" class="mr-1.5 -ml-1" size="16" />
+              <v-remixicon
+name="riStopLine" class="mr-1.5 -ml-1"
+size="16"
+/>
               停止执行
             </button>
             <button
               v-if="isCompleted"
               class="flex-1 rounded-lg bg-gray-200 py-2 text-sm font-medium transition-all"
-              :class="isDark ? 'dark:bg-gray-700 dark:text-gray-300' : 'hover:bg-gray-300'"
+              :class="
+                isDark
+                  ? 'dark:bg-gray-700 dark:text-gray-300'
+                  : 'hover:bg-gray-300'
+              "
               @click="viewDetails"
             >
-              <v-remixicon name="riFileTextLine" class="mr-1.5 -ml-1" size="16" />
+              <v-remixicon
+                name="riFileTextLine"
+                class="mr-1.5 -ml-1"
+                size="16"
+              />
               查看详情
             </button>
             <button
               class="flex-1 rounded-lg py-2 text-sm font-medium transition-all"
-              :class="isDark ? 'bg-white/10 text-gray-200 hover:bg-white/20' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+              :class="
+                isDark
+                  ? 'bg-white/10 text-gray-200 hover:bg-white/20'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              "
               @click="copyExecutionLog"
             >
-              <v-remixicon name="riFileCopyLine" class="mr-1.5 -ml-1" size="16" />
+              <v-remixicon
+                name="riFileCopyLine"
+                class="mr-1.5 -ml-1"
+                size="16"
+              />
               复制日志
             </button>
           </div>
@@ -224,7 +283,10 @@ const props = defineProps({
   status: {
     type: String,
     default: 'idle',
-    validator: (v) => ['idle', 'running', 'paused', 'completed', 'failed', 'stopped'].includes(v),
+    validator: (v) =>
+      ['idle', 'running', 'paused', 'completed', 'failed', 'stopped'].includes(
+        v
+      ),
   },
   currentBlock: {
     type: Object,
@@ -254,7 +316,12 @@ const { isDark } = useTheme();
 const isVisible = computed(() => props.visible && props.status !== 'idle');
 const isRunning = computed(() => props.status === 'running');
 const isPaused = computed(() => props.status === 'paused');
-const isCompleted = computed(() => props.status === 'completed' || props.status === 'failed' || props.status === 'stopped');
+const isCompleted = computed(
+  () =>
+    props.status === 'completed' ||
+    props.status === 'failed' ||
+    props.status === 'stopped'
+);
 
 const showLogs = ref(false);
 const currentTime = ref(Date.now());
@@ -263,7 +330,10 @@ let timeInterval = null;
 // Computed values
 const progressPercent = computed(() => {
   if (props.totalBlocks === 0) return 0;
-  return Math.min(Math.round((props.executedBlocks / props.totalBlocks) * 100), 100);
+  return Math.min(
+    Math.round((props.executedBlocks / props.totalBlocks) * 100),
+    100
+  );
 });
 
 const elapsedTime = computed(() => {
@@ -279,23 +349,35 @@ const elapsedTime = computed(() => {
 
 const statusText = computed(() => {
   switch (props.status) {
-    case 'running': return '执行中...';
-    case 'paused': return '已暂停';
-    case 'completed': return '执行完成 ✓';
-    case 'failed': return '执行失败 ✗';
-    case 'stopped': return '已停止';
-    default: return '准备就绪';
+    case 'running':
+      return '执行中...';
+    case 'paused':
+      return '已暂停';
+    case 'completed':
+      return '执行完成 ✓';
+    case 'failed':
+      return '执行失败 ✗';
+    case 'stopped':
+      return '已停止';
+    default:
+      return '准备就绪';
   }
 });
 
 const statusIcon = computed(() => {
   switch (props.status) {
-    case 'running': return 'riLoader4Line';
-    case 'paused': return 'riPauseLine';
-    case 'completed': return 'riCheckLine';
-    case 'failed': return 'riErrorWarningLine';
-    case 'stopped': return 'riStopLine';
-    default: return 'riPlayLine';
+    case 'running':
+      return 'riLoader4Line';
+    case 'paused':
+      return 'riPauseLine';
+    case 'completed':
+      return 'riCheckLine';
+    case 'failed':
+      return 'riErrorWarningLine';
+    case 'stopped':
+      return 'riStopLine';
+    default:
+      return 'riPlayLine';
   }
 });
 
@@ -316,53 +398,75 @@ const currentBlockIcon = computed(() => {
 
 const statusColorClass = computed(() => {
   switch (props.status) {
-    case 'running': return 'ring-1 ring-blue-500/30';
-    case 'completed': return 'ring-1 ring-green-500/30';
-    case 'failed': return 'ring-1 ring-red-500/30';
-    case 'stopped': return 'ring-1 ring-gray-500/30';
-    default: return '';
+    case 'running':
+      return 'ring-1 ring-blue-500/30';
+    case 'completed':
+      return 'ring-1 ring-green-500/30';
+    case 'failed':
+      return 'ring-1 ring-red-500/30';
+    case 'stopped':
+      return 'ring-1 ring-gray-500/30';
+    default:
+      return '';
   }
 });
 
 const statusIconBgClass = computed(() => {
   switch (props.status) {
-    case 'running': return 'bg-blue-500/20 text-blue-400';
-    case 'completed': return 'bg-green-500/20 text-green-400';
-    case 'failed': return 'bg-red-500/20 text-red-400';
-    case 'stopped': return 'bg-gray-500/20 text-gray-400';
-    case 'paused': return 'bg-yellow-500/20 text-yellow-400';
-    default: return 'bg-gray-500/20 text-gray-400';
+    case 'running':
+      return 'bg-blue-500/20 text-blue-400';
+    case 'completed':
+      return 'bg-green-500/20 text-green-400';
+    case 'failed':
+      return 'bg-red-500/20 text-red-400';
+    case 'stopped':
+      return 'bg-gray-500/20 text-gray-400';
+    case 'paused':
+      return 'bg-yellow-500/20 text-yellow-400';
+    default:
+      return 'bg-gray-500/20 text-gray-400';
   }
 });
 
 const statusPingClass = computed(() => {
   switch (props.status) {
-    case 'running': return 'bg-blue-400';
-    case 'completed': return 'bg-green-400';
-    default: return '';
+    case 'running':
+      return 'bg-blue-400';
+    case 'completed':
+      return 'bg-green-400';
+    default:
+      return '';
   }
 });
 
 const progressBarClass = computed(() => {
   switch (props.status) {
-    case 'running': return 'bg-blue-500';
-    case 'completed': return 'bg-green-500';
-    case 'failed': return 'bg-red-500';
-    case 'stopped': return 'bg-gray-400';
-    default: return 'bg-gray-400';
+    case 'running':
+      return 'bg-blue-500';
+    case 'completed':
+      return 'bg-green-500';
+    case 'failed':
+      return 'bg-red-500';
+    case 'stopped':
+      return 'bg-gray-400';
+    default:
+      return 'bg-gray-400';
   }
 });
 
 const stopButtonClass = computed(() => {
   switch (props.status) {
-    case 'running': return 'bg-red-500 hover:bg-red-600';
-    case 'paused': return 'bg-red-500 hover:bg-red-600';
-    default: return 'bg-gray-500';
+    case 'running':
+      return 'bg-red-500 hover:bg-red-600';
+    case 'paused':
+      return 'bg-red-500 hover:bg-red-600';
+    default:
+      return 'bg-gray-500';
   }
 });
 
 const recentLogs = computed(() => {
-  return props.logs.slice(-10).map(log => ({
+  return props.logs.slice(-10).map((log) => ({
     ...log,
     time: new Date(log.timestamp || Date.now()).toLocaleTimeString(),
   }));
@@ -402,7 +506,10 @@ function viewDetails() {
 
 function copyExecutionLog() {
   const logText = props.logs
-    .map(log => `[${new Date(log.timestamp).toLocaleTimeString()}] [${log.type}] ${log.message}`)
+    .map(
+      (log) =>
+        `[${new Date(log.timestamp).toLocaleTimeString()}] [${log.type}] ${log.message}`
+    )
     .join('\n');
   navigator.clipboard.writeText(logText);
 }
@@ -423,11 +530,14 @@ onUnmounted(() => {
 });
 
 // Reset time when starting
-watch(() => props.status, (newStatus) => {
-  if (newStatus === 'running') {
-    currentTime.value = Date.now();
+watch(
+  () => props.status,
+  (newStatus) => {
+    if (newStatus === 'running') {
+      currentTime.value = Date.now();
+    }
   }
-});
+);
 </script>
 
 <style scoped>

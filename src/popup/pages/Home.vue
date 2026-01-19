@@ -9,131 +9,153 @@
     class="dark relative z-10 px-3 pt-2.5 text-white"
   >
     <div class="flex items-center">
-        <div class="flex items-center space-x-2">
-          <div
-            class="flex h-7 w-7 items-center justify-center rounded-lg bg-white/20 backdrop-blur-sm shadow-lg"
-          >
-            <svg
-              class="h-4.5 w-4.5 text-white"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-            >
-              <path
-                d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5zm0 18c-3.86-.95-7-5.04-7-9V8.3l7-3.11 7 3.11V11c0 3.96-3.14 8.05-7 9z"
-              />
-            </svg>
-          </div>
-          <h1 class="text-sm font-bold tracking-tight text-white drop-shadow-sm">
-            Automa
-          </h1>
-        </div>
-        <h1
-          class="text-base font-bold tracking-tight text-white drop-shadow-sm"
+      <div class="flex items-center space-x-2">
+        <div
+          class="flex h-7 w-7 items-center justify-center rounded-lg bg-white/20 backdrop-blur-sm shadow-lg"
         >
+          <svg
+            class="h-4.5 w-4.5 text-white"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+          >
+            <path
+              d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5zm0 18c-3.86-.95-7-5.04-7-9V8.3l7-3.11 7 3.11V11c0 3.96-3.14 8.05-7 9z"
+            />
+          </svg>
+        </div>
+        <h1 class="text-sm font-bold tracking-tight text-white drop-shadow-sm">
           Automa
         </h1>
       </div>
-      <div class="grow" />
-      <div class="flex items-center space-x-0.5">
-        <ui-button
-          v-tooltip.group="t('home.aiGenerator.title')"
-          icon
-          class="hover:bg-white/20 transition-all duration-200 rounded-lg p-1"
-          @click="openAIGenerator"
-        >
-          <v-remixicon name="riRobotLine" size="16" class="text-white" />
-        </ui-button>
-        <ui-button
-          v-tooltip.group="t('home.record.title')"
-          icon
-          class="hover:bg-white/20 transition-all duration-200 rounded-lg p-1"
-          @click="startRecording"
-        >
-          <v-remixicon name="riRecordCircleLine" size="16" class="text-white" />
-        </ui-button>
-        <ui-button
-          v-tooltip.group="t('common.dashboard')"
-          icon
-          class="hover:bg-white/20 transition-all duration-200 rounded-lg p-1"
-          :title="t('common.dashboard')"
-          @click="openDashboard('')"
-        >
-          <v-remixicon name="riHome5Line" size="16" class="text-white" />
-        </ui-button>
-      </div>
-    </div>
-    <div class="relative">
-      <ui-input
-        ref="searchInputRef"
-        v-model="state.query"
-        :placeholder="`${t('common.search')}...`"
-        autocomplete="off"
-        prepend-icon="riSearch2Line"
-        class="search-input w-full bg-white/10 backdrop-blur-md border border-white/20 text-white placeholder-white/70 rounded-lg shadow-lg text-xs h-8 px-3 py-1.5"
-        @focus="showSearchSuggestions = true"
-        @blur="hideSearchSuggestions"
-        @keydown="handleSearchKeydown"
-      />
-      <!-- Search Shortcut Hint -->
-      <div
-        v-if="!state.query"
-        class="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1 pointer-events-none"
+      <h1
+        class="text-base font-bold tracking-tight text-white drop-shadow-sm"
       >
-        <kbd
-          class="px-1.5 py-0.5 rounded bg-white/20 text-white/70 text-[10px] font-mono"
-          >/</kbd
-        >
-      </div>
-
-      <!-- Search Suggestions Dropdown -->
-      <transition name="fade">
-        <div
-          v-if="
-            showSearchSuggestions && state.query && searchSuggestions.length > 0
-          "
-          class="absolute top-full left-0 right-0 mt-1 rounded-lg bg-white dark:bg-gray-800 shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden z-50"
-        >
-          <div class="py-1">
-            <button
-              v-for="(suggestion, index) in searchSuggestions"
-              :key="suggestion.id"
-              class="w-full px-3 py-2 text-left text-sm flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-              :class="{
-                'bg-gray-100 dark:bg-gray-700':
-                  index === selectedSuggestionIndex,
-              }"
-              @click="selectSuggestion(suggestion)"
-              @mouseenter="selectedSuggestionIndex = index"
-            >
-              <v-remixicon
-                :name="suggestion.icon || 'riFlowChart'"
-                size="14"
-                class="text-gray-400"
-              />
-              <span class="flex-1 truncate">{{ suggestion.name }}</span>
-              <span v-if="suggestion.folder" class="text-xs text-gray-400">{{
-                suggestion.folder
-              }}</span>
-            </button>
-          </div>
-        </div>
-      </transition>
+        Automa
+      </h1>
     </div>
-    <ui-tabs
-      v-if="showTab"
-      v-model="state.activeTab"
-      fill
-      class="mt-0 text-xs"
-      @change="onTabChange"
+    <div class="grow" />
+    <div class="flex items-center space-x-0.5">
+      <ui-button
+        v-tooltip.group="t('home.aiGenerator.title')"
+        icon
+        class="hover:bg-white/20 transition-all duration-200 rounded-lg p-1"
+        @click="openAIGenerator"
+      >
+        <v-remixicon
+          name="riRobotLine"
+          size="16"
+          class="text-white"
+        />
+      </ui-button>
+      <ui-button
+        v-tooltip.group="t('home.record.title')"
+        icon
+        class="hover:bg-white/20 transition-all duration-200 rounded-lg p-1"
+        @click="startRecording"
+      >
+        <v-remixicon
+          name="riRecordCircleLine"
+          size="16"
+          class="text-white"
+        />
+      </ui-button>
+      <ui-button
+        v-tooltip.group="t('common.dashboard')"
+        icon
+        class="hover:bg-white/20 transition-all duration-200 rounded-lg p-1"
+        :title="t('common.dashboard')"
+        @click="openDashboard('')"
+      >
+        <v-remixicon
+          name="riHome5Line"
+          size="16"
+          class="text-white"
+        />
+      </ui-button>
+    </div>
+  </div>
+  <div class="relative">
+    <ui-input
+      ref="searchInputRef"
+      v-model="state.query"
+      :placeholder="`${t('common.search')}...`"
+      autocomplete="off"
+      prepend-icon="riSearch2Line"
+      class="search-input w-full bg-white/10 backdrop-blur-md border border-white/20 text-white placeholder-white/70 rounded-lg shadow-lg text-xs h-8 px-3 py-1.5"
+      @focus="showSearchSuggestions = true"
+      @blur="hideSearchSuggestions"
+      @keydown="handleSearchKeydown"
+    />
+    <!-- Search Shortcut Hint -->
+    <div
+      v-if="!state.query"
+      class="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1 pointer-events-none"
     >
-      <ui-tab value="local">
-        {{ t(`home.workflow.type.local`) }}
-      </ui-tab>
-      <ui-tab v-if="hostedWorkflowStore.toArray.length > 0" value="host">
-        {{ t(`home.workflow.type.host`) }}
-      </ui-tab>
-      <ui-tab v-if="userStore.user?.teams?.length" value="team"> Teams </ui-tab>
-    </ui-tabs>
+      <kbd
+        class="px-1.5 py-0.5 rounded bg-white/20 text-white/70 text-[10px] font-mono"
+      >/</kbd>
+    </div>
+
+    <!-- Search Suggestions Dropdown -->
+    <transition name="fade">
+      <div
+        v-if="
+          showSearchSuggestions && state.query && searchSuggestions.length > 0
+        "
+        class="absolute top-full left-0 right-0 mt-1 rounded-lg bg-white dark:bg-gray-800 shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden z-50"
+      >
+        <div class="py-1">
+          <button
+            v-for="(suggestion, index) in searchSuggestions"
+            :key="suggestion.id"
+            class="w-full px-3 py-2 text-left text-sm flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            :class="{
+              'bg-gray-100 dark:bg-gray-700':
+                index === selectedSuggestionIndex,
+            }"
+            @click="selectSuggestion(suggestion)"
+            @mouseenter="selectedSuggestionIndex = index"
+          >
+            <v-remixicon
+              :name="suggestion.icon || 'riFlowChart'"
+              size="14"
+              class="text-gray-400"
+            />
+            <span class="flex-1 truncate">{{ suggestion.name }}</span>
+            <span
+              v-if="suggestion.folder"
+              class="text-xs text-gray-400"
+            >{{
+              suggestion.folder
+            }}</span>
+          </button>
+        </div>
+      </div>
+    </transition>
+  </div>
+  <ui-tabs
+    v-if="showTab"
+    v-model="state.activeTab"
+    fill
+    class="mt-0 text-xs"
+    @change="onTabChange"
+  >
+    <ui-tab value="local">
+      {{ t(`home.workflow.type.local`) }}
+    </ui-tab>
+    <ui-tab
+      v-if="hostedWorkflowStore.toArray.length > 0"
+      value="host"
+    >
+      {{ t(`home.workflow.type.host`) }}
+    </ui-tab>
+    <ui-tab
+      v-if="userStore.user?.teams?.length"
+      value="team"
+    >
+      Teams
+    </ui-tab>
+  </ui-tabs>
   </div>
   <home-team-workflows
     v-if="state.retrieved"
@@ -145,12 +167,19 @@
     class="relative z-20 space-y-2 px-3 pb-2.5"
   >
     <!-- New User Welcome & Quick Actions -->
-    <div v-if="workflowStore.getWorkflows.length === 0" class="space-y-4">
+    <div
+      v-if="workflowStore.getWorkflows.length === 0"
+      class="space-y-4"
+    >
       <!-- Welcome Banner -->
       <div class="rounded-lg bg-gradient-to-r from-blue-500/10 to-purple-500/10 p-3 border border-blue-500/20">
         <div class="flex items-start gap-2.5">
           <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-500">
-            <v-remixicon name="riSparklingFill" size="18" class="text-white" />
+            <v-remixicon
+              name="riSparklingFill"
+              size="18"
+              class="text-white"
+            />
           </div>
           <div class="flex-1 min-w-0">
             <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-0.5">
@@ -162,178 +191,143 @@
           </div>
         </div>
       </div>
-          <div class="flex-1">
-            <h3
-              class="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-1"
-            >
-              欢迎使用 Automa 👋
-            </h3>
-            <p class="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
-              自动化您的浏览器操作。录制您的操作，或让 AI 帮您创建工作流。
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Quick Start Actions -->
-      <div class="grid grid-cols-1 gap-2">
-        <!-- Record Workflow -->
-        <ui-card
-          class="group cursor-pointer border border-gray-200 p-2.5 transition-all hover:border-blue-300 hover:shadow-md dark:border-gray-700 dark:hover:border-blue-500/50"
-          @click="startRecording"
+      <div class="flex-1">
+        <h3
+          class="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-1"
         >
-          <div class="flex items-center gap-2.5">
-            <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-600 transition-colors group-hover:bg-red-500 dark:bg-red-500/10 dark:text-red-400">
-              <v-remixicon name="riRecordCircleLine" size="18" />
-            </div>
-            <div class="flex-1 min-w-0">
-              <p class="text-sm font-medium text-gray-900 dark:text-gray-100">
-                录制工作流
-              </p>
-              <p class="text-xs text-gray-500 dark:text-gray-400 truncate">
-                记录您的操作步骤，自动生成工作流
-              </p>
-            </div>
-            <v-remixicon name="riArrowRightLine" size="14" class="text-gray-400 transition-transform group-hover:translate-x-1" />
-          </div>
-        </ui-card>
-
-        <!-- AI Generate -->
-        <ui-card
-          class="group cursor-pointer border border-gray-200 p-2.5 transition-all hover:border-blue-300 hover:shadow-md dark:border-gray-700 dark:hover:border-blue-500/50"
-          @click="openAIGenerator"
-        >
-          <div class="flex items-center gap-2.5">
-            <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 text-white transition-transform group-hover:scale-105">
-              <v-remixicon name="riRobotLine" size="18" />
-            </div>
-            <div class="flex-1 min-w-0">
-              <p class="text-sm font-medium text-gray-900 dark:text-gray-100">
-                AI 生成工作流
-              </p>
-              <p class="text-xs text-gray-500 dark:text-gray-400 truncate">
-                描述您的需求，AI 自动创建工作流
-              </p>
-            </div>
-            <v-remixicon name="riArrowRightLine" size="14" class="text-gray-400 transition-transform group-hover:translate-x-1" />
-          </div>
-        </ui-card>
-
-        <!-- Blank Workflow -->
-        <ui-card
-          class="group cursor-pointer border border-gray-200 p-2.5 transition-all hover:border-blue-300 hover:shadow-md dark:border-gray-700 dark:hover:border-blue-500/50"
-          @click="openDashboard('/workflows')"
-        >
-          <div class="flex items-center gap-2.5">
-            <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gray-100 text-gray-600 transition-colors group-hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-400">
-              <v-remixicon name="riAddLine" size="18" />
-            </div>
-            <div class="flex-1 min-w-0">
-              <p class="text-sm font-medium text-gray-900 dark:text-gray-100">
-                创建空白工作流
-              </p>
-              <p class="text-xs text-gray-500 dark:text-gray-400 truncate">
-                从零开始手动构建工作流
-              </p>
-            </div>
-            <v-remixicon name="riArrowRightLine" size="14" class="text-gray-400 transition-transform group-hover:translate-x-1" />
-          </div>
-        </ui-card>
-      </div>
-
-      <!-- Keyboard Shortcut Hint -->
-      <div class="flex items-center justify-center gap-3 text-xs text-gray-400 py-1">
-        <span class="flex items-center gap-1">
-          <kbd class="px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-700 font-mono text-[10px]">R</kbd>
-          录制
-        </span>
-        <span class="flex items-center gap-1">
-          <kbd class="px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-700 font-mono text-[10px]">A</kbd>
-          AI 生成
-        </span>
-        <span class="flex items-center gap-1">
-          <kbd class="px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-700 font-mono text-[10px]">/</kbd>
-          搜索
-        </span>
+          欢迎使用 Automa 👋
+        </h3>
+        <p class="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
+          自动化您的浏览器操作。录制您的操作，或让 AI 帮您创建工作流。
+        </p>
       </div>
     </div>
-    <div
-      v-if="pinnedWorkflows.length > 0"
-      class="mb-1.5 border-b border-gray-200 pb-1.5 dark:border-gray-700"
+  </div>
+
+  <!-- Quick Start Actions -->
+  <div class="grid grid-cols-1 gap-2">
+    <!-- Record Workflow -->
+    <ui-card
+      class="group cursor-pointer border border-gray-200 p-2.5 transition-all hover:border-blue-300 hover:shadow-md dark:border-gray-700 dark:hover:border-blue-500/50"
+      @click="startRecording"
     >
-      <div
-        class="mb-1 flex items-center text-xs font-medium text-gray-600 dark:text-gray-400"
-      >
+      <div class="flex items-center gap-2.5">
+        <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-600 transition-colors group-hover:bg-red-500 dark:bg-red-500/10 dark:text-red-400">
+          <v-remixicon
+            name="riRecordCircleLine"
+            size="18"
+          />
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-medium text-gray-900 dark:text-gray-100">
+            录制工作流
+          </p>
+          <p class="text-xs text-gray-500 dark:text-gray-400 truncate">
+            记录您的操作步骤，自动生成工作流
+          </p>
+        </div>
         <v-remixicon
-          name="riPushpin2Fill"
-          size="11"
-          class="mr-1 text-blue-500"
-        />
-        <span>Pinned Workflows</span>
-      </div>
-      <div class="space-y-1.5">
-        <home-workflow-card
-          v-for="workflow in pinnedWorkflows"
-          :key="workflow.id"
-          :workflow="workflow"
-          :tab="state.activeTab"
-          :pinned="true"
-          :is-selected="state.selectedForBatch.includes(workflow.id)"
-          @details="openWorkflowPage"
-          @update="updateWorkflow(workflow.id, $event)"
-          @execute="executeWorkflow"
-          @rename="renameWorkflow"
-          @delete="deleteWorkflow"
-          @toggle-pin="togglePinWorkflow(workflow)"
-          @toggle-select="toggleSelectWorkflow(workflow.id)"
+          name="riArrowRightLine"
+          size="14"
+          class="text-gray-400 transition-transform group-hover:translate-x-1"
         />
       </div>
-    </div>
-    <div
-      class="flex items-center space-x-1 rounded-lg bg-gray-50 p-1 dark:bg-gray-800/50"
+    </ui-card>
+
+    <!-- AI Generate -->
+    <ui-card
+      class="group cursor-pointer border border-gray-200 p-2.5 transition-all hover:border-blue-300 hover:shadow-md dark:border-gray-700 dark:hover:border-blue-500/50"
+      @click="openAIGenerator"
     >
-      <ui-select v-model="state.activeFolder" class="flex-1 text-xs h-6">
-        <option value="">All Folders</option>
-        <option
-          v-for="folder in folderStore.items"
-          :key="folder.id"
-          :value="folder.id"
-        >
-          {{ folder.name }}
-        </option>
-      </ui-select>
-      <ui-popover>
-        <template #trigger>
-          <ui-button class="shrink-0 text-xs px-2 py-0.5 h-6">
-            <v-remixicon name="riSortDesc" class="mr-0.5 -ml-0.5" size="12" />
-            <span>Sort</span>
-          </ui-button>
-        </template>
-        <div class="w-48 p-2">
-          <ui-select v-model="sortState.order" block placeholder="Sort order">
-            <option value="asc">Ascending</option>
-            <option value="desc">Descending</option>
-          </ui-select>
-          <ui-select
-            v-model="sortState.by"
-            :placeholder="t('sort.sortBy')"
-            block
-            class="mt-1.5 flex-1"
-          >
-            <option v-for="sort in sorts" :key="sort" :value="sort">
-              {{ t(`sort.${sort}`) }}
-            </option>
-          </ui-select>
+      <div class="flex items-center gap-2.5">
+        <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 text-white transition-transform group-hover:scale-105">
+          <v-remixicon
+            name="riRobotLine"
+            size="18"
+          />
         </div>
-      </ui-popover>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-medium text-gray-900 dark:text-gray-100">
+            AI 生成工作流
+          </p>
+          <p class="text-xs text-gray-500 dark:text-gray-400 truncate">
+            描述您的需求，AI 自动创建工作流
+          </p>
+        </div>
+        <v-remixicon
+          name="riArrowRightLine"
+          size="14"
+          class="text-gray-400 transition-transform group-hover:translate-x-1"
+        />
+      </div>
+    </ui-card>
+
+    <!-- Blank Workflow -->
+    <ui-card
+      class="group cursor-pointer border border-gray-200 p-2.5 transition-all hover:border-blue-300 hover:shadow-md dark:border-gray-700 dark:hover:border-blue-500/50"
+      @click="openDashboard('/workflows')"
+    >
+      <div class="flex items-center gap-2.5">
+        <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gray-100 text-gray-600 transition-colors group-hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-400">
+          <v-remixicon
+            name="riAddLine"
+            size="18"
+          />
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-medium text-gray-900 dark:text-gray-100">
+            创建空白工作流
+          </p>
+          <p class="text-xs text-gray-500 dark:text-gray-400 truncate">
+            从零开始手动构建工作流
+          </p>
+        </div>
+        <v-remixicon
+          name="riArrowRightLine"
+          size="14"
+          class="text-gray-400 transition-transform group-hover:translate-x-1"
+        />
+      </div>
+    </ui-card>
+  </div>
+
+  <!-- Keyboard Shortcut Hint -->
+  <div class="flex items-center justify-center gap-3 text-xs text-gray-400 py-1">
+    <span class="flex items-center gap-1">
+      <kbd class="px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-700 font-mono text-[10px]">R</kbd>
+      录制
+    </span>
+    <span class="flex items-center gap-1">
+      <kbd class="px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-700 font-mono text-[10px]">A</kbd>
+      AI 生成
+    </span>
+    <span class="flex items-center gap-1">
+      <kbd class="px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-700 font-mono text-[10px]">/</kbd>
+      搜索
+    </span>
+  </div>
+  </div>
+  <div
+    v-if="pinnedWorkflows.length > 0"
+    class="mb-1.5 border-b border-gray-200 pb-1.5 dark:border-gray-700"
+  >
+    <div
+      class="mb-1 flex items-center text-xs font-medium text-gray-600 dark:text-gray-400"
+    >
+      <v-remixicon
+        name="riPushpin2Fill"
+        size="11"
+        class="mr-1 text-blue-500"
+      />
+      <span>Pinned Workflows</span>
     </div>
     <div class="space-y-1.5">
       <home-workflow-card
-        v-for="workflow in workflows"
+        v-for="workflow in pinnedWorkflows"
         :key="workflow.id"
         :workflow="workflow"
         :tab="state.activeTab"
-        :pinned="workflow._isPinned"
+        :pinned="true"
         :is-selected="state.selectedForBatch.includes(workflow.id)"
         @details="openWorkflowPage"
         @update="updateWorkflow(workflow.id, $event)"
@@ -344,75 +338,156 @@
         @toggle-select="toggleSelectWorkflow(workflow.id)"
       />
     </div>
-    <transition
-      enter-active-class="transition-all duration-300 ease-out"
-      leave-active-class="transition-all duration-200 ease-in"
-      enter-from-class="opacity-0 translate-y-4"
-      enter-to-class="opacity-100 translate-y-0"
-      leave-from-class="opacity-100 translate-y-0"
-      leave-to-class="opacity-0 translate-y-4"
+  </div>
+  <div
+    class="flex items-center space-x-1 rounded-lg bg-gray-50 p-1 dark:bg-gray-800/50"
+  >
+    <ui-select
+      v-model="state.activeFolder"
+      class="flex-1 text-xs h-6"
     >
-      <ui-card
-        v-if="state.selectedForBatch.length > 0"
-        class="fixed right-0 bottom-0 left-0 mx-auto mb-2.5 w-fit shadow-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 z-50"
+      <option value="">
+        All Folders
+      </option>
+      <option
+        v-for="folder in folderStore.items"
+        :key="folder.id"
+        :value="folder.id"
       >
-        <div class="flex items-center gap-2">
-          <div class="h-4 w-px bg-gray-300 dark:bg-gray-600"></div>
-          <ui-button
-            variant="accent"
-            class="text-xs h-6 px-2.5"
-            @click="selectAllWorkflows"
-          >
-            <v-remixicon
-              :name="
-                state.selectedForBatch.length >= allVisibleWorkflows.length
-                  ? 'riCheckboxIndeterminateLine'
-                  : 'riCheckboxMultipleLine'
-              "
-              size="12"
-              class="mr-0.5"
-            />
-            {{
-              t(
-                `workflow.${state.selectedForBatch.length >= allVisibleWorkflows.length ? 'deselectAll' : 'selectAll'}`
-              )
-            }}
-          </ui-button>
-          <ui-button
-            variant="danger"
-            class="text-xs h-6 px-2.5"
-            @click="deleteBatchWorkflows"
-          >
-            <v-remixicon name="riDeleteBin7Line" size="12" class="mr-0.5" />
-            {{ t('workflow.deleteSelected') }} ({{
-              state.selectedForBatch.length
-            }})
-          </ui-button>
-        </div>
-      </ui-card>
-    </transition>
-    <div
-      v-if="state.showSettingsPopup"
-      class="fixed bottom-5 left-0 m-4 rounded-lg bg-accent p-4 text-white shadow-md dark:text-black z-10"
-    >
-      <p class="text-sm leading-tight">
-        If the workflow runs for less than 5 minutes, set it to run in the
-        background in the
-        <a
-          href="https://docs.extension.automa.site/workflow/settings.html#workflow-execution"
-          class="font-semibold underline"
-          target="_blank"
+        {{ folder.name }}
+      </option>
+    </ui-select>
+    <ui-popover>
+      <template #trigger>
+        <ui-button class="shrink-0 text-xs px-2 py-0.5 h-6">
+          <v-remixicon
+            name="riSortDesc"
+            class="mr-0.5 -ml-0.5"
+            size="12"
+          />
+          <span>Sort</span>
+        </ui-button>
+      </template>
+      <div class="w-48 p-2">
+        <ui-select
+          v-model="sortState.order"
+          block
+          placeholder="Sort order"
         >
-          workflow settings.
-        </a>
-      </p>
-      <v-remixicon
-        name="riCloseLine"
-        class="absolute top-2 right-2 cursor-pointer text-gray-300 dark:text-gray-600"
-        size="20"
-        @click="closeSettingsPopup"
-      />
-    </div>
+          <option value="asc">
+            Ascending
+          </option>
+          <option value="desc">
+            Descending
+          </option>
+        </ui-select>
+        <ui-select
+          v-model="sortState.by"
+          :placeholder="t('sort.sortBy')"
+          block
+          class="mt-1.5 flex-1"
+        >
+          <option
+            v-for="sort in sorts"
+            :key="sort"
+            :value="sort"
+          >
+            {{ t(`sort.${sort}`) }}
+          </option>
+        </ui-select>
+      </div>
+    </ui-popover>
+  </div>
+  <div class="space-y-1.5">
+    <home-workflow-card
+      v-for="workflow in workflows"
+      :key="workflow.id"
+      :workflow="workflow"
+      :tab="state.activeTab"
+      :pinned="workflow._isPinned"
+      :is-selected="state.selectedForBatch.includes(workflow.id)"
+      @details="openWorkflowPage"
+      @update="updateWorkflow(workflow.id, $event)"
+      @execute="executeWorkflow"
+      @rename="renameWorkflow"
+      @delete="deleteWorkflow"
+      @toggle-pin="togglePinWorkflow(workflow)"
+      @toggle-select="toggleSelectWorkflow(workflow.id)"
+    />
+  </div>
+  <transition
+    enter-active-class="transition-all duration-300 ease-out"
+    leave-active-class="transition-all duration-200 ease-in"
+    enter-from-class="opacity-0 translate-y-4"
+    enter-to-class="opacity-100 translate-y-0"
+    leave-from-class="opacity-100 translate-y-0"
+    leave-to-class="opacity-0 translate-y-4"
+  >
+    <ui-card
+      v-if="state.selectedForBatch.length > 0"
+      class="fixed right-0 bottom-0 left-0 mx-auto mb-2.5 w-fit shadow-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 z-50"
+    >
+      <div class="flex items-center gap-2">
+        <div class="h-4 w-px bg-gray-300 dark:bg-gray-600" />
+        <ui-button
+          variant="accent"
+          class="text-xs h-6 px-2.5"
+          @click="selectAllWorkflows"
+        >
+          <v-remixicon
+            :name="
+              state.selectedForBatch.length >= allVisibleWorkflows.length
+                ? 'riCheckboxIndeterminateLine'
+                : 'riCheckboxMultipleLine'
+            "
+            size="12"
+            class="mr-0.5"
+          />
+          {{
+            t(
+              `workflow.${state.selectedForBatch.length >= allVisibleWorkflows.length ? 'deselectAll' : 'selectAll'}`
+            )
+          }}
+        </ui-button>
+        <ui-button
+          variant="danger"
+          class="text-xs h-6 px-2.5"
+          @click="deleteBatchWorkflows"
+        >
+          <v-remixicon
+            name="riDeleteBin7Line"
+            size="12"
+            class="mr-0.5"
+          />
+          {{ t('workflow.deleteSelected') }} ({{
+            state.selectedForBatch.length
+          }})
+        </ui-button>
+      </div>
+    </ui-card>
+  </transition>
+  <div
+    v-if="state.showSettingsPopup"
+    class="fixed bottom-5 left-0 m-4 rounded-lg bg-accent p-4 text-white shadow-md dark:text-black z-10"
+  >
+    <p class="text-sm leading-tight">
+      If the workflow runs for less than 5 minutes, set it to run in the
+      background in the
+      <a
+        href="https://docs.extension.automa.site/workflow/settings.html#workflow-execution"
+        class="font-semibold underline"
+        target="_blank"
+      >
+        workflow settings.
+      </a>
+    </p>
+    <v-remixicon
+      name="riCloseLine"
+      class="absolute top-2 right-2 cursor-pointer text-gray-300 dark:text-gray-600"
+      size="20"
+      @click="closeSettingsPopup"
+    />
+  </div>
   </div>
 </template>
 <script setup>
