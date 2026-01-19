@@ -345,7 +345,7 @@ describe('AI集成测试', () => {
     test('TC-AI-011: 测试AI连接', async () => {
       await test.step('点击测试连接', async () => {
         const testBtn = page
-          .locator('button:has-text("测试连接"), button:has-text("测试")]')
+          .locator('button:has-text("测试连接"), button:has-text("测试")')
           .first();
         if (await testBtn.isVisible()) {
           await testBtn.click();
@@ -403,7 +403,7 @@ describe('AI集成测试', () => {
       });
 
       await test.step('生成工作流', async () => {
-        const generateBtn = page.locator('button:has-text("生成")]').first();
+        const generateBtn = page.locator('button:has-text("生成")').first();
         if (await generateBtn.isVisible()) {
           await generateBtn.click();
         }
@@ -453,7 +453,7 @@ describe('AI集成测试', () => {
 
       await test.step('点击重新生成', async () => {
         const regenerateBtn = page
-          .locator('button:has-text("重新生成")]')
+          .locator('button:has-text("重新生成")')
           .first();
         if (await regenerateBtn.isVisible()) {
           await regenerateBtn.click();

@@ -38,7 +38,7 @@ describe('定时任务测试', () => {
 
       await test.step('打开触发器设置', async () => {
         const settingsBtn = page
-          .locator('[class*="settings"], button:has-text("设置")]')
+          .locator('[class*="settings"], button:has-text("设置")')
           .first();
         if (await settingsBtn.isVisible()) {
           await settingsBtn.click();
@@ -385,7 +385,7 @@ describe('定时任务测试', () => {
 
       await test.step('确认删除', async () => {
         const confirmBtn = page
-          .locator('button:has-text("确认"), button:has-text("是")]')
+          .locator('button:has-text("确认"), button:has-text("是")')
           .first();
         if (await confirmBtn.isVisible()) {
           await confirmBtn.click();
@@ -405,7 +405,7 @@ describe('定时任务测试', () => {
 
       await test.step('点击立即执行', async () => {
         const runNowBtn = page
-          .locator('button:has-text("立即执行"), button:has-text("Run now")]')
+          .locator('button:has-text("立即执行"), button:has-text("Run now")')
           .first();
         if (await runNowBtn.isVisible()) {
           await runNowBtn.click();

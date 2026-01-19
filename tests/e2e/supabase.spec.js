@@ -108,7 +108,7 @@ describe('Supabase集成测试', () => {
 
       await test.step('下载工作流', async () => {
         const downloadBtn = page
-          .locator('button:has-text("下载"), button:has-text("同步")]')
+          .locator('button:has-text("下载"), button:has-text("同步")')
           .first();
         if (await downloadBtn.isVisible()) {
           await downloadBtn.click();
@@ -327,7 +327,7 @@ describe('Supabase集成测试', () => {
       await test.step('验证重定向到登录', async () => {
         await page.waitForTimeout(2000);
         const loginForm = page
-          .locator('input[type="email"], button:has-text("登录")]')
+          .locator('input[type="email"], button:has-text("登录")')
           .first();
         if (await loginForm.isVisible()) {
           expect(await loginForm.isVisible()).toBe(true);
@@ -530,7 +530,7 @@ describe('Supabase集成测试', () => {
       });
 
       await test.step('恢复备份', async () => {
-        const restoreBtn = page.locator('button:has-text("恢复")]').first();
+        const restoreBtn = page.locator('button:has-text("恢复")').first();
         if (await restoreBtn.isVisible()) {
           await restoreBtn.click();
         }

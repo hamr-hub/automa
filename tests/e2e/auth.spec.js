@@ -69,7 +69,7 @@ describe('身份验证测试', () => {
 
       await test.step('提交注册', async () => {
         const submitBtn = page
-          .locator('button:has-text("注册"), button:has-text("Sign up")]')
+          .locator('button:has-text("注册"), button:has-text("Sign up")')
           .first();
         if (await submitBtn.isVisible()) {
           await submitBtn.click();
@@ -230,7 +230,7 @@ describe('身份验证测试', () => {
 
       await test.step('提交登录', async () => {
         const submitBtn = page
-          .locator('button:has-text("登录"), button:has-text("Sign in")]')
+          .locator('button:has-text("登录"), button:has-text("Sign in")')
           .first();
         if (await submitBtn.isVisible()) {
           await submitBtn.click();
@@ -240,7 +240,7 @@ describe('身份验证测试', () => {
       await test.step('验证登录成功', async () => {
         await page.waitForTimeout(3000);
         const dashboard = page
-          .locator('[class*="dashboard"], [class*="Dashboard"], text=工作流')
+          .locator('[class*="dashboard"], [class*="Dashboard"]')
           .first();
         if (await dashboard.isVisible({ timeout: 5000 })) {
           expect(await dashboard.isVisible()).toBe(true);
@@ -324,7 +324,7 @@ describe('身份验证测试', () => {
         }
 
         const rememberCheckbox = page
-          .locator('input[type="checkbox"], text=记住密码')
+          .locator('input[type="checkbox"]')
           .first();
         if (await rememberCheckbox.isVisible()) {
           await rememberCheckbox.check();
@@ -343,7 +343,7 @@ describe('身份验证测试', () => {
       await test.step('登录后查看用户信息', async () => {
         const userMenu = page
           .locator(
-            '[class*="user-menu"], [class*="UserMenu"], button:has-text("用户")]'
+            '[class*="user-menu"], [class*="UserMenu"], button:has-text("用户")'
           )
           .first();
         if (await userMenu.isVisible()) {
@@ -403,7 +403,7 @@ describe('身份验证测试', () => {
       await test.step('验证重定向到登录', async () => {
         await page.waitForTimeout(1000);
         const loginForm = page
-          .locator('input[type="email"], button:has-text("登录")]')
+          .locator('input[type="email"], button:has-text("登录")')
           .first();
         if (await loginForm.isVisible()) {
           expect(await loginForm.isVisible()).toBe(true);
@@ -474,7 +474,7 @@ describe('身份验证测试', () => {
 
       await test.step('保存修改', async () => {
         const saveBtn = page
-          .locator('button:has-text("保存"), button:has-text("更新密码")]')
+          .locator('button:has-text("保存"), button:has-text("更新密码")')
           .first();
         if (await saveBtn.isVisible()) {
           await saveBtn.click();
@@ -501,7 +501,7 @@ describe('身份验证测试', () => {
 
       await test.step('发送重置邮件', async () => {
         const submitBtn = page
-          .locator('button:has-text("发送重置链接")]')
+          .locator('button:has-text("发送重置链接")')
           .first();
         if (await submitBtn.isVisible()) {
           await submitBtn.click();
@@ -544,7 +544,7 @@ describe('身份验证测试', () => {
       });
 
       await test.step('配置MFA', async () => {
-        const setupBtn = page.locator('button:has-text("设置MFA")]').first();
+        const setupBtn = page.locator('button:has-text("设置MFA")').first();
         if (await setupBtn.isVisible()) {
           await setupBtn.click();
         }
@@ -578,7 +578,7 @@ describe('身份验证测试', () => {
           await mfaInput.fill('123456');
         }
 
-        const verifyBtn = page.locator('button:has-text("验证")]').first();
+        const verifyBtn = page.locator('button:has-text("验证")').first();
         if (await verifyBtn.isVisible()) {
           await verifyBtn.click();
         }
