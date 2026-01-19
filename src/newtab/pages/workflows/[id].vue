@@ -130,14 +130,6 @@
             @update="onActionUpdated"
           />
         </template>
-        <!-- AI 助手按钮：放入顶部工具栏，避免漂浮在画布上 -->
-        <AIChatFloating
-          v-if="workflow && !isPackage"
-          :workflow="workflow"
-          :inline="true"
-          class="pointer-events-auto mr-2"
-          @update-workflow="onAIWorkflowUpdate"
-        />
 
         <editor-local-actions
           v-if="!isPackage"
@@ -150,6 +142,15 @@
           @update="onActionUpdated"
           @permission="checkWorkflowPermission"
           @modal="((modalState.name = $event), (modalState.show = true))"
+        />
+        
+        <!-- AI 助手按钮：放在 save 按钮后面 -->
+        <AIChatFloating
+          v-if="workflow && !isPackage"
+          :workflow="workflow"
+          :inline="false"
+          class="pointer-events-auto"
+          @update-workflow="onAIWorkflowUpdate"
         />
       </div>
       <ui-tab-panels
