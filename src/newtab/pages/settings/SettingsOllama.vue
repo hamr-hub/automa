@@ -204,6 +204,9 @@ const isLoadingModels = ref(false);
 const isCheckingHealth = ref(false);
 const isHealthy = ref(false);
 
+// 用于跟踪上一个配置，用于比较是否发生变化
+let previousConfig = null;
+
 const ollamaSettings = computed(
   () =>
     store.settings.ollama || {
@@ -214,16 +217,57 @@ const ollamaSettings = computed(
     }
 );
 
+/**
+ * 刷新健康状态和模型列表
+ */
+async function refreshStatus() {
+  // 先检查健康状态
+  await checkHealth();
+
+  // 如果健康状态良好，刷新模型列表
+  if (isHealthy.value) {
+    await fetchModels();
+  }
+}
+
+/**
+ * 比较两个配置是否不同
+ */
+function hasConfigChanged(newConfig, oldConfig) {
+  if (!oldConfig) return true;
+  return (
+    newConfig.baseUrl !== oldConfig.baseUrl ||
+    newConfig.model !== oldConfig.model ||
+    newConfig.temperature !== oldConfig.temperature ||
+    newConfig.maxTokens !== oldConfig.maxTokens
+  );
+}
+
 function updateSetting(path, value) {
   const newOllamaSettings = {
     ...ollamaSettings.value,
     [path]: value,
   };
-  store.updateSettings({ ollama: newOllamaSettings });
+
+  // 检查配置是否发生变化
+  if (hasConfigChanged(newOllamaSettings, previousConfig)) {
+    store.updateSettings({ ollama: newOllamaSettings });
+
+    // 配置更新后自动刷新健康状态和模型列表
+    // 使用setTimeout确保store已更新
+    setTimeout(async () => {
+      await refreshStatus();
+      previousConfig = { ...ollamaSettings.value };
+    }, 100);
+  } else {
+    // 如果没有变化，仍然保存设置但不触发刷新
+    store.updateSettings({ ollama: newOllamaSettings });
+  }
 }
 
 async function fetchModels() {
-  if (models.value.length > 0) return;
+  // 清除现有模型列表，强制重新获取
+  models.value = [];
 
   isLoadingModels.value = true;
   try {
@@ -231,6 +275,8 @@ async function fetchModels() {
     models.value = result.map((m) => ({ name: m.name }));
   } catch (error) {
     console.error('Failed to fetch models:', error);
+    // 如果获取失败，设置一个标志以避免重复尝试
+    models.value = [];
   } finally {
     isLoadingModels.value = false;
   }
@@ -253,12 +299,15 @@ function openOllamaWebsite() {
 }
 
 onMounted(async () => {
+  // 保存初始配置
+  previousConfig = { ...ollamaSettings.value };
+
   // Load initial health status
   await checkHealth();
 
   // Try to load models if we have settings
   if (ollamaSettings.value.baseUrl) {
-    fetchModels();
+    await fetchModels();
   }
 });
 </script>

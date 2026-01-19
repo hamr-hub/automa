@@ -263,7 +263,14 @@ import { useStore } from '@/stores/main';
 import aiService from '@/services/ai/AIService';
 import cloneDeep from 'lodash.clonedeep';
 import secrets from 'secrets';
-import { computed, shallowReactive, watch, ref, onMounted } from 'vue';
+import {
+  computed,
+  shallowReactive,
+  watch,
+  ref,
+  onMounted,
+  onUnmounted,
+} from 'vue';
 import { useRoute } from 'vue-router';
 import { useToast } from 'vue-toastification';
 import browser from 'webextension-polyfill';
@@ -488,7 +495,27 @@ const onProviderChange = (provider) => {
   }
 };
 
+/**
+ * 配置变更处理函数
+ * 当ollama配置更新时，自动重新获取模型列表
+ */
+function handleConfigChange() {
+  // 清除现有模型列表，强制重新获取
+  ollamaModels.value = [];
+
+  // 如果当前使用的是ollama provider，重新获取模型
+  if (
+    props.data.provider === 'ollama' ||
+    (!props.data.provider && !props.data.flowUuid)
+  ) {
+    fetchOllamaModels();
+  }
+}
+
 onMounted(() => {
+  // 添加配置变更监听器
+  aiService.addConfigChangeListener(handleConfigChange);
+
   if (!props.data.provider && !props.data.flowUuid) {
     // Default to ollama if no provider and no flowUuid (new block)
     updateData({ provider: 'ollama' });
@@ -511,5 +538,10 @@ onMounted(() => {
 
     fetchOllamaModels();
   }
+});
+
+onUnmounted(() => {
+  // 移除配置变更监听器，防止内存泄漏
+  aiService.removeConfigChangeListener(handleConfigChange);
 });
 </script>

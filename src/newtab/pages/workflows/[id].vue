@@ -1,6 +1,5 @@
 <template>
-  <div v-if="workflow"
-class="flex" style="height: calc(100vh - 40px)">
+  <div v-if="workflow" class="flex" style="height: calc(100vh - 40px)">
     <div
       v-if="state.showSidebar && haveEditAccess"
       :class="
@@ -29,8 +28,7 @@ class="flex" style="height: calc(100vh - 40px)">
         @update="updateWorkflow"
       />
       <!-- drag-element -->
-      <div
-ref="sidebarRef" class="custom-drag" @mousedown="startDrag" />
+      <div ref="sidebarRef" class="custom-drag" @mousedown="startDrag" />
     </div>
     <div class="relative flex-1 overflow-auto">
       <div
@@ -48,8 +46,7 @@ ref="sidebarRef" class="custom-drag" @mousedown="startDrag" />
               :src="workflow.icon"
               class="h-8 w-8"
             />
-            <v-remixicon v-else
-:name="workflow.icon" size="26" />
+            <v-remixicon v-else :name="workflow.icon" size="26" />
           </span>
           <div class="ml-2 max-w-sm">
             <p
@@ -94,8 +91,7 @@ ref="sidebarRef" class="custom-drag" @mousedown="startDrag" />
               {{ t('common.settings') }}
             </ui-tab>
           </template>
-          <ui-tab v-else
-value="logs" class="flex items-center">
+          <ui-tab v-else value="logs" class="flex items-center">
             {{ t('common.log', 2) }}
             <span
               v-if="workflowStates.length > 0"
@@ -106,8 +102,7 @@ value="logs" class="flex items-center">
             </span>
           </ui-tab>
         </ui-tabs>
-        <ui-card v-if="isTeamWorkflow"
-padding="p-1 ml-4 pointer-events-auto">
+        <ui-card v-if="isTeamWorkflow" padding="p-1 ml-4 pointer-events-auto">
           <ui-input
             v-tooltip="'Workflow URL'"
             prepend-icon="riLinkM"
@@ -117,16 +112,14 @@ padding="p-1 ml-4 pointer-events-auto">
           />
         </ui-card>
         <div class="pointer-events-none grow" />
-        <editor-used-credentials v-if="editor"
-:editor="editor" />
+        <editor-used-credentials v-if="editor" :editor="editor" />
         <template v-if="isPackage">
           <ui-button
             v-if="workflow.isExternal"
             v-tooltip="t('workflow.previewMode.description')"
             class="pointer-events-auto cursor-default"
           >
-            <v-remixicon name="riEyeLine"
-class="mr-2 -ml-1" />
+            <v-remixicon name="riEyeLine" class="mr-2 -ml-1" />
             <span>{{ t('workflow.previewMode.title') }}</span>
           </ui-button>
           <editor-pkg-actions
@@ -139,7 +132,7 @@ class="mr-2 -ml-1" />
         </template>
         <!-- AI 助手按钮：放入顶部工具栏，避免漂浮在画布上 -->
         <AIChatFloating
-          v-if="workflow"
+          v-if="workflow && !isPackage"
           :workflow="workflow"
           :inline="true"
           class="pointer-events-auto mr-2"
@@ -147,7 +140,7 @@ class="mr-2 -ml-1" />
         />
 
         <editor-local-actions
-          v-else
+          v-if="!isPackage"
           :editor="editor"
           :workflow="workflow"
           :is-data-changed="state.dataChanged"
@@ -168,13 +161,10 @@ class="mr-2 -ml-1" />
         @dragover.prevent="onDragoverEditor"
       >
         <template v-if="isPackage">
-          <ui-tab-panel value="package-details"
-class="container pt-24">
-            <package-details :data="workflow"
-@update="updateWorkflow" />
+          <ui-tab-panel value="package-details" class="container pt-24">
+            <package-details :data="workflow" @update="updateWorkflow" />
           </ui-tab-panel>
-          <ui-tab-panel value="package-settings"
-class="container pt-24">
+          <ui-tab-panel value="package-settings" class="container pt-24">
             <package-settings
               :data="workflow"
               :editor="editor"
@@ -183,8 +173,7 @@ class="container pt-24">
             />
           </ui-tab-panel>
         </template>
-        <ui-tab-panel cache
-value="editor" class="w-full" @keydown="onKeydown">
+        <ui-tab-panel cache value="editor" class="w-full" @keydown="onKeydown">
           <editor-debugging
             v-if="workflow.testingMode && workflowStates.length > 0"
             :states="workflowStates"
@@ -197,7 +186,11 @@ value="editor" class="w-full" @keydown="onKeydown">
             :disabled="isTeamWorkflow && !haveEditAccess"
             :class="{ 'animate-blocks': state.animateBlocks }"
             class="workflow-editor focus:outline-none"
-            :style="{ height: state.showRealtimeLogs ? 'calc(100vh - 280px)' : 'calc(100vh - 40px)' }"
+            :style="{
+              height: state.showRealtimeLogs
+                ? 'calc(100vh - 280px)'
+                : 'calc(100vh - 40px)',
+            }"
             tabindex="0"
             @init="onEditorInit"
             @edit="initEditBlock"
@@ -284,8 +277,12 @@ value="editor" class="w-full" @keydown="onKeydown">
         style="height: 240px"
       >
         <div class="flex h-full flex-col">
-          <div class="flex items-center justify-between border-b border-gray-200 px-4 py-2 dark:border-gray-700">
-            <h3 class="font-semibold">{{ t('common.log', 2) }} - {{ t('workflow.executing') }}</h3>
+          <div
+            class="flex items-center justify-between border-b border-gray-200 px-4 py-2 dark:border-gray-700"
+          >
+            <h3 class="font-semibold">
+              {{ t('common.log', 2) }} - {{ t('workflow.executing') }}
+            </h3>
             <button
               class="rounded p-1 hover:bg-gray-100 dark:hover:bg-gray-700"
               @click="state.showRealtimeLogs = false"
@@ -294,7 +291,11 @@ value="editor" class="w-full" @keydown="onKeydown">
             </button>
           </div>
           <div class="flex-1 overflow-auto p-4">
-            <div v-for="workflowState in workflowStates" :key="workflowState.id" class="mb-4">
+            <div
+              v-for="workflowState in workflowStates"
+              :key="workflowState.id"
+              class="mb-4"
+            >
               <div class="mb-2 flex items-center">
                 <ui-spinner color="text-accent" size="20" class="mr-2" />
                 <span class="font-medium">{{ workflowState.name }}</span>
@@ -304,10 +305,18 @@ value="editor" class="w-full" @keydown="onKeydown">
                   <v-remixicon name="riPlayLine" class="mr-1 inline-block" />
                   {{ t('workflow.currentBlock') }}:
                   <span class="font-medium">
-                    {{ getTranslation(`workflow.blocks.${workflowState.currentBlock[0]?.name}.name`, workflowState.currentBlock[0]?.name) }}
+                    {{
+                      getTranslation(
+                        `workflow.blocks.${workflowState.currentBlock[0]?.name}.name`,
+                        workflowState.currentBlock[0]?.name
+                      )
+                    }}
                   </span>
                 </p>
-                <p v-if="workflowState.currentBlock[0]?.description" class="text-sm text-gray-500 dark:text-gray-400">
+                <p
+                  v-if="workflowState.currentBlock[0]?.description"
+                  class="text-sm text-gray-500 dark:text-gray-400"
+                >
                   {{ workflowState.currentBlock[0].description }}
                 </p>
               </div>
@@ -322,8 +331,7 @@ value="editor" class="w-full" @keydown="onKeydown">
     :content-class="activeWorkflowModal?.width || 'max-w-xl'"
     v-bind="activeWorkflowModal.attrs || {}"
   >
-    <template v-if="activeWorkflowModal.title"
-#header>
+    <template v-if="activeWorkflowModal.title" #header>
       {{ activeWorkflowModal.title }}
       <a
         v-if="activeWorkflowModal.docs"
@@ -332,8 +340,7 @@ value="editor" class="w-full" @keydown="onKeydown">
         target="_blank"
         class="inline-block align-middle"
       >
-        <v-remixicon name="riInformationLine"
-size="20" />
+        <v-remixicon name="riInformationLine" size="20" />
       </a>
     </template>
     <component
@@ -349,8 +356,7 @@ size="20" />
     :permissions="permissionState.items"
     @granted="registerTrigger"
   />
-  <ui-modal v-model="blockFolderModal.showModal"
-:title="t('packages.set')">
+  <ui-modal v-model="blockFolderModal.showModal" :title="t('packages.set')">
     <editor-add-package
       :data="{
         name: blockFolderModal.name,
@@ -362,7 +368,7 @@ size="20" />
       @add="saveBlockToFolder"
     />
   </ui-modal>
-  
+
   <!-- AIChatFloating 已移到顶部工具栏，避免覆盖编辑器画布 -->
 </template>
 <script setup>
@@ -1653,7 +1659,7 @@ function onAIWorkflowUpdate(newWorkflow) {
         editor.value.setNodes(newWorkflow.drawflow.nodes || []);
         editor.value.setEdges(newWorkflow.drawflow.edges || []);
         // 自动对齐一下可能更好
-        // autoAlign(); 
+        // autoAlign();
         editor.value.fitView();
       }
       toast.success('工作流已由 AI 更新');

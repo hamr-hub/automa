@@ -24,6 +24,7 @@ export const useStore = defineStore('main', {
         model: 'mistral',
         temperature: 0.7,
         maxTokens: 2000,
+        lastUsedModel: '', // 记录上次使用的模型
       },
       editor: {
         minZoom: 0.3,

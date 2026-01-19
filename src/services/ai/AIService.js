@@ -16,6 +16,40 @@ class AIService {
     this.langGraphAgent = null;
     this.initialized = false;
     this.store = null;
+    this.configChangeListeners = [];
+  }
+
+  /**
+   * 添加配置变更监听器
+   * @param {Function} listener - 监听函数，会收到新的ollama配置
+   */
+  addConfigChangeListener(listener) {
+    this.configChangeListeners.push(listener);
+  }
+
+  /**
+   * 移除配置变更监听器
+   * @param {Function} listener - 要移除的监听函数
+   */
+  removeConfigChangeListener(listener) {
+    const index = this.configChangeListeners.indexOf(listener);
+    if (index > -1) {
+      this.configChangeListeners.splice(index, 1);
+    }
+  }
+
+  /**
+   * 通知所有监听器配置已变更
+   * @param {Object} newConfig - 新的ollama配置
+   */
+  notifyConfigChange(newConfig) {
+    this.configChangeListeners.forEach((listener) => {
+      try {
+        listener(newConfig);
+      } catch (error) {
+        console.error('[AIService] 配置变更监听器执行失败:', error);
+      }
+    });
   }
 
   /**
@@ -202,7 +236,11 @@ class AIService {
    */
   async updateConfig(config) {
     this.initialized = false;
+    const globalConfig = this.getGlobalOllamaConfig();
     await this.initialize(config);
+
+    // 通知所有监听器配置已变更
+    this.notifyConfigChange(globalConfig);
   }
 
   /**
