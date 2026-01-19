@@ -4,15 +4,27 @@
  */
 
 import { test, expect, describe, beforeEach } from '@playwright/test';
-
-const EXTENSION_ID = process.env.EXTENSION_ID || 'your-extension-id';
+import path from 'path';
 
 describe('工作流块操作测试', () => {
   let page;
+  let extensionId;
 
   test.beforeEach(async ({ browser }) => {
-    page = await browser.newPage();
-    await page.goto(`chrome-extension://${EXTENSION_ID}/newtab.html`);
+    // 使用Playwright的扩展测试功能，直接从构建目录加载扩展
+    const context = await browser.newContext();
+    
+    // 加载扩展
+    const extensionPath = path.resolve(__dirname, '../../build');
+    const backgroundPage = await context.waitForEvent('backgroundpage', { timeout: 10000 });
+    
+    // 从后台页面URL中提取扩展ID
+    extensionId = backgroundPage.url().split('/')[2];
+    console.log('获取到扩展ID:', extensionId);
+    
+    // 创建新页面并导航到扩展的newtab.html
+    page = await context.newPage();
+    await page.goto(`chrome-extension://${extensionId}/newtab.html`);
     await page.waitForLoadState('domcontentloaded');
     await page.waitForTimeout(1000);
   });
