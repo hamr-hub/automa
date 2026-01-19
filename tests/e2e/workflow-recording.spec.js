@@ -251,7 +251,9 @@ test.describe('Workflow Recording Functionality', () => {
     // Navigate to the recording page
     const recordingUrl = `chrome-extension://${extensionId}/newtab.html#/recording`;
     await page.goto(recordingUrl, { waitUntil: 'domcontentloaded' });
-    await page.waitForTimeout(2000);
+
+    // Wait for page to load
+    await page.waitForSelector('body', { timeout: 5000 }).catch(() => {});
 
     // Check if the recording page loaded
     const pageContent = await page.content();

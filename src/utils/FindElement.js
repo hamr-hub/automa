@@ -24,6 +24,9 @@ class FindElement {
       ? `${data.selector.trim()}:not([${data.blockIdAttr}])`
       : data.selector;
 
+    // 支持多个备选选择器（逗号分隔）
+    const selectorParts = selector.split(',').map(s => s.trim());
+    
     if (specialSelectorsRegex.test(selector)) {
       // Fix Sizzle incorrect context in iframe, passed as context of iframe
       const elements = Sizzle(selector, documentCtx);
@@ -40,15 +43,24 @@ class FindElement {
         : querySelectorDeep(newSelector);
     }
 
-    if (data.multiple) {
-      const elements = documentCtx.querySelectorAll(selector);
-
-      if (elements.length === 0) return null;
-
-      return elements;
+    // 尝试多个备选选择器（按顺序尝试）
+    for (const singleSelector of selectorParts) {
+      try {
+        if (data.multiple) {
+          const elements = documentCtx.querySelectorAll(singleSelector);
+          if (elements.length > 0) return elements;
+        } else {
+          const element = documentCtx.querySelector(singleSelector);
+          if (element) return element;
+        }
+      } catch (error) {
+        // 选择器语法错误，尝试下一个
+        console.warn(`Invalid selector: ${singleSelector}`, error);
+        continue;
+      }
     }
 
-    return documentCtx.querySelector(selector);
+    return null;
   }
 
   static xpath(data, documentCtx = document) {

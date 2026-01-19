@@ -1,0 +1,275 @@
+{
+    "extVersion": "1.29.12",
+    "name": "AI生成: 打开网站：https://www.amazon.sg/Bona-Microfiber-Cleaning-Hardwood-Surface/dp/B08W2BD96D/ref=lp_6537768051_1_1?pf_rd_p=e0af6543-05b0-439b-8b10-517ff5e4d285&pf_rd_r=9VW7MFEJSRTKH2WSHQ5Y&sbo=RZvfv%2F%2FHxDF%2BO5021pAnSA%3D%3D，分析商品详情，转换成json返回，保存",
+    "icon": "riGlobalLine",
+    "table": [
+        {
+            "id": "kr7cpRBgmaoDoURjDEND8",
+            "name": "title",
+            "type": "string",
+            "description": "商品标题"
+        },
+        {
+            "id": "ttPxqnDuSn8_TW1i1sOts",
+            "name": "price",
+            "type": "string",
+            "description": "商品价格"
+        },
+        {
+            "id": "BcwM4cZxXcH_Cdi_Oks7a",
+            "name": "description",
+            "type": "string",
+            "description": "商品描述"
+        },
+        {
+            "id": "0mLkMBcTFblk2twV9glYA",
+            "name": "asin",
+            "type": "string",
+            "description": "商品ASIN"
+        }
+    ],
+    "version": "1.29.12",
+    "drawflow": {
+        "nodes": [
+            {
+                "id": "trigger-LqH7oF4QczsizTXWBitHJ",
+                "type": "BlockBasic",
+                "label": "trigger",
+                "position": {
+                    "x": 50,
+                    "y": 50
+                },
+                "data": {
+                    "type": "manual",
+                    "description": "",
+                    "disableBlock": false
+                }
+            },
+            {
+                "id": "new-tab-GbwhTzUMsntxALbODduYY",
+                "type": "BlockBasic",
+                "label": "new-tab",
+                "position": {
+                    "x": 330,
+                    "y": 50
+                },
+                "data": {
+                    "url": "https://www.amazon.sg/Bona-Microfiber-Cleaning-Hardwood-Surface/dp/B08W2BD96D/ref=lp_6537768051_1_1?pf_rd_p=e0af6543-05b0-439b-8b10-517ff5e4d285&pf_rd_r=9VW7MFEJSRTKH2WSHQ5Y&sbo=RZvfv%2F%2FHxDF%2BO5021pAnSA%3D%3D",
+                    "active": true,
+                    "waitTabLoaded": true,
+                    "description": "导航到亚马逊商品详情页面",
+                    "disableBlock": false
+                }
+            },
+            {
+                "id": "delay-3Yga1iY2HFkmdc94PINUB",
+                "type": "BlockBasic",
+                "label": "delay",
+                "position": {
+                    "x": 610,
+                    "y": 50
+                },
+                "data": {
+                    "time": 2000,
+                    "description": "等待页面加载完成",
+                    "disableBlock": false
+                }
+            },
+            {
+                "id": "get-text-KWzvn-I7BEd7AhgUYqlUT",
+                "type": "BlockBasic",
+                "label": "get-text",
+                "position": {
+                    "x": 890,
+                    "y": 50
+                },
+                "data": {
+                    "selector": "#productTitle",
+                    "regex": "",
+                    "regexExp": "",
+                    "prefixText": "",
+                    "suffixText": "",
+                    "assignVariable": false,
+                    "variableName": "",
+                    "dataColumn": "title",
+                    "multiple": false,
+                    "waitSelector": 5000,
+                    "markEl": true,
+                    "description": "提取商品标题",
+                    "disableBlock": false
+                }
+            },
+            {
+                "id": "get-text-VkJljiJ2HZubXTszs-p4n",
+                "type": "BlockBasic",
+                "label": "get-text",
+                "position": {
+                    "x": 50,
+                    "y": 200
+                },
+                "data": {
+                    "selector": ".a-price .a-offscreen, .a-price-whole, #priceblock_ourprice, #priceblock_dealprice, .a-price[data-a-size=\"xl\"] .a-offscreen",
+                    "regex": "",
+                    "regexExp": "",
+                    "prefixText": "",
+                    "suffixText": "",
+                    "assignVariable": false,
+                    "variableName": "",
+                    "dataColumn": "price",
+                    "multiple": false,
+                    "waitSelector": 5000,
+                    "markEl": true,
+                    "description": "提取商品价格（支持多种价格格式）",
+                    "disableBlock": false
+                }
+            },
+            {
+                "id": "get-text-im_jhojR2mkHE_vPB8cis",
+                "type": "BlockBasic",
+                "label": "get-text",
+                "position": {
+                    "x": 330,
+                    "y": 200
+                },
+                "data": {
+                    "selector": "#feature-bullets",
+                    "regex": "",
+                    "regexExp": "",
+                    "prefixText": "",
+                    "suffixText": "",
+                    "assignVariable": false,
+                    "variableName": "",
+                    "dataColumn": "description",
+                    "multiple": false,
+                    "waitSelector": 5000,
+                    "markEl": true,
+                    "description": "提取商品描述",
+                    "disableBlock": false
+                }
+            },
+            {
+                "id": "get-text-tKooSU0t_GLKJoepIW602",
+                "type": "BlockBasic",
+                "label": "get-text",
+                "position": {
+                    "x": 610,
+                    "y": 200
+                },
+                "data": {
+                    "selector": "#productDescription > div.a-section > p",
+                    "regex": "",
+                    "regexExp": "",
+                    "prefixText": "",
+                    "suffixText": "",
+                    "assignVariable": false,
+                    "variableName": "",
+                    "dataColumn": "asin",
+                    "multiple": false,
+                    "waitSelector": 5000,
+                    "markEl": true,
+                    "description": "提取商品ASIN",
+                    "disableBlock": false
+                }
+            },
+            {
+                "id": "export-data-lihg4WHcP_iAg-UfcZEmw",
+                "type": "BlockBasic",
+                "label": "export-data",
+                "position": {
+                    "x": 890,
+                    "y": 200
+                },
+                "data": {
+                    "type": "xlsx",
+                    "dataToExport": "data-columns",
+                    "name": "automa-scraped-data",
+                    "description": "导出抓取的数据为Excel格式",
+                    "onConflict": "uniquify",
+                    "disableBlock": false
+                }
+            }
+        ],
+        "edges": [
+            {
+                "id": "edge-GpB_6sKDw9EGCGHOD6dAN",
+                "source": "trigger-LqH7oF4QczsizTXWBitHJ",
+                "target": "new-tab-GbwhTzUMsntxALbODduYY",
+                "sourceHandle": "trigger-LqH7oF4QczsizTXWBitHJ-output-1",
+                "targetHandle": "new-tab-GbwhTzUMsntxALbODduYY-input",
+                "type": "custom"
+            },
+            {
+                "id": "edge-PBHv0RYdUpv03gK1FKNe6",
+                "source": "new-tab-GbwhTzUMsntxALbODduYY",
+                "target": "delay-3Yga1iY2HFkmdc94PINUB",
+                "sourceHandle": "new-tab-GbwhTzUMsntxALbODduYY-output-1",
+                "targetHandle": "delay-3Yga1iY2HFkmdc94PINUB-input",
+                "type": "custom"
+            },
+            {
+                "id": "edge-FhaXhMafOIDVeMPRcahXN",
+                "source": "delay-3Yga1iY2HFkmdc94PINUB",
+                "target": "get-text-KWzvn-I7BEd7AhgUYqlUT",
+                "sourceHandle": "delay-3Yga1iY2HFkmdc94PINUB-output-1",
+                "targetHandle": "get-text-KWzvn-I7BEd7AhgUYqlUT-input",
+                "type": "custom"
+            },
+            {
+                "id": "edge-RaAWX3G6y7JNbxqQUvQSD",
+                "source": "get-text-KWzvn-I7BEd7AhgUYqlUT",
+                "target": "get-text-VkJljiJ2HZubXTszs-p4n",
+                "sourceHandle": "get-text-KWzvn-I7BEd7AhgUYqlUT-output-1",
+                "targetHandle": "get-text-VkJljiJ2HZubXTszs-p4n-input",
+                "type": "custom"
+            },
+            {
+                "id": "edge-NjwPUCdfIUR8FJACdk38k",
+                "source": "get-text-VkJljiJ2HZubXTszs-p4n",
+                "target": "get-text-im_jhojR2mkHE_vPB8cis",
+                "sourceHandle": "get-text-VkJljiJ2HZubXTszs-p4n-output-1",
+                "targetHandle": "get-text-im_jhojR2mkHE_vPB8cis-input",
+                "type": "custom"
+            },
+            {
+                "id": "edge-Y69PVolRpnXMjtCOSSQ-4",
+                "source": "get-text-im_jhojR2mkHE_vPB8cis",
+                "target": "get-text-tKooSU0t_GLKJoepIW602",
+                "sourceHandle": "get-text-im_jhojR2mkHE_vPB8cis-output-1",
+                "targetHandle": "get-text-tKooSU0t_GLKJoepIW602-input",
+                "type": "custom"
+            },
+            {
+                "id": "edge-Ieq2DDgnMgxtY_JHU0-nv",
+                "source": "get-text-tKooSU0t_GLKJoepIW602",
+                "target": "export-data-lihg4WHcP_iAg-UfcZEmw",
+                "sourceHandle": "get-text-tKooSU0t_GLKJoepIW602-output-1",
+                "targetHandle": "export-data-lihg4WHcP_iAg-UfcZEmw-input",
+                "type": "custom"
+            }
+        ],
+        "viewport": {
+            "x": 0,
+            "y": 0,
+            "zoom": 1
+        }
+    },
+    "settings": {
+        "aipowerToken": "",
+        "blockDelay": 0,
+        "debugMode": false,
+        "defaultColumnName": "column",
+        "execContext": "popup",
+        "executedBlockOnWeb": false,
+        "inputAutocomplete": true,
+        "insertDefaultColumn": false,
+        "notification": true,
+        "onError": "stop-workflow",
+        "publicId": "",
+        "restartTimes": 3,
+        "reuseLastState": false,
+        "saveLog": true
+    },
+    "globalData": "{\n\t\"key\": \"value\"\n}",
+    "description": "由 AI 自动生成的数据抓取工作流\n目标: 打开网站：https://www.amazon.sg/Bona-Microfiber-Cleaning-Hardwood-Surface/dp/B08W2BD96D/ref=lp_6537768051_1_1?pf_rd_p=e0af6543-05b0-439b-8b10-517ff5e4d285&pf_rd_r=9VW7MFEJSRTKH2WSHQ5Y&sbo=RZvfv%2F%2FHxDF%2BO5021pAnSA%3D%3D，分析商品详情，转换成json返回，保存\nURL: ",
+    "includedWorkflows": {}
+}
