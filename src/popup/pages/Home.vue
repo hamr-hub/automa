@@ -57,12 +57,46 @@
     </div>
     <div class="relative">
       <ui-input
+        ref="searchInputRef"
         v-model="state.query"
         :placeholder="`${t('common.search')}...`"
         autocomplete="off"
         prepend-icon="riSearch2Line"
         class="search-input w-full bg-white/10 backdrop-blur-md border border-white/20 text-white placeholder-white/70 rounded-lg shadow-lg text-xs h-8"
+        @focus="showSearchSuggestions = true"
+        @blur="hideSearchSuggestions"
+        @keydown="handleSearchKeydown"
       />
+      <!-- Search Shortcut Hint -->
+      <div
+        v-if="!state.query"
+        class="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1 pointer-events-none"
+      >
+        <kbd class="px-1.5 py-0.5 rounded bg-white/20 text-white/70 text-[10px] font-mono">/</kbd>
+      </div>
+
+      <!-- Search Suggestions Dropdown -->
+      <transition name="fade">
+        <div
+          v-if="showSearchSuggestions && state.query && searchSuggestions.length > 0"
+          class="absolute top-full left-0 right-0 mt-1 rounded-lg bg-white dark:bg-gray-800 shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden z-50"
+        >
+          <div class="py-1">
+            <button
+              v-for="(suggestion, index) in searchSuggestions"
+              :key="suggestion.id"
+              class="w-full px-3 py-2 text-left text-sm flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              :class="{ 'bg-gray-100 dark:bg-gray-700': index === selectedSuggestionIndex }"
+              @click="selectSuggestion(suggestion)"
+              @mouseenter="selectedSuggestionIndex = index"
+            >
+              <v-remixicon :name="suggestion.icon || 'riFlowChart'" size="14" class="text-gray-400" />
+              <span class="flex-1 truncate">{{ suggestion.name }}</span>
+              <span v-if="suggestion.folder" class="text-xs text-gray-400">{{ suggestion.folder }}</span>
+            </button>
+          </div>
+        </div>
+      </transition>
     </div>
     <ui-tabs
       v-if="showTab"
@@ -89,25 +123,110 @@
     v-if="state.activeTab !== 'team'"
     class="relative z-20 space-y-1.5 px-3 pb-3"
   >
-    <ui-card
+    <!-- New User Welcome & Quick Actions -->
+    <div
       v-if="workflowStore.getWorkflows.length === 0"
-      class="text-center py-6"
+      class="space-y-4"
     >
-      <img
-        src="@/assets/svg/alien.svg"
-        class="mx-auto mb-3 h-16 w-16 opacity-60"
-      />
-      <p class="font-semibold text-sm text-gray-700 dark:text-gray-300">
-        {{ t('message.empty') }}
-      </p>
-      <ui-button
-        variant="accent"
-        class="mt-3"
-        @click="openDashboard('/workflows')"
-      >
-        {{ t('home.workflow.new') }}
-      </ui-button>
-    </ui-card>
+      <!-- Welcome Banner -->
+      <div class="rounded-xl bg-gradient-to-r from-blue-500/10 to-purple-500/10 p-4 border border-blue-500/20">
+        <div class="flex items-start gap-3">
+          <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-500">
+            <v-remixicon name="riSparklingFill" size="20" class="text-white" />
+          </div>
+          <div class="flex-1">
+            <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-1">
+              欢迎使用 Automa 👋
+            </h3>
+            <p class="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
+              自动化您的浏览器操作。录制您的操作，或让 AI 帮您创建工作流。
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Start Actions -->
+      <div class="grid grid-cols-1 gap-2">
+        <!-- Record Workflow -->
+        <ui-card
+          class="group cursor-pointer border border-gray-200 p-3 transition-all hover:border-blue-300 hover:shadow-md dark:border-gray-700 dark:hover:border-blue-500/50"
+          @click="startRecording"
+        >
+          <div class="flex items-center gap-3">
+            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-600 transition-colors group-hover:bg-red-500 dark:bg-red-500/10 dark:text-red-400">
+              <v-remixicon name="riRecordCircleLine" size="20" />
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-medium text-gray-900 dark:text-gray-100">
+                录制工作流
+              </p>
+              <p class="text-xs text-gray-500 dark:text-gray-400 truncate">
+                记录您的操作步骤，自动生成工作流
+              </p>
+            </div>
+            <v-remixicon name="riArrowRightLine" size="16" class="text-gray-400 transition-transform group-hover:translate-x-1" />
+          </div>
+        </ui-card>
+
+        <!-- AI Generate -->
+        <ui-card
+          class="group cursor-pointer border border-gray-200 p-3 transition-all hover:border-blue-300 hover:shadow-md dark:border-gray-700 dark:hover:border-blue-500/50"
+          @click="openAIGenerator"
+        >
+          <div class="flex items-center gap-3">
+            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 text-white transition-transform group-hover:scale-105">
+              <v-remixicon name="riRobotLine" size="20" />
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-medium text-gray-900 dark:text-gray-100">
+                AI 生成工作流
+              </p>
+              <p class="text-xs text-gray-500 dark:text-gray-400 truncate">
+                描述您的需求，AI 自动创建工作流
+              </p>
+            </div>
+            <v-remixicon name="riArrowRightLine" size="16" class="text-gray-400 transition-transform group-hover:translate-x-1" />
+          </div>
+        </ui-card>
+
+        <!-- Blank Workflow -->
+        <ui-card
+          class="group cursor-pointer border border-gray-200 p-3 transition-all hover:border-blue-300 hover:shadow-md dark:border-gray-700 dark:hover:border-blue-500/50"
+          @click="openDashboard('/workflows')"
+        >
+          <div class="flex items-center gap-3">
+            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gray-100 text-gray-600 transition-colors group-hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-400">
+              <v-remixicon name="riAddLine" size="20" />
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-medium text-gray-900 dark:text-gray-100">
+                创建空白工作流
+              </p>
+              <p class="text-xs text-gray-500 dark:text-gray-400 truncate">
+                从零开始手动构建工作流
+              </p>
+            </div>
+            <v-remixicon name="riArrowRightLine" size="16" class="text-gray-400 transition-transform group-hover:translate-x-1" />
+          </div>
+        </ui-card>
+      </div>
+
+      <!-- Keyboard Shortcut Hint -->
+      <div class="flex items-center justify-center gap-4 text-xs text-gray-400">
+        <span class="flex items-center gap-1">
+          <kbd class="px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-700 font-mono text-[10px]">R</kbd>
+          录制
+        </span>
+        <span class="flex items-center gap-1">
+          <kbd class="px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-700 font-mono text-[10px]">A</kbd>
+          AI 生成
+        </span>
+        <span class="flex items-center gap-1">
+          <kbd class="px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-700 font-mono text-[10px]">/</kbd>
+          搜索
+        </span>
+      </div>
+    </div>
     <div
       v-if="pinnedWorkflows.length > 0"
       class="mb-2 border-b border-gray-200 pb-2 dark:border-gray-700"
@@ -221,6 +340,7 @@ import HomeTeamWorkflows from '@/components/popup/home/HomeTeamWorkflows.vue';
 import HomeWorkflowCard from '@/components/popup/home/HomeWorkflowCard.vue';
 import { useDialog } from '@/composable/dialog';
 import { useGroupTooltip } from '@/composable/groupTooltip';
+import { useShortcut } from '@/composable/shortcut';
 import { initElementSelector as initElementSelectorFunc } from '@/newtab/utils/elementSelector';
 import RendererWorkflowService from '@/service/renderer/RendererWorkflowService';
 import { useFolderStore } from '@/stores/folder';
@@ -230,7 +350,7 @@ import { useUserStore } from '@/stores/user';
 import { useWorkflowStore } from '@/stores/workflow';
 import { arraySorter, parseJSON } from '@/utils/helper';
 import automa from '@business';
-import { computed, onMounted, shallowReactive, watch } from 'vue';
+import { computed, onMounted, ref, shallowReactive, watch, nextTick } from 'vue';
 import { useI18n } from 'vue-i18n';
 import browser from 'webextension-polyfill';
 
@@ -267,6 +387,118 @@ const state = shallowReactive({
     ? false
     : (parseJSON(localStorage.getItem('settingsPopup'), true) ?? true),
 });
+
+const searchInputRef = ref(null);
+const showSearchSuggestions = ref(false);
+const selectedSuggestionIndex = ref(0);
+
+// Search suggestions based on query
+const searchSuggestions = computed(() => {
+  const query = state.query.toLowerCase().trim();
+  if (!query) return [];
+
+  const suggestions = [];
+  const allWorkflows = [
+    ...workflowStore.getWorkflows,
+    ...hostedWorkflowStore.toArray,
+  ];
+
+  allWorkflows.forEach((workflow) => {
+    if (workflow.name.toLowerCase().includes(query)) {
+      const folder = folderStore.items.find((f) => f.id === workflow.folderId);
+      suggestions.push({
+        id: workflow.id,
+        name: workflow.name,
+        folder: folder?.name || null,
+        icon: 'riFlowChart',
+        type: 'workflow',
+      });
+    }
+  });
+
+  // Add folder suggestions
+  folderStore.items.forEach((folder) => {
+    if (folder.name.toLowerCase().includes(query)) {
+      suggestions.push({
+        id: folder.id,
+        name: folder.name,
+        folder: 'Folder',
+        icon: 'riFolder3Line',
+        type: 'folder',
+      });
+    }
+  });
+
+  return suggestions.slice(0, 5);
+});
+
+function selectSuggestion(suggestion) {
+  if (suggestion.type === 'workflow') {
+    openWorkflowPage({ id: suggestion.id });
+  } else if (suggestion.type === 'folder') {
+    state.activeFolder = suggestion.id;
+  }
+  state.query = '';
+  showSearchSuggestions.value = false;
+}
+
+function hideSearchSuggestions() {
+  // Delay to allow click events on suggestions
+  setTimeout(() => {
+    showSearchSuggestions.value = false;
+  }, 200);
+}
+
+// Keyboard navigation for search
+function handleSearchKeydown(event) {
+  if (!showSearchSuggestions.value) return;
+
+  switch (event.key) {
+    case 'ArrowDown':
+      event.preventDefault();
+      selectedSuggestionIndex.value = Math.min(
+        selectedSuggestionIndex.value + 1,
+        searchSuggestions.value.length - 1
+      );
+      break;
+    case 'ArrowUp':
+      event.preventDefault();
+      selectedSuggestionIndex.value = Math.max(selectedSuggestionIndex.value - 1, 0);
+      break;
+    case 'Enter':
+      event.preventDefault();
+      if (searchSuggestions.value[selectedSuggestionIndex.value]) {
+        selectSuggestion(searchSuggestions.value[selectedSuggestionIndex.value]);
+      }
+      break;
+    case 'Escape':
+      showSearchSuggestions.value = false;
+      break;
+  }
+}
+
+// Register keyboard shortcuts
+useShortcut(
+  [
+    { id: 'action:search', combo: '/' },
+    { id: 'action:record', combo: 'r' },
+    { id: 'action:ai', combo: 'a' },
+  ],
+  (params) => {
+    if (params.id === 'action:search') {
+      event.preventDefault();
+      searchInputRef.value?.focus();
+    } else if (params.id === 'action:record') {
+      event.preventDefault();
+      if (workflowStore.getWorkflows.length > 0) {
+        startRecording();
+      }
+    } else if (params.id === 'action:ai') {
+      event.preventDefault();
+      openAIGenerator();
+    }
+  }
+);
 
 const pinnedWorkflows = computed(() => {
   if (state.activeTab !== 'local') return [];

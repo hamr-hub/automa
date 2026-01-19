@@ -1,72 +1,117 @@
 <template>
   <ui-card
-    class="group relative flex w-full items-center space-x-2.5 overflow-hidden rounded-lg bg-white p-2.5 shadow-sm transition-all duration-200 hover:shadow-md hover:ring-2 hover:ring-blue-500/20 dark:bg-gray-800 dark:hover:ring-blue-400/20"
+    class="group relative flex w-full items-center space-x-3 overflow-hidden rounded-xl bg-white p-3 shadow-sm transition-all duration-200 hover:shadow-lg hover:ring-2 hover:ring-blue-500/30 dark:bg-gray-800 dark:hover:ring-blue-400/30"
   >
-    <!-- Icon or Status Indicator -->
-    <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-all duration-200"
-      :class="workflow.isDisabled ? 'bg-gray-100 dark:bg-gray-700' : 'bg-gradient-to-br from-blue-500 to-purple-600'"
+    <!-- Prominent Execute Button -->
+    <button
+      v-if="!workflow.isDisabled"
+      class="group/btn flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/25 transition-all duration-200 hover:from-blue-600 hover:to-blue-700 hover:scale-105 active:scale-95"
+      :class="{ 'animate-pulse': isExecuting }"
+      title="Execute workflow"
+      @click.stop="$emit('execute', workflow)"
     >
       <v-remixicon 
-        :name="workflow.isDisabled ? 'riPauseLine' : 'riFlashlightLine'"
-        size="18"
-        class="text-white"
+        :name="isExecuting ? 'riLoader4Line' : 'riPlayLine'"
+        :class="{ 'animate-spin': isExecuting }"
+        size="20" 
       />
+    </button>
+
+    <!-- Disabled Placeholder -->
+    <div
+      v-else
+      class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-700"
+    >
+      <v-remixicon name="riPauseLine" size="20" class="text-gray-400" />
     </div>
 
     <!-- Workflow Info -->
-    <div
-      class="text-overflow flex-1 cursor-pointer min-w-0"
-      @click="$emit('details', workflow)"
-    >
-      <p class="text-overflow text-sm font-semibold leading-tight text-gray-900 dark:text-gray-100">
-        {{ workflow.name }}
-      </p>
-      <p class="flex items-center space-x-1.5 text-xs leading-tight text-gray-500 dark:text-gray-400">
-        <v-remixicon name="riTimeLine" size="11" />
-        <span>{{ dayjs(workflow.createdAt).fromNow() }}</span>
-      </p>
+    <div class="flex-1 min-w-0">
+      <!-- Title Row -->
+      <div class="flex items-center gap-2 mb-1">
+        <p class="text-overflow text-sm font-semibold leading-tight text-gray-900 dark:text-gray-100">
+          {{ workflow.name }}
+        </p>
+        <!-- Status Tags -->
+        <span
+          v-if="workflow.isDisabled"
+          class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400"
+        >
+          {{ t('common.disabled') }}
+        </span>
+        <span
+          v-if="workflow.isProtected"
+          class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-green-50 text-green-600 dark:bg-green-500/10 dark:text-green-400"
+        >
+          <v-remixicon name="riShieldKeyholeLine" size="10" class="mr-0.5" />
+          Protected
+        </span>
+        <!-- Last Run Status -->
+        <span
+          v-if="lastRunStatus"
+          class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium"
+          :class="statusClasses"
+        >
+          <span class="h-1.5 w-1.5 rounded-full" :class="statusDotClass"></span>
+          {{ statusText }}
+        </span>
+      </div>
+      
+      <!-- Meta Row -->
+      <div class="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
+        <span class="flex items-center gap-1">
+          <v-remixicon name="riTimeLine" size="12" />
+          {{ dayjs(workflow.updatedAt || workflow.createdAt).fromNow() }}
+        </span>
+        <span v-if="workflow.executionCount > 0" class="flex items-center gap-1">
+          <v-remixicon name="riFlashlightLine" size="12" />
+          {{ workflow.executionCount }} runs
+        </span>
+      </div>
     </div>
 
     <!-- Action Buttons -->
-    <div class="flex shrink-0 items-center space-x-1.5">
-      <p v-if="workflow.isDisabled" class="text-xs font-medium text-gray-400 mr-1">Disabled</p>
-      <button 
-        v-else
-        title="Execute" 
-        class="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-500 text-white transition-all duration-200 hover:bg-blue-600 hover:scale-105 active:scale-95"
-        @click.stop="$emit('execute', workflow)"
+    <div class="flex shrink-0 items-center gap-1.5">
+      <!-- Quick Pin Button -->
+      <button
+        v-if="tab === 'local'"
+        class="flex h-9 w-9 items-center justify-center rounded-lg transition-all duration-200"
+        :class="pinned ? 'text-blue-500 bg-blue-50 dark:bg-blue-500/10' : 'text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'"
+        :title="pinned ? 'Unpin workflow' : 'Pin workflow'"
+        @click.stop="$emit('togglePin')"
       >
-        <v-remixicon name="riPlayLine" size="18" />
+        <v-remixicon :name="pinned ? 'riPushpin2Fill' : 'riPushpin2Line'" size="16" />
       </button>
-      <v-remixicon
-        v-if="workflow.isProtected"
-        name="riShieldKeyholeLine"
-        class="text-green-500"
-        size="18"
-      />
-      <ui-popover v-else>
+
+      <!-- More Options -->
+      <ui-popover>
         <template #trigger>
           <button class="flex h-9 w-9 items-center justify-center rounded-lg text-gray-500 transition-all duration-200 hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-700 dark:hover:text-gray-100">
             <v-remixicon name="riMore2Line" size="18" />
           </button>
         </template>
         <ui-list class="space-y-1" style="min-width: 160px">
+          <ui-list-item
+            class="cursor-pointer capitalize text-sm"
+            @click="$emit('details', workflow)"
+          >
+            <v-remixicon name="riEyeLine" class="mr-2 -ml-1" size="16" />
+            <span>View Details</span>
+          </ui-list-item>
           <template v-if="tab === 'local'">
             <ui-list-item
               class="cursor-pointer capitalize text-sm"
               @click="$emit('update', { isDisabled: !workflow.isDisabled })"
             >
               <v-remixicon name="riToggleLine" class="mr-2 -ml-1" size="16" />
-              <span>{{
-                t(`common.${workflow.isDisabled ? 'enable' : 'disable'}`)
-              }}</span>
+              <span>{{ t(`common.${workflow.isDisabled ? 'enable' : 'disable'}`) }}</span>
             </ui-list-item>
             <ui-list-item
               class="cursor-pointer capitalize text-sm"
-              @click="$emit('togglePin')"
+              @click="$emit('rename', workflow)"
             >
-              <v-remixicon name="riPushpin2Line" class="mr-2 -ml-1" size="16" />
-              <span>{{ pinned ? 'Unpin workflow' : 'Pin workflow' }}</span>
+              <v-remixicon name="riPencilLine" class="mr-2 -ml-1" size="16" />
+              <span>Rename</span>
             </ui-list-item>
           </template>
           <ui-list-item
@@ -85,6 +130,7 @@
   </ui-card>
 </template>
 <script setup>
+import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import dayjs from '@/lib/dayjs';
 
@@ -98,16 +144,55 @@ const props = defineProps({
     default: 'local',
   },
   pinned: Boolean,
+  isExecuting: {
+    type: Boolean,
+    default: false,
+  },
 });
 defineEmits(['execute', 'togglePin', 'rename', 'details', 'delete', 'update']);
 
-const { t } = useI18n();  const menu = [
-    { name: 'rename', icon: 'riPencilLine' },
-    { name: 'delete', icon: 'riDeleteBin7Line' },
-  ];
+const { t } = useI18n();
+
+// Compute last run status from workflow metadata
+const lastRunStatus = computed(() => {
+  if (!props.workflow.lastRunStatus) return null;
+  return props.workflow.lastRunStatus;
+});
+
+const statusClasses = computed(() => {
+  const status = lastRunStatus.value;
+  if (status === 'success') {
+    return 'bg-green-50 text-green-600 dark:bg-green-500/10 dark:text-green-400';
+  } else if (status === 'failed') {
+    return 'bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400';
+  } else if (status === 'running') {
+    return 'bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400';
+  }
+  return '';
+});
+
+const statusDotClass = computed(() => {
+  const status = lastRunStatus.value;
+  if (status === 'success') return 'bg-green-500';
+  else if (status === 'failed') return 'bg-red-500';
+  else if (status === 'running') return 'bg-blue-500 animate-pulse';
+  return '';
+});
+
+const statusText = computed(() => {
+  const status = lastRunStatus.value;
+  if (status === 'success') return 'Success';
+  else if (status === 'failed') return 'Failed';
+  else if (status === 'running') return 'Running';
+  return '';
+});
+
+const menu = [
+  { name: 'rename', icon: 'riPencilLine' },
+  { name: 'delete', icon: 'riDeleteBin7Line' },
+];
 const filteredMenu = menu.filter(({ name }) => {
   if (name === 'rename' && props.tab !== 'local') return false;
-
   return true;
 });
 </script>

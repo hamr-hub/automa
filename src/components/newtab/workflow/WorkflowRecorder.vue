@@ -206,19 +206,93 @@
 
         <!-- 底部操作栏 -->
         <div :class="[
-          'border-t p-3 backdrop-blur-md space-y-2',
+          'border-t p-3 backdrop-blur-md space-y-3',
           inline ? 'border-gray-200 dark:border-white/5 bg-gray-50 dark:bg-gray-900/40' : 'border-white/5 bg-gray-900/40'
         ]">
-          <!-- 统计信息 -->
-          <div :class="[
-            'text-xs flex items-center justify-between px-2',
-            inline ? 'text-gray-600 dark:text-gray-400' : 'text-gray-400'
-          ]">
-            <span>已录制 <span class="font-bold text-blue-500">{{ flows.length }}</span> 个操作</span>
-            <span v-if="flows.length > 0" class="font-mono">{{ formatDuration(recordingDuration) }}</span>
+          <!-- Preview Summary -->
+          <div
+            v-if="flows.length > 0 && !showPreview"
+            class="rounded-lg p-2"
+            :class="inline ? 'bg-gray-100 dark:bg-gray-800' : 'bg-gray-800/50'"
+          >
+            <button
+              class="flex w-full items-center justify-between text-xs"
+              :class="inline ? 'text-gray-600 dark:text-gray-400' : 'text-gray-400'"
+              @click="showPreview = !showPreview"
+            >
+              <span class="flex items-center gap-1">
+                <v-remixicon name="riEyeLine" size="14" />
+                预览摘要 ({{ flows.length }} 个操作)
+              </span>
+              <v-remixicon :name="showPreview ? 'riArrowUpSLine' : 'riArrowDownSLine'" size="14" />
+            </button>
           </div>
-          
-          <!-- 操作按钮 -->
+
+          <!-- Expanded Preview -->
+          <transition name="slide">
+            <div
+              v-if="flows.length > 0 && showPreview"
+              class="rounded-lg p-3"
+              :class="inline ? 'bg-gray-100 dark:bg-gray-800' : 'bg-gray-800/50'"
+            >
+              <!-- Block Type Summary -->
+              <div class="mb-3">
+                <p class="text-[10px] uppercase tracking-wide text-gray-500 mb-2">操作类型分布</p>
+                <div class="flex flex-wrap gap-1.5">
+                  <span
+                    v-for="type in blockTypeSummary"
+                    :key="type.id"
+                    class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs"
+                    :class="inline ? 'bg-white dark:bg-gray-700' : 'bg-gray-700'"
+                  >
+                    <v-remixicon :name="type.icon" size="12" class="text-blue-500" />
+                    <span :class="inline ? 'text-gray-700 dark:text-gray-300' : 'text-gray-300'">{{ type.name }}</span>
+                    <span class="font-mono font-bold" :class="inline ? 'text-blue-600' : 'text-blue-400'">{{ type.count }}</span>
+                  </span>
+                </div>
+              </div>
+
+              <!-- Quick Stats -->
+              <div class="grid grid-cols-2 gap-2">
+                <div class="text-center rounded p-1.5" :class="inline ? 'bg-white dark:bg-gray-700' : 'bg-gray-700'">
+                  <p class="text-sm font-bold" :class="inline ? 'text-gray-900 dark:text-gray-100' : 'text-gray-100'">{{ flows.length }}</p>
+                  <p class="text-[10px] text-gray-500">总操作数</p>
+                </div>
+                <div class="text-center rounded p-1.5" :class="inline ? 'bg-white dark:bg-gray-700' : 'bg-gray-700'">
+                  <p class="text-sm font-bold" :class="inline ? 'text-gray-900 dark:text-gray-100' : 'text-gray-100'">{{ formatDuration(recordingDuration) }}</p>
+                  <p class="text-[10px] text-gray-500">录制时长</p>
+                </div>
+              </div>
+
+              <button
+                class="mt-2 w-full text-center text-xs text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                @click="showPreview = false"
+              >
+                收起预览
+              </button>
+            </div>
+          </transition>
+
+          <!-- Recording Controls -->
+          <div v-if="isRecording" class="flex items-center gap-2">
+            <button
+              class="flex h-9 items-center justify-center rounded-lg transition-all"
+              :class="isPaused ? 'bg-green-500 text-white' : 'bg-yellow-500/20 text-yellow-500'"
+              :title="isPaused ? '继续录制' : '暂停录制'"
+              @click="togglePauseRecording"
+            >
+              <v-remixicon :name="isPaused ? 'riPlayLine' : 'riPauseLine'" size="16" />
+            </button>
+            <span
+              class="flex-1 text-center text-sm font-mono"
+              :class="inline ? 'text-gray-600 dark:text-gray-400' : 'text-gray-400'"
+            >
+              {{ formatDuration(recordingDuration) }}
+              <span v-if="isPaused" class="ml-2 text-yellow-500">(已暂停)</span>
+            </span>
+          </div>
+
+          <!-- Action Buttons -->
           <div class="flex items-center space-x-2">
             <button
               class="flex-1 rounded-lg px-4 py-2.5 text-sm font-semibold transition-all"
@@ -229,14 +303,14 @@
               ]"
               @click="cancelRecording"
             >
-              取消录制
+              {{ isRecording ? '停止录制' : '取消' }}
             </button>
             <button
               class="flex-1 rounded-lg bg-gradient-to-r from-blue-600 to-blue-500 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-500/20 transition-all hover:from-blue-700 hover:to-blue-600 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
               :disabled="flows.length === 0"
               @click="saveRecording"
             >
-              保存工作流
+              {{ isRecording ? '完成并保存' : '保存工作流' }}
             </button>
           </div>
         </div>
@@ -270,11 +344,32 @@ const emit = defineEmits(['save', 'cancel', 'update-flows']);
 const { t } = useI18n();
 const isOpen = ref(false);
 const showPrompt = ref(true);
+const showPreview = ref(false);
+const isRecording = ref(true);
+const isPaused = ref(false);
 const flowsContainer = ref(null);
 const recordingStartTime = ref(Date.now());
 const recordingDuration = ref(0);
+const lastPauseTime = ref(0);
+const totalPausedDuration = ref(0);
 
 let durationInterval = null;
+
+// Get block type summary
+const blockTypeSummary = computed(() => {
+  const typeCount = {};
+  props.flows.forEach((flow) => {
+    const id = flow.id;
+    typeCount[id] = (typeCount[id] || 0) + 1;
+  });
+
+  return Object.entries(typeCount).map(([id, count]) => ({
+    id,
+    name: t(`workflow.blocks.${id}.name`) || id,
+    icon: tasks[id]?.icon || 'riCodeLine',
+    count,
+  }));
+});
 
 // 获取操作块图标
 function getBlockIcon(blockId) {
@@ -291,11 +386,26 @@ function formatDuration(ms) {
   const seconds = Math.floor(ms / 1000);
   const minutes = Math.floor(seconds / 60);
   const remainingSeconds = seconds % 60;
-  
+
   if (minutes > 0) {
     return `${minutes}m ${remainingSeconds}s`;
   }
   return `${seconds}s`;
+}
+
+// Toggle pause recording
+function togglePauseRecording() {
+  isPaused.value = !isPaused.value;
+  if (isPaused.value) {
+    lastPauseTime.value = Date.now();
+    clearInterval(durationInterval);
+  } else {
+    totalPausedDuration.value += Date.now() - lastPauseTime.value;
+    recordingStartTime.value = Date.now() - totalPausedDuration.value;
+    durationInterval = setInterval(() => {
+      recordingDuration.value = Date.now() - recordingStartTime.value - totalPausedDuration.value;
+    }, 1000);
+  }
 }
 
 // 切换录制器
@@ -368,10 +478,14 @@ onMounted(() => {
   }, 1000);
 
   // 启动计时器
-  recordingStartTime.value = Date.now();
-  durationInterval = setInterval(() => {
-    recordingDuration.value = Date.now() - recordingStartTime.value;
-  }, 1000);
+  if (isRecording.value) {
+    recordingStartTime.value = Date.now();
+    durationInterval = setInterval(() => {
+      if (!isPaused.value) {
+        recordingDuration.value = Date.now() - recordingStartTime.value - totalPausedDuration.value;
+      }
+    }, 1000);
+  }
 });
 
 onBeforeUnmount(() => {
