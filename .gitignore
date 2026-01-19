@@ -33,3 +33,5 @@ getPassKey.js
 secrets.js
 test-results/
 playwright-report/
+playwright-html-reports/
+playwright-json-reports/
