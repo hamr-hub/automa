@@ -158,77 +158,80 @@ export async function getTabContext(tabId) {
           }
           nodesToRemove.forEach((n) => n.remove());
 
-          // 识别列表容器
-          function identifyListContainers(element) {
-            const containers = [];
-            const walker = document.createTreeWalker(
-              element,
-              NodeFilter.SHOW_ELEMENT
-            );
+          return clone.innerHTML || '';
+        }
+
+        // 识别列表容器
+        function identifyListContainers(element) {
+          const containers = [];
+          const walker = document.createTreeWalker(
+            element,
+            NodeFilter.SHOW_ELEMENT
+          );
+          
+          while (walker.nextNode()) {
+            const node = walker.currentNode;
+            const tagName = node.tagName.toLowerCase();
             
-            while (walker.nextNode()) {
-              const node = walker.currentNode;
-              const tagName = node.tagName.toLowerCase();
-              
-              // 常见的列表容器
-              if (['ul', 'ol', 'div', 'section', 'article'].includes(tagName)) {
-                const children = node.children;
-                if (children.length >= 3) { // 至少3个子项才认为是列表
-                  const childTags = Array.from(children).map(c => c.tagName.toLowerCase());
-                  const hasUniformItems = childTags.every(tag => 
-                    ['li', 'div', 'article', 'section', 'a'].includes(tag)
-                  );
-                  
-                  if (hasUniformItems) {
-                    containers.push({
-                      selector: generateSelector(node),
-                      isList: true,
-                      itemCount: children.length,
-                      itemTag: childTags[0]
-                    });
-                  }
+            // 常见的列表容器
+            if (['ul', 'ol', 'div', 'section', 'article'].includes(tagName)) {
+              const children = node.children;
+              if (children.length >= 3) { // 至少3个子项才认为是列表
+                const childTags = Array.from(children).map(c => c.tagName.toLowerCase());
+                const hasUniformItems = childTags.every(tag => 
+                  ['li', 'div', 'article', 'section', 'a'].includes(tag)
+                );
+                
+                if (hasUniformItems) {
+                  containers.push({
+                    selector: generateSelector(node),
+                    isList: true,
+                    itemCount: children.length,
+                    itemTag: childTags[0]
+                  });
                 }
               }
             }
-            
-            return containers;
           }
           
-          function generateSelector(element) {
-            if (element.id) return `#${element.id}`;
-            if (element.className) {
-              const classes = element.className.split(' ').filter(c => c.trim());
-              if (classes.length > 0) return `.${classes[0]}`;
+          return containers;
+        }
+        
+        function generateSelector(element) {
+          if (element.id) return `#${element.id}`;
+          if (element.className) {
+            const classes = element.className.split(' ').filter(c => c.trim());
+            if (classes.length > 0) return `.${classes[0]}`;
+          }
+          
+          // 生成路径选择器
+          const path = [];
+          let current = element;
+          while (current && current !== document.body) {
+            if (current.id) {
+              path.unshift(`#${current.id}`);
+              break;
             }
-            
-            // 生成路径选择器
-            const path = [];
-            let current = element;
-            while (current && current !== document.body) {
-              if (current.id) {
-                path.unshift(`#${current.id}`);
+            if (current.className) {
+              const classes = current.className.split(' ').filter(c => c.trim());
+              if (classes.length > 0) {
+                path.unshift(`.${classes[0]}`);
                 break;
               }
-              if (current.className) {
-                const classes = current.className.split(' ').filter(c => c.trim());
-                if (classes.length > 0) {
-                  path.unshift(`.${classes[0]}`);
-                  break;
-                }
-              }
-              path.unshift(current.tagName.toLowerCase());
-              current = current.parentElement;
             }
-            
-            return path.join(' > ');
+            path.unshift(current.tagName.toLowerCase());
+            current = current.parentElement;
           }
+          
+          return path.join(' > ');
+        }
 
-          return {
-            url: window.location.href,
-            title: document.title,
-            dom: simplify(document.body),
-            listContainers: identifyListContainers(document.body),
-          };
+        return {
+          url: window.location.href,
+          title: document.title,
+          dom: simplify(document.body),
+          listContainers: identifyListContainers(document.body),
+        };
       },
     });
 
