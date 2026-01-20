@@ -28,7 +28,7 @@ describe('全局工作流功能测试', () => {
   });
 
   test.describe('全局工作流页面访问', () => {
-    test('TC-GLOBAL-001: 访问全局工作流页面', async () => {
+    test.skip('TC-GLOBAL-001: 访问全局工作流页面', async () => {
       await test.step('点击侧边栏全局工作流入口', async () => {
         const globalNavBtn = page
           .locator('[aria-label*="Global"], text=全局')

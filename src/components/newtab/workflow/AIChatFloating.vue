@@ -292,6 +292,114 @@
         <div
           class="border-t p-3 backdrop-blur-md border-white/5 bg-gray-900/40"
         >
+          <!-- Tab选择区域 -->
+          <div
+            v-if="showTabSelection"
+            class="mb-3 p-2 rounded-lg bg-gray-800/50 border border-gray-700/50"
+          >
+            <div class="flex items-center justify-between mb-2">
+              <div class="flex items-center space-x-2">
+                <v-remixicon
+                  name="riGlobalLine"
+                  class="text-gray-400"
+                  size="14"
+                />
+                <span class="text-xs text-gray-300">选择目标标签页</span>
+              </div>
+              <button
+                class="text-gray-500 hover:text-gray-300 transition-colors"
+                title="刷新标签页列表"
+                @click="refreshTabs"
+              >
+                <v-remixicon name="riRefreshLine" size="12" />
+              </button>
+            </div>
+
+            <div
+              v-if="isLoadingTabs"
+              class="flex items-center justify-center py-2 text-xs text-gray-500"
+            >
+              <v-remixicon
+                name="riLoaderLine"
+                class="animate-spin mr-1"
+                size="12"
+              />
+              加载中...
+            </div>
+
+            <div
+              v-else-if="availableTabs.length === 0"
+              class="py-2 text-xs text-gray-500 text-center"
+            >
+              无可用标签页
+            </div>
+
+            <div
+              v-else
+              class="space-y-1 max-h-32 overflow-y-auto scrollbar-thin"
+            >
+              <button
+                v-for="tab in availableTabs"
+                :key="tab.id"
+                class="w-full flex items-center space-x-2 px-2 py-1.5 rounded-lg hover:bg-gray-700/50 transition-colors text-left"
+                :class="{
+                  'bg-blue-500/20 border border-blue-500/30':
+                    selectedTabId === tab.id,
+                  'border border-transparent': selectedTabId !== tab.id,
+                }"
+                @click="selectTab(tab)"
+              >
+                <img
+                  v-if="tab.favIconUrl"
+                  :src="tab.favIconUrl"
+                  class="w-3 h-3 rounded-sm flex-shrink-0"
+                  alt=""
+                />
+                <div
+                  v-else
+                  class="w-3 h-3 rounded-sm bg-gray-600 flex-shrink-0 flex items-center justify-center"
+                >
+                  <v-remixicon
+                    name="riGlobalLine"
+                    size="8"
+                    class="text-gray-400"
+                  />
+                </div>
+
+                <div class="flex-1 min-w-0">
+                  <div class="text-xs text-gray-200 truncate font-medium">
+                    {{ tab.title }}
+                  </div>
+                  <div class="text-[10px] text-gray-500 truncate">
+                    {{ tab.url }}
+                  </div>
+                </div>
+
+                <div
+                  v-if="tab.active"
+                  class="px-1.5 py-0.5 rounded bg-green-500/20 text-[10px] text-green-400 font-mono"
+                >
+                  当前
+                </div>
+              </button>
+            </div>
+
+            <div class="mt-2 flex items-center justify-between">
+              <button
+                class="text-xs text-blue-400 hover:text-blue-300 transition-colors"
+                @click="useActiveTab"
+              >
+                使用当前标签页
+              </button>
+              <button
+                class="text-xs text-gray-500 hover:text-gray-300 transition-colors"
+                @click="showTabSelection = false"
+              >
+                取消
+              </button>
+            </div>
+          </div>
+
           <!-- 当前工作流状态 -->
           <div
             v-if="currentWorkflow && Object.keys(currentWorkflow).length > 0"
@@ -319,13 +427,55 @@
             </button>
           </div>
 
+          <!-- 输入选项栏 -->
+          <div
+            v-if="!showTabSelection"
+            class="mb-2 flex items-center justify-between px-1"
+          >
+            <div class="flex items-center space-x-2">
+              <button
+                class="flex items-center space-x-1 px-2 py-1 rounded-lg bg-gray-800/50 hover:bg-gray-800 border border-gray-700/50 transition-colors"
+                title="选择目标标签页"
+                @click="toggleTabSelection"
+              >
+                <v-remixicon
+                  name="riGlobalLine"
+                  size="12"
+                  class="text-gray-400"
+                />
+                <span
+                  v-if="selectedTab"
+                  class="text-xs text-gray-300 max-w-20 truncate"
+                >
+                  {{ selectedTab.title }}
+                </span>
+                <span v-else class="text-xs text-gray-500"> 选择标签页 </span>
+              </button>
+            </div>
+
+            <div class="flex items-center space-x-2">
+              <button
+                class="flex items-center space-x-1 px-2 py-1 rounded-lg bg-gray-800/50 hover:bg-gray-800 border border-gray-700/50 transition-colors"
+                title="输入复杂度分析"
+                @click="analyzeInput"
+              >
+                <v-remixicon
+                  name="riSearchLine"
+                  size="12"
+                  class="text-gray-400"
+                />
+                <span class="text-xs text-gray-500">分析</span>
+              </button>
+            </div>
+          </div>
+
           <div class="relative group">
             <textarea
               ref="inputRef"
               v-model="input"
               rows="1"
               class="w-full resize-none rounded-xl border px-3.5 py-3 pr-10 text-xs placeholder-gray-500 focus:outline-none focus:ring-2 scrollbar-hide transition-all border-gray-700 bg-gray-800/50 text-white focus:border-blue-500/50 focus:bg-gray-800 focus:ring-blue-500/20"
-              placeholder="描述您想要的工作流..."
+              :placeholder="inputPlaceholder"
               @keydown.enter.exact.prevent="sendMessage"
               @input="autoResize"
             />
@@ -346,18 +496,93 @@
               />
             </button>
           </div>
+
+          <!-- 输入分析结果 -->
+          <div
+            v-if="inputAnalysis"
+            class="mt-2 p-2 rounded-lg bg-gray-800/50 border border-gray-700/50"
+          >
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-xs text-gray-400">输入复杂度分析</span>
+              <button
+                class="text-gray-500 hover:text-gray-300 transition-colors"
+                @click="inputAnalysis = null"
+              >
+                <v-remixicon name="riCloseLine" size="12" />
+              </button>
+            </div>
+
+            <div class="space-y-1">
+              <div class="flex items-center justify-between">
+                <span class="text-xs text-gray-500">复杂度分数:</span>
+                <span
+                  class="text-xs font-mono px-1.5 py-0.5 rounded"
+                  :class="{
+                    'bg-green-500/20 text-green-400':
+                      inputAnalysis.complexityScore <= 2,
+                    'bg-yellow-500/20 text-yellow-400':
+                      inputAnalysis.complexityScore > 2 &&
+                      inputAnalysis.complexityScore <= 4,
+                    'bg-red-500/20 text-red-400':
+                      inputAnalysis.complexityScore > 4,
+                  }"
+                >
+                  {{ inputAnalysis.complexityScore }}/7
+                </span>
+              </div>
+
+              <div class="flex items-center justify-between">
+                <span class="text-xs text-gray-500">建议方式:</span>
+                <span
+                  class="text-xs font-mono px-1.5 py-0.5 rounded"
+                  :class="{
+                    'bg-blue-500/20 text-blue-400':
+                      inputAnalysis.suggestedApproach === 'incremental',
+                    'bg-green-500/20 text-green-400':
+                      inputAnalysis.suggestedApproach === 'direct',
+                  }"
+                >
+                  {{
+                    inputAnalysis.suggestedApproach === 'incremental'
+                      ? '渐进式'
+                      : '直接生成'
+                  }}
+                </span>
+              </div>
+
+              <div class="flex flex-wrap gap-1 mt-2">
+                <span
+                  v-for="(hasFeature, feature) in inputAnalysis.indicators"
+                  :key="feature"
+                  v-if="hasFeature"
+                  class="text-[10px] px-1.5 py-0.5 rounded bg-gray-700/50 text-gray-400"
+                >
+                  {{ getFeatureLabel(feature) }}
+                </span>
+              </div>
+            </div>
+          </div>
+
           <div class="mt-2 px-1 flex justify-between">
             <span
               class="text-[9px] font-mono flex items-center gap-1 text-gray-600"
             >
               ENTER TO SEND
             </span>
-            <span
-              v-if="incrementalMode"
-              class="text-[9px] font-mono text-blue-400"
-            >
-              渐进式模式
-            </span>
+            <div class="flex items-center space-x-2">
+              <span
+                v-if="selectedTab"
+                class="text-[9px] font-mono text-blue-400"
+              >
+                {{ selectedTab.title.slice(0, 10) }}...
+              </span>
+              <span
+                v-if="incrementalMode"
+                class="text-[9px] font-mono text-blue-400"
+              >
+                渐进式模式
+              </span>
+            </div>
           </div>
         </div>
       </div>
@@ -366,10 +591,15 @@
 </template>
 
 <script setup>
-import { ref, nextTick, onMounted, onUnmounted } from 'vue';
+import { ref, nextTick, onMounted, onUnmounted, computed } from 'vue';
 import aiService from '@/services/ai/AIService';
 import { useToast } from 'vue-toastification';
 import { useStore } from '@/stores/main';
+import {
+  getAllTabs,
+  getTabContext,
+  analyzeInputComplexity,
+} from '@/services/ai/aiUtils';
 
 defineProps({
   workflow: {
@@ -410,6 +640,28 @@ const generatingStatus = ref('');
 const dialogPosition = ref({ x: 100, y: 100 });
 const isDragging = ref(false);
 const dragOffset = ref({ x: 0, y: 0 });
+
+// Tab选择相关状态
+const showTabSelection = ref(false);
+const availableTabs = ref([]);
+const selectedTabId = ref(null);
+const selectedTab = ref(null);
+const isLoadingTabs = ref(false);
+
+// 输入分析相关状态
+const inputAnalysis = ref(null);
+
+// 计算属性
+const inputPlaceholder = computed(() => {
+  if (selectedTab.value) {
+    return `基于 ${selectedTab.value.title} 创建工作流...`;
+  }
+  return '描述您想要的工作流...';
+});
+
+const currentWorkflow = computed(() => {
+  return props.workflow;
+});
 
 /**
  * 开始拖动对话框
@@ -570,7 +822,7 @@ function clearHistory() {
 function formatThinkingDetails(details) {
   if (!details) return '';
   const parts = [];
-  
+
   if (details.attempt) {
     parts.push(`尝试: ${details.attempt}`);
   }
@@ -589,7 +841,7 @@ function formatThinkingDetails(details) {
   if (details.action) {
     parts.push(`操作: ${details.action}`);
   }
-  
+
   return parts.join(', ');
 }
 
@@ -616,7 +868,7 @@ async function sendMessage() {
     // 进度回调处理函数
     const onProgress = (progress) => {
       generatingStatus.value = progress.message || '';
-      
+
       // 处理思考过程
       if (progress.thinking) {
         thinkingSteps.value.push(progress.thinking);
@@ -625,7 +877,7 @@ async function sendMessage() {
           thinkingSteps.value.shift();
         }
       }
-      
+
       // 滚动到底部
       nextTick(() => scrollToBottom());
     };
@@ -658,7 +910,7 @@ async function sendMessage() {
       } else {
         message = result.message || '工作流已更新';
       }
-      
+
       history.value.push({
         role: 'assistant',
         content: message,

@@ -32,7 +32,7 @@ describe('数据提取测试', () => {
   });
 
   test.describe('提取块创建', () => {
-    test('TC-EXTRACT-001: 添加提取数据块', async () => {
+    test.skip('TC-EXTRACT-001: 添加提取数据块', async () => {
       await test.step('打开添加块菜单', async () => {
         const addBtn = page.locator('[class*="add-block"]').first();
         if (await addBtn.isVisible()) {

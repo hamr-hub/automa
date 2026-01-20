@@ -615,6 +615,7 @@ class LangGraphService {
     const {
       userInput,
       targetUrl = '',
+      tabId = null,
       history = [],
       onProgress = null,
       abortSignal = null,
@@ -623,12 +624,12 @@ class LangGraphService {
       maxIterations = 5,
     } = options;
 
-    // 构建渐进式图
     const graph = this.buildIncrementalGraph();
     const initialState = {
       ...this.getIncrementalInitialState(),
       userInput,
       targetUrl,
+      tabId,
       messages: history.length > 0 ? history : [],
       abortSignal,
       onProgress,
@@ -649,6 +650,7 @@ class LangGraphService {
       message: result.message,
       iterations: result.iterationCount,
       completed: result.completed,
+      executionResults: result.executionResults,
     };
   }
 
@@ -660,6 +662,7 @@ class LangGraphService {
       messages: [],
       userInput: '',
       targetUrl: '',
+      tabId: null,
       pageContext: '',
       generatedJson: null,
       workflow: null,
@@ -685,6 +688,7 @@ class LangGraphService {
         messages: { value: (x, y) => x.concat(y), default: () => [] },
         userInput: { value: (x, y) => y || x, default: () => '' },
         targetUrl: { value: (x, y) => y || x, default: () => '' },
+        tabId: { value: (x, y) => y || x, default: () => null },
         pageContext: { value: (x, y) => y || x, default: () => '' },
         generatedJson: { value: (x, y) => y, default: () => null },
         workflow: { value: (x, y) => y, default: () => null },
@@ -697,12 +701,14 @@ class LangGraphService {
         iterationCount: { value: (x, y) => y, default: () => 0 },
         completed: { value: (x, y) => y, default: () => false },
         thinkingSteps: { value: (x, y) => x.concat(y), default: () => [] },
+        executionResults: { value: (x, y) => y, default: () => [] },
       },
     });
 
     // 定义节点
     graphBuilder.addNode('analyze', this.incrementalAnalyzeNode.bind(this));
     graphBuilder.addNode('generate', this.incrementalGenerateNode.bind(this));
+    graphBuilder.addNode('execute', this.incrementalExecuteNode.bind(this));
     graphBuilder.addNode('verify', this.incrementalVerifyNode.bind(this));
     graphBuilder.addNode('complete', this.incrementalCompleteNode.bind(this));
     graphBuilder.addNode('error', this.incrementalErrorNode.bind(this));
@@ -712,7 +718,8 @@ class LangGraphService {
 
     // 定义边
     graphBuilder.addEdge('analyze', 'generate');
-    graphBuilder.addEdge('generate', 'verify');
+    graphBuilder.addEdge('generate', 'execute');
+    graphBuilder.addEdge('execute', 'verify');
 
     // 条件边：从验证决定下一步
     graphBuilder.addConditionalEdges(
@@ -844,7 +851,7 @@ class LangGraphService {
       }
 
       // 合并生成的结果到当前工作流
-      const updatedWorkflow = this.mergeWorkflow增量(
+      const updatedWorkflow = this.mergeWorkflowDelta(
         state.currentWorkflow,
         generatedJson
       );
@@ -956,12 +963,16 @@ class LangGraphService {
    */
   buildIncrementalPrompt(state) {
     const systemPrompt =
-      '你是一个工作流生成专家。你的任务是根据用户需求逐步生成或修改浏览器自动化工作流。\n\n工作流由以下节点类型组成：\n- trigger: 触发器（手动、定时等）\n- new-tab: 打开新标签页\n- delay: 等待/延迟\n- event-click: 点击元素\n- element-scroll: 滚动元素\n- get-text: 获取文本\n- attribute-value: 获取属性值\n- loop-data: 循环数据\n- loop-elements: 循环元素\n- while-loop: 条件循环\n- export-data: 导出数据\n- forms: 表单输入\n- conditions: 条件判断\n\n重要规则：\n1. 每次只生成 1-3 个新节点，确保生成的节点能够独立执行并验证\n2. 如果是修改现有工作流，基于 currentWorkflow 继续扩展\n3. 确保新节点能正确连接到现有节点\n4. 生成的 JSON 必须使用标准 JSON 格式\n5. 分析当前工作流状态，判断是否需要进一步扩展或完成\n6. 如果工作流还未完成，生成下一组节点以继续实现用户需求\n7. 如果工作流已经完整实现了用户需求，返回 action: "complete"\n8. 必须包含详细的思考过程，解释为什么要生成这些节点\n9. 根据当前工作流状态，自动发起新一轮对话直到工作流完成';
+      '你是一个工作流生成专家。你的任务是根据用户需求逐步生成或修改浏览器自动化工作流。\n\n工作流由以下节点类型组成：\n- trigger: 触发器（手动、定时等）\n- new-tab: 打开新标签页\n- delay: 等待/延迟\n- event-click: 点击元素\n- element-scroll: 滚动元素\n- get-text: 获取文本\n- attribute-value: 获取属性值\n- loop-data: 循环数据\n- loop-elements: 循环元素\n- while-loop: 条件循环\n- export-data: 导出数据\n- forms: 表单输入\n- conditions: 条件判断\n\n重要规则：\n1. 每次只生成 1-3 个新节点，确保生成的节点能够独立执行并验证\n2. 如果是修改现有工作流，基于 currentWorkflow 继续扩展\n3. 确保新节点能正确连接到现有节点\n4. 生成的 JSON 必须使用标准 JSON 格式\n5. 分析当前工作流状态，判断是否需要进一步扩展或完成\n6. 如果工作流还未完成，生成下一组节点以继续实现用户需求\n7. 如果工作流已经完整实现了用户需求，返回 action: "complete"\n8. 必须包含详细的思考过程，解释为什么要生成这些节点\n9. 根据当前工作流状态，自动发起新一轮对话直到工作流完成\n10. 支持基于现有tab继续操作，如果指定了tabId，则在该tab上执行操作\n11. 在生成节点前，先思考当前工作流的完成度和下一步需要做什么';
 
     let userPrompt = '用户需求: ' + state.userInput;
 
     if (state.targetUrl) {
       userPrompt += '\n目标URL: ' + state.targetUrl;
+    }
+
+    if (state.tabId) {
+      userPrompt += '\n指定Tab ID: ' + state.tabId + ' (在此tab上执行操作)';
     }
 
     if (state.currentWorkflow && state.currentWorkflow.nodes) {
@@ -988,7 +999,13 @@ class LangGraphService {
         state.currentWorkflow.edges.length +
         ' 条连接\n- 距离用户需求的完成度：' +
         completion +
-        '%\n\n请基于以上信息，分析当前工作流状态，并生成下一步需要添加的节点。返回格式如下：\n```json\n{\n  "action": "add|modify|complete",\n  "reason": "为什么要执行这个操作，包括对当前工作流状态的分析",\n  "steps": [\n    {"type": "节点类型", "description": "节点描述", "data": {...}}\n  ],\n  "connectFrom": "新节点应该连接到的最后一个节点ID（如果有）",\n  "thinking": "你的思考过程，包括为什么要生成这些节点，它们如何帮助实现用户需求，以及当前工作流的完成情况分析"\n}\n```\n\n思考过程应该包含：\n1. 分析用户需求的核心目标\n2. 评估当前工作流的完成情况\n3. 确定下一步需要实现的功能\n4. 选择合适的节点类型来实现这些功能\n5. 解释为什么这些节点能够帮助实现用户需求';
+        '%\n- 当前迭代次数：' +
+        state.iterationCount +
+        '/' +
+        state.maxIterations +
+        '\n\n请基于以上信息，分析当前工作流状态，并生成下一步需要添加的节点。返回格式如下：\n```json\n{\n  "action": "add|modify|complete",\n  "reason": "为什么要执行这个操作，包括对当前工作流状态的分析",\n  "steps": [\n    {"type": "节点类型", "description": "节点描述", "data": {...}}\n  ],\n  "connectFrom": "新节点应该连接到的最后一个节点ID（如果有）",\n  "thinking": "你的思考过程，包括：\\n1. 分析用户需求的核心目标\\n2. 评估当前工作流的完成情况（完成度' +
+        completion +
+        '%）\\n3. 确定下一步需要实现的功能\\n4. 选择合适的节点类型来实现这些功能\\n5. 解释为什么这些节点能够帮助实现用户需求\\n6. 判断工作流是否已完成"\n}\n```\n\n思考过程应该包含：\n1. 分析用户需求的核心目标\n2. 评估当前工作流的完成情况\n3. 确定下一步需要实现的功能\n4. 选择合适的节点类型来实现这些功能\n5. 解释为什么这些节点能够帮助实现用户需求';
     } else {
       userPrompt +=
         '\n\n请生成工作流的前几个核心节点（1-3个），包括触发器和初始步骤。返回格式如下：\n```json\n{\n  "action": "create",\n  "reason": "创建工作流的初始节点",\n  "steps": [\n    {"type": "trigger", "description": "触发方式"},\n    {"type": "new-tab", "description": "打开目标页面", "data": {"url": "..."}}\n  ],\n  "thinking": "你的思考过程，包括为什么要生成这些初始节点,它们如何帮助实现用户需求"\n}\n```';
@@ -1054,6 +1071,111 @@ class LangGraphService {
     }
 
     return { nodes, edges, viewport: { x: 0, y: 0, zoom: 1 } };
+  }
+
+  /**
+   * 节点：执行并验证新生成的节点
+   */
+  async incrementalExecuteNode(state) {
+    const generatedJson = state.generatedJson;
+    const msg = '正在执行并验证新生成的节点...';
+    console.log(`[Incremental] ${msg}`);
+
+    state.onProgress?.({
+      step: 'execute',
+      message: msg,
+      iteration: state.iterationCount,
+      thinking: {
+        phase: 'execute',
+        thought: '执行新生成的节点，验证其正确性',
+        details: {
+          stepsCount: generatedJson?.steps?.length || 0,
+          action: generatedJson?.action,
+        },
+      },
+    });
+
+    try {
+      const executionResults = [];
+
+      if (generatedJson?.steps && Array.isArray(generatedJson.steps)) {
+        for (const step of generatedJson.steps) {
+          try {
+            const node = this.workflowGenerator.createNodeFromStep(step, 0);
+
+            if (node) {
+              let executionResult = {
+                stepType: step.type,
+                stepDescription: step.description,
+                success: true,
+                message: '节点创建成功',
+              };
+
+              if (
+                state.tabId &&
+                step.type !== 'trigger' &&
+                step.type !== 'export-data'
+              ) {
+                try {
+                  await executeBlockInTab(node);
+                  executionResult.message = '节点执行成功';
+                  executionResult.executed = true;
+                } catch (execError) {
+                  executionResult.success = false;
+                  executionResult.message = `节点执行失败: ${execError.message}`;
+                  executionResult.error = execError.message;
+                }
+              }
+
+              executionResults.push(executionResult);
+            }
+          } catch (error) {
+            executionResults.push({
+              stepType: step.type,
+              stepDescription: step.description,
+              success: false,
+              message: `节点创建失败: ${error.message}`,
+              error: error.message,
+            });
+          }
+        }
+      }
+
+      const allSuccess = executionResults.every((r) => r.success);
+      const failedResults = executionResults.filter((r) => !r.success);
+
+      state.onProgress?.({
+        step: 'execute',
+        message: allSuccess
+          ? '所有节点执行验证通过'
+          : `部分节点执行失败 (${failedResults.length}/${executionResults.length})`,
+        iteration: state.iterationCount,
+        thinking: {
+          phase: 'execute',
+          thought: allSuccess
+            ? '所有新生成的节点执行验证通过，可以继续生成'
+            : '部分节点执行失败，需要修正',
+          details: {
+            totalSteps: executionResults.length,
+            successCount: executionResults.filter((r) => r.success).length,
+            failedCount: failedResults.length,
+            executionResults,
+          },
+        },
+      });
+
+      return {
+        executionResults,
+        error: allSuccess
+          ? null
+          : `部分节点执行失败: ${failedResults.map((r) => r.message).join('; ')}`,
+      };
+    } catch (error) {
+      console.error('[Incremental] Execution Error:', error);
+      return {
+        error: `执行验证失败: ${error.message}`,
+      };
+    }
   }
 
   /**
@@ -1298,6 +1420,98 @@ class LangGraphService {
       return await this.ollama.generateStream(prompt, onChunk, options);
     } catch (error) {
       console.error('[LangGraphService] Simple Generate Stream Error:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * 基于现有tab创建工作流
+   * 支持用户选择基于哪个tab进行工作流创建
+   *
+   * @param {Object} options - 配置选项
+   * @param {string} options.userInput - 用户输入
+   * @param {number} options.tabId - 目标tab的ID
+   * @param {string} options.targetUrl - 目标URL（可选）
+   * @param {Array} options.history - 对话历史
+   * @param {Function} options.onProgress - 进度回调
+   * @param {Object} options.abortSignal - 中止信号
+   * @param {Object} options.currentWorkflow - 当前工作流（增量修改时）
+   * @param {number} options.maxIterations - 最大迭代次数
+   * @returns {Promise<Object>} 生成结果
+   */
+  async createWorkflowFromTab(options) {
+    const {
+      userInput,
+      tabId,
+      targetUrl = '',
+      history = [],
+      onProgress = null,
+      abortSignal = null,
+      currentWorkflow = null,
+      maxIterations = 5,
+    } = options;
+
+    if (!tabId) {
+      throw new Error('tabId is required for creating workflow from tab');
+    }
+
+    onProgress?.({
+      step: 'init',
+      message: `正在从Tab ${tabId} 创建工作流...`,
+      thinking: {
+        phase: 'init',
+        thought: '初始化基于tab的工作流创建',
+        details: {
+          tabId,
+          userInput,
+          targetUrl,
+        },
+      },
+    });
+
+    try {
+      const result = await this.runIncremental({
+        userInput,
+        targetUrl,
+        tabId,
+        history,
+        onProgress,
+        abortSignal,
+        currentWorkflow,
+        incremental: true,
+        maxIterations,
+      });
+
+      return {
+        ...result,
+        tabId,
+      };
+    } catch (error) {
+      console.error(
+        '[LangGraphService] Create Workflow From Tab Error:',
+        error
+      );
+      throw error;
+    }
+  }
+
+  /**
+   * 获取可用的tabs列表
+   * 用于用户选择基于哪个tab创建工作流
+   *
+   * @returns {Promise<Array>} tabs列表
+   */
+  async getAvailableTabs() {
+    try {
+      const tabs = await Browser.tabs.query({});
+      return tabs.map((tab) => ({
+        id: tab.id,
+        title: tab.title,
+        url: tab.url,
+        active: tab.active,
+      }));
+    } catch (error) {
+      console.error('[LangGraphService] Get Available Tabs Error:', error);
       throw error;
     }
   }

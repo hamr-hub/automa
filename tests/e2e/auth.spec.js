@@ -323,9 +323,7 @@ describe('身份验证测试', () => {
           await loginBtn.click();
         }
 
-        const rememberCheckbox = page
-          .locator('input[type="checkbox"]')
-          .first();
+        const rememberCheckbox = page.locator('input[type="checkbox"]').first();
         if (await rememberCheckbox.isVisible()) {
           await rememberCheckbox.check();
         }
