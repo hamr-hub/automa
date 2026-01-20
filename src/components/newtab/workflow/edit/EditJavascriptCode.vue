@@ -61,11 +61,9 @@
         Run before page loaded
       </ui-checkbox>
     </template>
-    <ui-modal v-model="state.showCodeModal"
-content-class="max-w-4xl">
+    <ui-modal v-model="state.showCodeModal" content-class="max-w-4xl">
       <template #header>
-        <ui-tabs v-model="state.activeTab"
-class="border-none">
+        <ui-tabs v-model="state.activeTab" class="border-none">
           <ui-tab value="code">
             {{ t('workflow.blocks.javascript-code.modal.tabs.code') }}
           </ui-tab>
@@ -79,8 +77,7 @@ class="border-none">
         class="overflow-auto"
         style="height: calc(100vh - 9rem)"
       >
-        <ui-tab-panel value="code"
-class="h-full">
+        <ui-tab-panel value="code" class="h-full">
           <shared-codemirror
             v-model="state.code"
             :extensions="codemirrorExts"
@@ -143,8 +140,7 @@ class="h-full">
               {{ t('workflow.blocks.javascript-code.removeAfterExec') }}
             </ui-checkbox>
           </div>
-          <ui-button variant="accent"
-class="mt-4 w-20" @click="addScript">
+          <ui-button variant="accent" class="mt-4 w-20" @click="addScript">
             {{ t('common.add') }}
           </ui-button>
         </ui-tab-panel>
@@ -161,13 +157,18 @@ import {
 import { autocompletion } from '@codemirror/autocomplete';
 import { defineAsyncComponent, inject, reactive, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { store } from '../../settings/jsBlockWrap';
+
+// 创建组件局部的 store 对象，避免循环依赖
+const jsBlockStore = reactive({
+  whiteSpace: 'pre',
+  statePrettier: Math.random(),
+});
 
 function modifyWhiteSpace() {
-  if (store.whiteSpace === 'pre') {
-    store.whiteSpace = 'pre-wrap';
+  if (jsBlockStore.whiteSpace === 'pre') {
+    jsBlockStore.whiteSpace = 'pre-wrap';
   } else {
-    store.whiteSpace = 'pre';
+    jsBlockStore.whiteSpace = 'pre';
   }
 }
 

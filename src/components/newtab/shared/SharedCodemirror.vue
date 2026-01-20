@@ -25,9 +25,13 @@ import { EditorState } from '@codemirror/state';
 import { oneDark } from '@codemirror/theme-one-dark';
 import { keymap } from '@codemirror/view';
 import { EditorView, basicSetup } from 'codemirror';
-import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
-// don't remove this unused import, the css is used in dynamic style
-import { store } from '../settings/jsBlockWrap';
+import { onBeforeUnmount, onMounted, ref, watch, reactive } from 'vue';
+
+// 避免循环依赖，使用局部 store 而不是导入
+const store = reactive({
+  whiteSpace: 'pre',
+  statePrettier: Math.random(),
+});
 
 const props = defineProps({
   lang: {
