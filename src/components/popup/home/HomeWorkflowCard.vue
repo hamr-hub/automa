@@ -225,3 +225,6 @@ const filteredMenu = menu.filter(({ name }) => {
   return true;
 });
 </script>
+
+<style scoped>
+</style>

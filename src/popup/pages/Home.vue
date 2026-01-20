@@ -39,7 +39,10 @@
         class="hover:bg-white/20 transition-all duration-200 rounded-lg p-1"
         @click="openAIGenerator"
       >
-        <v-remixicon name="riRobotLine" size="16" class="text-white" />
+        <v-remixicon
+name="riRobotLine" size="16"
+class="text-white"
+/>
       </ui-button>
       <ui-button
         v-tooltip.group="t('home.record.title')"
@@ -47,7 +50,10 @@
         class="hover:bg-white/20 transition-all duration-200 rounded-lg p-1"
         @click="startRecording"
       >
-        <v-remixicon name="riRecordCircleLine" size="16" class="text-white" />
+        <v-remixicon
+name="riRecordCircleLine" size="16"
+class="text-white"
+/>
       </ui-button>
       <ui-button
         v-tooltip.group="t('common.dashboard')"
@@ -56,7 +62,10 @@
         :title="t('common.dashboard')"
         @click="openDashboard('')"
       >
-        <v-remixicon name="riHome5Line" size="16" class="text-white" />
+        <v-remixicon
+name="riHome5Line" size="16"
+class="text-white"
+/>
       </ui-button>
     </div>
   </div>
@@ -79,7 +88,8 @@
     >
       <kbd
         class="px-1.5 py-0.5 rounded bg-white/20 text-white/70 text-[10px] font-mono"
-      >/</kbd>
+        >/</kbd
+      >
     </div>
 
     <!-- Search Suggestions Dropdown -->
@@ -107,9 +117,11 @@
               class="text-gray-400"
             />
             <span class="flex-1 truncate">{{ suggestion.name }}</span>
-            <span v-if="suggestion.folder" class="text-xs text-gray-400">{{
-              suggestion.folder
-            }}</span>
+            <span
+v-if="suggestion.folder" class="text-xs text-gray-400"
+>{{
+                    suggestion.folder
+                  }}</span>
           </button>
         </div>
       </div>
@@ -125,14 +137,13 @@
     <ui-tab value="local">
       {{ t(`home.workflow.type.local`) }}
     </ui-tab>
-    <ui-tab v-if="hostedWorkflowStore.toArray.length > 0" value="host">
+    <ui-tab
+v-if="hostedWorkflowStore.toArray.length > 0" value="host"
+>
       {{ t(`home.workflow.type.host`) }}
     </ui-tab>
-    <ui-tab v-if="userStore.user?.teams?.length"
-value="team"
->
-Teams
-</ui-tab>
+    <ui-tab
+v-if="userStore.user?.teams?.length" value="team"> Teams </ui-tab>
   </ui-tabs>
   <home-team-workflows
     v-if="state.retrieved"
@@ -144,7 +155,9 @@ Teams
     class="relative z-20 space-y-2 px-3 pb-2.5"
   >
     <!-- New User Welcome & Quick Actions -->
-    <div v-if="workflowStore.getWorkflows.length === 0" class="space-y-4">
+    <div
+v-if="workflowStore.getWorkflows.length === 0" class="space-y-4"
+>
       <!-- Welcome Banner -->
       <div
         class="rounded-lg bg-gradient-to-r from-blue-500/10 to-purple-500/10 p-3 border border-blue-500/20"
@@ -153,7 +166,10 @@ Teams
           <div
             class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-500"
           >
-            <v-remixicon name="riSparklingFill" size="18" class="text-white" />
+            <v-remixicon
+name="riSparklingFill" size="18"
+class="text-white"
+/>
           </div>
           <div class="flex-1 min-w-0">
             <h3
@@ -167,124 +183,126 @@ Teams
           </div>
         </div>
       </div>
-      <div class="flex-1">
-        <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-1">
-          欢迎使用 Automa 👋
-        </h3>
-        <p class="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
-          自动化您的浏览器操作。录制您的操作，或让 AI 帮您创建工作流。
-        </p>
+
+      <!-- Quick Start Actions -->
+      <div class="grid grid-cols-1 gap-2">
+        <!-- Record Workflow -->
+        <ui-card
+          class="group cursor-pointer border border-gray-200 p-2.5 transition-all hover:border-blue-300 hover:shadow-md dark:border-gray-700 dark:hover:border-blue-500/50"
+          @click="startRecording"
+        >
+          <div class="flex items-center gap-2.5">
+            <div
+              class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-600 transition-colors group-hover:bg-red-500 dark:bg-red-500/10 dark:text-red-400"
+            >
+              <v-remixicon
+name="riRecordCircleLine" size="18"
+/>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-medium text-gray-900 dark:text-gray-100">
+                录制工作流
+              </p>
+              <p class="text-xs text-gray-500 dark:text-gray-400 truncate">
+                记录您的操作步骤，自动生成工作流
+              </p>
+            </div>
+            <v-remixicon
+              name="riArrowRightLine"
+              size="14"
+              class="text-gray-400 transition-transform group-hover:translate-x-1"
+            />
+          </div>
+        </ui-card>
+
+        <!-- AI Generate -->
+        <ui-card
+          class="group cursor-pointer border border-gray-200 p-2.5 transition-all hover:border-blue-300 hover:shadow-md dark:border-gray-700 dark:hover:border-blue-500/50"
+          @click="openAIGenerator"
+        >
+          <div class="flex items-center gap-2.5">
+            <div
+              class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 text-white transition-transform group-hover:scale-105"
+            >
+              <v-remixicon
+name="riRobotLine" size="18"
+/>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-medium text-gray-900 dark:text-gray-100">
+                AI 生成工作流
+              </p>
+              <p class="text-xs text-gray-500 dark:text-gray-400 truncate">
+                描述您的需求，AI 自动创建工作流
+              </p>
+            </div>
+            <v-remixicon
+              name="riArrowRightLine"
+              size="14"
+              class="text-gray-400 transition-transform group-hover:translate-x-1"
+            />
+          </div>
+        </ui-card>
+
+        <!-- Blank Workflow -->
+        <ui-card
+          class="group cursor-pointer border border-gray-200 p-2.5 transition-all hover:border-blue-300 hover:shadow-md dark:border-gray-700 dark:hover:border-blue-500/50"
+          @click="openDashboard('/workflows')"
+        >
+          <div class="flex items-center gap-2.5">
+            <div
+              class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gray-100 text-gray-600 transition-colors group-hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-400"
+            >
+              <v-remixicon
+name="riAddLine" size="18"
+/>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-medium text-gray-900 dark:text-gray-100">
+                创建空白工作流
+              </p>
+              <p class="text-xs text-gray-500 dark:text-gray-400 truncate">
+                从零开始手动构建工作流
+              </p>
+            </div>
+            <v-remixicon
+              name="riArrowRightLine"
+              size="14"
+              class="text-gray-400 transition-transform group-hover:translate-x-1"
+            />
+          </div>
+        </ui-card>
+      </div>
+
+      <!-- Keyboard Shortcut Hint -->
+      <div
+        class="flex items-center justify-center gap-3 text-xs text-gray-400 py-1"
+      >
+        <span class="flex items-center gap-1">
+          <kbd
+            class="px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-700 font-mono text-[10px]"
+            >R</kbd
+          >
+          录制
+        </span>
+        <span class="flex items-center gap-1">
+          <kbd
+            class="px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-700 font-mono text-[10px]"
+            >A</kbd
+          >
+          AI 生成
+        </span>
+        <span class="flex items-center gap-1">
+          <kbd
+            class="px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-700 font-mono text-[10px]"
+            >/</kbd
+          >
+          搜索
+        </span>
       </div>
     </div>
   </div>
 
-  <!-- Quick Start Actions -->
-  <div class="grid grid-cols-1 gap-2">
-    <!-- Record Workflow -->
-    <ui-card
-      class="group cursor-pointer border border-gray-200 p-2.5 transition-all hover:border-blue-300 hover:shadow-md dark:border-gray-700 dark:hover:border-blue-500/50"
-      @click="startRecording"
-    >
-      <div class="flex items-center gap-2.5">
-        <div
-          class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-600 transition-colors group-hover:bg-red-500 dark:bg-red-500/10 dark:text-red-400"
-        >
-          <v-remixicon name="riRecordCircleLine" size="18" />
-        </div>
-        <div class="flex-1 min-w-0">
-          <p class="text-sm font-medium text-gray-900 dark:text-gray-100">
-            录制工作流
-          </p>
-          <p class="text-xs text-gray-500 dark:text-gray-400 truncate">
-            记录您的操作步骤，自动生成工作流
-          </p>
-        </div>
-        <v-remixicon
-          name="riArrowRightLine"
-          size="14"
-          class="text-gray-400 transition-transform group-hover:translate-x-1"
-        />
-      </div>
-    </ui-card>
-
-    <!-- AI Generate -->
-    <ui-card
-      class="group cursor-pointer border border-gray-200 p-2.5 transition-all hover:border-blue-300 hover:shadow-md dark:border-gray-700 dark:hover:border-blue-500/50"
-      @click="openAIGenerator"
-    >
-      <div class="flex items-center gap-2.5">
-        <div
-          class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 text-white transition-transform group-hover:scale-105"
-        >
-          <v-remixicon name="riRobotLine" size="18" />
-        </div>
-        <div class="flex-1 min-w-0">
-          <p class="text-sm font-medium text-gray-900 dark:text-gray-100">
-            AI 生成工作流
-          </p>
-          <p class="text-xs text-gray-500 dark:text-gray-400 truncate">
-            描述您的需求，AI 自动创建工作流
-          </p>
-        </div>
-        <v-remixicon
-          name="riArrowRightLine"
-          size="14"
-          class="text-gray-400 transition-transform group-hover:translate-x-1"
-        />
-      </div>
-    </ui-card>
-
-    <!-- Blank Workflow -->
-    <ui-card
-      class="group cursor-pointer border border-gray-200 p-2.5 transition-all hover:border-blue-300 hover:shadow-md dark:border-gray-700 dark:hover:border-blue-500/50"
-      @click="openDashboard('/workflows')"
-    >
-      <div class="flex items-center gap-2.5">
-        <div
-          class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gray-100 text-gray-600 transition-colors group-hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-400"
-        >
-          <v-remixicon name="riAddLine" size="18" />
-        </div>
-        <div class="flex-1 min-w-0">
-          <p class="text-sm font-medium text-gray-900 dark:text-gray-100">
-            创建空白工作流
-          </p>
-          <p class="text-xs text-gray-500 dark:text-gray-400 truncate">
-            从零开始手动构建工作流
-          </p>
-        </div>
-        <v-remixicon
-          name="riArrowRightLine"
-          size="14"
-          class="text-gray-400 transition-transform group-hover:translate-x-1"
-        />
-      </div>
-    </ui-card>
-  </div>
-
-  <!-- Keyboard Shortcut Hint -->
-  <div
-    class="flex items-center justify-center gap-3 text-xs text-gray-400 py-1"
-  >
-    <span class="flex items-center gap-1">
-      <kbd
-        class="px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-700 font-mono text-[10px]"
-      >R</kbd>
-      录制
-    </span>
-    <span class="flex items-center gap-1">
-      <kbd
-        class="px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-700 font-mono text-[10px]"
-      >A</kbd>
-      AI 生成
-    </span>
-    <span class="flex items-center gap-1">
-      <kbd
-        class="px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-700 font-mono text-[10px]"
-      >/</kbd>
-      搜索
-    </span>
-  </div>
   <div
     v-if="pinnedWorkflows.length > 0"
     class="mb-1.5 border-b border-gray-200 pb-1.5 dark:border-gray-700"
@@ -292,7 +310,10 @@ Teams
     <div
       class="mb-1 flex items-center text-xs font-medium text-gray-600 dark:text-gray-400"
     >
-      <v-remixicon name="riPushpin2Fill" size="11" class="mr-1 text-blue-500" />
+      <v-remixicon
+name="riPushpin2Fill" size="11"
+class="mr-1 text-blue-500"
+/>
       <span>Pinned Workflows</span>
     </div>
     <div class="space-y-1.5">
@@ -313,13 +334,15 @@ Teams
       />
     </div>
   </div>
+
   <div
+    v-if="state.activeTab !== 'team'"
     class="flex items-center space-x-1 rounded-lg bg-gray-50 p-1 dark:bg-gray-800/50"
   >
-    <ui-select v-model="state.activeFolder" class="flex-1 text-xs h-6">
-      <option value="">
-All Folders
-</option>
+    <ui-select
+v-model="state.activeFolder" class="flex-1 text-xs h-6"
+>
+      <option value="">All Folders</option>
       <option
         v-for="folder in folderStore.items"
         :key="folder.id"
@@ -331,18 +354,20 @@ All Folders
     <ui-popover>
       <template #trigger>
         <ui-button class="shrink-0 text-xs px-2 py-0.5 h-6">
-          <v-remixicon name="riSortDesc" class="mr-0.5 -ml-0.5" size="12" />
+          <v-remixicon
+name="riSortDesc" class="mr-0.5 -ml-0.5"
+size="12"
+/>
           <span>Sort</span>
         </ui-button>
       </template>
       <div class="w-48 p-2">
-        <ui-select v-model="sortState.order" block placeholder="Sort order">
-          <option value="asc">
-Ascending
-</option>
-          <option value="desc">
-Descending
-</option>
+        <ui-select
+v-model="sortState.order" block
+placeholder="Sort order"
+>
+          <option value="asc">Ascending</option>
+          <option value="desc">Descending</option>
         </ui-select>
         <ui-select
           v-model="sortState.by"
@@ -350,14 +375,20 @@ Descending
           block
           class="mt-1.5 flex-1"
         >
-          <option v-for="sort in sorts" :key="sort" :value="sort">
+          <option
+v-for="sort in sorts" :key="sort"
+:value="sort"
+>
             {{ t(`sort.${sort}`) }}
           </option>
         </ui-select>
       </div>
     </ui-popover>
   </div>
-  <div class="space-y-1.5">
+
+  <div
+v-if="state.activeTab !== 'team'" class="space-y-1.5"
+>
     <home-workflow-card
       v-for="workflow in workflows"
       :key="workflow.id"
@@ -413,7 +444,10 @@ Descending
           class="text-xs h-6 px-2.5"
           @click="deleteBatchWorkflows"
         >
-          <v-remixicon name="riDeleteBin7Line" size="12" class="mr-0.5" />
+          <v-remixicon
+name="riDeleteBin7Line" size="12"
+class="mr-0.5"
+/>
           {{ t('workflow.deleteSelected') }} ({{
             state.selectedForBatch.length
           }})
@@ -451,7 +485,6 @@ import HomeWorkflowCard from '@/components/popup/home/HomeWorkflowCard.vue';
 import { useDialog } from '@/composable/dialog';
 import { useGroupTooltip } from '@/composable/groupTooltip';
 import { useShortcut } from '@/composable/shortcut';
-import { initElementSelector as initElementSelectorFunc } from '@/newtab/utils/elementSelector';
 import RendererWorkflowService from '@/service/renderer/RendererWorkflowService';
 import { useFolderStore } from '@/stores/folder';
 import { useHostedWorkflowStore } from '@/stores/hostedWorkflow';
@@ -460,14 +493,7 @@ import { useUserStore } from '@/stores/user';
 import { useWorkflowStore } from '@/stores/workflow';
 import { arraySorter, parseJSON } from '@/utils/helper';
 import automa from '@business';
-import {
-  computed,
-  onMounted,
-  ref,
-  shallowReactive,
-  watch,
-  nextTick,
-} from 'vue';
+import { computed, onMounted, ref, shallowReactive, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import browser from 'webextension-polyfill';
 
@@ -607,7 +633,7 @@ useShortcut(
     { id: 'action:record', combo: 'r' },
     { id: 'action:ai', combo: 'a' },
   ],
-  (params) => {
+  (params, event) => {
     if (params.id === 'action:search') {
       event.preventDefault();
       searchInputRef.value?.focus();
@@ -839,17 +865,6 @@ function deleteWorkflow({ id, hostId, name }) {
 function openDashboard(url) {
   BackgroundUtils.openDashboard(url);
 }
-async function initElementSelector() {
-  const [tab] = await browser.tabs.query({
-    url: '*://*/*',
-    active: true,
-    currentWindow: true,
-  });
-  if (!tab) return;
-  initElementSelectorFunc(tab).then(() => {
-    window.close();
-  });
-}
 function openWorkflowPage({ id, hostId }) {
   let url = `/workflows/${id}`;
 
@@ -906,6 +921,7 @@ onMounted(async () => {
   }
 });
 </script>
+
 <style>
 .recording-card {
   transition: height 300ms cubic-bezier(0.4, 0, 0.2, 1) !important;

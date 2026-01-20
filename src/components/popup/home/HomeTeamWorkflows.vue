@@ -87,3 +87,6 @@ onMounted(() => {
     .sort((a, b) => (a.createdAt > b.createdAt ? 1 : -1));
 });
 </script>
+
+<style scoped>
+</style>
