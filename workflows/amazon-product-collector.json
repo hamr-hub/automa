@@ -1,0 +1,232 @@
+{
+  "name": "Amazon Product Collector",
+  "description": "自动采集亚马逊商品详情并写入Supabase数据库",
+  "version": "1.0.0",
+  "icon": "riShoppingCart2Line",
+  "trigger": {
+    "type": "manual",
+    "url": "*://www.amazon.*/*"
+  },
+  "blocks": [
+    {
+      "id": "trigger-1",
+      "type": "trigger",
+      "label": "触发器",
+      "description": "在亚马逊商品详情页自动触发",
+      "data": {
+        "type": "manual"
+      }
+    },
+    {
+      "id": "extract-1",
+      "type": "get-text",
+      "label": "提取商品标题",
+      "description": "提取商品标题",
+      "data": {
+        "selector": "#productTitle",
+        "markEl": false,
+        "multiple": false,
+        "regex": "",
+        "regexExp": "",
+        "prefixText": "",
+        "suffixText": "",
+        "assignVariable": true,
+        "variableName": "title",
+        "saveData": false
+      }
+    },
+    {
+      "id": "extract-2",
+      "type": "get-text",
+      "label": "提取ASIN",
+      "description": "从URL或页面中提取ASIN",
+      "data": {
+        "selector": "[data-feature-name='detailBullets'] li:has-text('ASIN')",
+        "markEl": false,
+        "multiple": false,
+        "regex": "ASIN:\\s*([A-Z0-9]{10})",
+        "regexExp": "g",
+        "assignVariable": true,
+        "variableName": "asin",
+        "saveData": false
+      }
+    },
+    {
+      "id": "extract-3",
+      "type": "get-text",
+      "label": "提取价格",
+      "description": "提取商品价格",
+      "data": {
+        "selector": ".a-price .a-offscreen, #priceblock_ourprice, #priceblock_dealprice",
+        "markEl": false,
+        "multiple": false,
+        "regex": "",
+        "regexExp": "",
+        "assignVariable": true,
+        "variableName": "price",
+        "saveData": false
+      }
+    },
+    {
+      "id": "extract-4",
+      "type": "get-text",
+      "label": "提取品牌",
+      "description": "提取商品品牌",
+      "data": {
+        "selector": "#bylineInfo, [data-feature-name='bylineInfo']",
+        "markEl": false,
+        "multiple": false,
+        "regex": "",
+        "regexExp": "",
+        "assignVariable": true,
+        "variableName": "brand",
+        "saveData": false
+      }
+    },
+    {
+      "id": "extract-5",
+      "type": "get-text",
+      "label": "提取评分",
+      "description": "提取商品评分",
+      "data": {
+        "selector": "#acrPopover, .reviewCountTextLinkedHistogram",
+        "markEl": false,
+        "multiple": false,
+        "regex": "([0-9.]+)\\s*out of",
+        "regexExp": "",
+        "assignVariable": true,
+        "variableName": "rating",
+        "saveData": false
+      }
+    },
+    {
+      "id": "extract-6",
+      "type": "get-text",
+      "label": "提取评论数",
+      "description": "提取商品评论数量",
+      "data": {
+        "selector": "#acrCustomerReviewText",
+        "markEl": false,
+        "multiple": false,
+        "regex": "([0-9,]+)",
+        "regexExp": "",
+        "assignVariable": true,
+        "variableName": "reviewCount",
+        "saveData": false
+      }
+    },
+    {
+      "id": "extract-7",
+      "type": "attribute-value",
+      "label": "提取主图",
+      "description": "提取商品主图URL",
+      "data": {
+        "selector": "#landingImage, #imgBlkFront",
+        "attributeName": "src",
+        "markEl": false,
+        "multiple": false,
+        "regex": "",
+        "regexExp": "",
+        "assignVariable": true,
+        "variableName": "mainImage",
+        "saveData": false
+      }
+    },
+    {
+      "id": "extract-8",
+      "type": "get-text",
+      "label": "提取库存状态",
+      "description": "提取商品库存状态",
+      "data": {
+        "selector": "#availability span",
+        "markEl": false,
+        "multiple": false,
+        "regex": "",
+        "regexExp": "",
+        "assignVariable": true,
+        "variableName": "availability",
+        "saveData": false
+      }
+    },
+    {
+      "id": "js-1",
+      "type": "javascript-code",
+      "label": "构建数据对象",
+      "description": "构建要发送到Supabase的数据对象",
+      "data": {
+        "code": "const productUrl = window.location.href;\nconst now = new Date().toISOString();\n\n// 清理价格字符串\nconst cleanPrice = (priceStr) => {\n  if (!priceStr) return null;\n  return priceStr.replace(/[^0-9.]/g, '');\n};\n\n// 清理评论数\nconst cleanReviewCount = (countStr) => {\n  if (!countStr) return null;\n  return parseInt(countStr.replace(/[^0-9]/g, ''));\n};\n\nconst productData = {\n  product_url: productUrl,\n  asin: automaRefData.variables.asin || null,\n  title: automaRefData.variables.title || null,\n  brand: automaRefData.variables.brand || null,\n  current_price: cleanPrice(automaRefData.variables.price),\n  currency: 'USD', // 可以根据站点动态设置\n  rating: parseFloat(automaRefData.variables.rating) || null,\n  review_count: cleanReviewCount(automaRefData.variables.reviewCount),\n  availability: automaRefData.variables.availability || null,\n  main_image_url: automaRefData.variables.mainImage || null,\n  metadata: {\n    collected_at: now,\n    collector: 'automa-extension',\n    url: productUrl\n  }\n};\n\nreturn productData;",
+        "everyNewTab": false,
+        "timeout": 10000,
+        "assignVariable": true,
+        "variableName": "productData",
+        "saveData": false
+      }
+    },
+    {
+      "id": "webhook-1",
+      "type": "webhook",
+      "label": "发送数据到Supabase",
+      "description": "通过Supabase REST API将商品数据写入数据库",
+      "data": {
+        "url": "{{supabaseUrl}}/rest/v1/product_details",
+        "method": "POST",
+        "headers": [
+          {
+            "name": "apikey",
+            "value": "{{supabaseKey}}"
+          },
+          {
+            "name": "Authorization",
+            "value": "Bearer {{supabaseKey}}"
+          },
+          {
+            "name": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "name": "Prefer",
+            "value": "resolution=merge-duplicates"
+          }
+        ],
+        "body": "{{variables@productData}}",
+        "contentType": "JSON",
+        "responseType": "json",
+        "assignVariable": true,
+        "variableName": "supabaseResponse",
+        "saveData": false
+      }
+    },
+    {
+      "id": "notification-1",
+      "type": "notification",
+      "label": "显示成功通知",
+      "description": "显示数据采集成功的通知",
+      "data": {
+        "title": "商品数据已保存",
+        "message": "{{variables@title}} 的数据已成功保存到Supabase",
+        "type": "success"
+      }
+    }
+  ],
+  "edges": [
+    { "id": "edge-1", "source": "trigger-1", "target": "extract-1" },
+    { "id": "edge-2", "source": "extract-1", "target": "extract-2" },
+    { "id": "edge-3", "source": "extract-2", "target": "extract-3" },
+    { "id": "edge-4", "source": "extract-3", "target": "extract-4" },
+    { "id": "edge-5", "source": "extract-4", "target": "extract-5" },
+    { "id": "edge-6", "source": "extract-5", "target": "extract-6" },
+    { "id": "edge-7", "source": "extract-6", "target": "extract-7" },
+    { "id": "edge-8", "source": "extract-7", "target": "extract-8" },
+    { "id": "edge-9", "source": "extract-8", "target": "js-1" },
+    { "id": "edge-10", "source": "js-1", "target": "webhook-1" },
+    { "id": "edge-11", "source": "webhook-1", "target": "notification-1" }
+  ],
+  "settings": {
+    "blockDelay": 500,
+    "executionDelay": 0,
+    "debugMode": false,
+    "saveLog": true,
+    "restartTimes": 0,
+    "onError": "stop-workflow"
+  }
+}
