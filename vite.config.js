@@ -99,14 +99,18 @@ function copyExtensionAssets() {
         }
       }
 
+      // 确保build目录存在
+      fs.ensureDirSync('build');
       fs.writeJsonSync('build/manifest.json', manifest, { spaces: 2 });
 
       // 复制图标
       fs.copySync('src/assets/images/icon-128.png', 'build/icon-128.png');
-      fs.copySync(
-        'src/assets/images/icon-dev-128.png',
-        'build/icon-dev-128.png'
-      );
+      if (fs.existsSync('src/assets/images/icon-dev-128.png')) {
+        fs.copySync(
+          'src/assets/images/icon-dev-128.png',
+          'build/icon-dev-128.png'
+        );
+      }
     },
     closeBundle() {
       // 构建完成后，将HTML文件移动到根目录
@@ -213,7 +217,7 @@ export default defineConfig(() => {
 
     build: {
       outDir: 'build',
-      emptyOutDir: true, // 清空输出目录
+      emptyOutDir: false, // 不清空输出目录，避免删除manifest.json和图标
       sourcemap: isDev ? 'inline' : false,
       minify: !isDev,
 

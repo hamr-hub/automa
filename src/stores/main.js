@@ -2,7 +2,6 @@ import { defineStore } from 'pinia';
 import defu from 'defu';
 import browser from 'webextension-polyfill';
 import deepmerge from 'lodash.merge';
-// import { fetchGapi } from '@/utils/api'; // fetchGapi不存在，已移除
 
 export const useStore = defineStore('main', {
   storageMap: {
