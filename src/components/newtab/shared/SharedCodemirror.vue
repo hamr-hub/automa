@@ -25,10 +25,10 @@ import { EditorState } from '@codemirror/state';
 import { oneDark } from '@codemirror/theme-one-dark';
 import { keymap } from '@codemirror/view';
 import { EditorView, basicSetup } from 'codemirror';
-import { onBeforeUnmount, onMounted, ref, watch, reactive } from 'vue';
+import { onBeforeUnmount, onMounted, ref, watch, inject } from 'vue';
 
-// 避免循环依赖，使用局部 store 而不是导入
-const store = reactive({
+// 尝试从父组件注入 store，如果没有则使用默认值
+const store = inject('codemirrorStore', {
   whiteSpace: 'pre',
   statePrettier: Math.random(),
 });

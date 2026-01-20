@@ -155,7 +155,7 @@ import {
   completeFromGlobalScope,
 } from '@/utils/codeEditorAutocomplete';
 import { autocompletion } from '@codemirror/autocomplete';
-import { defineAsyncComponent, inject, reactive, watch } from 'vue';
+import { defineAsyncComponent, inject, reactive, watch, provide } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 // 创建组件局部的 store 对象，避免循环依赖
@@ -163,6 +163,9 @@ const jsBlockStore = reactive({
   whiteSpace: 'pre',
   statePrettier: Math.random(),
 });
+
+// 提供给子组件 SharedCodemirror 使用
+provide('codemirrorStore', jsBlockStore);
 
 function modifyWhiteSpace() {
   if (jsBlockStore.whiteSpace === 'pre') {

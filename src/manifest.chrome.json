@@ -84,5 +84,8 @@
   ],
   "sandbox": {
     "pages": ["/sandbox.html"]
+  },
+  "chrome_url_overrides": {
+    "newtab": "newtab.html"
   }
 }
