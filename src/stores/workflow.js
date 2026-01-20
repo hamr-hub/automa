@@ -11,7 +11,6 @@ import deepmerge from 'lodash.merge';
 import { nanoid } from 'nanoid';
 import { defineStore } from 'pinia';
 import browser from 'webextension-polyfill';
-import { useUserStore } from './user';
 
 const defaultWorkflow = (data = null, options = {}) => {
   let workflowData = {
@@ -297,6 +296,8 @@ export const useWorkflowStore = defineStore('workflow', {
         console.warn('WorkflowSyncService.markPending(delete) failed:', error);
       }
 
+      // 延迟导入避免循环依赖
+      const { useUserStore } = await import('./user');
       const userStore = useUserStore();
 
       // 旧逻辑：已登录且有 hosted/backup 才会远端删除
