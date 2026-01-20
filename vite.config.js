@@ -137,55 +137,55 @@ function copyExtensionAssets() {
       }
 
       // 修复HTML文件：Vite会移除body内容，需要重新添加
+      // 读取源HTML模板来获取原始body内容
+      const htmlTemplates = {
+        newtab: fs.readFileSync(
+          resolve(__dirname, 'src/newtab/index.html'),
+          'utf-8'
+        ),
+        popup: fs.readFileSync(
+          resolve(__dirname, 'src/popup/index.html'),
+          'utf-8'
+        ),
+        params: fs.readFileSync(
+          resolve(__dirname, 'src/params/index.html'),
+          'utf-8'
+        ),
+        sandbox: fs.readFileSync(
+          resolve(__dirname, 'src/sandbox/index.html'),
+          'utf-8'
+        ),
+        execute: fs.readFileSync(
+          resolve(__dirname, 'src/execute/index.html'),
+          'utf-8'
+        ),
+        offscreen: fs.readFileSync(
+          resolve(__dirname, 'src/offscreen/index.html'),
+          'utf-8'
+        ),
+      };
+
       htmlFiles.forEach((name) => {
         const htmlPath = resolve(__dirname, `build/${name}.html`);
         if (fs.existsSync(htmlPath)) {
-          let html = fs.readFileSync(htmlPath, 'utf-8');
+          const builtHtml = fs.readFileSync(htmlPath, 'utf-8');
+          const templateHtml = htmlTemplates[name];
 
-          // 为 newtab 添加必要的 DOM 元素
-          if (name === 'newtab' && !html.includes('<div id="app">')) {
-            html = html.replace(
-              '</body>',
-              '    <div id="app"></div>\n    <iframe src="/sandbox.html" id="sandbox" style="display: none"></iframe>\n  </body>'
-            );
-          }
-          // 为 popup 添加必要的 DOM 元素
-          else if (name === 'popup' && !html.includes('<div id="app">')) {
-            html = html.replace(
-              '</body>',
-              '    <div id="app"></div>\n  </body>'
-            );
-          }
-          // 为 params 添加必要的 DOM 元素
-          else if (name === 'params' && !html.includes('<div id="app">')) {
-            html = html.replace(
-              '</body>',
-              '    <div id="app"></div>\n  </body>'
-            );
-          }
-          // 为 execute 添加必要的 DOM 元素
-          else if (name === 'execute' && !html.includes('<div id="app">')) {
-            html = html.replace(
-              '</body>',
-              '    <div id="app"></div>\n  </body>'
-            );
-          }
-          // 为 sandbox 添加必要的 DOM 元素
-          else if (name === 'sandbox' && !html.includes('<div id="app">')) {
-            html = html.replace(
-              '</body>',
-              '    <div id="app"></div>\n  </body>'
-            );
-          }
-          // 为 offscreen 添加必要的 DOM 元素
-          else if (name === 'offscreen' && !html.includes('<div id="app">')) {
-            html = html.replace(
-              '</body>',
-              '    <div id="app"></div>\n  </body>'
-            );
-          }
+          // 提取源模板的body内容（不包括script标签）
+          const bodyMatch = templateHtml.match(/<body[^>]*>([\s\S]*?)<script/i);
+          if (bodyMatch && bodyMatch[1]) {
+            const bodyContent = bodyMatch[1].trim();
 
-          fs.writeFileSync(htmlPath, html, 'utf-8');
+            // 检查构建后的HTML是否已包含body内容
+            if (!builtHtml.includes(bodyContent)) {
+              // 替换空的body为包含内容的body
+              const updatedHtml = builtHtml.replace(
+                /(<body[^>]*>)\s*(<\/body>)/i,
+                `$1\n    ${bodyContent}\n  $2`
+              );
+              fs.writeFileSync(htmlPath, updatedHtml, 'utf-8');
+            }
+          }
         }
       });
     },
