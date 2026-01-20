@@ -2,12 +2,14 @@
 import { toCamelCase } from '@/utils/helper';
 import customHandlers from '@business/blocks/backgroundHandler';
 
-/* webpack/vite dynamic import - builds handler map from directory */
-const blocksHandler = require.context('./blocksHandler', false, /\.js$/);
-const handlers = blocksHandler.keys().reduce((acc, key) => {
-  const name = key.replace(/^\.\/handler|\.js/g, '');
+/* Vite 使用 import.meta.glob 替代 webpack 的 require.context */
+const blocksHandlerModules = import.meta.glob('./blocksHandler/*.js', {
+  eager: true,
+});
+const handlers = Object.entries(blocksHandlerModules).reduce((acc, [path, module]) => {
+  const name = path.replace(/^\.\/blocksHandler\/handler|\.js$/g, '');
 
-  acc[toCamelCase(name)] = blocksHandler(key).default;
+  acc[toCamelCase(name)] = module.default;
 
   return acc;
 }, {});

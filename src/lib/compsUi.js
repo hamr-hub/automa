@@ -2,17 +2,17 @@ import VTooltip from '../directives/VTooltip';
 import VAutofocus from '../directives/VAutofocus';
 import VClosePopover from '../directives/VClosePopover';
 
-const uiComponents = require.context('../components/ui', false, /\.vue$/);
-const transitionComponents = require.context(
-  '../components/transitions',
-  false,
-  /\.vue$/
+// Vite 使用 import.meta.glob 替代 webpack 的 require.context
+const uiComponents = import.meta.glob('../components/ui/*.vue', { eager: true });
+const transitionComponents = import.meta.glob(
+  '../components/transitions/*.vue',
+  { eager: true }
 );
 
 function componentsExtractor(app, components) {
-  components.keys().forEach((key) => {
-    const componentName = key.replace(/(.\/)|\.vue$/g, '');
-    const component = components(key)?.default ?? {};
+  Object.entries(components).forEach(([path, module]) => {
+    const componentName = path.replace(/.*\/(.+)\.vue$/, '$1');
+    const component = module?.default ?? {};
 
     app.component(componentName, component);
   });

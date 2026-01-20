@@ -38,7 +38,7 @@
         >
           <v-remixicon name="riSubtractLine" />
         </button>
-        <hr class="inline-block h-6 border-r" >
+        <hr class="inline-block h-6 border-r" />
         <button
           v-tooltip.group="t('workflow.editor.zoomIn')"
           class="rounded-lg p-2"
@@ -48,8 +48,7 @@
         </button>
       </div>
     </div>
-    <template v-for="(node, name) in nodeTypes"
-:key="name" #[name]="nodeProps">
+    <template v-for="(node, name) in nodeTypes" :key="name" #[name]="nodeProps">
       <component
         :is="node"
         v-bind="{
@@ -141,21 +140,28 @@ const fallbackBlocks = {
 };
 
 const isMac = navigator.appVersion.indexOf('Mac') !== -1;
-const blockComponents = require.context('@/components/block', false, /\.vue$/);
-const nodeTypes = blockComponents.keys().reduce((acc, key) => {
-  const name = key.replace(/(.\/)|\.vue$/g, '');
-  const component = blockComponents(key).default;
 
-  if (fallbackBlocks[name]) {
-    fallbackBlocks[name].forEach((fallbackBlock) => {
-      acc[`node-${fallbackBlock}`] = component;
-    });
-  }
+// Vite 使用 import.meta.glob 替代 webpack 的 require.context
+const blockComponentModules = import.meta.glob('@/components/block/*.vue', {
+  eager: true,
+});
+const nodeTypes = Object.entries(blockComponentModules).reduce(
+  (acc, [path, module]) => {
+    const name = path.replace(/.*\/(.+)\.vue$/, '$1');
+    const component = module.default;
 
-  acc[`node-${name}`] = component;
+    if (fallbackBlocks[name]) {
+      fallbackBlocks[name].forEach((fallbackBlock) => {
+        acc[`node-${fallbackBlock}`] = component;
+      });
+    }
 
-  return acc;
-}, {});
+    acc[`node-${name}`] = component;
+
+    return acc;
+  },
+  {}
+);
 const getPosition = (position) => (Array.isArray(position) ? position : [0, 0]);
 const setMinValue = (num, min) => (num < min ? min : num);
 
