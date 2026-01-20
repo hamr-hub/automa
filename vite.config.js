@@ -135,6 +135,59 @@ function copyExtensionAssets() {
       if (fs.existsSync(srcDir)) {
         fs.removeSync(srcDir);
       }
+
+      // 修复HTML文件：Vite会移除body内容，需要重新添加
+      htmlFiles.forEach((name) => {
+        const htmlPath = resolve(__dirname, `build/${name}.html`);
+        if (fs.existsSync(htmlPath)) {
+          let html = fs.readFileSync(htmlPath, 'utf-8');
+
+          // 为 newtab 添加必要的 DOM 元素
+          if (name === 'newtab' && !html.includes('<div id="app">')) {
+            html = html.replace(
+              '</body>',
+              '    <div id="app"></div>\n    <iframe src="/sandbox.html" id="sandbox" style="display: none"></iframe>\n  </body>'
+            );
+          }
+          // 为 popup 添加必要的 DOM 元素
+          else if (name === 'popup' && !html.includes('<div id="app">')) {
+            html = html.replace(
+              '</body>',
+              '    <div id="app"></div>\n  </body>'
+            );
+          }
+          // 为 params 添加必要的 DOM 元素
+          else if (name === 'params' && !html.includes('<div id="app">')) {
+            html = html.replace(
+              '</body>',
+              '    <div id="app"></div>\n  </body>'
+            );
+          }
+          // 为 execute 添加必要的 DOM 元素
+          else if (name === 'execute' && !html.includes('<div id="app">')) {
+            html = html.replace(
+              '</body>',
+              '    <div id="app"></div>\n  </body>'
+            );
+          }
+          // 为 sandbox 添加必要的 DOM 元素
+          else if (name === 'sandbox' && !html.includes('<div id="app">')) {
+            html = html.replace(
+              '</body>',
+              '    <div id="app"></div>\n  </body>'
+            );
+          }
+          // 为 offscreen 添加必要的 DOM 元素
+          else if (name === 'offscreen' && !html.includes('<div id="app">')) {
+            html = html.replace(
+              '</body>',
+              '    <div id="app"></div>\n  </body>'
+            );
+          }
+
+          fs.writeFileSync(htmlPath, html, 'utf-8');
+        }
+      });
     },
     generateBundle(options, bundle) {
       // 在生成bundle时修改HTML文件路径
