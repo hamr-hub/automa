@@ -145,12 +145,12 @@ class LangGraphService {
         userInput: { value: (x, y) => y || x, default: () => '' },
         targetUrl: { value: (x, y) => y || x, default: () => '' },
         pageContext: { value: (x, y) => y || x, default: () => '' },
-        generatedJson: { value: (x, y) => y, default: () => null },
-        workflow: { value: (x, y) => y, default: () => null },
-        error: { value: (x, y) => y, default: () => null },
-        retryCount: { value: (x, y) => y, default: () => 0 },
-        onProgress: { value: (x, y) => x, default: () => null }, // Keep original callback
-        currentWorkflow: { value: (x, y) => x, default: () => null }, // Immutable context
+        generatedJson: { value: (_x, y) => y, default: () => null },
+        workflow: { value: (_x, y) => y, default: () => null },
+        error: { value: (_x, y) => y, default: () => null },
+        retryCount: { value: (_x, y) => y, default: () => 0 },
+        onProgress: { value: (x) => x, default: () => null }, // Keep original callback
+        currentWorkflow: { value: (x) => x, default: () => null }, // Immutable context
       },
     });
 
@@ -194,7 +194,7 @@ class LangGraphService {
    * Node: Process Input
    */
   async inputProcessingNode(state) {
-    console.log('[LangGraph] Processing Input:', state.userInput);
+    console.warn('[LangGraph] Processing Input:', state.userInput);
     return {};
   }
 
@@ -204,8 +204,8 @@ class LangGraphService {
   async generationNode(state) {
     const attempt = state.retryCount + 1;
     const msg = `正在生成工作流 (第 ${attempt} 次尝试)...`;
-    console.log(`[LangGraph] ${msg}`);
-    console.log('DEBUG: onProgress type:', typeof state.onProgress);
+    console.warn(`[LangGraph] ${msg}`);
+    console.warn('DEBUG: onProgress type:', typeof state.onProgress);
     state.onProgress?.({ step: 'generation', message: msg, attempt });
 
     try {
@@ -234,7 +234,7 @@ class LangGraphService {
    * Node: Validate JSON and Build Workflow
    */
   async validationNode(state) {
-    console.log('[LangGraph] Validating...');
+    console.warn('[LangGraph] Validating...');
     state.onProgress?.({ step: 'validation', message: '正在验证生成结果...' });
 
     if (!state.generatedJson) {
@@ -263,7 +263,7 @@ class LangGraphService {
         state.targetUrl
       );
 
-      console.log('[LangGraph] Validation Success!');
+      console.warn('[LangGraph] Validation Success!');
       return { workflow, error: null };
     } catch (error) {
       console.warn('[LangGraph] Validation Failed:', error.message);
@@ -275,7 +275,7 @@ class LangGraphService {
    * Node: Correction (Refinement)
    */
   async correctionNode(state) {
-    console.log('[LangGraph] Applying Correction...');
+    console.warn('[LangGraph] Applying Correction...');
 
     const correctionMessage = `上一次生成的 JSON 格式有误。错误信息: ${state.error}
 
@@ -301,13 +301,13 @@ class LangGraphService {
       channels: {
         messages: { value: (x, y) => x.concat(y), default: () => [] },
         goal: { value: (x, y) => y || x, default: () => '' },
-        pageContext: { value: (x, y) => y, default: () => '' },
+        pageContext: { value: (_x, y) => y, default: () => '' },
         history: { value: (x, y) => x.concat(y), default: () => [] },
-        currentWorkflow: { value: (x, y) => y, default: () => [] },
-        lastAction: { value: (x, y) => y, default: () => null },
-        error: { value: (x, y) => y, default: () => null },
-        onProgress: { value: (x, y) => x, default: () => null },
-        abortSignal: { value: (x, y) => x, default: () => null },
+        currentWorkflow: { value: (_x, y) => y, default: () => [] },
+        lastAction: { value: (_x, y) => y, default: () => null },
+        error: { value: (_x, y) => y, default: () => null },
+        onProgress: { value: (x) => x, default: () => null },
+        abortSignal: { value: (x) => x, default: () => null },
       },
     });
 
@@ -498,7 +498,7 @@ class LangGraphService {
     try {
       // Try parsing directly
       return JSON.parse(text);
-    } catch (e) {
+    } catch {
       // Extract from markdown code blocks
       const match =
         text.match(/```json([\s\S]*?)```/) || text.match(/```([\s\S]*?)```/);
@@ -690,8 +690,8 @@ class LangGraphService {
         workflow: { value: (x, y) => y, default: () => null },
         error: { value: (x, y) => y, default: () => null },
         retryCount: { value: (x, y) => y, default: () => 0 },
-        onProgress: { value: (x, y) => x, default: () => null },
-        currentWorkflow: { value: (x, y) => y, default: () => null },
+        onProgress: { value: (x) => x, default: () => null },
+        currentWorkflow: { value: (_x, y) => y, default: () => null },
         incremental: { value: (x, y) => y, default: () => true },
         maxIterations: { value: (x, y) => y, default: () => 5 },
         iterationCount: { value: (x, y) => y, default: () => 0 },
@@ -791,7 +791,7 @@ class LangGraphService {
   async incrementalGenerateNode(state) {
     const attempt = state.retryCount + 1;
     const msg = `正在生成工作流 (第 ${state.iterationCount + 1} 次迭代, 第 ${attempt} 次尝试)...`;
-    console.log(`[Incremental] ${msg}`);
+    console.warn(`[Incremental] ${msg}`);
 
     state.onProgress?.({
       step: 'generate',
@@ -888,45 +888,65 @@ class LangGraphService {
   estimateCompletion(userInput, workflow) {
     const inputLower = userInput.toLowerCase();
     let completion = 0;
-    
+
     // 基础完成度：有节点就有基础分数
     if (workflow.nodes.length > 0) {
       completion += 20;
     }
-    
+
     // 检查是否有触发器
-    if (workflow.nodes.some(node => node.label === 'trigger')) {
+    if (workflow.nodes.some((node) => node.label === 'trigger')) {
       completion += 15;
     }
-    
+
     // 检查是否有新标签页节点（如果需要）
     if (inputLower.includes('打开') || inputLower.includes('navigate')) {
-      if (workflow.nodes.some(node => node.label === 'new-tab')) {
+      if (workflow.nodes.some((node) => node.label === 'new-tab')) {
         completion += 15;
       }
     }
-    
+
     // 检查是否有数据提取节点
-    if (inputLower.includes('提取') || inputLower.includes('获取') || inputLower.includes('scrap')) {
-      if (workflow.nodes.some(node => ['get-text', 'attribute-value'].includes(node.label))) {
+    if (
+      inputLower.includes('提取') ||
+      inputLower.includes('获取') ||
+      inputLower.includes('scrap')
+    ) {
+      if (
+        workflow.nodes.some((node) =>
+          ['get-text', 'attribute-value'].includes(node.label)
+        )
+      ) {
         completion += 20;
       }
     }
-    
+
     // 检查是否有循环节点（如果需要）
-    if (inputLower.includes('循环') || inputLower.includes('遍历') || inputLower.includes('loop')) {
-      if (workflow.nodes.some(node => ['loop-data', 'loop-elements', 'while-loop'].includes(node.label))) {
+    if (
+      inputLower.includes('循环') ||
+      inputLower.includes('遍历') ||
+      inputLower.includes('loop')
+    ) {
+      if (
+        workflow.nodes.some((node) =>
+          ['loop-data', 'loop-elements', 'while-loop'].includes(node.label)
+        )
+      ) {
         completion += 15;
       }
     }
-    
+
     // 检查是否有导出节点
-    if (inputLower.includes('导出') || inputLower.includes('保存') || inputLower.includes('export')) {
-      if (workflow.nodes.some(node => node.label === 'export-data')) {
+    if (
+      inputLower.includes('导出') ||
+      inputLower.includes('保存') ||
+      inputLower.includes('export')
+    ) {
+      if (workflow.nodes.some((node) => node.label === 'export-data')) {
         completion += 15;
       }
     }
-    
+
     // 确保完成度不超过100%
     return Math.min(completion, 100);
   }
@@ -935,7 +955,8 @@ class LangGraphService {
    * 构建增量生成提示
    */
   buildIncrementalPrompt(state) {
-    const systemPrompt = '你是一个工作流生成专家。你的任务是根据用户需求逐步生成或修改浏览器自动化工作流。\n\n工作流由以下节点类型组成：\n- trigger: 触发器（手动、定时等）\n- new-tab: 打开新标签页\n- delay: 等待/延迟\n- event-click: 点击元素\n- element-scroll: 滚动元素\n- get-text: 获取文本\n- attribute-value: 获取属性值\n- loop-data: 循环数据\n- loop-elements: 循环元素\n- while-loop: 条件循环\n- export-data: 导出数据\n- forms: 表单输入\n- conditions: 条件判断\n\n重要规则：\n1. 每次只生成 1-3 个新节点，确保生成的节点能够独立执行并验证\n2. 如果是修改现有工作流，基于 currentWorkflow 继续扩展\n3. 确保新节点能正确连接到现有节点\n4. 生成的 JSON 必须使用标准 JSON 格式\n5. 分析当前工作流状态，判断是否需要进一步扩展或完成\n6. 如果工作流还未完成，生成下一组节点以继续实现用户需求\n7. 如果工作流已经完整实现了用户需求，返回 action: \"complete\"\n8. 必须包含详细的思考过程，解释为什么要生成这些节点\n9. 根据当前工作流状态，自动发起新一轮对话直到工作流完成';
+    const systemPrompt =
+      '你是一个工作流生成专家。你的任务是根据用户需求逐步生成或修改浏览器自动化工作流。\n\n工作流由以下节点类型组成：\n- trigger: 触发器（手动、定时等）\n- new-tab: 打开新标签页\n- delay: 等待/延迟\n- event-click: 点击元素\n- element-scroll: 滚动元素\n- get-text: 获取文本\n- attribute-value: 获取属性值\n- loop-data: 循环数据\n- loop-elements: 循环元素\n- while-loop: 条件循环\n- export-data: 导出数据\n- forms: 表单输入\n- conditions: 条件判断\n\n重要规则：\n1. 每次只生成 1-3 个新节点，确保生成的节点能够独立执行并验证\n2. 如果是修改现有工作流，基于 currentWorkflow 继续扩展\n3. 确保新节点能正确连接到现有节点\n4. 生成的 JSON 必须使用标准 JSON 格式\n5. 分析当前工作流状态，判断是否需要进一步扩展或完成\n6. 如果工作流还未完成，生成下一组节点以继续实现用户需求\n7. 如果工作流已经完整实现了用户需求，返回 action: "complete"\n8. 必须包含详细的思考过程，解释为什么要生成这些节点\n9. 根据当前工作流状态，自动发起新一轮对话直到工作流完成';
 
     let userPrompt = '用户需求: ' + state.userInput;
 
@@ -944,16 +965,34 @@ class LangGraphService {
     }
 
     if (state.currentWorkflow && state.currentWorkflow.nodes) {
-      const completion = this.estimateCompletion(state.userInput, state.currentWorkflow);
-      userPrompt += '\n\n当前工作流已有 ' + state.currentWorkflow.nodes.length + ' 个节点:';
+      const completion = this.estimateCompletion(
+        state.userInput,
+        state.currentWorkflow
+      );
+      userPrompt +=
+        '\n\n当前工作流已有 ' + state.currentWorkflow.nodes.length + ' 个节点:';
       state.currentWorkflow.nodes.forEach((node, i) => {
-        userPrompt += '\n' + (i + 1) + '. ' + node.label + (node.data?.description ? ': ' + node.data.description : '');
+        userPrompt +=
+          '\n' +
+          (i + 1) +
+          '. ' +
+          node.label +
+          (node.data?.description ? ': ' + node.data.description : '');
       });
-      
+
       // 添加当前工作流状态分析
-      userPrompt += '\n\n当前工作流状态分析：\n- 已生成 ' + state.currentWorkflow.nodes.length + ' 个节点\n- 节点连接情况：' + state.currentWorkflow.edges.length + ' 条连接\n- 距离用户需求的完成度：' + completion + '%\n\n请基于以上信息，分析当前工作流状态，并生成下一步需要添加的节点。返回格式如下：\n```json\n{\n  "action": "add|modify|complete",\n  "reason": "为什么要执行这个操作，包括对当前工作流状态的分析",\n  "steps": [\n    {"type": "节点类型", "description": "节点描述", "data": {...}}\n  ],\n  "connectFrom": "新节点应该连接到的最后一个节点ID（如果有）",\n  "thinking": "你的思考过程，包括为什么要生成这些节点，它们如何帮助实现用户需求，以及当前工作流的完成情况分析"\n}\n```\n\n思考过程应该包含：\n1. 分析用户需求的核心目标\n2. 评估当前工作流的完成情况\n3. 确定下一步需要实现的功能\n4. 选择合适的节点类型来实现这些功能\n5. 解释为什么这些节点能够帮助实现用户需求';
+      userPrompt +=
+        '\n\n当前工作流状态分析：\n- 已生成 ' +
+        state.currentWorkflow.nodes.length +
+        ' 个节点\n- 节点连接情况：' +
+        state.currentWorkflow.edges.length +
+        ' 条连接\n- 距离用户需求的完成度：' +
+        completion +
+        '%\n\n请基于以上信息，分析当前工作流状态，并生成下一步需要添加的节点。返回格式如下：\n```json\n{\n  "action": "add|modify|complete",\n  "reason": "为什么要执行这个操作，包括对当前工作流状态的分析",\n  "steps": [\n    {"type": "节点类型", "description": "节点描述", "data": {...}}\n  ],\n  "connectFrom": "新节点应该连接到的最后一个节点ID（如果有）",\n  "thinking": "你的思考过程，包括为什么要生成这些节点，它们如何帮助实现用户需求，以及当前工作流的完成情况分析"\n}\n```\n\n思考过程应该包含：\n1. 分析用户需求的核心目标\n2. 评估当前工作流的完成情况\n3. 确定下一步需要实现的功能\n4. 选择合适的节点类型来实现这些功能\n5. 解释为什么这些节点能够帮助实现用户需求';
     } else {
-      userPrompt += '\n\n请生成工作流的前几个核心节点（1-3个），包括触发器和初始步骤。返回格式如下：\n```json\n{\n  "action": "create",\n  "reason": "创建工作流的初始节点",\n  "steps": [\n    {"type": "trigger", "description": "触发方式"},\n    {"type": "new-tab", "description": "打开目标页面", "data": {"url": "..."}}\n  ],\n  "thinking": "你的思考过程，包括为什么要生成这些初始节点，它们如何帮助实现用户需求"\n}\n```';
+      userPrompt +=
+        '\n\n请生成工作流的前几个核心节点（1-3个），包括触发器和初始步骤。返回格式如下：\n```json\n{\n  "action": "create",\n  "reason": "创建工作流的初始节点",\n  "steps": [\n    {"type": "trigger", "description": "触发方式"},\n    {"type": "new-tab", "description": "打开目标页面", "data": {"url": "..."}}\n  ],\n  "thinking": "你的思考过程，包括为什么要生成这些初始节点,它们如何帮助实现用户需求"\n}\n```';
+    }
 
     return [
       { role: 'system', content: systemPrompt },
@@ -1046,14 +1085,13 @@ class LangGraphService {
 
     // 检查AI是否明确表示工作流已完成
     const aiCompleted = state.generatedJson?.action === 'complete';
-    
-    // 检查是否满足用户需求
-    const isComplete = aiCompleted || this.checkWorkflowComplete(
-      state.userInput,
-      state.workflow
-    );
 
-    const completionMessage = isComplete 
+    // 检查是否满足用户需求
+    const isComplete =
+      aiCompleted ||
+      this.checkWorkflowComplete(state.userInput, state.workflow);
+
+    const completionMessage = isComplete
       ? '工作流已完成，满足用户需求'
       : '工作流尚未完全满足用户需求，继续生成更多节点';
 
@@ -1067,7 +1105,10 @@ class LangGraphService {
         details: {
           isComplete: isComplete,
           aiCompleted: aiCompleted,
-          completionScore: this.estimateCompletion(state.userInput, state.workflow),
+          completionScore: this.estimateCompletion(
+            state.userInput,
+            state.workflow
+          ),
         },
       },
     });
@@ -1081,7 +1122,10 @@ class LangGraphService {
           timestamp: Date.now(),
           isComplete: isComplete,
           aiCompleted: aiCompleted,
-          completionScore: this.estimateCompletion(state.userInput, state.workflow),
+          completionScore: this.estimateCompletion(
+            state.userInput,
+            state.workflow
+          ),
         },
       ],
     };
@@ -1132,7 +1176,7 @@ class LangGraphService {
     const msg = state.error
       ? `生成完成（有错误）: ${state.error}`
       : '工作流生成完成！';
-    console.log(`[Incremental] ${msg}`);
+    console.warn(`[Incremental] ${msg}`);
 
     state.onProgress?.({
       step: 'complete',

@@ -2,13 +2,27 @@
   <WorkflowsGlobal ref="globalWorkflowsRef" />
 </template>
 
-<script setup>
+<script>
 import WorkflowsGlobal from '@/components/newtab/workflows/WorkflowsGlobal.vue';
-import { ref } from 'vue';
+import { ref, defineComponent } from 'vue';
 
-const globalWorkflowsRef = ref(null);
+export default defineComponent({
+  name: 'GlobalWorkflowsPage',
+  components: {
+    WorkflowsGlobal,
+  },
+  expose: ['refresh'],
+  setup() {
+    const globalWorkflowsRef = ref(null);
 
-defineExpose({
-  refresh: () => globalWorkflowsRef.value?.refresh(),
+    return {
+      globalWorkflowsRef,
+    };
+  },
+  methods: {
+    refresh() {
+      return this.$refs.globalWorkflowsRef?.refresh();
+    },
+  },
 });
 </script>
