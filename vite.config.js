@@ -1,3 +1,5 @@
+/* eslint-env node */
+/* eslint-env node */
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import { resolve } from 'path';
@@ -72,10 +74,34 @@ function copyExtensionAssets() {
         'build/icon-dev-128.png'
       );
     },
+    closeBundle() {
+      // 构建完成后，将HTML文件移动到根目录
+      const htmlFiles = [
+        'newtab',
+        'popup',
+        'params',
+        'sandbox',
+        'execute',
+        'offscreen',
+      ];
+      htmlFiles.forEach((name) => {
+        const htmlPath = resolve(__dirname, `build/src/${name}/index.html`);
+        const destPath = resolve(__dirname, `build/${name}.html`);
+        if (fs.existsSync(htmlPath)) {
+          fs.moveSync(htmlPath, destPath, { overwrite: true });
+        }
+      });
+
+      // 删除空的src目录结构
+      const srcDir = resolve(__dirname, 'build/src');
+      if (fs.existsSync(srcDir)) {
+        fs.removeSync(srcDir);
+      }
+    },
   };
 }
 
-export default defineConfig(({ command, mode }) => {
+export default defineConfig(() => {
   return {
     plugins: [
       vue({
@@ -190,6 +216,8 @@ export default defineConfig(({ command, mode }) => {
             return 'assets/[name][extname]';
           },
         },
+
+        preserveEntrySignatures: 'strict',
       },
 
       // 增加警告阈值，浏览器扩展体积较大是正常的

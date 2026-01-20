@@ -124,6 +124,7 @@ export default [
   },
   {
     files: [
+      'vite.config.js',
       'webpack.config.js',
       'utils/**/*.js',
       'scripts/**/*.js',
