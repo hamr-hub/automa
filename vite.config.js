@@ -40,7 +40,8 @@ if (fs.existsSync(secretsPath)) {
 function copyExtensionAssets() {
   return {
     name: 'copy-extension-assets',
-    buildStart() {
+    config() {
+      // 在配置阶段生成manifest
       const manifestSrc =
         isDev && BROWSER === 'chrome'
           ? `src/manifest.${BROWSER}.dev.json`
@@ -74,6 +75,39 @@ function copyExtensionAssets() {
         'build/icon-dev-128.png'
       );
     },
+    buildStart() {
+      // 构建开始时再次确保manifest和图标存在（因为emptyOutDir会清空目录）
+      const manifestSrc =
+        isDev && BROWSER === 'chrome'
+          ? `src/manifest.${BROWSER}.dev.json`
+          : `src/manifest.${BROWSER}.json`;
+
+      const manifest = fs.readJsonSync(manifestSrc);
+      const pkg = fs.readJsonSync('package.json');
+
+      manifest.description = pkg.description;
+      manifest.version = pkg.version;
+
+      // 处理版本号
+      if (manifest.version.includes('-')) {
+        const [version, preRelease] = manifest.version.split('-');
+        if (BROWSER === 'chrome') {
+          manifest.version = version;
+          manifest.version_name = `${version} ${preRelease}`;
+        } else {
+          manifest.version = `${version}${preRelease}`;
+        }
+      }
+
+      fs.writeJsonSync('build/manifest.json', manifest, { spaces: 2 });
+
+      // 复制图标
+      fs.copySync('src/assets/images/icon-128.png', 'build/icon-128.png');
+      fs.copySync(
+        'src/assets/images/icon-dev-128.png',
+        'build/icon-dev-128.png'
+      );
+    },
     closeBundle() {
       // 构建完成后，将HTML文件移动到根目录
       const htmlFiles = [
@@ -97,6 +131,24 @@ function copyExtensionAssets() {
       if (fs.existsSync(srcDir)) {
         fs.removeSync(srcDir);
       }
+    },
+    generateBundle(options, bundle) {
+      // 在生成bundle时修改HTML文件路径
+      Object.keys(bundle).forEach((fileName) => {
+        if (fileName.endsWith('.html') && fileName.startsWith('src/')) {
+          const chunk = bundle[fileName];
+          const newFileName = fileName.replace(
+            /^src\/([^/]+)\/index\.html$/,
+            '$1.html'
+          );
+
+          // 创建新的chunk
+          bundle[newFileName] = chunk;
+
+          // 删除旧的chunk
+          delete bundle[fileName];
+        }
+      });
     },
   };
 }
@@ -161,7 +213,7 @@ export default defineConfig(() => {
 
     build: {
       outDir: 'build',
-      emptyOutDir: false, // 不清空输出目录，因为有多个入口点
+      emptyOutDir: true, // 清空输出目录
       sourcemap: isDev ? 'inline' : false,
       minify: !isDev,
 
@@ -188,7 +240,6 @@ export default defineConfig(() => {
 
         output: {
           entryFileNames: (chunkInfo) => {
-            // 为不同类型的入口文件设置不同的输出路径
             const name = chunkInfo.name;
             if (
               [
