@@ -1,6 +1,5 @@
 import { deleteWorkflow } from '@/utils/api';
 import firstWorkflows from '@/utils/firstWorkflows';
-import { tasks } from '@/utils/shared';
 import {
   cleanWorkflowTriggers,
   registerWorkflowTrigger,
@@ -12,7 +11,20 @@ import { nanoid } from 'nanoid';
 import { defineStore } from 'pinia';
 import browser from 'webextension-polyfill';
 
+// 延迟导入 tasks 避免循环依赖
+let tasks = null;
+function getTasks() {
+  if (!tasks) {
+    // 动态导入避免模块初始化时的循环依赖
+    // eslint-disable-next-line global-require, import/no-dynamic-require
+    tasks = require('@/utils/shared').tasks;
+  }
+  return tasks;
+}
+
 const defaultWorkflow = (data = null, options = {}) => {
+  const tasks = getTasks();
+  
   let workflowData = {
     id: nanoid(),
     name: '',
