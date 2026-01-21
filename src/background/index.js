@@ -5,8 +5,7 @@ import { useUserStore } from '@/stores/user';
 import getFile, { readFileAsBase64 } from '@/utils/getFile';
 import { sleep } from '@/utils/helper';
 import { MessageListener } from '@/utils/message';
-
-// import { getDocumentCtx } from '@/content/handleSelector';
+import { getDocumentCtx } from '@/content/handleSelector';
 import { automaRefDataStr } from '@/workflowEngine/helper';
 
 import automa from '@business';
@@ -20,7 +19,7 @@ import WorkflowSyncService from '@/services/workflowSync/WorkflowSyncService';
 
 try {
   BackgroundOffscreen.instance.sendMessage('halo').catch(() => {});
-} catch (e) {
+} catch {
   // noop
 }
 
@@ -304,7 +303,7 @@ message.on(
                       );
                       // 如果成功创建，跳出循环
                       break;
-                    } catch (e) {
+                    } catch {
                       // 该名称失败，继续尝试下一个
                     }
                   }
@@ -316,7 +315,7 @@ message.on(
                   // 如果所有策略名称都失败，返回原始脚本
 
                   return script;
-                } catch (e) {
+                } catch {
                   // 捕获任何其他错误并降级
 
                   return script;
@@ -560,17 +559,16 @@ message.on(
         func: ($blockData, $preloadScripts, $automaScript) => {
           return new Promise((resolve, reject) => {
             try {
-              const $documentCtx = document;
+              let $documentCtx = document;
 
-              // fixme: 需要处理iframe的情况
-              // if ($blockData.frameSelector) {
-              //   const iframeCtx = getDocumentCtx($blockData.frameSelector);
-              //   if (!iframeCtx) {
-              //     reject(new Error('iframe-not-found'));
-              //     return;
-              //   }
-              //   $documentCtx = iframeCtx;
-              // }
+              if ($blockData.frameSelector) {
+                const iframeCtx = getDocumentCtx($blockData.frameSelector);
+                if (!iframeCtx) {
+                  reject(new Error('iframe-not-found'));
+                  return;
+                }
+                $documentCtx = iframeCtx;
+              }
 
               const scriptAttr = `block--${$blockData.id}`;
               const isScriptExists = $documentCtx.querySelector(

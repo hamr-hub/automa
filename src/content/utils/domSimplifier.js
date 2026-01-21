@@ -19,7 +19,11 @@ export function getSimplifiedDOM(root = document.body) {
     'LINK',
     'META',
   ];
-  const walker = document.createTreeWalker(clone, NodeFilter.SHOW_ELEMENT);
+  const walker = document.createTreeWalker(
+    clone,
+    // eslint-disable-next-line no-undef
+    NodeFilter.SHOW_ELEMENT
+  );
 
   const nodesToRemove = [];
   while (walker.nextNode()) {
@@ -47,8 +51,11 @@ export function getSimplifiedDOM(root = document.body) {
     'title',
     'alt',
   ];
-  const cleanWalker = document.createTreeWalker(clone, NodeFilter.SHOW_ELEMENT);
-
+  const cleanWalker = document.createTreeWalker(
+    clone,
+    // eslint-disable-next-line no-undef
+    NodeFilter.SHOW_ELEMENT
+  );
   while (cleanWalker.nextNode()) {
     const node = cleanWalker.currentNode;
     const attrs = [...node.attributes];
@@ -60,10 +67,94 @@ export function getSimplifiedDOM(root = document.body) {
   }
 
   // Minimize text content (trim)
-  // TODO: Maybe convert to Markdown-like structure for token efficiency?
-  // For now, HTML structure is preserved but cleaned.
+  // Convert to simplified Markdown-like structure for token efficiency
+  const simplifiedHTML = convertToMarkdownLike(clone);
+  return simplifiedHTML.replace(/\s+/g, ' ').trim().slice(0, 50000); // Hard limit for context window
+}
 
-  return clone.innerHTML.replace(/\s+/g, ' ').trim().slice(0, 50000); // Hard limit for context window
+/**
+ * Convert DOM structure to simplified Markdown-like format for better token efficiency
+ * @param {HTMLElement} root - Root element to convert
+ * @returns {string} Simplified HTML string
+ */
+function convertToMarkdownLike(root) {
+  const result = [];
+
+  function processNode(node, depth = 0) {
+    if (!node) return;
+
+    if (node.nodeType === window.Node.TEXT_NODE) {
+      const text = node.textContent.trim();
+      if (text) {
+        result.push('  '.repeat(depth) + text);
+      }
+      return;
+    }
+
+    if (node.nodeType !== window.Node.ELEMENT_NODE) return;
+
+    const tagName = node.tagName.toLowerCase();
+
+    // Skip already removed tags
+    if (
+      ['script', 'style', 'noscript', 'iframe', 'svg', 'link', 'meta'].includes(
+        tagName
+      )
+    ) {
+      return;
+    }
+
+    // Handle interactive elements specially
+    if (['button', 'input', 'textarea', 'select', 'a'].includes(tagName)) {
+      const text = node.textContent.trim().slice(0, 50);
+      const id = node.id ? `#${node.id}` : '';
+      const className = node.className
+        ? `.${node.className.split(' ')[0]}`
+        : '';
+      const href = tagName === 'a' && node.href ? `(${node.href})` : '';
+      const placeholder =
+        tagName === 'input' && node.placeholder ? `[${node.placeholder}]` : '';
+
+      result.push(
+        '  '.repeat(depth) +
+          `[${tagName}${id}${className}] ${text}${placeholder}${href}`
+      );
+      return;
+    }
+
+    // Handle lists
+    if (tagName === 'ul' || tagName === 'ol') {
+      result.push('  '.repeat(depth) + (tagName === 'ul' ? '*' : '1.'));
+    } else if (tagName === 'li') {
+      result.push('  '.repeat(depth) + '-');
+    }
+    // Handle headings
+    else if (tagName.match(/^h[1-6]$/)) {
+      const level = parseInt(tagName[1]);
+      result.push(
+        '  '.repeat(depth) +
+          '#'.repeat(level) +
+          ' ' +
+          node.textContent.trim().slice(0, 100)
+      );
+      return;
+    }
+    // Handle paragraphs
+    else if (tagName === 'p') {
+      const text = node.textContent.trim().slice(0, 200);
+      if (text) {
+        result.push('  '.repeat(depth) + text);
+      }
+    }
+
+    // Process children
+    for (const child of node.childNodes) {
+      processNode(child, depth + 1);
+    }
+  }
+
+  processNode(root);
+  return result.join('\n');
 }
 
 export function getInteractiveElements() {

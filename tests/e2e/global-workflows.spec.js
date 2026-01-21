@@ -3,8 +3,15 @@
  * 测试工作流的全局保存、分享、导入和浏览功能
  */
 
-import { test, expect, describe, beforeEach } from '@playwright/test';
+import { test, expect, describe } from '@playwright/test';
 import path from 'path';
+
+const EXTENSION_ID = process.env.EXTENSION_ID || 'your-extension-id';
+
+function getExtensionUrl(route = '') {
+  const filePath = path.resolve(__dirname, '../../build/newtab.html');
+  return `file://${filePath}${route ? '#' + route : ''}`;
+}
 
 describe('全局工作流功能测试', () => {
   let page;
@@ -59,9 +66,10 @@ describe('全局工作流功能测试', () => {
 
     test('TC-GLOBAL-002: 全局工作流页面布局', async () => {
       await test.step('访问全局工作流页面', async () => {
-        await page.goto(
-          `chrome-extension://${EXTENSION_ID}/newtab.html#/workflows/global`
-        );
+        await page.goto(getExtensionUrl('/workflows/global'), {
+          waitUntil: 'domcontentloaded',
+          timeout: 30000,
+        });
         await page.waitForLoadState('domcontentloaded');
         await page.waitForTimeout(2000);
       });
@@ -187,9 +195,10 @@ describe('全局工作流功能测试', () => {
   test.describe('从全局导入工作流', () => {
     test('TC-GLOBAL-005: 导入全局工作流', async () => {
       await test.step('访问全局工作流页面', async () => {
-        await page.goto(
-          `chrome-extension://${EXTENSION_ID}/newtab.html#/workflows/global`
-        );
+        await page.goto(getExtensionUrl('/workflows/global'), {
+          waitUntil: 'domcontentloaded',
+          timeout: 30000,
+        });
         await page.waitForLoadState('domcontentloaded');
         await page.waitForTimeout(2000);
       });
@@ -250,9 +259,10 @@ describe('全局工作流功能测试', () => {
   test.describe('全局工作流搜索和筛选', () => {
     test('TC-GLOBAL-007: 搜索全局工作流', async () => {
       await test.step('访问全局工作流页面', async () => {
-        await page.goto(
-          `chrome-extension://${EXTENSION_ID}/newtab.html#/workflows/global`
-        );
+        await page.goto(getExtensionUrl('/workflows/global'), {
+          waitUntil: 'domcontentloaded',
+          timeout: 30000,
+        });
         await page.waitForLoadState('domcontentloaded');
         await page.waitForTimeout(2000);
       });
@@ -282,9 +292,10 @@ describe('全局工作流功能测试', () => {
 
     test('TC-GLOBAL-008: 按分类筛选工作流', async () => {
       await test.step('访问全局工作流页面', async () => {
-        await page.goto(
-          `chrome-extension://${EXTENSION_ID}/newtab.html#/workflows/global`
-        );
+        await page.goto(getExtensionUrl('/workflows/global'), {
+          waitUntil: 'domcontentloaded',
+          timeout: 30000,
+        });
         await page.waitForLoadState('domcontentloaded');
         await page.waitForTimeout(2000);
       });
@@ -517,7 +528,7 @@ describe('全局工作流功能测试', () => {
               };
             }
             return null;
-          } catch (e) {
+          } catch {
             return null;
           }
         });
@@ -556,12 +567,6 @@ describe('全局工作流功能测试', () => {
 
     test('TC-GLOBAL-018: 保存工作流API', async () => {
       await test.step('测试保存工作流API', async () => {
-        const testWorkflow = {
-          id: 'test-workflow-' + Date.now(),
-          name: '测试工作流',
-          drawflow: { nodes: [], edges: [] },
-        };
-
         const result = await page.evaluate(async () => {
           try {
             const service = window.GlobalWorkflowService;
@@ -613,9 +618,10 @@ describe('全局工作流功能测试', () => {
       });
 
       await test.step('尝试获取工作流', async () => {
-        await page.goto(
-          `chrome-extension://${EXTENSION_ID}/newtab.html#/workflows/global`
-        );
+        await page.goto(getExtensionUrl('/workflows/global'), {
+          waitUntil: 'domcontentloaded',
+          timeout: 30000,
+        });
         await page.waitForLoadState('domcontentloaded');
         await page.waitForTimeout(3000);
       });
@@ -654,9 +660,6 @@ describe('全局工作流功能测试', () => {
 
       await test.step('验证登录提示', async () => {
         await page.waitForTimeout(2000);
-        const loginMsg = page
-          .locator('text=请先登录, text=Please sign in')
-          .first();
         // 可能显示登录提示或错误
         expect(true).toBe(true);
       });

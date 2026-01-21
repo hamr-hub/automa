@@ -12,13 +12,12 @@
             {{ t('auth.requireLogin.title', '需要登录') }}
           </p>
           <p class="mt-2 text-gray-600 dark:text-gray-200">
-            {{ 
+            {{
               authRequiredFeature
                 ? t('auth.requireLogin.featureText', '此功能需要登录才能使用：')
                 : t('auth.text')
             }}
-            <span v-if="authRequiredFeature"
-class="font-semibold">{{
+            <span v-if="authRequiredFeature" class="font-semibold">{{
               authRequiredFeature
             }}</span>
           </p>
@@ -39,8 +38,7 @@ class="font-semibold">{{
       <div
         class="flex items-center rounded-lg bg-[var(--color-accent)] p-4 shadow-2xl"
       >
-        <v-remixicon name="riInformationLine"
-class="mr-3" />
+        <v-remixicon name="riInformationLine" class="mr-3" />
         <p>
           {{ t('updateMessage.text1', { version: currentVersion }) }}
         </p>
@@ -57,15 +55,13 @@ class="mr-3" />
           class="ml-6 text-gray-200 dark:text-gray-600"
           @click="isUpdated = false"
         >
-          <v-remixicon size="20"
-name="riCloseLine" />
+          <v-remixicon size="20" name="riCloseLine" />
         </button>
       </div>
       <div
         class="mt-4 flex items-center rounded-lg bg-[var(--color-accent)] p-4 shadow-2xl"
       >
-        <v-remixicon name="riInformationLine"
-class="mr-3 shrink-0" />
+        <v-remixicon name="riInformationLine" class="mr-3 shrink-0" />
         <p>
           Export your Automa workflows as a standalone extension using
           <a
@@ -90,10 +86,8 @@ class="mr-3 shrink-0" />
       @finish="handleGuideFinish"
     />
   </template>
-  <div v-else
-class="py-8 text-center">
-    <ui-spinner color="text-[var(--color-accent)]"
-size="28" />
+  <div v-else class="py-8 text-center">
+    <ui-spinner color="text-[var(--color-accent)]" size="28" />
   </div>
 </template>
 <script setup>
@@ -209,15 +203,13 @@ const guideSteps = [
 ];
 
 // 处理引导关闭
-function handleGuideClose(skip) {
+function handleGuideClose() {
   showGuideTour.value = false;
-  if (skip) {
-    localStorage.setItem('guide-tour-complete', 'true');
-  }
+  localStorage.setItem('guide-tour-complete', 'true');
 }
 
 // 处理引导完成
-function handleGuideFinish(skip) {
+function handleGuideFinish() {
   showGuideTour.value = false;
   localStorage.setItem('guide-tour-complete', 'true');
 }
@@ -226,7 +218,7 @@ function handleGuideFinish(skip) {
 function checkShowGuide() {
   const isGuideComplete = localStorage.getItem('guide-tour-complete');
   const isFirstTime = localStorage.getItem('isFirstTime');
-  
+
   if (!isGuideComplete && isFirstTime === 'true') {
     // 延迟显示引导，确保页面完全加载
     setTimeout(() => {
@@ -441,12 +433,15 @@ watch(
 );
 
 (async () => {
-    try {
-      const { workflowStates } = 
-        await browser.storage.local.get('workflowStates');
-      workflowStore.states = Object.values(workflowStates || {});
+  try {
+    console.log('[App] 开始初始化 newtab 页面');
 
-      /*
+    const { workflowStates } =
+      await browser.storage.local.get('workflowStates');
+    workflowStore.states = Object.values(workflowStates || {});
+    console.log('[App] 工作流状态加载完成');
+
+    /*
       const tabs = await browser.tabs.query({
         url: browser.runtime.getURL('/newtab.html'),
       });
@@ -467,60 +462,76 @@ watch(
       }
       */
 
-      const { isFirstTime } = await browser.storage.local.get('isFirstTime');
-      isUpdated.value = !isFirstTime && compare(currentVersion, prevVersion, '>');
+    const { isFirstTime } = await browser.storage.local.get('isFirstTime');
+    isUpdated.value = !isFirstTime && compare(currentVersion, prevVersion, '>');
+    console.log('[App] 版本检查完成');
 
-      await Promise.allSettled([
-        folderStore.load(),
-        store.loadSettings(),
-        workflowStore.loadData(),
-        teamWorkflowStore.loadData(),
-        hostedWorkflowStore.loadData(),
-        packageStore.loadData(),
-      ]);
+    console.log('[App] 开始加载数据...');
+    await Promise.allSettled([
+      folderStore.load(),
+      store.loadSettings(),
+      workflowStore.loadData(),
+      teamWorkflowStore.loadData(),
+      hostedWorkflowStore.loadData(),
+      packageStore.loadData(),
+    ]);
+    console.log('[App] 数据加载完成');
 
-      await loadLocaleMessages(store.settings.locale, 'newtab');
-      await setI18nLanguage(store.settings.locale);
+    console.log('[App] 开始加载国际化...');
+    await loadLocaleMessages(store.settings.locale, 'newtab');
+    await setI18nLanguage(store.settings.locale);
+    console.log('[App] 国际化加载完成');
 
-      await dataMigration();
-      await userStore.loadUser({ useCache: false, ttl: 2 });
+    console.log('[App] 开始数据迁移...');
+    await dataMigration();
+    console.log('[App] 数据迁移完成');
 
-      // 仅在业务模块提供可调用函数时执行，避免运行时 TypeError
-      if (typeof automa === 'function') {
-        await automa('app');
-      }
+    console.log('[App] 开始加载用户数据...');
+    await userStore.loadUser({ useCache: false, ttl: 2 });
+    console.log('[App] 用户数据加载完成');
 
-      retrieved.value = true;
-
-      await Promise.allSettled([
-        sharedWorkflowStore.fetchWorkflows(),
-        fetchUserData(),
-        syncHostedWorkflows(),
-      ]);
-
-      const { isRecording } = await browser.storage.local.get('isRecording');
-      if (isRecording) {
-        router.push('/recording');
-
-        await (browser.action || browser.browserAction).setBadgeBackgroundColor({
-          color: '#ef4444',
-        });
-        await (browser.action || browser.browserAction).setBadgeText({
-          text: 'rec',
-        });
-      }
-
-      autoDeleteLogs();
-      
-      // 检查是否需要显示新手引导
-      checkShowGuide();
-    } catch (error) {
-      retrieved.value = true;
-      console.error(error);
+    // 仅在业务模块提供可调用函数时执行，避免运行时 TypeError
+    if (typeof automa === 'function') {
+      console.log('[App] 调用业务模块...');
+      await automa('app');
+      console.log('[App] 业务模块调用完成');
     }
 
-    localStorage.setItem('ext-version', currentVersion);
-  })();
+    retrieved.value = true;
+    console.log('[App] 页面初始化完成，retrieved = true');
+
+    await Promise.allSettled([
+      sharedWorkflowStore.fetchWorkflows(),
+      fetchUserData(),
+      syncHostedWorkflows(),
+    ]);
+
+    const { isRecording } = await browser.storage.local.get('isRecording');
+    if (isRecording) {
+      router.push('/recording');
+
+      await (browser.action || browser.browserAction).setBadgeBackgroundColor({
+        color: '#ef4444',
+      });
+      await (browser.action || browser.browserAction).setBadgeText({
+        text: 'rec',
+      });
+    }
+
+    autoDeleteLogs();
+
+    // 检查是否需要显示新手引导
+    checkShowGuide();
+  } catch (error) {
+    console.error('[App] 初始化失败:', error);
+    console.error('[App] 错误堆栈:', error.stack);
+    console.error('[App] 错误名称:', error.name);
+    console.error('[App] 错误消息:', error.message);
+    retrieved.value = true;
+  }
+
+  localStorage.setItem('ext-version', currentVersion);
+})();
 </script>
 <style>
 @reference "tailwindcss";

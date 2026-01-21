@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard 测试指南</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        h1 {
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #555;
+            margin-top: 30px;
+        }
+        .step {
+            background: #f8f9fa;
+            border-left: 4px solid #007bff;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        .success {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .error {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        .warning {
+            color: #ffc107;
+            font-weight: bold;
+        }
+        code {
+            background: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+        .checklist {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        .checklist li {
+            margin: 10px 0;
+            padding: 10px;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .checklist li input[type="checkbox"] {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Dashboard 显示测试指南</h1>
+    
+    <h2>📋 测试目的</h2>
+    <p>验证从popup点击"Dashboard"按钮后，dashboard页面能够正常显示内容，而不是空白页面。</p>
+    
+    <h2>🔧 测试步骤</h2>
+    
+    <div class="step">
+        <strong>步骤 1: 加载扩展</strong>
+        <p>在Chrome浏览器中加载 <code>build</code> 目录作为未打包的扩展：</p>
+        <ol>
+            <li>打开 <code>chrome://extensions/</code></li>
+            <li>启用"开发者模式"</li>
+            <li>点击"加载已解压的扩展程序"</li>
+            <li>选择项目的 <code>build</code> 目录</li>
+        </ol>
+    </div>
+    
+    <div class="step">
+        <strong>步骤 2: 打开Popup</strong>
+        <p>点击浏览器工具栏中的Automa扩展图标，打开popup窗口。</p>
+    </div>
+    
+    <div class="step">
+        <strong>步骤 3: 点击Dashboard按钮</strong>
+        <p>在popup中找到并点击"Dashboard"或"主面板"按钮。</p>
+    </div>
+    
+    <div class="step">
+        <strong>步骤 4: 验证Dashboard显示</strong>
+        <p>检查新打开的dashboard页面是否正常显示。</p>
+    </div>
+    
+    <h2>✅ 验证清单</h2>
+    <ul class="checklist">
+        <li>
+            <input type="checkbox" id="check1">
+            <label for="check1">Dashboard页面成功打开（不是空白页）</label>
+        </li>
+        <li>
+            <input type="checkbox" id="check2">
+            <label for="check2">页面标题显示为"Automa"或包含"Automa"</label>
+        </li>
+        <li>
+            <input type="checkbox" id="check3">
+            <label for="check3">左侧边栏（sidebar）可见</label>
+        </li>
+        <li>
+            <input type="checkbox" id="check4">
+            <label for="check4">主要内容区域（main）可见</label>
+        </li>
+        <li>
+            <input type="checkbox" id="check5">
+            <label for="check5">工作流列表或其他内容正常显示</label>
+        </li>
+        <li>
+            <input type="checkbox" id="check6">
+            <label for="check6">没有加载中的spinner一直显示</label>
+        </li>
+    </ul>
+    
+    <h2>🐛 调试信息</h2>
+    <p>如果dashboard显示异常，请检查以下信息：</p>
+    
+    <h3>1. 打开开发者工具</h3>
+    <p>在dashboard页面按 <code>F12</code> 或右键点击选择"检查"</p>
+    
+    <h3>2. 检查控制台日志</h3>
+    <p>查找以下关键日志：</p>
+    <ul>
+        <li><code>[App] 开始初始化 newtab 页面</code> - 页面开始初始化</li>
+        <li><code>[App] 工作流状态加载完成</code> - 工作流状态加载成功</li>
+        <li><code>[App] 版本检查完成</code> - 版本检查通过</li>
+        <li><code>[App] 开始加载数据...</code> - 开始加载各种数据</li>
+        <li><code>[App] 数据加载完成</code> - 数据加载成功</li>
+        <li><code>[App] 开始加载国际化...</code> - 开始加载语言包</li>
+        <li><code>[App] 国际化加载完成</code> - 语言包加载成功</li>
+        <li><code>[App] 开始数据迁移...</code> - 开始数据迁移</li>
+        <li><code>[App] 数据迁移完成</code> - 数据迁移完成</li>
+        <li><code>[App] 开始加载用户数据...</code> - 开始加载用户信息</li>
+        <li><code>[App] 用户数据加载完成</code> - 用户数据加载成功</li>
+        <li><code>[App] 调用业务模块...</code> - 调用业务模块</li>
+        <li><code>[App] 业务模块调用完成</code> - 业务模块调用成功</li>
+        <li><code>[App] 页面初始化完成，retrieved = true</code> - 页面初始化完成</li>
+    </ul>
+    
+    <h3>3. 检查错误信息</h3>
+    <p>如果看到红色错误信息，记录错误内容：</p>
+    <ul>
+        <li><span class="error">错误名称:</span> <code>___________</code></li>
+        <li><span class="error">错误消息:</span> <code>___________</code></li>
+        <li><span class="error">错误堆栈:</span> <code>___________</code></li>
+    </ul>
+    
+    <h3>4. 检查网络请求</h3>
+    <p>在"Network"标签中检查是否有失败的请求（红色）</p>
+    
+    <h2>🔍 常见问题</h2>
+    
+    <h3>问题1: 页面一直显示加载中的spinner</h3>
+    <p><span class="warning">可能原因:</span> <code>retrieved</code> 状态未设置为 <code>true</code></p>
+    <p><span class="success">解决方案:</span> 检查控制台是否有错误，确认所有数据加载都成功完成</p>
+    
+    <h3>问题2: 页面完全空白</h3>
+    <p><span class="warning">可能原因:</span> JavaScript执行错误导致Vue应用未挂载</p>
+    <p><span class="success">解决方案:</span> 检查控制台是否有JavaScript错误</p>
+    
+    <h3>问题3: 页面部分显示，但内容缺失</h3>
+    <p><span class="warning">可能原因:</span> 某个store的数据加载失败</p>
+    <p><span class="success">解决方案:</span> 检查各个store的加载日志</p>
+    
+    <h2>📝 测试结果记录</h2>
+    <p>请记录您的测试结果：</p>
+    <ul>
+        <li>测试日期: <code>___________</code></li>
+        <li>浏览器版本: <code>___________</code></li>
+        <li>扩展版本: <code>___________</code></li>
+        <li>测试结果: <code>___________</code></li>
+        <li>遇到的问题: <code>___________</code></li>
+    </ul>
+    
+    <h2>💡 提示</h2>
+    <p>如果测试失败，请：</p>
+    <ol>
+        <li>截图保存当前页面状态</li>
+        <li>复制控制台的所有日志和错误信息</li>
+        <li>记录重现步骤</li>
+        <li>向开发团队报告问题</li>
+    </ol>
+    
+    <script>
+        // 自动保存勾选状态到localStorage
+        document.querySelectorAll('.checklist input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                localStorage.setItem(this.id, this.checked);
+            });
+            
+            // 恢复之前的状态
+            if (localStorage.getItem(checkbox.id) === 'true') {
+                checkbox.checked = true;
+            }
+        });
+    </script>
+</body>
+</html>

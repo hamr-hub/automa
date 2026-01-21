@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard 调试工具</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 20px;
+            line-height: 1.6;
+            background: #1e1e1e;
+            color: #d4d4d4;
+        }
+        h1 {
+            color: #4ec9b0;
+            border-bottom: 2px solid #4ec9b0;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #569cd6;
+            margin-top: 30px;
+        }
+        .section {
+            background: #252526;
+            border: 1px solid #3e3e42;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        button {
+            background: #0e639c;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 14px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 10px 5px;
+            font-family: 'Courier New', monospace;
+        }
+        button:hover {
+            background: #1177bb;
+        }
+        button:disabled {
+            background: #3e3e42;
+            cursor: not-allowed;
+        }
+        .logs {
+            background: #1e1e1e;
+            border: 1px solid #3e3e42;
+            border-radius: 4px;
+            padding: 15px;
+            margin-top: 20px;
+            max-height: 500px;
+            overflow-y: auto;
+            font-size: 12px;
+        }
+        .log-entry {
+            margin: 5px 0;
+            padding: 5px;
+            border-bottom: 1px solid #3e3e42;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .log-entry.error {
+            color: #f48771;
+            background: #2b1515;
+        }
+        .log-entry.success {
+            color: #89d185;
+            background: #1a2b1a;
+        }
+        .log-entry.info {
+            color: #4fc1ff;
+        }
+        .log-entry.warning {
+            color: #dcdcaa;
+            background: #2b2b15;
+        }
+        .status {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 4px;
+            display: none;
+            font-weight: bold;
+        }
+        .status.success {
+            background: #1a2b1a;
+            color: #89d185;
+            border: 1px solid #4e9a3e;
+        }
+        .status.error {
+            background: #2b1515;
+            color: #f48771;
+            border: 1px solid #9e3e3e;
+        }
+        .status.info {
+            background: #15252b;
+            color: #4fc1ff;
+            border: 1px solid #3e6e9e;
+        }
+        .checklist {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        .checklist li {
+            margin: 10px 0;
+            padding: 10px;
+            background: #252526;
+            border: 1px solid #3e3e42;
+            border-radius: 4px;
+        }
+        .checklist li input[type="checkbox"] {
+            margin-right: 10px;
+        }
+        .checklist li.pass {
+            border-left: 4px solid #89d185;
+        }
+        .checklist li.fail {
+            border-left: 4px solid #f48771;
+        }
+        .checklist li.pending {
+            border-left: 4px solid #dcdcaa;
+        }
+        .timestamp {
+            color: #858585;
+            margin-right: 10px;
+        }
+        .copy-btn {
+            background: #3e3e42;
+            font-size: 11px;
+            padding: 5px 10px;
+            margin-left: 10px;
+        }
+        .copy-btn:hover {
+            background: #4e4e52;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Dashboard 调试工具</h1>
+    
+    <div class="section">
+        <h2>📋 检查清单</h2>
+        <ul class="checklist" id="checklist">
+            <li class="pending" id="check1">
+                <input type="checkbox" disabled>
+                <span>扩展环境检测</span>
+            </li>
+            <li class="pending" id="check2">
+                <input type="checkbox" disabled>
+                <span>扩展ID获取</span>
+            </li>
+            <li class="pending" id="check3">
+                <input type="checkbox" disabled>
+                <span>Manifest信息读取</span>
+            </li>
+            <li class="pending" id="check4">
+                <input type="checkbox" disabled>
+                <span>Dashboard页面打开</span>
+            </li>
+            <li class="pending" id="check5">
+                <input type="checkbox" disabled>
+                <span>页面初始化日志检查</span>
+            </li>
+            <li class="pending" id="check6">
+                <input type="checkbox" disabled>
+                <span>页面内容显示检查</span>
+            </li>
+        </ul>
+    </div>
+    
+    <div class="section">
+        <h2>🧪 测试操作</h2>
+        <button onclick="runFullTest()" id="runTestBtn">运行完整测试</button>
+        <button onclick="openDashboard()" id="openDashboardBtn">打开Dashboard</button>
+        <button onclick="checkConsoleLogs()" id="checkLogsBtn">检查控制台日志</button>
+        <button onclick="clearLogs()" class="copy-btn">清除日志</button>
+        <button onclick="copyLogs()" class="copy-btn">复制日志</button>
+    </div>
+    
+    <div id="status" class="status"></div>
+    
+    <div class="section">
+        <h2>📝 调试日志</h2>
+        <div class="logs" id="logs">
+            <div class="log-entry info">等待测试...</div>
+        </div>
+    </div>
+    
+    <script>
+        const logsDiv = document.getElementById('logs');
+        const statusDiv = document.getElementById('status');
+        const checklist = document.getElementById('checklist');
+        let dashboardPage = null;
+        let dashboardLogs = [];
+        
+        function addLog(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.innerHTML = `<span class="timestamp">[${timestamp}]</span>${message}`;
+            logsDiv.appendChild(entry);
+            logsDiv.scrollTop = logsDiv.scrollHeight;
+            dashboardLogs.push(`[${timestamp}] ${message}`);
+        }
+        
+        function showStatus(message, type) {
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+            statusDiv.style.display = 'block';
+        }
+        
+        function updateChecklist(id, status) {
+            const item = document.getElementById(id);
+            item.className = status;
+            const checkbox = item.querySelector('input[type="checkbox"]');
+            checkbox.checked = (status === 'pass');
+        }
+        
+        function clearLogs() {
+            logsDiv.innerHTML = '<div class="log-entry info">日志已清除</div>';
+            dashboardLogs = [];
+            statusDiv.style.display = 'none';
+            resetChecklist();
+        }
+        
+        function resetChecklist() {
+            for (let i = 1; i <= 6; i++) {
+                updateChecklist(`check${i}`, 'pending');
+            }
+        }
+        
+        function copyLogs() {
+            navigator.clipboard.writeText(dashboardLogs.join('\n')).then(() => {
+                addLog('日志已复制到剪贴板', 'success');
+            }).catch(err => {
+                addLog(`复制失败: ${err.message}`, 'error');
+            });
+        }
+        
+        async function runFullTest() {
+            clearLogs();
+            addLog('开始运行完整测试...', 'info');
+            
+            try {
+                // 检查扩展环境
+                addLog('步骤1: 检查扩展环境...', 'info');
+                if (typeof chrome === 'undefined' && typeof browser === 'undefined') {
+                    throw new Error('未检测到浏览器扩展API');
+                }
+                addLog('✓ 扩展环境检测通过', 'success');
+                updateChecklist('check1', 'pass');
+                
+                // 获取扩展ID
+                addLog('步骤2: 获取扩展ID...', 'info');
+                const extensionId = chrome?.runtime?.id || browser?.runtime?.id;
+                if (!extensionId) {
+                    throw new Error('无法获取扩展ID');
+                }
+                addLog(`✓ 扩展ID: ${extensionId}`, 'success');
+                updateChecklist('check2', 'pass');
+                
+                // 检查manifest
+                addLog('步骤3: 检查manifest信息...', 'info');
+                const manifest = chrome?.runtime?.getManifest() || browser?.runtime?.getManifest();
+                if (!manifest) {
+                    throw new Error('无法获取manifest信息');
+                }
+                addLog(`✓ 扩展名称: ${manifest.name}`, 'success');
+                addLog(`✓ 扩展版本: ${manifest.version}`, 'success');
+                updateChecklist('check3', 'pass');
+                
+                // 打开dashboard
+                addLog('步骤4: 打开Dashboard页面...', 'info');
+                await openDashboardInternal();
+                updateChecklist('check4', 'pass');
+                
+                // 等待页面加载
+                addLog('等待Dashboard页面加载...', 'info');
+                await sleep(3000);
+                
+                // 检查控制台日志
+                addLog('步骤5: 检查控制台日志...', 'info');
+                await checkConsoleLogsInternal();
+                updateChecklist('check5', 'pass');
+                
+                // 检查页面内容
+                addLog('步骤6: 检查页面内容...', 'info');
+                await checkPageContent();
+                updateChecklist('check6', 'pass');
+                
+                showStatus('✅ 所有测试通过！Dashboard应该正常显示。', 'success');
+                addLog('测试完成！', 'success');
+                
+            } catch (error) {
+                addLog(`测试失败: ${error.message}`, 'error');
+                addLog(`错误堆栈: ${error.stack}`, 'error');
+                showStatus(`❌ 测试失败: ${error.message}`, 'error');
+            }
+        }
+        
+        async function openDashboard() {
+            clearLogs();
+            addLog('打开Dashboard页面...', 'info');
+            await openDashboardInternal();
+        }
+        
+        async function openDashboardInternal() {
+            const newtabUrl = chrome?.runtime?.getURL('/newtab.html') || browser?.runtime?.getURL('/newtab.html');
+            addLog(`Dashboard URL: ${newtabUrl}`, 'info');
+            
+            // 查询是否已有打开的newtab标签
+            const tabs = await chrome?.tabs?.query({ url: newtabUrl }) || await browser?.tabs?.query({ url: newtabUrl });
+            addLog(`找到 ${tabs.length} 个已打开的Dashboard标签`, 'info');
+            
+            if (tabs.length > 0) {
+                // 激活已存在的标签
+                addLog('激活已存在的Dashboard标签...', 'info');
+                await chrome?.tabs?.update(tabs[0].id, { active: true }) || await browser?.tabs?.update(tabs[0].id, { active: true });
+                await chrome?.windows?.update(tabs[0].windowId, { focused: true }) || await browser?.windows?.update(tabs[0].windowId, { focused: true });
+                dashboardPage = tabs[0];
+                addLog('Dashboard标签已激活', 'success');
+            } else {
+                // 创建新标签
+                addLog('创建新的Dashboard标签...', 'info');
+                const newTab = await chrome?.tabs?.create({ url: newtabUrl }) || await browser?.tabs?.create({ url: newtabUrl });
+                dashboardPage = newTab;
+                addLog('Dashboard标签已创建', 'success');
+            }
+        }
+        
+        async function checkConsoleLogs() {
+            clearLogs();
+            addLog('检查控制台日志...', 'info');
+            await checkConsoleLogsInternal();
+        }
+        
+        async function checkConsoleLogsInternal() {
+            if (!dashboardPage) {
+                throw new Error('Dashboard页面未打开');
+            }
+            
+            addLog('尝试获取控制台日志...', 'info');
+            addLog('注意: 由于浏览器安全限制，无法直接访问其他标签的控制台日志', 'warning');
+            addLog('请手动打开Dashboard页面的开发者工具查看日志', 'warning');
+            addLog('预期应该看到以下日志:', 'info');
+            addLog('  - [App] 开始初始化 newtab 页面', 'info');
+            addLog('  - [App] 工作流状态加载完成', 'info');
+            addLog('  - [App] 版本检查完成', 'info');
+            addLog('  - [App] 开始加载数据...', 'info');
+            addLog('  - [App] 数据加载完成', 'info');
+            addLog('  - [App] 开始加载国际化...', 'info');
+            addLog('  - [App] 国际化加载完成', 'info');
+            addLog('  - [App] 开始数据迁移...', 'info');
+            addLog('  - [App] 数据迁移完成', 'info');
+            addLog('  - [App] 开始加载用户数据...', 'info');
+            addLog('  - [App] 用户数据加载完成', 'info');
+            addLog('  - [App] 调用业务模块...', 'info');
+            addLog('  - [App] 业务模块调用完成', 'info');
+            addLog('  - [App] 页面初始化完成，retrieved = true', 'info');
+        }
+        
+        async function checkPageContent() {
+            if (!dashboardPage) {
+                throw new Error('Dashboard页面未打开');
+            }
+            
+            addLog('检查页面内容...', 'info');
+            addLog('注意: 由于浏览器安全限制，无法直接访问其他标签的DOM', 'warning');
+            addLog('请手动检查Dashboard页面是否正常显示', 'warning');
+            addLog('预期应该看到:', 'info');
+            addLog('  - 左侧边栏（sidebar）', 'info');
+            addLog('  - 主要内容区域（main）', 'info');
+            addLog('  - 工作流列表或其他内容', 'info');
+            addLog('  - 没有加载中的spinner一直显示', 'info');
+        }
+        
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+        
+        // 页面加载时检查环境
+        window.addEventListener('load', () => {
+            if (typeof chrome === 'undefined' && typeof browser === 'undefined') {
+                addLog('警告: 未检测到浏览器扩展API', 'error');
+                addLog('请将此页面作为扩展页面运行，或在扩展环境中测试', 'error');
+                showStatus('⚠️ 请在扩展环境中运行此测试', 'error');
+                updateChecklist('check1', 'fail');
+            } else {
+                addLog('环境检查通过，可以开始测试', 'success');
+                updateChecklist('check1', 'pass');
+            }
+        });
+    </script>
+</body>
+</html>

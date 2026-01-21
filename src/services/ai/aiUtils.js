@@ -38,6 +38,7 @@ export async function getPageContext() {
           ];
           const walker = document.createTreeWalker(
             clone,
+            // eslint-disable-next-line no-undef
             NodeFilter.SHOW_ELEMENT
           );
           const nodesToRemove = [];
@@ -100,22 +101,23 @@ export async function executeBlockInTab(blockData) {
 export async function getAllTabs() {
   try {
     const tabs = await Browser.tabs.query({});
-    
+
     return tabs
-      .filter(tab => 
-        tab.url && 
-        !tab.url.startsWith('chrome-extension://') && 
-        !tab.url.startsWith('moz-extension://') &&
-        !tab.url.startsWith('chrome://') &&
-        !tab.url.startsWith('about:')
+      .filter(
+        (tab) =>
+          tab.url &&
+          !tab.url.startsWith('chrome-extension://') &&
+          !tab.url.startsWith('moz-extension://') &&
+          !tab.url.startsWith('chrome://') &&
+          !tab.url.startsWith('about:')
       )
-      .map(tab => ({
+      .map((tab) => ({
         id: tab.id,
         title: tab.title || 'Untitled',
         url: tab.url,
         active: tab.active,
         windowId: tab.windowId,
-        favIconUrl: tab.favIconUrl
+        favIconUrl: tab.favIconUrl,
       }))
       .sort((a, b) => {
         // 活动标签页排在前面
@@ -145,10 +147,18 @@ export async function getTabContext(tabId) {
           if (!root) return '';
           const clone = root.cloneNode(true);
           const removeTags = [
-            'SCRIPT', 'STYLE', 'NOSCRIPT', 'IFRAME', 'SVG', 'PATH', 'LINK', 'META',
+            'SCRIPT',
+            'STYLE',
+            'NOSCRIPT',
+            'IFRAME',
+            'SVG',
+            'PATH',
+            'LINK',
+            'META',
           ];
           const walker = document.createTreeWalker(
             clone,
+            // eslint-disable-next-line no-undef
             NodeFilter.SHOW_ELEMENT
           );
           const nodesToRemove = [];
@@ -166,44 +176,50 @@ export async function getTabContext(tabId) {
           const containers = [];
           const walker = document.createTreeWalker(
             element,
+            // eslint-disable-next-line no-undef
             NodeFilter.SHOW_ELEMENT
           );
-          
+
           while (walker.nextNode()) {
             const node = walker.currentNode;
             const tagName = node.tagName.toLowerCase();
-            
+
             // 常见的列表容器
             if (['ul', 'ol', 'div', 'section', 'article'].includes(tagName)) {
               const children = node.children;
-              if (children.length >= 3) { // 至少3个子项才认为是列表
-                const childTags = Array.from(children).map(c => c.tagName.toLowerCase());
-                const hasUniformItems = childTags.every(tag => 
+              if (children.length >= 3) {
+                // 至少3个子项才认为是列表
+                const childTags = Array.from(children).map((c) =>
+                  c.tagName.toLowerCase()
+                );
+                const hasUniformItems = childTags.every((tag) =>
                   ['li', 'div', 'article', 'section', 'a'].includes(tag)
                 );
-                
+
                 if (hasUniformItems) {
                   containers.push({
                     selector: generateSelector(node),
                     isList: true,
                     itemCount: children.length,
-                    itemTag: childTags[0]
+                    itemTag: childTags[0],
                   });
                 }
               }
             }
           }
-          
+
           return containers;
         }
-        
+
         function generateSelector(element) {
           if (element.id) return `#${element.id}`;
           if (element.className) {
-            const classes = element.className.split(' ').filter(c => c.trim());
+            const classes = element.className
+              .split(' ')
+              .filter((c) => c.trim());
             if (classes.length > 0) return `.${classes[0]}`;
           }
-          
+
           // 生成路径选择器
           const path = [];
           let current = element;
@@ -213,7 +229,9 @@ export async function getTabContext(tabId) {
               break;
             }
             if (current.className) {
-              const classes = current.className.split(' ').filter(c => c.trim());
+              const classes = current.className
+                .split(' ')
+                .filter((c) => c.trim());
               if (classes.length > 0) {
                 path.unshift(`.${classes[0]}`);
                 break;
@@ -222,7 +240,7 @@ export async function getTabContext(tabId) {
             path.unshift(current.tagName.toLowerCase());
             current = current.parentElement;
           }
-          
+
           return path.join(' > ');
         }
 
@@ -249,30 +267,55 @@ export async function getTabContext(tabId) {
  */
 export function analyzeInputComplexity(userInput) {
   const input = userInput.toLowerCase();
-  
+
   // 复杂度指标
   const complexityIndicators = {
-    hasMultipleSteps: input.includes('然后') || input.includes('接着') || input.includes('之后') || input.includes('最后'),
-    hasLooping: input.includes('循环') || input.includes('遍历') || input.includes('每个') || input.includes('所有'),
-    hasConditions: input.includes('如果') || input.includes('当') || input.includes('否则') || input.includes('条件'),
-    hasDataProcessing: input.includes('提取') || input.includes('抓取') || input.includes('获取') || input.includes('导出'),
-    hasPagination: input.includes('下一页') || input.includes('分页') || input.includes('更多'),
-    hasFormInteraction: input.includes('输入') || input.includes('填写') || input.includes('选择') || input.includes('点击'),
-    hasMultipleSites: (input.match(/http[s]?:\/\//g) || []).length > 1,
+    hasMultipleSteps:
+      input.includes('然后') ||
+      input.includes('接着') ||
+      input.includes('之后') ||
+      input.includes('最后'),
+    hasLooping:
+      input.includes('循环') ||
+      input.includes('遍历') ||
+      input.includes('每个') ||
+      input.includes('所有'),
+    hasConditions:
+      input.includes('如果') ||
+      input.includes('当') ||
+      input.includes('否则') ||
+      input.includes('条件'),
+    hasDataProcessing:
+      input.includes('提取') ||
+      input.includes('抓取') ||
+      input.includes('获取') ||
+      input.includes('导出'),
+    hasPagination:
+      input.includes('下一页') ||
+      input.includes('分页') ||
+      input.includes('更多'),
+    hasFormInteraction:
+      input.includes('输入') ||
+      input.includes('填写') ||
+      input.includes('选择') ||
+      input.includes('点击'),
+    hasMultipleSites: (input.match(/https?:\/\//g) || []).length > 1,
   };
-  
+
   // 计算复杂度分数
-  const complexityScore = Object.values(complexityIndicators).filter(Boolean).length;
-  
+  const complexityScore =
+    Object.values(complexityIndicators).filter(Boolean).length;
+
   // 判断是否需要渐进式处理
-  const needsIncremental = complexityScore >= 3 || 
-                         complexityIndicators.hasMultipleSteps || 
-                         complexityIndicators.hasLooping;
-  
+  const needsIncremental =
+    complexityScore >= 3 ||
+    complexityIndicators.hasMultipleSteps ||
+    complexityIndicators.hasLooping;
+
   return {
     complexityScore,
     needsIncremental,
     indicators: complexityIndicators,
-    suggestedApproach: needsIncremental ? 'incremental' : 'direct'
+    suggestedApproach: needsIncremental ? 'incremental' : 'direct',
   };
 }

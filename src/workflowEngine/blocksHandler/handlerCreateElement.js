@@ -25,25 +25,50 @@ function automaExecWorkflow(options = {}) {
 }
 
 function createElementScript(code, blockId, $automaScript, $preloadScripts) {
-  // fixme: 这里是有问题的，如果按现在方案会至少创建两个script标签，
-  // 一个是preloadScripts，一个是automaScript
-  // 那么在现在的方案中 VM 可能导致不共享 window 变量
+  const preloadStyles = $preloadScripts.filter((item) => item.type === 'style');
+  const preloadScripts = $preloadScripts.filter(
+    (item) => item.type !== 'style'
+  );
+
   const str = `
-    const baseId = 'automa-${blockId}';
+    // 注入预加载样式
+    ${preloadStyles
+      .map(
+        (item) => `
+      const style_${item.id} = document.createElement('style');
+      style_${item.id}.id = \`automa-\${blockId}-style-\${item.id}\`;
+      style_${item.id}.textContent = ${JSON.stringify(item.script)};
+      document.body.appendChild(style_${item.id});
+    `
+      )
+      .join('\n')}
 
-    ${JSON.stringify($preloadScripts)}.forEach((item) => {
-      if (item.type === 'style') return;
-
-      const script = document.createElement(item.type);
-      script.id = \`\${baseId}-script\`;
-      script.textContent = item.script;
-
-      document.body.appendChild(script);
-    });
-
+    // 创建单个script标签,将preloadScripts和automaScript合并执行
+    // 这样可以确保它们共享同一个window上下文
     const script = document.createElement('script');
-    script.id = \`\${baseId}-javascript\`;
-    script.textContent = \`(() => { ${$automaScript}\n${code} })()\`;
+    script.id = \`automa-\${blockId}-javascript\`;
+    script.textContent = \`
+      (function() {
+        // 执行预加载脚本
+        ${preloadScripts
+          .map(
+            (item) => `
+          try {
+            ${item.script}
+          } catch(e) {
+            console.error('预加载脚本执行错误:', e);
+          }
+        `
+          )
+          .join('\n')}
+
+        // 执行automa脚本
+        ${$automaScript}
+
+        // 执行用户代码
+        ${code}
+      })();
+    \`;
 
     document.body.appendChild(script);
   `;

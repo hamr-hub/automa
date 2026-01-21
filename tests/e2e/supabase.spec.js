@@ -3,8 +3,13 @@
  * 测试云端同步、用户数据和协作功能
  */
 
-import { test, expect, describe, beforeEach } from '@playwright/test';
+import { test, expect, describe } from '@playwright/test';
 import path from 'path';
+
+function getExtensionUrl(route = '') {
+  const filePath = path.resolve(__dirname, '../../build/newtab.html');
+  return `file://${filePath}${route ? '#' + route : ''}`;
+}
 
 describe('Supabase集成测试', () => {
   let page;
@@ -389,9 +394,10 @@ describe('Supabase集成测试', () => {
 
     test.skip('TC-SUP-014: 权限不足处理', async () => {
       await test.step('尝试访问无权限资源', async () => {
-        await page.goto(
-          `chrome-extension://${EXTENSION_ID}/newtab.html?workflow=restricted-id`
-        );
+        await page.goto(getExtensionUrl('workflow=restricted-id'), {
+          waitUntil: 'domcontentloaded',
+          timeout: 30000,
+        });
         await page.waitForLoadState('domcontentloaded');
       });
 

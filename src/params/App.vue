@@ -5,8 +5,7 @@
   >
     <nav class="mb-4 flex w-full items-center border-b p-4">
       <span class="bg-box-transparent rounded-full p-1 dark:bg-none">
-        <img
-src="@/assets/svg/logo.svg" class="w-10" />
+        <img src="@/assets/svg/logo.svg" class="w-10" />
       </span>
       <p class="ml-4 text-lg font-semibold">Automa</p>
     </nav>
@@ -233,8 +232,8 @@ async function addWorkflow(workflowId) {
       data: workflow,
       addedDate: Date.now(),
     });
-  } catch (error) {
-    console.error(error);
+  } catch {
+    console.error('Error adding workflow');
   }
 }
 function getParamsValues(params) {
@@ -359,10 +358,14 @@ onMounted(async () => {
     const query = new URLSearchParams(window.location.search);
     const workflowId = query.get('workflowId');
     if (workflowId) addWorkflow(workflowId);
-    await automa('content');
+
+    // 仅在业务模块提供可调用函数时执行，避免运行时 TypeError
+    if (typeof automa === 'function') {
+      await automa('content');
+    }
 
     Object.assign(paramsList, workflowParameters.parameters);
-  } catch (error) {
+  } catch {
     // Do nothing
   } finally {
     retrieved.value = true;
