@@ -2,19 +2,19 @@ import VTooltip from '../directives/VTooltip';
 import VAutofocus from '../directives/VAutofocus';
 import VClosePopover from '../directives/VClosePopover';
 
-// Vite 使用 import.meta.glob 替代 webpack 的 require.context
-const uiComponents = import.meta.glob('../components/ui/*.vue', {
-  eager: true,
-});
-const transitionComponents = import.meta.glob(
-  '../components/transitions/*.vue',
-  { eager: true }
+// Webpack 使用 require.context 替代 Vite 的 import.meta.glob
+const uiComponents = require.context('../components/ui', false, /\.vue$/);
+const transitionComponents = require.context(
+  '../components/transitions',
+  false,
+  /\.vue$/
 );
 
-function componentsExtractor(app, components) {
-  Object.entries(components).forEach(([path, module]) => {
-    const componentName = path.replace(/.*\/(.+)\.vue$/, '$1');
-    const component = module?.default ?? {};
+function componentsExtractor(app, componentsContext) {
+  componentsContext.keys().forEach((fileName) => {
+    const componentName = fileName.replace(/^\.\/(.+)\.vue$/, '$1');
+    const componentConfig = componentsContext(fileName);
+    const component = componentConfig?.default ?? componentConfig;
 
     app.component(componentName, component);
   });

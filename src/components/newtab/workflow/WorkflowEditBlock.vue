@@ -1,6 +1,8 @@
 <template>
-  <div id="workflow-edit-block"
-class="scroll h-full overflow-auto px-4 py-1">
+  <div
+    id="workflow-edit-block"
+    class="scroll h-full overflow-auto px-4 py-1"
+  >
     <div
       class="sticky top-0 z-20 mb-2 flex items-center space-x-2 bg-white pb-4 dark:bg-gray-800"
     >
@@ -41,22 +43,22 @@ import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useToast } from 'vue-toastification';
 
-// Vite 使用 import.meta.glob 替代 webpack 的 require.context
-const editComponentModules = import.meta.glob('./edit/Edit*.vue', {
-  eager: true,
-});
-
-const components = Object.entries(editComponentModules).reduce(
-  (acc, [path, module]) => {
-    const name = path.replace(/^\.\/edit\/|\.vue$/g, '');
-    const componentObj = module?.default ?? {};
-
-    acc[name] = componentObj;
-
-    return acc;
-  },
-  {}
+// Webpack 使用 require.context 替代 Vite 的 import.meta.glob
+const editComponentContext = require.context(
+  './edit',
+  false,
+  /^\.\/Edit.*\.vue$/
 );
+
+const components = editComponentContext.keys().reduce((acc, fileName) => {
+  const name = fileName.replace(/^\.\/|\.vue$/g, '');
+  const module = editComponentContext(fileName);
+  const componentObj = module?.default ?? module;
+
+  acc[name] = componentObj;
+
+  return acc;
+}, {});
 
 Object.assign(components, customEditComponents());
 
