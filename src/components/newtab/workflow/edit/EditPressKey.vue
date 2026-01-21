@@ -6,8 +6,9 @@
       :placeholder="t('common.description')"
       @change="updateData({ description: $event })"
     />
-    <edit-autocomplete class="mt-2"
-trigger-class="!flex items-end">
+    <edit-autocomplete
+class="mt-2" trigger-class="!flex items-end"
+>
       <ui-input
         :model-value="data.selector"
         class="mr-2 flex-1"

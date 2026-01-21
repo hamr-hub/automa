@@ -13,10 +13,12 @@
     >
       {{ t('workflow.blocks.while-loop.editCondition') }}
     </ui-button>
-    <ui-modal v-model="showConditionBuilder"
-custom-content>
-      <ui-card padding="p-0"
-class="w-full max-w-3xl">
+    <ui-modal
+v-model="showConditionBuilder" custom-content
+>
+      <ui-card
+padding="p-0" class="w-full max-w-3xl"
+>
         <div class="flex items-center px-4 pt-4">
           <p class="flex-1">
             {{ t('workflow.conditionBuilder.title') }}

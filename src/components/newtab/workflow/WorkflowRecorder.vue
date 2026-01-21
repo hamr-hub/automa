@@ -6,8 +6,10 @@
     ]"
   >
     <!-- 折叠状态 - 悬浮球 -->
-    <div v-if="!isOpen" class="flex items-center space-x-3 pointer-events-auto">
-      <transition name="scale" appear>
+    <div v-if="!isOpen"
+class="flex items-center space-x-3 pointer-events-auto">
+      <transition name="scale"
+appear>
         <button
           class="group flex h-12 w-12 items-center justify-center rounded-full bg-red-500/90 text-white shadow-lg shadow-red-500/30 transition-all hover:bg-red-600 hover:scale-105 active:scale-95 border border-red-400/20 backdrop-blur-md relative"
           @click="toggleRecorder"
@@ -42,7 +44,8 @@
             class="ml-1 rounded p-0.5 text-gray-500 hover:bg-gray-700 hover:text-white"
             @click.stop="showPrompt = false"
           >
-            <v-remixicon name="riCloseLine" size="14" />
+            <v-remixicon name="riCloseLine"
+size="14" />
           </button>
         </div>
       </transition>
@@ -131,7 +134,8 @@
               title="最小化"
               @click="toggleRecorder"
             >
-              <v-remixicon name="riSubtractLine" size="16" />
+              <v-remixicon name="riSubtractLine"
+size="16" />
             </button>
           </div>
         </div>
@@ -238,7 +242,8 @@
                 :disabled="index === 0"
                 @click="moveFlow(index, -1)"
               >
-                <v-remixicon name="riArrowUpLine" size="14" />
+                <v-remixicon name="riArrowUpLine"
+size="14" />
               </button>
               <button
                 :class="[
@@ -251,7 +256,8 @@
                 :disabled="index === flows.length - 1"
                 @click="moveFlow(index, 1)"
               >
-                <v-remixicon name="riArrowDownLine" size="14" />
+                <v-remixicon name="riArrowDownLine"
+size="14" />
               </button>
               <button
                 :class="[
@@ -263,7 +269,8 @@
                 title="删除"
                 @click="removeFlow(index)"
               >
-                <v-remixicon name="riDeleteBinLine" size="14" />
+                <v-remixicon name="riDeleteBinLine"
+size="14" />
               </button>
             </div>
           </div>
@@ -292,7 +299,8 @@
               @click="showPreview = !showPreview"
             >
               <span class="flex items-center gap-1">
-                <v-remixicon name="riEyeLine" size="14" />
+                <v-remixicon name="riEyeLine"
+size="14" />
                 预览摘要 ({{ flows.length }} 个操作)
               </span>
               <v-remixicon
@@ -393,7 +401,8 @@
           </transition>
 
           <!-- Recording Controls -->
-          <div v-if="isRecording" class="flex items-center gap-2">
+          <div v-if="isRecording"
+class="flex items-center gap-2">
             <button
               class="flex h-9 items-center justify-center rounded-lg transition-all"
               :class="
@@ -416,7 +425,8 @@
               "
             >
               {{ formatDuration(recordingDuration) }}
-              <span v-if="isPaused" class="ml-2 text-yellow-500">(已暂停)</span>
+              <span v-if="isPaused"
+class="ml-2 text-yellow-500">(已暂停)</span>
             </span>
           </div>
 

@@ -10,12 +10,15 @@
         class="ml-2 text-gray-600 dark:text-gray-200"
         target="_blank"
       >
-        <v-remixicon name="riInformationLine"
-size="20" />
+        <v-remixicon
+name="riInformationLine" size="20"
+/>
       </a>
     </div>
-    <ui-tabs v-model="state.activeTab"
-class="mt-5" @change="onTabChange">
+    <ui-tabs
+v-model="state.activeTab" class="mt-5"
+@change="onTabChange"
+>
       <ui-tab value="tables">
         {{ t('workflow.table.title', 2) }}
       </ui-tab>

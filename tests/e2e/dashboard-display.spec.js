@@ -15,8 +15,10 @@ describe('Dashboard显示测试', () => {
     await page.waitForTimeout(2000);
 
     // 查找dashboard按钮
-    const dashboardButton = page.locator('[title*="Dashboard"], [title*="主面板"], button[variant="accent"]');
-    
+    const dashboardButton = page.locator(
+      '[title*="Dashboard"], [title*="主面板"], button[variant="accent"]'
+    );
+
     const buttonCount = await dashboardButton.count();
     console.log('找到的dashboard按钮数量:', buttonCount);
 
@@ -34,7 +36,7 @@ describe('Dashboard显示测试', () => {
 
       // 查找dashboard页面
       const dashboardPage = pages.find((p) => p.url().includes('newtab.html'));
-      
+
       if (dashboardPage) {
         console.log('Dashboard页面URL:', dashboardPage.url());
 
@@ -59,7 +61,9 @@ describe('Dashboard显示测试', () => {
         expect(isVisible).toBe(true);
 
         // 检查是否有加载中的spinner
-        const spinner = dashboardPage.locator('.ui-spinner, [class*="spinner"]');
+        const spinner = dashboardPage.locator(
+          '.ui-spinner, [class*="spinner"]'
+        );
         const spinnerCount = await spinner.count();
         console.log('Spinner元素数量:', spinnerCount);
 
@@ -74,7 +78,9 @@ describe('Dashboard显示测试', () => {
         console.log('Main元素数量:', mainCount);
 
         // 截图以便调试
-        await dashboardPage.screenshot({ path: 'test-dashboard-screenshot.png' });
+        await dashboardPage.screenshot({
+          path: 'test-dashboard-screenshot.png',
+        });
         console.log('已保存截图: test-dashboard-screenshot.png');
 
         // 检查控制台错误
@@ -100,7 +106,10 @@ describe('Dashboard显示测试', () => {
         // 如果页面是空白的，打印更多信息
         if (!bodyText || bodyText.length < 100) {
           console.error('警告: 页面内容可能为空或过少');
-          console.error('页面HTML:', await dashboardPage.locator('body').innerHTML());
+          console.error(
+            '页面HTML:',
+            await dashboardPage.locator('body').innerHTML()
+          );
         }
       } else {
         console.error('未能找到dashboard页面');

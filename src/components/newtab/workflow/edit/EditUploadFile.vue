@@ -9,8 +9,9 @@
         v-if="browserType === 'firefox'"
         class="mt-4 flex items-start rounded-lg bg-primary p-2 text-white"
       >
-        <v-remixicon name="riErrorWarningLine"
-size="20" />
+        <v-remixicon
+name="riErrorWarningLine" size="20"
+/>
         <div class="ml-2 flex-1 text-sm leading-tight">
           <p>{{ t('workflow.blocks.upload-file.onlyURL') }}</p>
         </div>
@@ -36,8 +37,10 @@ size="20" />
           />
         </div>
       </div>
-      <ui-button variant="accent"
-class="mt-2" @click="filePaths.push('')">
+      <ui-button
+variant="accent" class="mt-2"
+@click="filePaths.push('')"
+>
         {{ t('workflow.blocks.upload-file.addFile') }}
       </ui-button>
     </template>

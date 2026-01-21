@@ -19,8 +19,10 @@
       class="w-full"
       @change="updateData({ loopThrough: $event })"
     >
-      <option v-for="type in loopTypes"
-:key="type" :value="type">
+      <option
+v-for="type in loopTypes" :key="type"
+:value="type"
+>
         {{ t(`workflow.blocks.loop-data.loopThrough.options.${type}`) }}
       </option>
     </ui-select>
@@ -41,8 +43,9 @@
       @change="updateData({ variableName: $event })"
     />
     <template v-else-if="data.loopThrough === 'elements'">
-      <edit-autocomplete class="mt-2"
-trigger-class="!flex items-end">
+      <edit-autocomplete
+class="mt-2" trigger-class="!flex items-end"
+>
         <ui-input
           :model-value="data.elementSelector"
           :label="t('workflow.blocks.base.selector')"
@@ -144,8 +147,9 @@ trigger-class="!flex items-end">
       content-class="max-w-3xl"
     >
       <div class="mb-4 flex items-center">
-        <ui-button variant="accent"
-@click="importFile">
+        <ui-button
+variant="accent" @click="importFile"
+>
           {{ t('workflow.blocks.loop-data.buttons.import') }}
         </ui-button>
         <ui-button

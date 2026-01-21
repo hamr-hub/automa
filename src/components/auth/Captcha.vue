@@ -1,8 +1,10 @@
 <template>
   <div class="flex justify-center">
     <!-- Cloudflare Turnstile Widget -->
-    <div v-if="useTurnstile"
-ref="turnstileContainer" class="cf-turnstile" />
+    <div
+v-if="useTurnstile" ref="turnstileContainer"
+class="cf-turnstile"
+/>
 
     <!-- Fallback: Simple Click-to-Verify for Development -->
     <div
@@ -29,7 +31,8 @@ ref="turnstileContainer" class="cf-turnstile" />
         </span>
       </div>
       <div class="ml-4">
-        <v-remixicon name="riShieldCheckLine" class="text-gray-400" />
+        <v-remixicon name="riShieldCheckLine"
+class="text-gray-400" />
       </div>
     </div>
   </div>

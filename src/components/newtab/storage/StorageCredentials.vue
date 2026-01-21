@@ -34,18 +34,22 @@
       />
     </template>
   </ui-table>
-  <ui-modal v-model="addState.show"
-:title="t('credential.add')">
-    <ui-input v-model="addState.name"
-placeholder="Name" class="w-full" />
+  <ui-modal
+v-model="addState.show" :title="t('credential.add')"
+>
+    <ui-input
+v-model="addState.name" placeholder="Name"
+class="w-full"
+/>
     <ui-textarea
       v-model="addState.value"
       placeholder="value"
       class="mt-4 w-full"
     />
     <div class="mt-8 text-right">
-      <ui-button class="mr-4"
-@click="addState.show = false">
+      <ui-button
+class="mr-4" @click="addState.show = false"
+>
         {{ t('common.cancel') }}
       </ui-button>
       <ui-button

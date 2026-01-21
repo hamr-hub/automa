@@ -1,14 +1,17 @@
 <template>
-  <edit-interaction-base v-bind="{ data, hide: hideBase }"
-@change="updateData">
+  <edit-interaction-base
+v-bind="{ data, hide: hideBase }" @change="updateData"
+>
     <ui-select
       :model-value="data.eventName"
       :placeholder="t('workflow.blocks.trigger-event.selectEvent')"
       class="mt-4 w-full"
       @change="handleSelectChange"
     >
-      <option v-for="event in eventList"
-:key="event.id" :value="event.id">
+      <option
+v-for="event in eventList" :key="event.id"
+:value="event.id"
+>
         {{ event.name }}
       </option>
     </ui-select>
@@ -29,8 +32,9 @@
         target="_blank"
         @click.stop
       >
-        <v-remixicon name="riInformationLine"
-size="20" />
+        <v-remixicon
+name="riInformationLine" size="20"
+/>
       </a>
     </button>
     <transition-expand>

@@ -54,13 +54,15 @@
         {{ t('settings.language.helpTranslate') }}
       </a>
     </div>
-    <p v-if="isLangChange"
-class="ml-4 inline-block">
+    <p
+v-if="isLangChange" class="ml-4 inline-block"
+>
       {{ t('settings.language.reloadPage') }}
     </p>
   </div>
-  <div id="delete-logs"
-class="mt-12">
+  <div
+id="delete-logs" class="mt-12"
+>
     <p class="mb-1 font-semibold">Workflow Logs</p>
     <div class="flex items-center">
       <ui-select
@@ -75,8 +77,10 @@ class="mt-12">
           )
         "
       >
-        <option v-for="day in deleteLogDays"
-:key="day" :value="day">
+        <option
+v-for="day in deleteLogDays" :key="day"
+:value="day"
+>
           <template v-if="typeof day === 'string'">
             {{ t('settings.deleteLog.deleteAfter.never') }}
           </template>

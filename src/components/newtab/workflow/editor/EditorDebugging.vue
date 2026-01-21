@@ -35,8 +35,9 @@
           icon
           @click="nextBlock"
         >
-          <v-remixicon name="riArrowLeftSLine"
-rotate="180" />
+          <v-remixicon
+name="riArrowLeftSLine" rotate="180"
+/>
         </ui-button>
         <ui-button
           v-tooltip="t('common.stop')"
@@ -80,8 +81,9 @@ rotate="180" />
       </ui-list>
     </div>
     <div class="w-64">
-      <ui-tabs v-model="activeTab"
-class="-mt-1">
+      <ui-tabs
+v-model="activeTab" class="-mt-1"
+>
         <ui-tab
 class="!py-2" value="workflow-data"> Data </ui-tab>
         <ui-tab

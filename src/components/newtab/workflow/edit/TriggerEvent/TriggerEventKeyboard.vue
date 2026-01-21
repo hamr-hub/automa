@@ -29,8 +29,9 @@
       label="keyCode"
     />
   </div>
-  <ui-checkbox v-model="defaultParams.repeat"
-class="mt-4">
+  <ui-checkbox
+v-model="defaultParams.repeat" class="mt-4"
+>
     Repeat
   </ui-checkbox>
 </template>

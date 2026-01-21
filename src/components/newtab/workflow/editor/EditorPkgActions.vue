@@ -44,24 +44,28 @@
       </div>
     </ui-popover>
   </ui-card>
-  <ui-card class="pointer-events-auto flex items-center"
-padding="p-1">
+  <ui-card
+class="pointer-events-auto flex items-center" padding="p-1"
+>
     <ui-popover>
       <template #trigger>
-        <ui-button icon
-btn-type="transparent">
+        <ui-button
+icon btn-type="transparent"
+>
           <v-remixicon name="riMore2Line" />
         </ui-button>
       </template>
-      <ui-list class="space-y-1"
-style="min-width: 9rem">
+      <ui-list
+class="space-y-1" style="min-width: 9rem"
+>
         <ui-list-item
           v-close-popover
           class="cursor-pointer text-red-400 dark:text-red-500"
           @click="deletePackage"
         >
-          <v-remixicon name="riDeleteBin7Line"
-class="mr-2 -ml-1" />
+          <v-remixicon
+name="riDeleteBin7Line" class="mr-2 -ml-1"
+/>
           <span>
             {{ t('common.delete') }}
           </span>
@@ -83,8 +87,9 @@ class="mr-2 -ml-1" />
         />
         <span class="relative inline-flex h-3 w-3 rounded-full bg-blue-600" />
       </span>
-      <v-remixicon name="riSaveLine"
-class="my-1 mr-2 -ml-1" />
+      <v-remixicon
+name="riSaveLine" class="my-1 mr-2 -ml-1"
+/>
       {{ $t('common.save') }}
     </ui-button>
     <ui-button

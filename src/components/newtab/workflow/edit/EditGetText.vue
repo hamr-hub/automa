@@ -1,7 +1,8 @@
 <template>
-  <edit-interaction-base v-bind="{ data }"
-@change="updateData">
-    <hr >
+  <edit-interaction-base
+v-bind="{ data }" @change="updateData"
+>
+    <hr>
     <div class="bg-input flex items-center rounded-lg px-4 transition">
       <span>/</span>
       <input
@@ -16,8 +17,9 @@
         </template>
         <p class="mb-2 text-gray-600 dark:text-gray-200">Expression flags</p>
         <div class="space-y-1">
-          <div v-for="item in exps"
-:key="item.id">
+          <div
+v-for="item in exps" :key="item.id"
+>
             <ui-checkbox
               :model-value="regexExp.includes(item.id)"
               @change="handleExpCheckbox(item.id, $event)"
@@ -66,7 +68,7 @@
     >
       Use <code>textContent</code>
     </ui-checkbox>
-    <hr >
+    <hr>
     <insert-workflow-data
       :data="data"
       variables

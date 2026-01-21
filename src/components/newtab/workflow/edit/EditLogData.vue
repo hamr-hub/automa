@@ -25,8 +25,10 @@
         <p class="mt-4 mb-2">
           {{ t('workflow.blocks.log-data.data') }}
         </p>
-        <insert-workflow-data :data="data"
-variables @update="updateData" />
+        <insert-workflow-data
+:data="data" variables
+@update="updateData"
+/>
       </template>
     </div>
   </div>

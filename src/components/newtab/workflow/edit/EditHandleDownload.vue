@@ -36,8 +36,10 @@
           class="mt-2 w-full"
           @change="updateData({ onConflict: $event })"
         >
-          <option v-for="item in onConflict"
-:key="item" :value="item">
+          <option
+v-for="item in onConflict" :key="item"
+:value="item"
+>
             {{ t(`workflow.blocks.base.downloads.onConflict.${item}`) }}
           </option>
         </ui-select>
@@ -50,20 +52,24 @@
         {{ t('workflow.blocks.handle-download.waitFile') }}
       </ui-checkbox>
       <template v-if="data.waitForDownload">
-        <hr class="my-4 w-full" >
+        <hr class="my-4 w-full">
         <p class="text-sm text-gray-600 dark:text-gray-300">
           {{ t('workflow.blocks.handle-download.filePath') }}
         </p>
-        <insert-workflow-data :data="data"
-variables @update="updateData" />
+        <insert-workflow-data
+:data="data" variables
+@update="updateData"
+/>
       </template>
     </template>
     <template v-else>
       <p class="mt-4">
         {{ t('workflow.blocks.handle-download.noPermission') }}
       </p>
-      <ui-button variant="accent"
-class="mt-2" @click="permission.request">
+      <ui-button
+variant="accent" class="mt-2"
+@click="permission.request"
+>
         {{ t('workflow.blocks.clipboard.grantPermission') }}
       </ui-button>
     </template>

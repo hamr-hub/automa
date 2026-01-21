@@ -5,8 +5,9 @@
     content-position="start"
     @close="clearState"
   >
-    <ui-card class="mt-8 w-full"
-style="max-width: 1400px; min-height: 600px">
+    <ui-card
+class="mt-8 w-full" style="max-width: 1400px; min-height: 600px"
+>
       <app-logs-items
         v-if="!state.logId"
         :workflow-id="state.workflowId"
@@ -18,8 +19,10 @@ style="max-width: 1400px; min-height: 600px">
         :log-id="state.logId"
         @close="closeItemPage"
       />
-      <app-logs-item v-else
-:log-id="state.logId" @close="closeItemPage" />
+      <app-logs-item
+v-else :log-id="state.logId"
+@close="closeItemPage"
+/>
     </ui-card>
   </ui-modal>
 </template>

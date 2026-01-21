@@ -180,8 +180,10 @@
             >
           </li>
         </ol>
-        <ui-button variant="link" class="mt-4" @click="openOllamaWebsite">
-          <v-remixicon name="riExternalLinkLine" class="mr-1" />
+        <ui-button variant="link"
+class="mt-4" @click="openOllamaWebsite">
+          <v-remixicon name="riExternalLinkLine"
+class="mr-1" />
           了解更多关于 Ollama
         </ui-button>
       </div>

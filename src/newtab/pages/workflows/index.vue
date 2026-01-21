@@ -22,7 +22,8 @@
                 class="rounded-l-none"
                 variant="accent"
               >
-                <v-remixicon name="riArrowLeftSLine" rotate="-90" />
+                <v-remixicon name="riArrowLeftSLine"
+rotate="-90" />
               </ui-button>
             </template>
             <ui-list class="space-y-1">
@@ -161,8 +162,10 @@
             />
             <ui-popover>
               <template #trigger>
-                <ui-button variant="accent" class="ml-4 lg:hidden">
-                  <v-remixicon name="riAddLine" class="mr-2 -ml-1" />
+                <ui-button variant="accent"
+class="ml-4 lg:hidden">
+                  <v-remixicon name="riAddLine"
+class="mr-2 -ml-1" />
                   <span>{{ t('common.workflow') }}</span>
                 </ui-button>
               </template>
@@ -231,7 +234,8 @@
                 :placeholder="t('sort.sortBy')"
                 class="flex-1"
               >
-                <option v-for="sort in sorts" :key="sort" :value="sort">
+                <option v-for="sort in sorts"
+:key="sort" :value="sort">
                   {{ t(`sort.${sort}`) }}
                 </option>
               </ui-select>
@@ -244,17 +248,21 @@
               <option value="local">
                 {{ t('workflow.type.local') }}
               </option>
-              <option v-if="userStore.user" value="shared">
+              <option v-if="userStore.user"
+value="shared">
                 {{ t('workflow.type.shared') }}
               </option>
-              <option v-if="hostedWorkflows?.length > 0" value="host">
+              <option v-if="hostedWorkflows?.length > 0"
+value="host">
                 {{ t('workflow.type.host') }}
               </option>
             </ui-select>
           </div>
         </div>
-        <ui-tab-panels v-model="state.activeTab" class="mt-6 flex-1">
-          <ui-tab-panel value="team" cache>
+        <ui-tab-panels v-model="state.activeTab"
+class="mt-6 flex-1">
+          <ui-tab-panel value="team"
+cache>
             <workflows-user-team
               :active="state.activeTab === 'team'"
               :team-id="state.teamId"
@@ -268,7 +276,8 @@
               :sort="{ by: state.sortBy, order: state.sortOrder }"
             />
           </ui-tab-panel>
-          <ui-tab-panel value="host" class="workflows-container">
+          <ui-tab-panel value="host"
+class="workflows-container">
             <workflows-hosted
               :search="state.query"
               :sort="{ by: state.sortBy, order: state.sortOrder }"
@@ -307,7 +316,8 @@
                 rel="noreferer"
                 >the community</a
               >, or email us at
-              <a href="mailto:support@automa.site" target="_blank"
+              <a
+href="mailto:support@automa.site" target="_blank"
                 >support@automa.site</a
               >
             </li>
@@ -323,7 +333,8 @@
         </ui-card>
       </div>
     </div>
-    <ui-modal v-model="addWorkflowModal.show" title="Create Workflow" size="lg">
+    <ui-modal v-model="addWorkflowModal.show"
+title="Create Workflow" size="lg">
       <div class="mb-6">
         <div class="flex space-x-4 mb-4">
           <button
@@ -337,7 +348,8 @@
             ]"
             @click="addWorkflowModal.mode = option.value"
           >
-            <v-remixicon :name="option.icon" class="inline-block mr-2" />
+            <v-remixicon :name="option.icon"
+class="inline-block mr-2" />
             {{ option.label }}
           </button>
         </div>
@@ -360,8 +372,12 @@
             :placeholder="t('workflow.selectTab')"
             class="w-full"
           >
-            <option value="current">{{ t('workflow.currentTab') }}</option>
-            <option value="new">{{ t('workflow.newTab') }}</option>
+            <option value="current">
+              {{ t('workflow.currentTab') }}
+            </option>
+            <option value="new">
+              {{ t('workflow.newTab') }}
+            </option>
           </ui-select>
         </div>
 
@@ -376,7 +392,9 @@
             class="border rounded-lg p-4 cursor-pointer hover:border-[var(--color-accent)] transition-colors"
             @click="selectTemplate(template)"
           >
-            <h3 class="font-semibold mb-2">{{ template.name }}</h3>
+            <h3 class="font-semibold mb-2">
+              {{ template.name }}
+            </h3>
             <p class="text-sm text-gray-600 dark:text-gray-300 mb-3">
               {{ template.description }}
             </p>
@@ -423,22 +441,23 @@
         </div>
       </div>
       <div class="flex space-x-2">
-        <ui-button class="w-full" @click="clearAddWorkflowModal">
+        <ui-button class="w-full"
+@click="clearAddWorkflowModal">
           {{ t('common.cancel') }}
         </ui-button>
         <ui-button
           variant="accent"
           class="w-full"
+          :disabled="
+            addWorkflowModal.mode === 'template' &&
+              !addWorkflowModal.selectedTemplate
+          "
           @click="
             addWorkflowModal.mode === 'template'
               ? addWorkflowFromTemplate()
               : addWorkflowModal.type === 'manual'
                 ? addWorkflow()
                 : startRecordWorkflow()
-          "
-          :disabled="
-            addWorkflowModal.mode === 'template' &&
-            !addWorkflowModal.selectedTemplate
           "
         >
           {{

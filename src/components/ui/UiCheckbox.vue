@@ -27,8 +27,9 @@
         />
       </div>
     </div>
-    <span v-if="$slots.default"
-class="ml-2 inline-block">
+    <span
+v-if="$slots.default" class="ml-2 inline-block"
+>
       <slot />
     </span>
   </label>

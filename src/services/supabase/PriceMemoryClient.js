@@ -20,7 +20,8 @@ class PriceMemoryClient {
     if (this.initialized) return;
 
     try {
-      const { supabaseUrl, supabaseAnonKey } = supabaseConfig.default || supabaseConfig;
+      const { supabaseUrl, supabaseAnonKey } =
+        supabaseConfig.default || supabaseConfig;
 
       if (!supabaseUrl || !supabaseAnonKey) {
         console.warn('[PriceMemory] Supabase configuration missing');
@@ -140,7 +141,10 @@ class PriceMemoryClient {
       // Batch save completed
       return data;
     } catch (error) {
-      console.warn('[PriceMemory] saveProductDetailsBatch failed:', error.message);
+      console.warn(
+        '[PriceMemory] saveProductDetailsBatch failed:',
+        error.message
+      );
       throw error;
     }
   }
@@ -255,7 +259,7 @@ class PriceMemoryClient {
         limit = 50,
         offset = 0,
         orderBy = 'created_at',
-        order = 'desc'
+        order = 'desc',
       } = options;
 
       let query = this.client
@@ -290,10 +294,12 @@ class PriceMemoryClient {
     try {
       const { data, error } = await this.client
         .from('user_favorite_products')
-        .select(`
+        .select(
+          `
           *,
           product:product_details(*)
-        `)
+        `
+        )
         .eq('user_id', userId)
         .order('created_at', { ascending: false });
 
@@ -317,14 +323,19 @@ class PriceMemoryClient {
     try {
       const { data, error } = await this.client
         .from('user_favorite_products')
-        .upsert([{
-          user_id: userId,
-          product_id: productId,
-          notes,
-        }], {
-          onConflict: 'user_id_product_id',
-          ignoreDuplicates: false,
-        })
+        .upsert(
+          [
+            {
+              user_id: userId,
+              product_id: productId,
+              notes,
+            },
+          ],
+          {
+            onConflict: 'user_id_product_id',
+            ignoreDuplicates: false,
+          }
+        )
         .select()
         .single();
 
@@ -358,7 +369,10 @@ class PriceMemoryClient {
       // Favorite product removed
       return { success: true };
     } catch (error) {
-      console.warn('[PriceMemory] removeFavoriteProduct failed:', error.message);
+      console.warn(
+        '[PriceMemory] removeFavoriteProduct failed:',
+        error.message
+      );
       throw error;
     }
   }
@@ -392,8 +406,12 @@ class PriceMemoryClient {
       availability: pageData.availability || null,
       main_image_url: pageData.mainImage || null,
       images: pageData.images ? JSON.stringify(pageData.images) : null,
-      basic_info: pageData.basicInfo ? JSON.stringify(pageData.basicInfo) : null,
-      product_details: pageData.productDetails ? JSON.stringify(pageData.productDetails) : null,
+      basic_info: pageData.basicInfo
+        ? JSON.stringify(pageData.basicInfo)
+        : null,
+      product_details: pageData.productDetails
+        ? JSON.stringify(pageData.productDetails)
+        : null,
       description: pageData.description || null,
     };
 
@@ -438,17 +456,17 @@ class PriceMemoryClient {
    */
   getCurrencyFromSite(site) {
     const currencyMap = {
-      'US': 'USD',
-      'GB': 'GBP',
-      'DE': 'EUR',
-      'FR': 'EUR',
-      'JP': 'JPY',
-      'CA': 'CAD',
-      'AU': 'AUD',
-      'SG': 'SGD',
-      'IN': 'INR',
-      'IT': 'EUR',
-      'ES': 'EUR',
+      US: 'USD',
+      GB: 'GBP',
+      DE: 'EUR',
+      FR: 'EUR',
+      JP: 'JPY',
+      CA: 'CAD',
+      AU: 'AUD',
+      SG: 'SGD',
+      IN: 'INR',
+      IT: 'EUR',
+      ES: 'EUR',
     };
     return currencyMap[site.country_code] || 'USD';
   }

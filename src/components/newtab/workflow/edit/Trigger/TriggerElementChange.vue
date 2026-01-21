@@ -15,8 +15,10 @@
           rel="noopener"
           class="inline-block"
         >
-          <v-remixicon name="riInformationLine"
-class="info-icon" size="18" />
+          <v-remixicon
+name="riInformationLine" class="info-icon"
+size="18"
+/>
         </a>
       </template>
     </ui-input>

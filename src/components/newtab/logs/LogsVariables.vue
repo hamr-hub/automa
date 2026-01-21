@@ -1,6 +1,7 @@
 <template>
-  <div v-if="Object.keys(variables).length === 0"
-class="text-center">
+  <div
+v-if="Object.keys(variables).length === 0" class="text-center"
+>
     <img
 src="@/assets/svg/files-and-folder.svg" class="mx-auto max-w-sm" />
     <p class="text-xl font-semibold">
@@ -18,8 +19,9 @@ src="@/assets/svg/files-and-folder.svg" class="mx-auto max-w-sm" />
       <ui-tab value="gui"> GUI </ui-tab>
       <ui-tab value="raw"> Raw </ui-tab>
     </ui-tabs>
-    <div v-if="state.activeTab === 'gui'"
-class="mt-4">
+    <div
+v-if="state.activeTab === 'gui'" class="mt-4"
+>
       <ul class="grid grid-cols-1 gap-4 md:grid-cols-2">
         <li
           v-for="(varValue, varName) in variables"

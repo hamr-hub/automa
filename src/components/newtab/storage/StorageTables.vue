@@ -47,8 +47,9 @@
       </template>
     </ui-table>
   </div>
-  <storage-edit-table v-model="state.showAddTable"
-@save="saveTable" />
+  <storage-edit-table
+v-model="state.showAddTable" @save="saveTable"
+/>
 </template>
 <script setup>
 import { reactive } from 'vue';

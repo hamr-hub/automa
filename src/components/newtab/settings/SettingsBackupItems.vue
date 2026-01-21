@@ -1,7 +1,8 @@
 <template>
   <div class="scroll content w-full overflow-auto">
-    <div v-if="!query && workflows.length === 0"
-class="text-center">
+    <div
+v-if="!query && workflows.length === 0" class="text-center"
+>
       <img
 src="@/assets/svg/files-and-folder.svg" class="mx-auto max-w-sm" />
       <p class="text-xl font-semibold">
@@ -22,16 +23,18 @@ src="@/assets/svg/files-and-folder.svg" class="mx-auto max-w-sm" />
           class="mr-4"
           @change="toggleDeleteWorkflow($event, workflow.id)"
         />
-        <div v-else
-class="mr-4 h-5 w-5" />
+        <div
+v-else class="mr-4 h-5 w-5"
+/>
         <ui-img
           v-if="workflow.icon?.startsWith('http')"
           :src="workflow.icon"
           style="height: 24px; width: 24px"
           alt="Can not display"
         />
-        <v-remixicon v-else
-:name="workflow.icon" />
+        <v-remixicon
+v-else :name="workflow.icon"
+/>
         <div class="ml-2 flex-1 overflow-hidden">
           <p class="text-overflow flex-1">
             {{ workflow.name }}

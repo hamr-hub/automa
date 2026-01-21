@@ -1,7 +1,9 @@
 <template>
   <div class="wysiwyg-editor">
-    <slot v-if="editor"
-name="prepend" :editor="editor" />
+    <slot
+v-if="editor" name="prepend"
+:editor="editor"
+/>
     <div
       v-if="editor && toolbar && !readonly"
       class="bg-box-transparent sticky top-0 z-50 mb-2 flex items-center space-x-1 rounded-lg p-2 backdrop-blur"

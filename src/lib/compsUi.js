@@ -3,7 +3,9 @@ import VAutofocus from '../directives/VAutofocus';
 import VClosePopover from '../directives/VClosePopover';
 
 // Vite 使用 import.meta.glob 替代 webpack 的 require.context
-const uiComponents = import.meta.glob('../components/ui/*.vue', { eager: true });
+const uiComponents = import.meta.glob('../components/ui/*.vue', {
+  eager: true,
+});
 const transitionComponents = import.meta.glob(
   '../components/transitions/*.vue',
   { eager: true }

@@ -31,7 +31,7 @@
       <template #trigger>
         <ui-button>
           Add trigger
-          <hr class="h-4 border-r" >
+          <hr class="h-4 border-r">
           <v-remixicon
             name="riArrowLeftSLine"
             class="ml-2 -mr-1"

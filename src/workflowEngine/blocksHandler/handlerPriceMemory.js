@@ -24,9 +24,8 @@ export async function saveAmazonProduct({ id, data }, { refData }) {
     await priceMemoryClient.initialize();
 
     // 获取实际的URL值
-    const actualUrl = (
-      await renderString(url, refData, this.engine.isPopup)
-    ).value;
+    const actualUrl = (await renderString(url, refData, this.engine.isPopup))
+      .value;
 
     if (!actualUrl) {
       throw new Error('Product URL is required');
@@ -35,15 +34,30 @@ export async function saveAmazonProduct({ id, data }, { refData }) {
     // 构建商品数据
     const productData = {
       product_url: actualUrl,
-      title: (await renderString(title, refData, this.engine.isPopup)).value || null,
-      current_price: (await renderString(price, refData, this.engine.isPopup)).value || null,
+      title:
+        (await renderString(title, refData, this.engine.isPopup)).value || null,
+      current_price:
+        (await renderString(price, refData, this.engine.isPopup)).value || null,
       currency: currency || 'USD',
-      brand: (await renderString(brand, refData, this.engine.isPopup)).value || null,
-      rating: parseFloat((await renderString(rating, refData, this.engine.isPopup)).value) || null,
-      review_count: parseInt((await renderString(reviewCount, refData, this.engine.isPopup)).value) || null,
-      availability: (await renderString(availability, refData, this.engine.isPopup)).value || null,
-      main_image_url: (await renderString(mainImage, refData, this.engine.isPopup)).value || null,
-      description: (await renderString(description, refData, this.engine.isPopup)).value || null,
+      brand:
+        (await renderString(brand, refData, this.engine.isPopup)).value || null,
+      rating:
+        parseFloat(
+          (await renderString(rating, refData, this.engine.isPopup)).value
+        ) || null,
+      review_count:
+        parseInt(
+          (await renderString(reviewCount, refData, this.engine.isPopup)).value
+        ) || null,
+      availability:
+        (await renderString(availability, refData, this.engine.isPopup))
+          .value || null,
+      main_image_url:
+        (await renderString(mainImage, refData, this.engine.isPopup)).value ||
+        null,
+      description:
+        (await renderString(description, refData, this.engine.isPopup)).value ||
+        null,
     };
 
     // 获取站点信息并设置site_id
@@ -101,10 +115,14 @@ export async function savePriceHistory({ id, data }, { refData }) {
       site_id: product.site_id,
       product_url: actualUrl,
       asin: product.asin,
-      price: parseFloat((await renderString(price, refData, this.engine.isPopup)).value),
+      price: parseFloat(
+        (await renderString(price, refData, this.engine.isPopup)).value
+      ),
       currency: currency || 'USD',
       price_type: priceType || 'regular',
-      availability: (await renderString(availability, refData, this.engine.isPopup)).value || null,
+      availability:
+        (await renderString(availability, refData, this.engine.isPopup))
+          .value || null,
     };
 
     // 保存价格历史

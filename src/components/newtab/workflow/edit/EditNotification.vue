@@ -16,8 +16,9 @@
           @change="updateData({ title: $event })"
         />
       </edit-autocomplete>
-      <label class="input-label"
-for="notification-message">
+      <label
+class="input-label" for="notification-message"
+>
         {{ t('workflow.blocks.notification.message') }}
       </label>
       <edit-autocomplete>

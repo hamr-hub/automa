@@ -7,8 +7,9 @@
       @mouseleave="$emit('highlight', { highlight: false, index, element })"
     >
       <p class="mb-1">#{{ index + 1 }} {{ elementName }}</p>
-      <slot name="item"
-v-bind="{ element }" />
+      <slot
+name="item" v-bind="{ element }"
+/>
     </li>
   </ul>
 </template>

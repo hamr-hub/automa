@@ -29,8 +29,9 @@
         @keyup.enter="addColumn"
         @keyup.esc="$emit('close')"
       />
-      <ui-button variant="accent"
-@click="addColumn">
+      <ui-button
+variant="accent" @click="addColumn"
+>
         {{ t('common.add') }}
       </ui-button>
     </div>
@@ -60,12 +61,14 @@
     class="scroll overflow-y-auto px-1"
     style="max-height: calc(100vh - 16rem); min-height: 300px"
   >
-    <p v-if="columns.length === 0"
-class="mt-4 text-center">
+    <p
+v-if="columns.length === 0" class="mt-4 text-center"
+>
       {{ t('message.noData') }}
     </p>
-    <ul v-else
-class="space-y-2 py-1">
+    <ul
+v-else class="space-y-2 py-1"
+>
       <li
         v-for="(column, index) in columns"
         :key="column.id"
@@ -84,8 +87,10 @@ class="space-y-2 py-1">
           :placeholder="t('workflow.table.column.type')"
           class="flex-1"
         >
-          <option v-for="type in dataTypes"
-:key="type.id" :value="type.id">
+          <option
+v-for="type in dataTypes" :key="type.id"
+:value="type.id"
+>
             {{ type.name }}
           </option>
         </ui-select>

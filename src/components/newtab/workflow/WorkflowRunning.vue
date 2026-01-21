@@ -1,7 +1,8 @@
 <template>
   <div class="grid grid-cols-2 gap-4">
-    <ui-card v-for="item in data"
-:key="item">
+    <ui-card
+v-for="item in data" :key="item"
+>
       <div class="mb-4 flex items-center">
         <div class="text-overflow mr-4 flex-1">
           <p class="text-overflow mr-2 w-full">
@@ -26,10 +27,12 @@
         >
           <v-remixicon name="riExternalLinkLine" />
         </ui-button>
-        <ui-button variant="accent"
-@click="stopWorkflow(item)">
-          <v-remixicon name="riStopLine"
-class="mr-2 -ml-1" />
+        <ui-button
+variant="accent" @click="stopWorkflow(item)"
+>
+          <v-remixicon
+name="riStopLine" class="mr-2 -ml-1"
+/>
           <span>{{ t('common.stop') }}</span>
         </ui-button>
       </div>
@@ -39,8 +42,9 @@ class="mr-2 -ml-1" />
           <p class="ml-2 mr-4 flex-1">
             {{ getBlock(item).name }}
           </p>
-          <ui-spinner color="text-accent"
-size="20" />
+          <ui-spinner
+color="text-accent" size="20"
+/>
         </template>
         <p v-else>
           {{ t('message.noBlock') }}

@@ -11,8 +11,10 @@
     @update="$emit('update', $event)"
     @settings="$emit('settings', $event)"
   >
-    <Handle :id="`${id}-input-1`"
-type="target" :position="Position.Left" />
+    <Handle
+:id="`${id}-input-1`" type="target"
+:position="Position.Left"
+/>
     <div class="p-4">
       <div class="mb-2 flex items-center">
         <div
@@ -117,8 +119,10 @@ type="target" :position="Position.Left" />
         </div>
       </template>
     </draggable>
-    <Handle :id="`${id}-output-1`"
-type="source" :position="Position.Right" />
+    <Handle
+:id="`${id}-output-1`" type="source"
+:position="Position.Right"
+/>
   </block-base>
 </template>
 <script setup>

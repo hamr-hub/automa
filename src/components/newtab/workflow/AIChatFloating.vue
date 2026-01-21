@@ -1,8 +1,10 @@
 <template>
   <div>
     <!-- 悬浮球 (折叠状态) - 固定在工具栏右侧 -->
-    <div v-if="!isOpen" class="flex items-center pointer-events-auto">
-      <transition name="scale" appear>
+    <div v-if="!isOpen"
+class="flex items-center pointer-events-auto">
+      <transition name="scale"
+appear>
         <button
           class="group flex h-10 w-10 items-center justify-center rounded-xl bg-gray-900/80 text-white shadow-lg shadow-black/20 transition-all hover:bg-blue-600 hover:scale-105 active:scale-95 border border-white/10 backdrop-blur-md ml-4"
           @click="toggleChat"
@@ -92,7 +94,8 @@
                 title="最小化"
                 @click="toggleChat"
               >
-                <v-remixicon name="riSubtractLine" size="16" />
+                <v-remixicon name="riSubtractLine"
+size="16" />
               </button>
             </div>
           </div>
@@ -100,15 +103,18 @@
           <!-- 模型选择和模式选择 -->
           <div class="px-4 pb-3 space-y-2">
             <div class="flex items-center space-x-2">
-              <v-remixicon name="riCpuLine" class="text-gray-400" size="14" />
+              <v-remixicon name="riCpuLine"
+class="text-gray-400" size="14" />
               <select
                 v-model="selectedModel"
                 :disabled="isLoadingModels || availableModels.length === 0"
                 class="flex-1 text-xs bg-gray-800/50 border border-gray-700 rounded-lg px-2 py-1.5 text-gray-200 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/20 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 @change="onModelChange"
               >
-                <option v-if="isLoadingModels" value="">加载中...</option>
-                <option v-else-if="availableModels.length === 0" value="">
+                <option
+v-if="isLoadingModels" value="">加载中...</option>
+                <option v-else-if="availableModels.length === 0"
+value="">
                   无可用模型
                 </option>
                 <option
@@ -139,7 +145,8 @@
                 v-tooltip="'启用后将逐步生成工作流，支持多轮对话完善'"
                 class="text-gray-500 cursor-help"
               >
-                <v-remixicon name="riQuestionLine" size="12" />
+                <v-remixicon name="riQuestionLine"
+size="12" />
               </span>
             </div>
           </div>
@@ -173,8 +180,11 @@
               {{ step.phase?.charAt(0).toUpperCase() }}
             </div>
             <div class="flex-1 min-w-0">
-              <div class="text-gray-300">{{ step.thought }}</div>
-              <div v-if="step.details" class="text-gray-500 text-[10px] mt-0.5">
+              <div class="text-gray-300">
+                {{ step.thought }}
+              </div>
+              <div v-if="step.details"
+class="text-gray-500 text-[10px] mt-0.5">
                 {{ formatThinkingDetails(step.details) }}
               </div>
             </div>
@@ -195,7 +205,8 @@
             <div
               class="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 border border-white/5 shadow-inner"
             >
-              <v-remixicon name="riMagicLine" class="text-blue-400" size="28" />
+              <v-remixicon name="riMagicLine"
+class="text-blue-400" size="28" />
             </div>
             <h3 class="text-sm font-medium text-gray-200 mb-1">
               我是您的 AI 助手
@@ -257,7 +268,8 @@
           </div>
 
           <!-- 加载状态 -->
-          <div v-if="isGenerating" class="flex items-start space-x-2">
+          <div v-if="isGenerating"
+class="flex items-start space-x-2">
             <div
               class="flex items-center space-x-1 rounded-xl bg-gray-800/50 px-3 py-2.5 border border-gray-700/30"
             >
@@ -311,7 +323,8 @@
                 title="刷新标签页列表"
                 @click="refreshTabs"
               >
-                <v-remixicon name="riRefreshLine" size="12" />
+                <v-remixicon name="riRefreshLine"
+size="12" />
               </button>
             </div>
 
@@ -423,7 +436,8 @@
               title="查看当前工作流"
               @click="viewCurrentWorkflow"
             >
-              <v-remixicon name="riEyeLine" size="14" />
+              <v-remixicon name="riEyeLine"
+size="14" />
             </button>
           </div>
 
@@ -449,7 +463,8 @@
                 >
                   {{ selectedTab.title }}
                 </span>
-                <span v-else class="text-xs text-gray-500"> 选择标签页 </span>
+                <span v-else
+class="text-xs text-gray-500"> 选择标签页 </span>
               </button>
             </div>
 
@@ -508,7 +523,8 @@
                 class="text-gray-500 hover:text-gray-300 transition-colors"
                 @click="inputAnalysis = null"
               >
-                <v-remixicon name="riCloseLine" size="12" />
+                <v-remixicon name="riCloseLine"
+size="12" />
               </button>
             </div>
 
@@ -552,7 +568,8 @@
 
               <div class="flex flex-wrap gap-1 mt-2">
                 <span
-                  v-for="feature in activeIndicators"
+                  v-for="(hasFeature, feature) in inputAnalysis.indicators"
+                  v-if="hasFeature"
                   :key="feature"
                   class="text-[10px] px-1.5 py-0.5 rounded bg-gray-700/50 text-gray-400"
                 >
@@ -645,14 +662,6 @@ const isLoadingTabs = ref(false);
 
 // 输入分析相关状态
 const inputAnalysis = ref(null);
-
-// 计算属性：过滤出存在的指示器
-const activeIndicators = computed(() => {
-  if (!inputAnalysis.value?.indicators) return [];
-  return Object.entries(inputAnalysis.value.indicators)
-    .filter(([, hasFeature]) => hasFeature)
-    .map(([feature]) => feature);
-});
 
 // 计算属性
 const inputPlaceholder = computed(() => {

@@ -1,4 +1,3 @@
-/* eslint-disable no-undef */
 import { toCamelCase } from '@/utils/helper';
 import customHandlers from '@business/blocks/backgroundHandler';
 
@@ -6,13 +5,16 @@ import customHandlers from '@business/blocks/backgroundHandler';
 const blocksHandlerModules = import.meta.glob('./blocksHandler/*.js', {
   eager: true,
 });
-const handlers = Object.entries(blocksHandlerModules).reduce((acc, [path, module]) => {
-  const name = path.replace(/^\.\/blocksHandler\/handler|\.js$/g, '');
+const handlers = Object.entries(blocksHandlerModules).reduce(
+  (acc, [path, module]) => {
+    const name = path.replace(/^\.\/blocksHandler\/handler|\.js$/g, '');
 
-  acc[toCamelCase(name)] = module.default;
+    acc[toCamelCase(name)] = module.default;
 
-  return acc;
-}, {});
+    return acc;
+  },
+  {}
+);
 
 // Alias for legacy Google Drive block
 handlers.googleDrive = handlers.supabaseStorage;

@@ -34,8 +34,9 @@
               title="Close tab"
               @click.stop="closeTab(index, tab)"
             >
-              <v-remixicon name="riCloseLine"
-size="20" />
+              <v-remixicon
+name="riCloseLine" size="20"
+/>
             </span>
           </button>
         </template>

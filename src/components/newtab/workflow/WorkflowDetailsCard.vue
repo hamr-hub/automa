@@ -11,8 +11,10 @@
             :src="workflow.icon"
             class="h-8 w-8"
           />
-          <v-remixicon v-else
-:name="workflow.icon" size="26" class="mt-1" />
+          <v-remixicon
+v-else :name="workflow.icon"
+size="26" class="mt-1"
+/>
         </span>
       </template>
       <div class="w-56">

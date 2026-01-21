@@ -1,4 +1,3 @@
-/* eslint-disable no-undef */
 import customHandlers from '@business/blocks/contentHandler';
 import { toCamelCase } from '@/utils/helper';
 
@@ -7,13 +6,16 @@ import { toCamelCase } from '@/utils/helper';
 const blocksHandlerModules = import.meta.glob('./blocksHandler/*.js', {
   eager: true,
 });
-const handlers = Object.entries(blocksHandlerModules).reduce((acc, [path, module]) => {
-  const name = path.replace(/^\.\/blocksHandler\/handler|\.js$/g, '');
+const handlers = Object.entries(blocksHandlerModules).reduce(
+  (acc, [path, module]) => {
+    const name = path.replace(/^\.\/blocksHandler\/handler|\.js$/g, '');
 
-  acc[toCamelCase(name)] = module.default;
+    acc[toCamelCase(name)] = module.default;
 
-  return acc;
-}, {});
+    return acc;
+  },
+  {}
+);
 
 /**
  * Get all content script handlers including custom handlers

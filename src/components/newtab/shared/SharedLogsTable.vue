@@ -1,18 +1,22 @@
 <template>
   <div class="logs-table scroll overflow-x-auto">
     <transition-expand>
-      <div v-if="state.selected.length > 0"
-class="border-x border-t px-4 py-2">
+      <div
+v-if="state.selected.length > 0" class="border-x border-t px-4 py-2"
+>
         <ui-button @click="stopSelectedWorkflow"> Stop selected </ui-button>
       </div>
     </transition-expand>
     <table class="w-full">
       <tbody class="divide-y dark:divide-gray-800">
         <template v-if="running && running[0]?.state">
-          <tr v-for="item in running"
-:key="item.id" class="border p-2">
-            <td v-if="!hideSelect"
-class="w-8">
+          <tr
+v-for="item in running" :key="item.id"
+class="border p-2"
+>
+            <td
+v-if="!hideSelect" class="w-8"
+>
               <ui-checkbox
                 :model-value="state.selected.includes(item.id)"
                 class="align-text-bottom"
@@ -44,10 +48,12 @@ class="w-8">
                 countDuration(item.state?.startedTimestamp, Date.now())
               }}</span>
             </td>
-            <td title="Executing block"
-class="text-overflow">
-              <ui-spinner color="text-accent"
-size="20" />
+            <td
+title="Executing block" class="text-overflow"
+>
+              <ui-spinner
+color="text-accent" size="20"
+/>
               <span class="text-overflow ml-3 inline-block align-middle">
                 {{
                   getTranslation(
@@ -65,17 +71,22 @@ size="20" />
               </span>
             </td>
             <td class="text-right">
-              <ui-button small
-class="text-sm" @click="stopWorkflow(item.id)">
+              <ui-button
+small class="text-sm"
+@click="stopWorkflow(item.id)"
+>
                 {{ t('common.stop') }}
               </ui-button>
             </td>
           </tr>
         </template>
-        <tr v-for="log in logs"
-:key="log.id" class="hoverable">
-          <slot name="item-prepend"
-:log="log" />
+        <tr
+v-for="log in logs" :key="log.id"
+class="hoverable"
+>
+          <slot
+name="item-prepend" :log="log"
+/>
           <td
             class="text-overflow w-4/12"
             style="min-width: 140px; max-width: 330px"
@@ -125,8 +136,9 @@ class="text-sm" @click="stopWorkflow(item.id)">
               {{ t(`logStatus.${log.status}`) }}
             </span>
           </td>
-          <slot name="item-append"
-:log="log" />
+          <slot
+name="item-append" :log="log"
+/>
         </tr>
         <slot name="table:append" />
       </tbody>

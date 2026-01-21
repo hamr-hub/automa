@@ -28,8 +28,9 @@
       icon
       @click="updatePage(modelValue + 1)"
     >
-      <v-remixicon rotate="180"
-name="riArrowLeftSLine" />
+      <v-remixicon
+rotate="180" name="riArrowLeftSLine"
+/>
     </ui-button>
   </div>
 </template>

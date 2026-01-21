@@ -1,6 +1,7 @@
 <template>
-  <div v-if="workflow"
-class="relative h-screen">
+  <div
+v-if="workflow" class="relative h-screen"
+>
     <div class="absolute top-0 left-0 z-10 flex w-full items-center p-4">
       <ui-card
         padding="px-2"
@@ -13,8 +14,10 @@ class="relative h-screen">
             :src="workflow.icon"
             class="h-8 w-8"
           />
-          <v-remixicon v-else
-:name="workflow.icon" size="26" />
+          <v-remixicon
+v-else :name="workflow.icon"
+size="26"
+/>
         </span>
         <div class="ml-2 max-w-sm">
           <p

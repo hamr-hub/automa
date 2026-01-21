@@ -12,8 +12,10 @@
       class="mb-2 mt-3 w-full"
       @change="updateData({ findTabBy: $event })"
     >
-      <option v-for="type in types"
-:key="type.id" :value="type.id">
+      <option
+v-for="type in types" :key="type.id"
+:value="type.id"
+>
         {{ type.name }}
       </option>
     </ui-select>
@@ -58,8 +60,9 @@
       >
         {{ t('workflow.blocks.switch-tab.createIfNoMatch') }}
       </ui-checkbox>
-      <edit-autocomplete v-if="data.createIfNoMatch"
-class="mt-2">
+      <edit-autocomplete
+v-if="data.createIfNoMatch" class="mt-2"
+>
         <ui-input
           :model-value="data.url"
           :label="t('workflow.blocks.switch-tab.url')"

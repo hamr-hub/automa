@@ -9,15 +9,19 @@
     @update="$emit('update', $event)"
     @settings="$emit('settings', $event)"
   >
-    <Handle :id="`${id}-input-1`"
-type="target" :position="Position.Left" />
+    <Handle
+:id="`${id}-input-1`" type="target"
+:position="Position.Left"
+/>
     <div class="mb-2 flex items-center">
       <div
         :class="data.disableBlock ? 'bg-box-transparent' : block.category.color"
         class="mr-4 inline-block rounded-lg p-2 text-sm dark:text-black"
       >
-        <v-remixicon name="riRepeat2Line"
-size="20" class="mr-1 inline-block" />
+        <v-remixicon
+name="riRepeat2Line" size="20"
+class="mr-1 inline-block"
+/>
         <span>{{ t('workflow.blocks.repeat-task.name') }}</span>
       </div>
     </div>
@@ -37,8 +41,10 @@ size="20" class="mr-1 inline-block" />
     <p class="text-right text-gray-600 dark:text-gray-200">
       {{ t('workflow.blocks.repeat-task.repeatFrom') }}
     </p>
-    <Handle :id="`${id}-output-1`"
-type="source" :position="Position.Right" />
+    <Handle
+:id="`${id}-output-1`" type="source"
+:position="Position.Right"
+/>
     <Handle
       :id="`${id}-output-2`"
       type="source"

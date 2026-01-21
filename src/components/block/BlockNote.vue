@@ -5,8 +5,9 @@
     style="min-width: 192px"
   >
     <div class="flex items-center border-b pb-2">
-      <v-remixicon name="riFileEditLine"
-size="20" />
+      <v-remixicon
+name="riFileEditLine" size="20"
+/>
       <p class="mx-2 flex-1 font-semibold">Note</p>
       <ui-popover class="note-color">
         <template #trigger>
@@ -42,7 +43,7 @@ size="20" />
           </option>
         </ui-select>
       </ui-popover>
-      <hr class="mx-2 h-7 border-r" >
+      <hr class="mx-2 h-7 border-r">
       <v-remixicon
         name="riDeleteBin7Line"
         size="20"

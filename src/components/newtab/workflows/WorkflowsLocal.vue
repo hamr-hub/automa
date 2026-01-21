@@ -12,11 +12,14 @@ src="@/assets/svg/alien.svg" class="w-96" />
     </div>
   </div>
   <template v-else>
-    <div v-if="pinnedWorkflows.length > 0"
-class="mb-8 border-b pb-8">
+    <div
+v-if="pinnedWorkflows.length > 0" class="mb-8 border-b pb-8"
+>
       <div class="flex items-center">
-        <v-remixicon name="riPushpin2Line"
-class="mr-2" size="20" />
+        <v-remixicon
+name="riPushpin2Line" class="mr-2"
+size="20"
+/>
         <span>{{ t('workflow.pinWorkflow.pinned') }}</span>
       </div>
       <div class="workflows-container mt-4">
@@ -65,8 +68,10 @@ class="mr-2" size="20" />
           class="bg-input rounded-md p-1"
           @change="onPerPageChange"
         >
-          <option v-for="num in [18, 32, 64, 128]"
-:key="num" :value="num">
+          <option
+v-for="num in [18, 32, 64, 128]" :key="num"
+:value="num"
+>
             {{ num }}
           </option>
         </select>
@@ -96,8 +101,9 @@ class="mr-2" size="20" />
       >
         <div class="flex items-center gap-3">
           <div class="h-6 w-px bg-gray-300 dark:bg-gray-600" />
-          <ui-button variant="accent"
-@click="selectAllWorkflows">
+          <ui-button
+variant="accent" @click="selectAllWorkflows"
+>
             <v-remixicon
               :name="
                 state.selectedForBatch.length >= allWorkflows.length
@@ -113,10 +119,13 @@ class="mr-2" size="20" />
               )
             }}
           </ui-button>
-          <ui-button variant="danger"
-@click="deleteBatchWorkflows">
-            <v-remixicon name="riDeleteBin7Line"
-size="16" class="mr-1" />
+          <ui-button
+variant="danger" @click="deleteBatchWorkflows"
+>
+            <v-remixicon
+name="riDeleteBin7Line" size="16"
+class="mr-1"
+/>
             {{ t('workflow.deleteSelected') }} ({{
               state.selectedForBatch.length
             }})
@@ -125,8 +134,9 @@ size="16" class="mr-1" />
       </ui-card>
     </transition>
   </template>
-  <ui-modal v-model="renameState.show"
-title="Workflow">
+  <ui-modal
+v-model="renameState.show" title="Workflow"
+>
     <ui-input
       v-model="renameState.name"
       :placeholder="t('common.name')"
@@ -146,12 +156,15 @@ title="Workflow">
       {{ renameState.description.length }}/300
     </p>
     <div class="flex space-x-2">
-      <ui-button class="w-full"
-@click="clearRenameModal">
+      <ui-button
+class="w-full" @click="clearRenameModal"
+>
         {{ t('common.cancel') }}
       </ui-button>
-      <ui-button variant="accent"
-class="w-full" @click="renameWorkflow">
+      <ui-button
+variant="accent" class="w-full"
+@click="renameWorkflow"
+>
         {{ t('common.update') }}
       </ui-button>
     </div>

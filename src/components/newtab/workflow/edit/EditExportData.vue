@@ -10,8 +10,10 @@
       <p class="mt-4">
         {{ t('workflow.blocks.handle-download.noPermission') }}
       </p>
-      <ui-button variant="accent"
-class="mt-2" @click="permission.request">
+      <ui-button
+variant="accent" class="mt-2"
+@click="permission.request"
+>
         {{ t('workflow.blocks.clipboard.grantPermission') }}
       </ui-button>
     </template>
@@ -22,8 +24,10 @@ class="mt-2" @click="permission.request">
         class="mt-2 w-full"
         @change="updateData({ dataToExport: $event })"
       >
-        <option v-for="option in dataToExport"
-:key="option" :value="option">
+        <option
+v-for="option in dataToExport" :key="option"
+:value="option"
+>
           {{ t(`workflow.blocks.export-data.dataToExport.options.${option}`) }}
         </option>
       </ui-select>
@@ -59,8 +63,10 @@ class="mt-2" @click="permission.request">
         class="mt-2 w-full"
         @change="updateData({ onConflict: $event })"
       >
-        <option v-for="item in onConflict"
-:key="item" :value="item">
+        <option
+v-for="item in onConflict" :key="item"
+:value="item"
+>
           {{ t(`workflow.blocks.base.downloads.onConflict.${item}`) }}
         </option>
       </ui-select>
@@ -70,8 +76,10 @@ class="mt-2" @click="permission.request">
         class="mt-2 w-full"
         @change="updateData({ type: $event })"
       >
-        <option v-for="type in dataExportTypes"
-:key="type.id" :value="type.id">
+        <option
+v-for="type in dataExportTypes" :key="type.id"
+:value="type.id"
+>
           {{ type.name }}
         </option>
       </ui-select>
