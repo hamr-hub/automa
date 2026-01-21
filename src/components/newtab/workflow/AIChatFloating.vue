@@ -552,9 +552,8 @@
 
               <div class="flex flex-wrap gap-1 mt-2">
                 <span
-                  v-for="(hasFeature, feature) in inputAnalysis.indicators"
+                  v-for="feature in activeIndicators"
                   :key="feature"
-                  v-if="hasFeature"
                   class="text-[10px] px-1.5 py-0.5 rounded bg-gray-700/50 text-gray-400"
                 >
                   {{ getFeatureLabel(feature) }}
@@ -595,13 +594,9 @@ import { ref, nextTick, onMounted, onUnmounted, computed } from 'vue';
 import aiService from '@/services/ai/AIService';
 import { useToast } from 'vue-toastification';
 import { useStore } from '@/stores/main';
-import {
-  getAllTabs,
-  getTabContext,
-  analyzeInputComplexity,
-} from '@/services/ai/aiUtils';
+import { getAllTabs, analyzeInputComplexity } from '@/services/ai/aiUtils';
 
-defineProps({
+const props = defineProps({
   workflow: {
     type: Object,
     default: () => null,
@@ -651,6 +646,14 @@ const isLoadingTabs = ref(false);
 // 输入分析相关状态
 const inputAnalysis = ref(null);
 
+// 计算属性：过滤出存在的指示器
+const activeIndicators = computed(() => {
+  if (!inputAnalysis.value?.indicators) return [];
+  return Object.entries(inputAnalysis.value.indicators)
+    .filter(([, hasFeature]) => hasFeature)
+    .map(([feature]) => feature);
+});
+
 // 计算属性
 const inputPlaceholder = computed(() => {
   if (selectedTab.value) {
@@ -662,6 +665,26 @@ const inputPlaceholder = computed(() => {
 const currentWorkflow = computed(() => {
   return props.workflow;
 });
+
+const quickTips = [
+  '帮我抓取这个页面的商品信息',
+  '创建一个自动登录的流程',
+  '提取页面上的所有链接',
+  '生成一个数据导出工作流',
+];
+
+function getFeatureLabel(feature) {
+  const labels = {
+    hasMultipleSteps: '多步骤',
+    hasLooping: '循环',
+    hasConditions: '条件判断',
+    hasDataProcessing: '数据处理',
+    hasPagination: '分页',
+    hasFormInteraction: '表单交互',
+    hasMultipleSites: '多网站',
+  };
+  return labels[feature] || feature;
+}
 
 /**
  * 开始拖动对话框
@@ -705,38 +728,6 @@ function stopDrag() {
   isDragging.value = false;
   document.removeEventListener('mousemove', onDrag);
   document.removeEventListener('mouseup', stopDrag);
-}
-
-/**
- * 加载可用的ollama模型列表
- */
-async function loadAvailableModels() {
-  if (ollamaStatus.value !== 'connected') return;
-
-  isLoadingModels.value = true;
-  try {
-    const models = await aiService.listModels();
-    availableModels.value = models.map((m) => ({ name: m.name }));
-
-    // 如果当前没有选择模型，自动选择上次使用的或默认模型
-    if (!selectedModel.value && availableModels.value.length > 0) {
-      const lastUsedModel = store.settings.ollama?.lastUsedModel;
-      if (
-        lastUsedModel &&
-        availableModels.value.some((m) => m.name === lastUsedModel)
-      ) {
-        selectedModel.value = lastUsedModel;
-      } else {
-        selectedModel.value =
-          store.settings.ollama?.model || availableModels.value[0].name;
-      }
-    }
-  } catch (e) {
-    console.error('Failed to load models:', e);
-    availableModels.value = [];
-  } finally {
-    isLoadingModels.value = false;
-  }
 }
 
 /**
@@ -943,6 +934,65 @@ async function checkStatus() {
   } catch {
     ollamaStatus.value = 'disconnected';
   }
+}
+
+async function refreshTabs() {
+  isLoadingTabs.value = true;
+  try {
+    availableTabs.value = await getAllTabs();
+  } catch (error) {
+    console.error('Failed to refresh tabs:', error);
+    toast.error('刷新标签页失败');
+  } finally {
+    isLoadingTabs.value = false;
+  }
+}
+
+function selectTab(tab) {
+  selectedTabId.value = tab.id;
+  selectedTab.value = tab;
+}
+
+async function useActiveTab() {
+  try {
+    const tabs = await getAllTabs();
+    const activeTab = tabs.find((tab) => tab.active);
+    if (activeTab) {
+      selectTab(activeTab);
+      showTabSelection.value = false;
+    } else {
+      toast.error('未找到活动标签页');
+    }
+  } catch (error) {
+    console.error('Failed to get active tab:', error);
+    toast.error('获取活动标签页失败');
+  }
+}
+
+function toggleTabSelection() {
+  showTabSelection.value = !showTabSelection.value;
+  if (showTabSelection.value) {
+    refreshTabs();
+  }
+}
+
+function analyzeInput() {
+  if (!input.value.trim()) {
+    inputAnalysis.value = null;
+    return;
+  }
+
+  const result = analyzeInputComplexity(input.value);
+  inputAnalysis.value = result;
+}
+
+function viewCurrentWorkflow() {
+  if (!currentWorkflow.value) {
+    toast.info('当前没有工作流');
+    return;
+  }
+
+  toast.info(`当前工作流有 ${currentWorkflow.value.nodes?.length || 0} 个节点`);
 }
 
 onMounted(() => {

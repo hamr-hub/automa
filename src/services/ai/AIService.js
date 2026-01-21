@@ -221,6 +221,7 @@ class AIService {
   async updateConfig(config) {
     this.initialized = false;
     await this.initialize(config);
+    this.notifyConfigChange();
   }
 
   /**
@@ -241,6 +242,41 @@ class AIService {
     }
     const langGraphService = this.getLangGraphService();
     return langGraphService.ollama.getMetrics();
+  }
+
+  /**
+   * 添加配置变更监听器
+   * @param {Function} callback - 回调函数
+   */
+  addConfigChangeListener(callback) {
+    this.configChangeListeners = this.configChangeListeners || [];
+    this.configChangeListeners.push(callback);
+  }
+
+  /**
+   * 移除配置变更监听器
+   * @param {Function} callback - 回调函数
+   */
+  removeConfigChangeListener(callback) {
+    if (!this.configChangeListeners) return;
+    const index = this.configChangeListeners.indexOf(callback);
+    if (index > -1) {
+      this.configChangeListeners.splice(index, 1);
+    }
+  }
+
+  /**
+   * 通知配置变更
+   */
+  notifyConfigChange() {
+    if (!this.configChangeListeners) return;
+    this.configChangeListeners.forEach((callback) => {
+      try {
+        callback();
+      } catch (error) {
+        console.error('Config change listener error:', error);
+      }
+    });
   }
 }
 
