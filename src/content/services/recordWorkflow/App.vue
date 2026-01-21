@@ -31,9 +31,15 @@
           style="height: 24px; width: 24px"
           title="Element selector"
         >
-          <v-remixicon name="riCursorLine" class="relative z-10" size="20" />
+          <v-remixicon
+            name="riCursorLine"
+            class="relative z-10"
+            size="20"
+          />
         </span>
-        <p class="ml-2 font-semibold">Select Element</p>
+        <p class="ml-2 font-semibold">
+          Select Element
+        </p>
         <div class="grow" />
         <v-remixicon name="mdiDragHorizontal" />
       </div>
@@ -61,7 +67,11 @@
           </p>
           <template v-else>
             <template v-if="selectState.list && !selectState.listId">
-              <label for="list-id" class="ml-1" style="font-size: 14px">
+              <label
+                for="list-id"
+                class="ml-1"
+                style="font-size: 14px"
+              >
                 Element list id
               </label>
               <input
@@ -87,18 +97,24 @@
                   "
                   class="bg-input w-full rounded-lg px-4 py-2"
                   readonly
-                />
+                >
                 <template
                   v-if="
                     !selectState.list &&
-                    !selectState.childSelector.includes('|>')
+                      !selectState.childSelector.includes('|>')
                   "
                 >
                   <button @click="selectElementPath('up')">
-                    <v-remixicon name="riArrowLeftLine" rotate="90" />
+                    <v-remixicon
+                      name="riArrowLeftLine"
+                      rotate="90"
+                    />
                   </button>
                   <button @click="selectElementPath('down')">
-                    <v-remixicon name="riArrowLeftLine" rotate="-90" />
+                    <v-remixicon
+                      name="riArrowLeftLine"
+                      rotate="-90"
+                    />
                   </button>
                 </template>
               </div>
@@ -107,7 +123,12 @@
                 class="bg-input mt-2 w-full rounded-lg px-4 py-2"
               >
                 <option
-value="" disabled selected>Select what to do</option>
+                  value=""
+                  disabled
+                  selected
+                >
+                  Select what to do
+                </option>
                 <option
                   v-for="block in addBlockState.blocks"
                   :key="block"
@@ -129,7 +150,12 @@ value="" disabled selected>Select what to do</option>
                   class="bg-input mt-2 block w-full rounded-lg px-4 py-2"
                 >
                   <option
-value="" selected disabled>Select attribute</option>
+                    value=""
+                    selected
+                    disabled
+                  >
+                    Select attribute
+                  </option>
                   <option
                     v-for="(value, name) in addBlockState.attributes"
                     :key="name"
@@ -162,7 +188,11 @@ value="" selected disabled>Select attribute</option>
                   class="bg-input block w-full rounded-lg px-4 py-2"
                 >
                   <option
-value="" selected>Select column [none]</option>
+                    value=""
+                    selected
+                  >
+                    Select column [none]
+                  </option>
                   <option
                     v-for="column in addBlockState.workflowColumns"
                     :key="column.id"
@@ -186,7 +216,10 @@ value="" selected>Select column [none]</option>
               </button>
             </template>
           </template>
-          <p class="mt-4" style="font-size: 14px">
+          <p
+            class="mt-4"
+            style="font-size: 14px"
+          >
             Press <kbd class="bg-box-transparent rounded-md p-1">Esc</kbd> to
             cancel
           </p>
@@ -201,7 +234,7 @@ value="" selected>Select column [none]</option>
       :list="selectState.list"
       :pause="
         selectState.selectedElements.length > 0 &&
-        selectState.list &&
+          selectState.list &&
           !selectState.listId
       "
       @selected="onElementsSelected"
@@ -275,6 +308,7 @@ function saveRecording() {
 }
 function cancelRecording() {
   if (recordingState.flows.length > 0) {
+     
     if (!confirm('确定要取消录制吗？所有操作将被丢弃。')) {
       return;
     }
@@ -292,11 +326,7 @@ function updateFlows(newFlows) {
     }
   });
 }
-function stopRecording() {
-  browser.runtime.sendMessage({
-    type: 'background--recording:stop',
-  });
-}
+// Removed unused stopRecording function - handled by stopRecordingBtn click
 function getElementBlocks(element) {
   if (!element) return;
 

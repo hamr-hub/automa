@@ -1,5 +1,9 @@
 <template>
-  <div v-if="workflow" class="flex" style="height: calc(100vh - 40px)">
+  <div
+    v-if="workflow"
+    class="flex"
+    style="height: calc(100vh - 40px)"
+  >
     <div
       v-if="state.showSidebar && haveEditAccess"
       :class="
@@ -29,7 +33,10 @@
       />
       <!-- drag-element -->
       <div
-ref="sidebarRef" class="custom-drag" @mousedown="startDrag" />
+        ref="sidebarRef"
+        class="custom-drag"
+        @mousedown="startDrag"
+      />
     </div>
     <div class="relative flex-1 overflow-auto">
       <div
@@ -47,7 +54,11 @@ ref="sidebarRef" class="custom-drag" @mousedown="startDrag" />
               :src="workflow.icon"
               class="h-8 w-8"
             />
-            <v-remixicon v-else :name="workflow.icon" size="26" />
+            <v-remixicon
+              v-else
+              :name="workflow.icon"
+              size="26"
+            />
           </span>
           <div class="ml-2 max-w-sm">
             <p
@@ -87,12 +98,18 @@ ref="sidebarRef" class="custom-drag" @mousedown="startDrag" />
             {{ t('common.editor') }}
           </ui-tab>
           <template v-if="isPackage">
-            <ui-tab value="package-details"> Details </ui-tab>
+            <ui-tab value="package-details">
+              Details
+            </ui-tab>
             <ui-tab value="package-settings">
               {{ t('common.settings') }}
             </ui-tab>
           </template>
-          <ui-tab v-else value="logs" class="flex items-center">
+          <ui-tab
+            v-else
+            value="logs"
+            class="flex items-center"
+          >
             {{ t('common.log', 2) }}
             <span
               v-if="workflowStates.length > 0"
@@ -103,7 +120,10 @@ ref="sidebarRef" class="custom-drag" @mousedown="startDrag" />
             </span>
           </ui-tab>
         </ui-tabs>
-        <ui-card v-if="isTeamWorkflow" padding="p-1 ml-4 pointer-events-auto">
+        <ui-card
+          v-if="isTeamWorkflow"
+          padding="p-1 ml-4 pointer-events-auto"
+        >
           <ui-input
             v-tooltip="'Workflow URL'"
             prepend-icon="riLinkM"
@@ -113,14 +133,20 @@ ref="sidebarRef" class="custom-drag" @mousedown="startDrag" />
           />
         </ui-card>
         <div class="pointer-events-none grow" />
-        <editor-used-credentials v-if="editor" :editor="editor" />
+        <editor-used-credentials
+          v-if="editor"
+          :editor="editor"
+        />
         <template v-if="isPackage">
           <ui-button
             v-if="workflow.isExternal"
             v-tooltip="t('workflow.previewMode.description')"
             class="pointer-events-auto cursor-default"
           >
-            <v-remixicon name="riEyeLine" class="mr-2 -ml-1" />
+            <v-remixicon
+              name="riEyeLine"
+              class="mr-2 -ml-1"
+            />
             <span>{{ t('workflow.previewMode.title') }}</span>
           </ui-button>
           <editor-pkg-actions
@@ -163,10 +189,19 @@ ref="sidebarRef" class="custom-drag" @mousedown="startDrag" />
         @dragover.prevent="onDragoverEditor"
       >
         <template v-if="isPackage">
-          <ui-tab-panel value="package-details" class="container pt-24">
-            <package-details :data="workflow" @update="updateWorkflow" />
+          <ui-tab-panel
+            value="package-details"
+            class="container pt-24"
+          >
+            <package-details
+              :data="workflow"
+              @update="updateWorkflow"
+            />
           </ui-tab-panel>
-          <ui-tab-panel value="package-settings" class="container pt-24">
+          <ui-tab-panel
+            value="package-settings"
+            class="container pt-24"
+          >
             <package-settings
               :data="workflow"
               :editor="editor"
@@ -175,7 +210,12 @@ ref="sidebarRef" class="custom-drag" @mousedown="startDrag" />
             />
           </ui-tab-panel>
         </template>
-        <ui-tab-panel cache value="editor" class="w-full" @keydown="onKeydown">
+        <ui-tab-panel
+          cache
+          value="editor"
+          class="w-full"
+          @keydown="onKeydown"
+        >
           <editor-debugging
             v-if="workflow.testingMode && workflowStates.length > 0"
             :states="workflowStates"
@@ -206,8 +246,9 @@ ref="sidebarRef" class="custom-drag" @mousedown="startDrag" />
             >
               <div class="flex items-center space-x-2">
                 <ui-card
-padding="p-0 undo-redo" class="shadow-sm"
->
+                  padding="p-0 undo-redo"
+                  class="shadow-sm"
+                >
                   <button
                     v-tooltip.group="
                       `${t('workflow.undo')} (${getReadableShortcut('mod+z')})`
@@ -262,16 +303,19 @@ padding="p-0 undo-redo" class="shadow-sm"
 
                 <!-- Execution Status Indicator -->
                 <div
-v-if="workflowStates.length > 0" class="ml-2"
->
+                  v-if="workflowStates.length > 0"
+                  class="ml-2"
+                >
                   <ui-card
-padding="px-3 py-1" class="shadow-sm"
->
+                    padding="px-3 py-1"
+                    class="shadow-sm"
+                  >
                     <div class="flex items-center text-sm">
                       <ui-spinner
-color="text-accent" size="16"
-class="mr-2"
-/>
+                        color="text-accent"
+                        size="16"
+                        class="mr-2"
+                      />
                       <span>{{ workflowStates.length }}
                         {{ t('workflow.running') }}</span>
                     </div>
@@ -301,8 +345,9 @@ class="mr-2"
           />
         </ui-tab-panel>
         <ui-tab-panel
-value="logs" class="container pt-24"
->
+          value="logs"
+          class="container pt-24"
+        >
           <editor-logs
             :workflow-id="workflow.id"
             :workflow-states="workflowStates"
@@ -337,18 +382,21 @@ value="logs" class="container pt-24"
             >
               <div class="mb-2 flex items-center">
                 <ui-spinner
-color="text-accent" size="20"
-class="mr-2"
-/>
+                  color="text-accent"
+                  size="20"
+                  class="mr-2"
+                />
                 <span class="font-medium">{{ workflowState.name }}</span>
               </div>
               <div
-v-if="workflowState.currentBlock" class="ml-8 space-y-1"
->
+                v-if="workflowState.currentBlock"
+                class="ml-8 space-y-1"
+              >
                 <p class="text-sm text-gray-600 dark:text-gray-300">
                   <v-remixicon
-name="riPlayLine" class="mr-1 inline-block"
-/>
+                    name="riPlayLine"
+                    class="mr-1 inline-block"
+                  />
                   {{ t('workflow.currentBlock') }}:
                   <span class="font-medium">
                     {{
@@ -377,7 +425,10 @@ name="riPlayLine" class="mr-1 inline-block"
     :content-class="activeWorkflowModal?.width || 'max-w-xl'"
     v-bind="activeWorkflowModal.attrs || {}"
   >
-    <template v-if="activeWorkflowModal.title" #header>
+    <template
+      v-if="activeWorkflowModal.title"
+      #header
+    >
       {{ activeWorkflowModal.title }}
       <a
         v-if="activeWorkflowModal.docs"
@@ -386,7 +437,10 @@ name="riPlayLine" class="mr-1 inline-block"
         target="_blank"
         class="inline-block align-middle"
       >
-        <v-remixicon name="riInformationLine" size="20" />
+        <v-remixicon
+          name="riInformationLine"
+          size="20"
+        />
       </a>
     </template>
     <component
@@ -402,7 +456,10 @@ name="riPlayLine" class="mr-1 inline-block"
     :permissions="permissionState.items"
     @granted="registerTrigger"
   />
-  <ui-modal v-model="blockFolderModal.showModal" :title="t('packages.set')">
+  <ui-modal
+    v-model="blockFolderModal.showModal"
+    :title="t('packages.set')"
+  >
     <editor-add-package
       :data="{
         name: blockFolderModal.name,
@@ -732,6 +789,8 @@ const editorData = computed(() => {
 });
 
 const updateBlockData = debounce((data) => {
+  // Debug: Log block data updates during development
+  // eslint-disable-next-line no-console
   console.log('🚀 ~ updateBlockData ~ data:', data);
   if (!haveEditAccess.value) return;
   const node = editor.value.getNode.value(editState.blockData.blockId);
@@ -885,6 +944,7 @@ async function executeFromBlock(blockId) {
 }
 function startRecording({ nodeId, handleId }) {
   if (state.dataChanged) {
+     
     alert('Make sure to save the workflow before starting recording');
     return;
   }
@@ -1760,8 +1820,11 @@ function onBeforeLeave() {
 }
 
 useHead({
-  title: () =>
-    `${workflow.value?.name} ${isPackage ? 'package' : 'workflow'}` || 'Automa',
+  title: () => {
+    const name = workflow.value?.name || 'Automa';
+    const type = isPackage ? 'package' : 'workflow';
+    return `${name} ${type}`;
+  },
 });
 const shortcut = useShortcut([
   getShortcut('editor:toggle-sidebar', toggleSidebar),

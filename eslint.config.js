@@ -32,6 +32,8 @@ export default [
         Blob: 'readonly',
         File: 'readonly',
         FileReader: 'readonly',
+        Image: 'readonly',
+        HTMLElement: 'readonly',
         localStorage: 'readonly',
         sessionStorage: 'readonly',
         setTimeout: 'readonly',
@@ -77,6 +79,9 @@ export default [
         Number: 'readonly',
         Boolean: 'readonly',
         Function: 'readonly',
+        confirm: 'readonly',
+        alert: 'readonly',
+        toast: 'readonly',
       },
     },
     plugins: {
