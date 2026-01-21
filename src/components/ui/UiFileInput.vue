@@ -27,9 +27,7 @@
         class="w-full"
         @click="fileInput.click()"
       >
-        <v-remixicon
-name="riUploadLine" class="mr-2 -ml-1"
-/>
+        <v-remixicon name="riUploadLine" class="mr-2 -ml-1" />
         Choose File
       </ui-button>
       <p

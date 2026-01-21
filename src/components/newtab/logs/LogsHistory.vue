@@ -5,9 +5,7 @@
     :to="'/logs/' + currentLog.parentLog?.id || currentLog.collectionLogId"
     class="mb-4 flex"
   >
-    <v-remixicon
-name="riArrowLeftLine" class="mr-2"
-/>
+    <v-remixicon name="riArrowLeftLine" class="mr-2" />
     {{ t('log.goBack', { name: parentLog.name }) }}
   </router-link>
   <div class="flex flex-col-reverse items-start lg:flex-row">
@@ -32,10 +30,7 @@ name="riArrowLeftLine" class="mr-2"
                 />
               </a>
             </p>
-            <p
-class="cursor-pointer" title="Jump to item"
-@click="jumpToError"
->
+            <p class="cursor-pointer" title="Jump to item" @click="jumpToError">
               On the {{ errorBlock.name }} block
               <v-remixicon
                 name="riArrowLeftLine"
@@ -47,18 +42,13 @@ class="cursor-pointer" title="Jump to item"
           </div>
           <slot name="header-prepend" />
           <div class="grow" />
-          <ui-popover
-v-if="!isRunning" trigger-width
-class="mr-4"
->
+          <ui-popover v-if="!isRunning" trigger-width class="mr-4">
             <template #trigger>
               <ui-button>
                 <span>
                   Export <span class="hidden lg:inline-block">logs</span>
                 </span>
-                <v-remixicon
-name="riArrowDropDownLine" class="ml-2 -mr-1"
-/>
+                <v-remixicon name="riArrowDropDownLine" class="ml-2 -mr-1" />
               </ui-button>
             </template>
             <ui-list class="space-y-1">
@@ -115,9 +105,7 @@ name="riArrowDropDownLine" class="ml-2 -mr-1"
                   {{ dayjs(item.timestamp).format('HH:mm:ss') }}
                   {{ `(${countDuration(0, item.duration || 0).trim()})` }}
                 </span>
-                <span
-v-else :title="`${Math.round(item.duration / 1000)}s`"
->
+                <span v-else :title="`${Math.round(item.duration / 1000)}s`">
                   {{ countDuration(0, item.duration || 0) }}
                 </span>
               </div>
@@ -196,9 +184,7 @@ v-else :title="`${Math.round(item.duration / 1000)}s`"
       >
         <div class="mb-4 lg:mb-0">
           {{ t('components.pagination.text1') }}
-          <select
-v-model="pagination.perPage" class="bg-input rounded-md p-1"
->
+          <select v-model="pagination.perPage" class="bg-input rounded-md p-1">
             <option
               v-for="num in [25, 50, 75, 100, 150, 200]"
               :key="num"
@@ -281,10 +267,7 @@ v-model="pagination.perPage" class="bg-input rounded-md p-1"
         <p>Log data</p>
         <div class="grow" />
         <ui-select v-model="state.activeTab">
-          <option
-v-for="option in tabs" :key="option.id"
-:value="option.id"
->
+          <option v-for="option in tabs" :key="option.id" :value="option.id">
             {{ option.name }}
           </option>
         </ui-select>

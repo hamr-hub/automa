@@ -1,10 +1,8 @@
 <template>
   <div>
     <!-- 悬浮球 (折叠状态) - 固定在工具栏右侧 -->
-    <div v-if="!isOpen"
-class="flex items-center pointer-events-auto">
-      <transition name="scale"
-appear>
+    <div v-if="!isOpen" class="flex items-center pointer-events-auto">
+      <transition name="scale" appear>
         <button
           class="group flex h-10 w-10 items-center justify-center rounded-xl bg-gray-900/80 text-white shadow-lg shadow-black/20 transition-all hover:bg-blue-600 hover:scale-105 active:scale-95 border border-white/10 backdrop-blur-md ml-4"
           @click="toggleChat"
@@ -35,16 +33,16 @@ appear>
         <!-- 头部 - 可拖动区域 -->
         <div
           ref="headerRef"
-          class="flex flex-col border-b backdrop-blur-sm border-white/5 bg-white/5"
+          class="flex flex-col border-b backdrop-blur-sm border-white/5 bg-gradient-to-r from-gray-900/80 via-gray-900/60 to-transparent"
         >
           <!-- 标题栏 - 可拖动 -->
           <div
             class="flex items-center justify-between px-4 py-3 cursor-move"
             @mousedown="startDrag"
           >
-            <div class="flex items-center space-x-2.5">
+            <div class="flex items-center space-x-3">
               <div
-                class="relative flex h-8 w-8 items-center justify-center rounded-lg border bg-blue-500/10 border-blue-500/20"
+                class="relative flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 border border-white/10 shadow-lg shadow-black/20"
               >
                 <v-remixicon
                   class="text-blue-400"
@@ -52,9 +50,9 @@ appear>
                   size="18"
                 />
                 <span
-                  class="absolute -top-1 -right-1 h-2 w-2 rounded-full ring-2 ring-gray-900"
+                  class="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full ring-2 ring-gray-900"
                   :class="
-                    isGenerating ? 'bg-green-500 animate-pulse' : 'bg-gray-500'
+                    isGenerating ? 'bg-green-500 animate-pulse' : ollamaStatus === 'connected' ? 'bg-blue-500' : 'bg-gray-500'
                   "
                 />
               </div>
@@ -62,19 +60,24 @@ appear>
                 <span class="text-sm font-bold tracking-tight text-gray-100">
                   AI Assistant
                 </span>
-                <span
-                  class="text-[10px] text-gray-400 font-mono flex items-center gap-1"
-                >
+                <div class="flex items-center gap-1.5">
                   <span
-                    class="h-1 w-1 rounded-full"
+                    class="h-1.5 w-1.5 rounded-full"
                     :class="
                       ollamaStatus === 'connected'
                         ? 'bg-green-500'
                         : 'bg-red-500'
                     "
                   />
-                  {{ ollamaStatus === 'connected' ? 'ONLINE' : 'OFFLINE' }}
-                </span>
+                  <span
+                    class="text-[10px] text-gray-400 font-medium flex items-center"
+                  >
+                    {{ ollamaStatus === 'connected' ? '已连接' : '未连接' }}
+                  </span>
+                  <span v-if="isGenerating" class="text-[10px] text-blue-400 animate-pulse">
+                    生成中...
+                  </span>
+                </div>
               </div>
             </div>
             <div class="flex items-center space-x-1">
@@ -94,60 +97,63 @@ appear>
                 title="最小化"
                 @click="toggleChat"
               >
-                <v-remixicon name="riSubtractLine"
-size="16" />
+                <v-remixicon name="riSubtractLine" size="16" />
               </button>
             </div>
           </div>
 
           <!-- 模型选择和模式选择 -->
-          <div class="px-4 pb-3 space-y-2">
-            <div class="flex items-center space-x-2">
-              <v-remixicon name="riCpuLine"
-class="text-gray-400" size="14" />
-              <select
-                v-model="selectedModel"
-                :disabled="isLoadingModels || availableModels.length === 0"
-                class="flex-1 text-xs bg-gray-800/50 border border-gray-700 rounded-lg px-2 py-1.5 text-gray-200 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/20 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                @change="onModelChange"
-              >
-                <option
-v-if="isLoadingModels" value="">加载中...</option>
-                <option v-else-if="availableModels.length === 0"
-value="">
-                  无可用模型
-                </option>
-                <option
-                  v-for="model in availableModels"
-                  :key="model.name"
-                  :value="model.name"
+          <div class="px-4 pb-3 space-y-2.5">
+            <!-- 模型选择器 -->
+            <div class="relative">
+              <div class="flex items-center space-x-2 mb-1.5">
+                <v-remixicon name="riCpuLine" class="text-gray-400" size="13" />
+                <span class="text-[10px] text-gray-500 uppercase tracking-wider font-medium">模型</span>
+              </div>
+              <div class="relative">
+                <select
+                  v-model="selectedModel"
+                  :disabled="isLoadingModels || availableModels.length === 0"
+                  class="w-full text-xs bg-gray-800/60 border border-gray-700/60 rounded-lg px-3 py-2 text-gray-200 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/20 transition-all cursor-pointer appearance-none disabled:opacity-50 disabled:cursor-not-allowed"
+                  @change="onModelChange"
                 >
-                  {{ model.name }}
-                </option>
-              </select>
+                  <option v-if="isLoadingModels" value="">加载模型中...</option>
+                  <option v-else-if="availableModels.length === 0" value="">
+                    暂无可用模型
+                  </option>
+                  <option
+                    v-for="model in availableModels"
+                    :key="model.name"
+                    :value="model.name"
+                  >
+                    {{ model.name }}
+                  </option>
+                </select>
+                <!-- 自定义下拉箭头 -->
+                <div class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                  <v-remixicon name="riArrowDownSLine" class="text-gray-500" size="14" />
+                </div>
+              </div>
             </div>
+            
             <!-- 渐进式生成开关 -->
-            <div class="flex items-center space-x-2">
-              <v-remixicon
-                name="riFlowChartLine"
-                class="text-gray-400"
-                size="14"
-              />
-              <label class="flex items-center space-x-2 cursor-pointer">
+            <div class="flex items-center justify-between px-1 py-1.5 rounded-lg bg-gray-800/30 border border-gray-700/30">
+              <div class="flex items-center space-x-2">
+                <v-remixicon
+                  name="riFlowChartLine"
+                  class="text-purple-400"
+                  size="14"
+                />
+                <span class="text-xs text-gray-300">渐进式生成</span>
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer">
                 <input
                   v-model="incrementalMode"
                   type="checkbox"
-                  class="w-4 h-4 rounded border-gray-600 bg-gray-800 text-blue-500 focus:ring-blue-500/50"
+                  class="sr-only peer"
                 />
-                <span class="text-xs text-gray-300">渐进式生成</span>
+                <div class="w-8 h-4 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-blue-500"></div>
               </label>
-              <span
-                v-tooltip="'启用后将逐步生成工作流，支持多轮对话完善'"
-                class="text-gray-500 cursor-help"
-              >
-                <v-remixicon name="riQuestionLine"
-size="12" />
-              </span>
             </div>
           </div>
         </div>
@@ -183,8 +189,7 @@ size="12" />
               <div class="text-gray-300">
                 {{ step.thought }}
               </div>
-              <div v-if="step.details"
-class="text-gray-500 text-[10px] mt-0.5">
+              <div v-if="step.details" class="text-gray-500 text-[10px] mt-0.5">
                 {{ formatThinkingDetails(step.details) }}
               </div>
             </div>
@@ -199,31 +204,57 @@ class="text-gray-500 text-[10px] mt-0.5">
           <!-- 欢迎消息 -->
           <div
             v-if="history.length === 0"
-            class="mt-12 flex flex-col items-center justify-center text-center opacity-0 animate-fade-in-up"
+            class="mt-10 flex flex-col items-center justify-center text-center animate-fade-in-up"
             style="animation-fill-mode: forwards"
           >
             <div
               class="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 border border-white/5 shadow-inner"
             >
-              <v-remixicon name="riMagicLine"
-class="text-blue-400" size="28" />
+              <v-remixicon name="riMagicLine" class="text-blue-400" size="28" />
             </div>
-            <h3 class="text-sm font-medium text-gray-200 mb-1">
-              我是您的 AI 助手
+            <h3 class="text-base font-semibold text-gray-200 mb-2">
+              AI Assistant
             </h3>
-            <p class="text-xs text-gray-400 max-w-[200px] leading-relaxed">
-              我可以帮您修改当前工作流,或者根据描述创建新任务。
+            <p class="text-xs text-gray-500 max-w-[220px] leading-relaxed">
+              我可以帮您创建或修改工作流,实现浏览器自动化任务
             </p>
+            
+            <!-- 功能特性卡片 -->
+            <div class="mt-5 grid grid-cols-2 gap-2 w-full max-w-[240px]">
+              <div class="flex items-center space-x-2 px-3 py-2 rounded-lg bg-gray-800/50 hover:bg-gray-800 transition-colors">
+                <v-remixicon name="riFlowChartLine" class="text-green-400" size="14" />
+                <span class="text-xs text-gray-400">生成工作流</span>
+              </div>
+              <div class="flex items-center space-x-2 px-3 py-2 rounded-lg bg-gray-800/50 hover:bg-gray-800 transition-colors">
+                <v-remixicon name="riEditLine" class="text-blue-400" size="14" />
+                <span class="text-xs text-gray-400">修改工作流</span>
+              </div>
+              <div class="flex items-center space-x-2 px-3 py-2 rounded-lg bg-gray-800/50 hover:bg-gray-800 transition-colors">
+                <v-remixicon name="riLoopLeftLine" class="text-purple-400" size="14" />
+                <span class="text-xs text-gray-400">循环处理</span>
+              </div>
+              <div class="flex items-center space-x-2 px-3 py-2 rounded-lg bg-gray-800/50 hover:bg-gray-800 transition-colors">
+                <v-remixicon name="riGlobalLine" class="text-orange-400" size="14" />
+                <span class="text-xs text-gray-400">网页数据</span>
+              </div>
+            </div>
+            
             <!-- 快速提示 -->
-            <div class="mt-4 space-y-2 text-left">
-              <button
-                v-for="(tip, i) in quickTips"
-                :key="i"
-                class="block w-full text-left px-3 py-2 rounded-lg bg-gray-800/50 hover:bg-gray-800 text-xs text-gray-400 hover:text-gray-200 transition-colors"
-                @click="input = tip"
-              >
-                {{ tip }}
-              </button>
+            <div class="mt-5 w-full max-w-[240px]">
+              <div class="text-[10px] text-gray-600 uppercase tracking-wider mb-2 text-left ml-1">
+                试试这样说
+              </div>
+              <div class="space-y-1.5">
+                <button
+                  v-for="(tip, i) in quickTips"
+                  :key="i"
+                  class="block w-full text-left px-3 py-2 rounded-lg bg-gray-800/30 hover:bg-gray-800/70 text-xs text-gray-400 hover:text-gray-200 transition-all border border-transparent hover:border-gray-700/50"
+                  @click="input = tip"
+                >
+                  <v-remixicon name="riSparkLine" class="inline mr-1.5 text-yellow-500/60" size="12" />
+                  {{ tip }}
+                </button>
+              </div>
             </div>
           </div>
 
@@ -249,39 +280,33 @@ class="text-blue-400" size="28" />
             </div>
 
             <div
-              class="max-w-[85%] rounded-2xl px-3.5 py-2.5 text-xs leading-relaxed shadow-sm break-words border transition-all"
+              class="max-w-[85%] rounded-2xl px-4 py-3 text-xs leading-relaxed break-words transition-all shadow-md"
               :class="[
                 msg.role === 'user'
-                  ? 'bg-blue-600 text-white rounded-br-sm border-blue-500'
-                  : 'bg-gray-800/80 text-gray-200 border-gray-700/50 rounded-bl-sm backdrop-blur-sm',
+                  ? 'bg-gradient-to-br from-blue-600 to-blue-700 text-white rounded-br-md border border-blue-500'
+                  : 'bg-gradient-to-br from-gray-800/90 to-gray-800 text-gray-200 rounded-bl-md border border-gray-700/50 backdrop-blur-sm',
               ]"
             >
-              <p class="whitespace-pre-wrap font-sans">
-                {{ msg.content }}
-              </p>
+              <p class="whitespace-pre-wrap font-sans">{{ msg.content }}</p>
             </div>
-            <span
-              class="mt-1 text-[10px] text-gray-600 font-mono px-1 opacity-0 group-hover:opacity-100 transition-opacity"
-            >
-              {{ msg.role === 'user' ? 'YOU' : 'AI' }}
-            </span>
+            <div class="flex items-center mt-1 space-x-1 px-1 opacity-0 group-hover:opacity-100 transition-opacity">
+              <span class="text-[9px] text-gray-600 font-mono">
+                {{ msg.role === 'user' ? '你' : 'AI' }}
+              </span>
+              <span class="text-[9px] text-gray-700">
+                {{ new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }}
+              </span>
+            </div>
           </div>
 
           <!-- 加载状态 -->
-          <div v-if="isGenerating"
-class="flex items-start space-x-2">
+          <div v-if="isGenerating" class="flex items-start space-x-2">
             <div
               class="flex items-center space-x-1 rounded-xl bg-gray-800/50 px-3 py-2.5 border border-gray-700/30"
             >
-              <div
-                class="h-1.5 w-1.5 animate-bounce rounded-full bg-blue-400"
-              />
-              <div
-                class="h-1.5 w-1.5 animate-bounce rounded-full bg-blue-400 delay-75"
-              />
-              <div
-                class="h-1.5 w-1.5 animate-bounce rounded-full bg-blue-400 delay-150"
-              />
+              <div class="h-1.5 w-1.5 animate-bounce rounded-full bg-blue-400" />
+              <div class="h-1.5 w-1.5 animate-bounce rounded-full bg-blue-400 delay-75" />
+              <div class="h-1.5 w-1.5 animate-bounce rounded-full bg-blue-400 delay-150" />
             </div>
             <span class="text-xs text-gray-400">{{ generatingStatus }}</span>
           </div>
@@ -323,8 +348,7 @@ class="flex items-start space-x-2">
                 title="刷新标签页列表"
                 @click="refreshTabs"
               >
-                <v-remixicon name="riRefreshLine"
-size="12" />
+                <v-remixicon name="riRefreshLine" size="12" />
               </button>
             </div>
 
@@ -416,29 +440,34 @@ size="12" />
           <!-- 当前工作流状态 -->
           <div
             v-if="currentWorkflow && Object.keys(currentWorkflow).length > 0"
-            class="mb-2 px-2 py-1.5 rounded-lg bg-gray-800/50 border border-gray-700/50 text-xs flex items-center justify-between"
+            class="mb-2.5 px-3 py-2 rounded-xl bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/20 text-xs"
           >
-            <div class="flex items-center space-x-2">
-              <v-remixicon
-                name="riFlowChartLine"
-                class="text-green-400"
-                size="14"
-              />
-              <span class="text-gray-400">
-                当前工作流:
-                <span class="text-gray-200 font-medium">
-                  {{ currentWorkflow.nodes?.length || 0 }} 个节点
-                </span>
-              </span>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center space-x-2.5">
+                <div class="flex items-center justify-center w-7 h-7 rounded-lg bg-green-500/20">
+                  <v-remixicon
+                    name="riFlowChartLine"
+                    class="text-green-400"
+                    size="14"
+                  />
+                </div>
+                <div class="flex flex-col">
+                  <span class="text-gray-400 text-[10px]">当前工作流</span>
+                  <span class="text-gray-200 font-medium">
+                    {{ getWorkflowNodesCount() }}
+                    <span class="text-gray-500 font-normal">个节点</span>
+                  </span>
+                </div>
+              </div>
+              <button
+                class="flex items-center space-x-1 px-2 py-1 rounded-lg bg-gray-800/50 hover:bg-gray-700/50 text-gray-400 hover:text-gray-200 transition-all"
+                title="查看当前工作流详情"
+                @click="viewCurrentWorkflow"
+              >
+                <v-remixicon name="riInformationLine" size="12" />
+                <span class="text-[10px]">详情</span>
+              </button>
             </div>
-            <button
-              class="text-gray-500 hover:text-gray-300 transition-colors"
-              title="查看当前工作流"
-              @click="viewCurrentWorkflow"
-            >
-              <v-remixicon name="riEyeLine"
-size="14" />
-            </button>
           </div>
 
           <!-- 输入选项栏 -->
@@ -463,8 +492,7 @@ size="14" />
                 >
                   {{ selectedTab.title }}
                 </span>
-                <span v-else
-class="text-xs text-gray-500"> 选择标签页 </span>
+                <span v-else class="text-xs text-gray-500"> 选择标签页 </span>
               </button>
             </div>
 
@@ -523,8 +551,7 @@ class="text-xs text-gray-500"> 选择标签页 </span>
                 class="text-gray-500 hover:text-gray-300 transition-colors"
                 @click="inputAnalysis = null"
               >
-                <v-remixicon name="riCloseLine"
-size="12" />
+                <v-remixicon name="riCloseLine" size="12" />
               </button>
             </div>
 
@@ -643,6 +670,9 @@ const availableModels = ref([]);
 const selectedModel = ref('');
 const isLoadingModels = ref(false);
 
+// 模型加载状态
+const modelsLoaded = ref(false);
+
 // 渐进式生成相关状态
 const incrementalMode = ref(true);
 const thinkingSteps = ref([]);
@@ -672,7 +702,33 @@ const inputPlaceholder = computed(() => {
 });
 
 const currentWorkflow = computed(() => {
-  return props.workflow;
+  if (!props.workflow) return null;
+  
+  // 解析 drawflow 数据结构
+  const drawflow = props.workflow.drawflow;
+  
+  // 处理不同的工作流数据格式
+  if (!drawflow) return props.workflow;
+  
+  // 如果 drawflow 是字符串,解析它
+  if (typeof drawflow === 'string') {
+    try {
+      const parsed = JSON.parse(drawflow);
+      return {
+        ...props.workflow,
+        drawflow: parsed,
+        nodes: parsed?.drawflow?.nodes || parsed?.Home?.data || [],
+      };
+    } catch {
+      return props.workflow;
+    }
+  }
+  
+  // 如果 drawflow 已经是对象
+  return {
+    ...props.workflow,
+    nodes: drawflow?.drawflow?.nodes || drawflow?.Home?.data || [],
+  };
 });
 
 const quickTips = [
@@ -693,6 +749,19 @@ function getFeatureLabel(feature) {
     hasMultipleSites: '多网站',
   };
   return labels[feature] || feature;
+}
+
+/**
+ * 获取工作流节点数量
+ */
+function getWorkflowNodesCount() {
+  if (!currentWorkflow.value) return 0;
+  const wf = currentWorkflow.value;
+  // 尝试多种可能的数据结构
+  return wf.nodes?.length || 
+         wf.drawflow?.drawflow?.nodes?.length || 
+         wf.drawflow?.Home?.data?.length || 
+         0;
 }
 
 /**
@@ -794,10 +863,11 @@ function autoResize() {
 function toggleChat() {
   isOpen.value = !isOpen.value;
   if (isOpen.value) {
-    // 初始化对话框位置（右侧，距顶部约80px）
+    // 初始化对话框位置 - 调整到更好的位置
+    // 放在右侧偏中位置,避免遮挡工具栏
     dialogPosition.value = {
-      x: window.innerWidth - 380,
-      y: 80,
+      x: window.innerWidth - 420,  // 距离右侧 20px
+      y: 60,  // 距离顶部 60px,避开工具栏
     };
     nextTick(() => {
       scrollToBottom();
@@ -940,8 +1010,55 @@ async function checkStatus() {
   try {
     const isHealthy = await aiService.initialize();
     ollamaStatus.value = isHealthy ? 'connected' : 'disconnected';
+    
+    // 如果连接成功,加载模型列表
+    if (isHealthy && !modelsLoaded.value) {
+      loadModels();
+    }
   } catch {
     ollamaStatus.value = 'disconnected';
+  }
+}
+
+/**
+ * 加载可用模型列表
+ */
+async function loadModels() {
+  if (isLoadingModels.value || modelsLoaded.value) return;
+  
+  isLoadingModels.value = true;
+  try {
+    const models = await aiService.listModels();
+    availableModels.value = models;
+    modelsLoaded.value = true;
+    
+    // 自动选择上次使用的模型或第一个模型
+    const lastUsedModel = store.settings.ollama?.lastUsedModel;
+    if (lastUsedModel) {
+      const modelExists = models.find(m => m.name === lastUsedModel);
+      if (modelExists) {
+        selectedModel.value = lastUsedModel;
+      } else if (models.length > 0) {
+        selectedModel.value = models[0].name;
+      }
+    } else if (models.length > 0) {
+      selectedModel.value = models[0].name;
+    }
+    
+    // 保存选中的模型到配置
+    if (selectedModel.value) {
+      store.updateSettings({
+        ollama: {
+          ...store.settings.ollama,
+          model: selectedModel.value,
+        },
+      });
+    }
+  } catch (error) {
+    console.error('Failed to load models:', error);
+    availableModels.value = [];
+  } finally {
+    isLoadingModels.value = false;
   }
 }
 
@@ -1001,13 +1118,21 @@ function viewCurrentWorkflow() {
     return;
   }
 
-  toast.info(`当前工作流有 ${currentWorkflow.value.nodes?.length || 0} 个节点`);
+  toast.info(`当前工作流有 ${getWorkflowNodesCount()} 个节点`);
 }
 
 onMounted(() => {
   // 添加配置变更监听器
   aiService.addConfigChangeListener(handleConfigChange);
+  
+  // 初始化时检查状态并加载模型
   checkStatus();
+  
+  // 如果已经有配置中保存的模型,加载它
+  const savedModel = store.settings.ollama?.model;
+  if (savedModel) {
+    selectedModel.value = savedModel;
+  }
 });
 
 onUnmounted(() => {

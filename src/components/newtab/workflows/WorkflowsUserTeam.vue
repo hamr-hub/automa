@@ -1,10 +1,6 @@
 <template>
-  <p
-v-if="!userStore.user" class="my-4 text-center"
->
-    <ui-spinner
-v-if="!userStore.retrieved" color="text-accent"
-/>
+  <p v-if="!userStore.user" class="my-4 text-center">
+    <ui-spinner v-if="!userStore.retrieved" color="text-accent" />
     <template v-else>
       You must
       <a
@@ -36,9 +32,7 @@ src="@/assets/svg/files-and-folder.svg" class="mx-auto w-96" />
       Browse workflows
     </ui-button>
   </div>
-  <div
-v-else class="workflows-container"
->
+  <div v-else class="workflows-container">
     <shared-card
       v-for="workflow in workflows"
       :key="workflow.id"

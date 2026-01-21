@@ -12,10 +12,7 @@
       class="mt-4 w-full"
       @change="updateData({ dataSource: $event })"
     >
-      <option
-v-for="source in dataSources" :key="source.id"
-:value="source.id"
->
+      <option v-for="source in dataSources" :key="source.id" :value="source.id">
         {{ source.name }}
       </option>
     </ui-select>
@@ -34,10 +31,7 @@ v-for="source in dataSources" :key="source.id"
     >
       {{ t('workflow.blocks.data-mapping.edit') }}
     </ui-button>
-    <insert-workflow-data
-:data="data" variables
-@update="updateData"
-/>
+    <insert-workflow-data :data="data" variables @update="updateData" />
     <ui-modal
       v-model="state.showModal"
       :title="t('workflow.blocks.data-mapping.edit')"
@@ -59,9 +53,7 @@ v-for="source in dataSources" :key="source.id"
             </tr>
           </thead>
           <tbody class="divide-y">
-            <tr
-v-for="(source, index) in state.sources" :key="source.id"
->
+            <tr v-for="(source, index) in state.sources" :key="source.id">
               <td class="group relative pr-4 align-baseline">
                 <div class="flex items-center space-x-2">
                   <ui-autocomplete
@@ -127,9 +119,7 @@ v-for="(source, index) in state.sources" :key="source.id"
             </tr>
             <tr>
               <td>
-                <ui-button
-class="text-sm" @click="addSource"
->
+                <ui-button class="text-sm" @click="addSource">
                   {{ t('workflow.blocks.data-mapping.addSource') }}
                 </ui-button>
               </td>

@@ -9,19 +9,13 @@
     @update="$emit('update', $event)"
     @settings="$emit('settings', $event)"
   >
-    <Handle
-:id="`${id}-input-1`" type="target"
-:position="Position.Left"
-/>
+    <Handle :id="`${id}-input-1`" type="target" :position="Position.Left" />
     <div class="mb-2 flex items-center">
       <div
         :class="data.disableBlock ? 'bg-box-transparent' : block.category.color"
         class="text-overflow mr-4 inline-block rounded-lg p-2 text-sm dark:text-black"
       >
-        <v-remixicon
-name="riStopLine" size="20"
-class="mr-1 inline-block"
-/>
+        <v-remixicon name="riStopLine" size="20" class="mr-1 inline-block" />
         <span>{{ t('workflow.blocks.loop-breakpoint.name') }}</span>
       </div>
       <div class="grow" />
@@ -47,10 +41,7 @@ class="mr-1 inline-block"
     >
       Stop loop
     </ui-checkbox>
-    <Handle
-:id="`${id}-output-1`" type="source"
-:position="Position.Right"
-/>
+    <Handle :id="`${id}-output-1`" type="source" :position="Position.Right" />
   </block-base>
 </template>
 <script setup>

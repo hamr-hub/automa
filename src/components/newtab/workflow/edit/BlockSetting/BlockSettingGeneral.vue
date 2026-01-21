@@ -1,9 +1,7 @@
 <template>
   <div class="block-setting-general">
     <ui-list>
-      <div
-v-if="props.data.id !== 'delay'" class="flex items-center"
->
+      <div v-if="props.data.id !== 'delay'" class="flex items-center">
         <div class="flex-1 overflow-hidden">
           <p class="text-overflow">
             {{ t('workflow.blocks.base.settings.blockTimeout.title') }}
@@ -18,10 +16,7 @@ v-if="props.data.id !== 'delay'" class="flex items-center"
           class="w-24"
         />
       </div>
-      <ui-list-item
-v-if="isDebugSupported" small
-class="mt-4"
->
+      <ui-list-item v-if="isDebugSupported" small class="mt-4">
         <div class="flex-1 overflow-hidden">
           <p class="text-overflow">
             {{ t('workflow.blocks.debugMode.title') }}
@@ -32,9 +27,7 @@ class="mt-4"
             {{ t('workflow.blocks.debugMode.description') }}
           </p>
         </div>
-        <ui-switch
-v-model="state.debugMode" class="mr-4"
-/>
+        <ui-switch v-model="state.debugMode" class="mr-4" />
       </ui-list-item>
     </ui-list>
   </div>

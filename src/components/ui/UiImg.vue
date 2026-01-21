@@ -1,18 +1,12 @@
 <template>
-  <div
-ref="imageContainer" class="ui-image relative"
->
+  <div ref="imageContainer" class="ui-image relative">
     <div class="flex items-center justify-center">
-      <slot
-v-if="state.loading" name="loading"
->
+      <slot v-if="state.loading" name="loading">
         <div
           class="bg-input-dark absolute h-full w-full animate-pulse rounded-lg"
         />
       </slot>
-      <slot
-v-else-if="state.error" name="error"
->
+      <slot v-else-if="state.error" name="error">
         <p class="text-lighter text-center">Failed to load image</p>
       </slot>
       <div

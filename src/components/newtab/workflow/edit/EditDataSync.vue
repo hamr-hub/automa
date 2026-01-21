@@ -29,10 +29,7 @@
         class="w-full"
         @change="updateData({ method: $event })"
       >
-        <option
-v-for="method in methods" :key="method"
-:value="method"
->
+        <option v-for="method in methods" :key="method" :value="method">
           {{ method }}
         </option>
       </ui-select>
@@ -48,10 +45,7 @@ v-for="method in methods" :key="method"
     </div>
 
     <!-- 数据源选择 -->
-    <ui-tabs
-v-model="activeTab" fill
-class="mb-4"
->
+    <ui-tabs v-model="activeTab" fill class="mb-4">
       <ui-tab value="config">
         t('workflow.blocks.dataSync.tabs.config') }}
       </ui-tab>
@@ -65,9 +59,7 @@ class="mb-4"
 
     <ui-tab-panels v-model="activeTab">
       <!-- 配置面板 -->
-      <ui-tab-panel
-value="config" class="space-y-4"
->
+      <ui-tab-panel value="config" class="space-y-4">
         <ui-select
           :model-value="data.dataSource"
           :label="t('workflow.blocks.dataSync.dataSource')"
@@ -187,13 +179,9 @@ value="config" class="space-y-4"
       </ui-tab-panel>
 
       <!-- 请求头面板 -->
-      <ui-tab-panel
-value="headers" class="mt-4"
->
+      <ui-tab-panel value="headers" class="mt-4">
         <div class="grid grid-cols-7 justify-items-center gap-2">
-          <template
-v-for="(items, index) in headers" :key="index"
->
+          <template v-for="(items, index) in headers" :key="index">
             <ui-input
               v-model="items.name"
               :title="items.name"
@@ -209,23 +197,17 @@ v-for="(items, index) in headers" :key="index"
               class="col-span-3"
             />
             <button @click="removeHeader(index)">
-              <v-remixicon
-name="riCloseCircleLine" size="20"
-/>
+              <v-remixicon name="riCloseCircleLine" size="20" />
             </button>
           </template>
-          <ui-button
-class="col-span-4 mt-4 block w-full" @click="addHeader"
->
+          <ui-button class="col-span-4 mt-4 block w-full" @click="addHeader">
             {{ t('workflow.blocks.dataSync.addHeader') }}
           </ui-button>
         </div>
       </ui-tab-panel>
 
       <!-- 响应处理面板 -->
-      <ui-tab-panel
-value="response" class="mt-4 space-y-4"
->
+      <ui-tab-panel value="response" class="mt-4 space-y-4">
         <ui-select
           :model-value="data.responseType"
           :label="t('workflow.blocks.dataSync.responseType')"

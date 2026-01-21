@@ -29,21 +29,14 @@
                 size="20"
                 name="riArrowLeftLine"
               />
-              <v-remixicon
-v-else name="riArrowUpDownLine"
-size="20"
-/>
+              <v-remixicon v-else name="riArrowUpDownLine" size="20" />
             </span>
           </th>
         </tr>
       </thead>
       <tbody>
-        <tr
-v-for="item in filteredItems" :key="item[itemKey]"
->
-          <slot
-name="item-prepend" :item="item"
-/>
+        <tr v-for="item in filteredItems" :key="item[itemKey]">
+          <slot name="item-prepend" :item="item" />
           <td
             v-for="header in headers"
             v-bind="header.rowAttrs"
@@ -51,15 +44,11 @@ name="item-prepend" :item="item"
             :align="header.align"
             v-on="header.rowEvents || {}"
           >
-            <slot
-:name="`item-${header.value}`" :item="item"
->
+            <slot :name="`item-${header.value}`" :item="item">
               {{ item[header.value] }}
             </slot>
           </td>
-          <slot
-name="item-append" :item="item"
-/>
+          <slot name="item-append" :item="item" />
         </tr>
       </tbody>
     </table>
@@ -69,9 +58,7 @@ name="item-append" :item="item"
     >
       <div>
         {{ t('components.pagination.text1') }}
-        <select
-v-model="pagination.perPage" class="bg-input rounded-md p-1"
->
+        <select v-model="pagination.perPage" class="bg-input rounded-md p-1">
           <option
             v-for="num in [10, 15, 25, 50, 100, 150]"
             :key="num"

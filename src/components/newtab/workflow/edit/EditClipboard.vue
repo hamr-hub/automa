@@ -12,10 +12,7 @@
         class="mt-4 w-full"
         @change="updateData({ type: $event })"
       >
-        <option
-v-for="type in types" :key="type"
-:value="type"
->
+        <option v-for="type in types" :key="type" :value="type">
           {{ t(`workflow.blocks.clipboard.types.${type}`) }}
         </option>
       </ui-select>
@@ -46,10 +43,7 @@ v-for="type in types" :key="type"
       <p class="mt-4">
         {{ t('workflow.blocks.clipboard.noPermission') }}
       </p>
-      <ui-button
-variant="accent" class="mt-2"
-@click="permission.request"
->
+      <ui-button variant="accent" class="mt-2" @click="permission.request">
         {{ t('workflow.blocks.clipboard.grantPermission') }}
       </ui-button>
     </template>

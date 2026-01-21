@@ -1,7 +1,5 @@
 <template>
-  <div
-:class="{ 'inline-block': !block }" class="ui-select cursor-pointer"
->
+  <div :class="{ 'inline-block': !block }" class="ui-select cursor-pointer">
     <label
       v-if="label || $slots.label"
       :for="selectId"
@@ -29,10 +27,7 @@
         class="bg-input z-10 h-full w-full appearance-none rounded-lg bg-transparent px-4 py-2 pr-10 transition"
         @change="emitValue"
       >
-        <option
-v-if="placeholder" value=""
-disabled selected
->
+        <option v-if="placeholder" value="" disabled selected>
           {{ placeholder }}
         </option>
         <slot />

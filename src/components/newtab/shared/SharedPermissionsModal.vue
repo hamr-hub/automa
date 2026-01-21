@@ -1,7 +1,5 @@
 <template>
-  <ui-modal
-:title="t('workflowPermissions.title')" persist
->
+  <ui-modal :title="t('workflowPermissions.title')" persist>
     <p class="font-semibold">
       {{ t('workflowPermissions.description') }}
     </p>
@@ -12,9 +10,7 @@
         small
         style="align-items: flex-start"
       >
-        <v-remixicon
-:name="icons[permission]" class="mt-1"
-/>
+        <v-remixicon :name="icons[permission]" class="mt-1" />
         <div class="ml-4 flex-1 overflow-hidden">
           <p class="leading-tight">
             {{ t(`workflowPermissions.${permission}.title`) }}
@@ -26,14 +22,10 @@
       </ui-list-item>
     </ui-list>
     <div class="mt-8 text-right">
-      <ui-button
-class="mr-2" @click="emit('update:modelValue', false)"
->
+      <ui-button class="mr-2" @click="emit('update:modelValue', false)">
         {{ t('common.cancel') }}
       </ui-button>
-      <ui-button
-variant="accent" @click="requestPermission"
->
+      <ui-button variant="accent" @click="requestPermission">
         {{ t('workflow.blocks.clipboard.grantPermission') }}
       </ui-button>
     </div>

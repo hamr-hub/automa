@@ -30,8 +30,9 @@ src="@/assets/svg/logo.svg" class="w-10" />
             style="height: 40px; width: 40px"
             alt="Can not display"
           />
-          <span v-else
-class="bg-box-transparent rounded-lg p-2">
+          <span
+v-else class="bg-box-transparent rounded-lg p-2"
+>
             <v-remixicon :name="workflow.data.icon" />
           </span>
           <div class="ml-4 flex-1 overflow-hidden">
@@ -45,8 +46,9 @@ class="bg-box-transparent rounded-lg p-2">
             </p>
           </div>
         </template>
-        <p v-if="workflow.type === 'block'"
-class="px-4 pb-2">
+        <p
+v-if="workflow.type === 'block'" class="px-4 pb-2"
+>
           By Parameter Prompt block
         </p>
         <div class="px-4 pb-4">
@@ -106,8 +108,9 @@ class="px-4 pb-2">
               </ui-button>
             </template>
             <template v-else>
-              <ui-button class="mr-4"
-@click="deleteWorkflow(index)">
+              <ui-button
+class="mr-4" @click="deleteWorkflow(index)"
+>
                 Cancel
               </ui-button>
               <ui-button
@@ -115,8 +118,9 @@ class="px-4 pb-2">
                 variant="accent"
                 @click="runWorkflow(index, workflow)"
               >
-                <v-remixicon name="riPlayLine"
-class="mr-2 -ml-1" />
+                <v-remixicon
+name="riPlayLine" class="mr-2 -ml-1"
+/>
                 Run
               </ui-button>
             </template>

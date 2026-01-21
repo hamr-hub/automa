@@ -1,8 +1,5 @@
 <template>
-  <div
-v-if="workflow" class="flex"
-style="height: calc(100vh - 40px)"
->
+  <div v-if="workflow" class="flex" style="height: calc(100vh - 40px)">
     <div
       v-if="state.showSidebar && haveEditAccess"
       :class="
@@ -50,10 +47,7 @@ ref="sidebarRef" class="custom-drag" @mousedown="startDrag" />
               :src="workflow.icon"
               class="h-8 w-8"
             />
-            <v-remixicon
-v-else :name="workflow.icon"
-size="26"
-/>
+            <v-remixicon v-else :name="workflow.icon" size="26" />
           </span>
           <div class="ml-2 max-w-sm">
             <p
@@ -98,10 +92,7 @@ size="26"
               {{ t('common.settings') }}
             </ui-tab>
           </template>
-          <ui-tab
-v-else value="logs"
-class="flex items-center"
->
+          <ui-tab v-else value="logs" class="flex items-center">
             {{ t('common.log', 2) }}
             <span
               v-if="workflowStates.length > 0"
@@ -112,9 +103,7 @@ class="flex items-center"
             </span>
           </ui-tab>
         </ui-tabs>
-        <ui-card
-v-if="isTeamWorkflow" padding="p-1 ml-4 pointer-events-auto"
->
+        <ui-card v-if="isTeamWorkflow" padding="p-1 ml-4 pointer-events-auto">
           <ui-input
             v-tooltip="'Workflow URL'"
             prepend-icon="riLinkM"
@@ -124,18 +113,14 @@ v-if="isTeamWorkflow" padding="p-1 ml-4 pointer-events-auto"
           />
         </ui-card>
         <div class="pointer-events-none grow" />
-        <editor-used-credentials
-v-if="editor" :editor="editor"
-/>
+        <editor-used-credentials v-if="editor" :editor="editor" />
         <template v-if="isPackage">
           <ui-button
             v-if="workflow.isExternal"
             v-tooltip="t('workflow.previewMode.description')"
             class="pointer-events-auto cursor-default"
           >
-            <v-remixicon
-name="riEyeLine" class="mr-2 -ml-1"
-/>
+            <v-remixicon name="riEyeLine" class="mr-2 -ml-1" />
             <span>{{ t('workflow.previewMode.title') }}</span>
           </ui-button>
           <editor-pkg-actions
@@ -178,16 +163,10 @@ name="riEyeLine" class="mr-2 -ml-1"
         @dragover.prevent="onDragoverEditor"
       >
         <template v-if="isPackage">
-          <ui-tab-panel
-value="package-details" class="container pt-24"
->
-            <package-details
-:data="workflow" @update="updateWorkflow"
-/>
+          <ui-tab-panel value="package-details" class="container pt-24">
+            <package-details :data="workflow" @update="updateWorkflow" />
           </ui-tab-panel>
-          <ui-tab-panel
-value="package-settings" class="container pt-24"
->
+          <ui-tab-panel value="package-settings" class="container pt-24">
             <package-settings
               :data="workflow"
               :editor="editor"
@@ -196,10 +175,7 @@ value="package-settings" class="container pt-24"
             />
           </ui-tab-panel>
         </template>
-        <ui-tab-panel
-cache value="editor"
-class="w-full" @keydown="onKeydown"
->
+        <ui-tab-panel cache value="editor" class="w-full" @keydown="onKeydown">
           <editor-debugging
             v-if="workflow.testingMode && workflowStates.length > 0"
             :states="workflowStates"
@@ -229,8 +205,9 @@ class="w-full" @keydown="onKeydown"
               #controls-prepend
             >
               <div class="flex items-center space-x-2">
-                <ui-card padding="p-0 undo-redo"
-class="shadow-sm">
+                <ui-card
+padding="p-0 undo-redo" class="shadow-sm"
+>
                   <button
                     v-tooltip.group="
                       `${t('workflow.undo')} (${getReadableShortcut('mod+z')})`
@@ -284,13 +261,17 @@ class="shadow-sm">
                 </div>
 
                 <!-- Execution Status Indicator -->
-                <div v-if="workflowStates.length > 0"
-class="ml-2">
-                  <ui-card padding="px-3 py-1"
-class="shadow-sm">
+                <div
+v-if="workflowStates.length > 0" class="ml-2"
+>
+                  <ui-card
+padding="px-3 py-1" class="shadow-sm"
+>
                     <div class="flex items-center text-sm">
-                      <ui-spinner color="text-accent"
-size="16" class="mr-2" />
+                      <ui-spinner
+color="text-accent" size="16"
+class="mr-2"
+/>
                       <span>{{ workflowStates.length }}
                         {{ t('workflow.running') }}</span>
                     </div>
@@ -319,8 +300,9 @@ size="16" class="mr-2" />
             @duplicate="duplicateElements"
           />
         </ui-tab-panel>
-        <ui-tab-panel value="logs"
-class="container pt-24">
+        <ui-tab-panel
+value="logs" class="container pt-24"
+>
           <editor-logs
             :workflow-id="workflow.id"
             :workflow-states="workflowStates"
@@ -354,15 +336,19 @@ class="container pt-24">
               class="mb-4"
             >
               <div class="mb-2 flex items-center">
-                <ui-spinner color="text-accent"
-size="20" class="mr-2" />
+                <ui-spinner
+color="text-accent" size="20"
+class="mr-2"
+/>
                 <span class="font-medium">{{ workflowState.name }}</span>
               </div>
-              <div v-if="workflowState.currentBlock"
-class="ml-8 space-y-1">
+              <div
+v-if="workflowState.currentBlock" class="ml-8 space-y-1"
+>
                 <p class="text-sm text-gray-600 dark:text-gray-300">
-                  <v-remixicon name="riPlayLine"
-class="mr-1 inline-block" />
+                  <v-remixicon
+name="riPlayLine" class="mr-1 inline-block"
+/>
                   {{ t('workflow.currentBlock') }}:
                   <span class="font-medium">
                     {{
@@ -391,9 +377,7 @@ class="mr-1 inline-block" />
     :content-class="activeWorkflowModal?.width || 'max-w-xl'"
     v-bind="activeWorkflowModal.attrs || {}"
   >
-    <template
-v-if="activeWorkflowModal.title" #header
->
+    <template v-if="activeWorkflowModal.title" #header>
       {{ activeWorkflowModal.title }}
       <a
         v-if="activeWorkflowModal.docs"
@@ -402,9 +386,7 @@ v-if="activeWorkflowModal.title" #header
         target="_blank"
         class="inline-block align-middle"
       >
-        <v-remixicon
-name="riInformationLine" size="20"
-/>
+        <v-remixicon name="riInformationLine" size="20" />
       </a>
     </template>
     <component
@@ -420,9 +402,7 @@ name="riInformationLine" size="20"
     :permissions="permissionState.items"
     @granted="registerTrigger"
   />
-  <ui-modal
-v-model="blockFolderModal.showModal" :title="t('packages.set')"
->
+  <ui-modal v-model="blockFolderModal.showModal" :title="t('packages.set')">
     <editor-add-package
       :data="{
         name: blockFolderModal.name,

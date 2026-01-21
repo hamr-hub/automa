@@ -12,10 +12,7 @@
       class="mb-2 w-full"
       @change="updateMethod"
     >
-      <option
-v-for="method in methods" :key="method"
-:value="method"
->
+      <option v-for="method in methods" :key="method" :value="method">
         {{ method }}
       </option>
     </ui-select>
@@ -57,15 +54,11 @@ v-for="method in methods" :key="method"
       type="number"
       @change="updateData({ timeout: +$event })"
     />
-    <ui-tabs
-v-model="activeTab" fill
->
+    <ui-tabs v-model="activeTab" fill>
       <ui-tab value="headers">
         {{ t('workflow.blocks.webhook.tabs.headers') }}
       </ui-tab>
-      <ui-tab
-v-if="!notHaveBody.includes(data.method)" value="body"
->
+      <ui-tab v-if="!notHaveBody.includes(data.method)" value="body">
         {{ t('workflow.blocks.webhook.tabs.body') }}
       </ui-tab>
       <ui-tab value="response">
@@ -77,9 +70,7 @@ v-if="!notHaveBody.includes(data.method)" value="body"
         value="headers"
         class="mt-4 grid grid-cols-7 justify-items-center gap-2"
       >
-        <template
-v-for="(items, index) in headers" :key="index"
->
+        <template v-for="(items, index) in headers" :key="index">
           <ui-input
             v-model="items.name"
             :title="items.name"
@@ -95,20 +86,14 @@ v-for="(items, index) in headers" :key="index"
             class="col-span-3"
           />
           <button @click="removeHeader(index)">
-            <v-remixicon
-name="riCloseCircleLine" size="20"
-/>
+            <v-remixicon name="riCloseCircleLine" size="20" />
           </button>
         </template>
-        <ui-button
-class="col-span-4 mt-4 block w-full" @click="addHeader"
->
+        <ui-button class="col-span-4 mt-4 block w-full" @click="addHeader">
           <span> {{ t('workflow.blocks.webhook.buttons.header') }} </span>
         </ui-button>
       </ui-tab-panel>
-      <ui-tab-panel
-value="body" class="mt-4"
->
+      <ui-tab-panel value="body" class="mt-4">
         <pre
           v-if="!showBodyModal"
           class="max-h-80 overflow-auto rounded-lg bg-gray-900 p-4 text-gray-200"
@@ -116,9 +101,7 @@ value="body" class="mt-4"
           v-text="data.body"
         />
       </ui-tab-panel>
-      <ui-tab-panel
-value="response" class="mt-2"
->
+      <ui-tab-panel value="response" class="mt-2">
         <ui-select
           :model-value="data.responseType"
           label="Response type"

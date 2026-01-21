@@ -7,10 +7,7 @@
         placeholder="Select block"
         @change="onSelectChanged"
       >
-        <option
-v-for="(block, id) in blocks" :key="id"
-:value="id"
->
+        <option v-for="(block, id) in blocks" :key="id" :value="id">
           {{ block.name }}
         </option>
       </ui-select>

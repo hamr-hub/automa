@@ -56,7 +56,8 @@ class="absolute inset-0 bg-black bg-opacity-60" @click="close" />
             >
               {{ t('common.prev') }}
             </ui-button>
-            <ui-button v-else variant="secondary" @click="close">
+            <ui-button v-else
+variant="secondary" @click="close">
               {{ t('common.close') }}
             </ui-button>
             <ui-button
@@ -66,7 +67,8 @@ class="absolute inset-0 bg-black bg-opacity-60" @click="close" />
             >
               {{ t('common.next') }}
             </ui-button>
-            <ui-button v-else @click="finish" variant="accent">
+            <ui-button v-else
+@click="finish" variant="accent">
               {{ t('common.finish') }}
             </ui-button>
           </div>

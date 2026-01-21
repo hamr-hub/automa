@@ -42,12 +42,8 @@
             d="M12.6309 8.35657V11.4991H9.48834V8.35657H12.6309Z"
             stroke="black"
           />
-          <path
-d="M5.66516 6.37384H7.27247V2.13159H9.45839" stroke="black"
-/>
-          <path
-d="M5.15082 6.43445H7.26688V9.9986H9.91184" stroke="black"
-/>
+          <path d="M5.66516 6.37384H7.27247V2.13159H9.45839" stroke="black" />
+          <path d="M5.15082 6.43445H7.26688V9.9986H9.91184" stroke="black" />
         </svg>
 
         <v-remixicon
@@ -65,9 +61,7 @@ d="M5.15082 6.43445H7.26688V9.9986H9.91184" stroke="black"
           }"
           class="absolute top-2 right-2 text-red-500 dark:text-red-400"
         >
-          <v-remixicon
-name="riAlertLine" size="20"
-/>
+          <v-remixicon name="riAlertLine" size="20" />
         </span>
         <p
           v-if="block.details.id"
@@ -107,10 +101,7 @@ name="riAlertLine" size="20"
         {{ t('common.fallback') }}
       </span>
     </div>
-    <Handle
-:id="`${id}-output-1`" type="source"
-:position="Position.Right"
-/>
+    <Handle :id="`${id}-output-1`" type="source" :position="Position.Right" />
     <Handle
       v-if="data.onError?.enable && data.onError?.toDo === 'fallback'"
       :id="`${id}-output-fallback`"

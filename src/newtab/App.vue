@@ -17,10 +17,11 @@
                 ? t('auth.requireLogin.featureText', '此功能需要登录才能使用：')
                 : t('auth.text')
             }}
-            <span v-if="authRequiredFeature"
-class="font-semibold">{{
-              authRequiredFeature
-            }}</span>
+            <span
+v-if="authRequiredFeature" class="font-semibold"
+>{{
+                    authRequiredFeature
+                  }}</span>
           </p>
           <ui-button
             class="mt-6 block w-full"
@@ -39,8 +40,9 @@ class="font-semibold">{{
       <div
         class="flex items-center rounded-lg bg-[var(--color-accent)] p-4 shadow-2xl"
       >
-        <v-remixicon name="riInformationLine"
-class="mr-3" />
+        <v-remixicon
+name="riInformationLine" class="mr-3"
+/>
         <p>
           {{ t('updateMessage.text1', { version: currentVersion }) }}
         </p>
@@ -57,15 +59,17 @@ class="mr-3" />
           class="ml-6 text-gray-200 dark:text-gray-600"
           @click="isUpdated = false"
         >
-          <v-remixicon size="20"
-name="riCloseLine" />
+          <v-remixicon
+size="20" name="riCloseLine"
+/>
         </button>
       </div>
       <div
         class="mt-4 flex items-center rounded-lg bg-[var(--color-accent)] p-4 shadow-2xl"
       >
-        <v-remixicon name="riInformationLine"
-class="mr-3 shrink-0" />
+        <v-remixicon
+name="riInformationLine" class="mr-3 shrink-0"
+/>
         <p>
           Export your Automa workflows as a standalone extension using
           <a
@@ -90,10 +94,12 @@ class="mr-3 shrink-0" />
       @finish="handleGuideFinish"
     />
   </template>
-  <div v-else
-class="py-8 text-center">
-    <ui-spinner color="text-[var(--color-accent)]"
-size="28" />
+  <div
+v-else class="py-8 text-center"
+>
+    <ui-spinner
+color="text-[var(--color-accent)]" size="28"
+/>
   </div>
 </template>
 <script setup>

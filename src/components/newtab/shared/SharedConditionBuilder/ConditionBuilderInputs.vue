@@ -18,10 +18,7 @@
           :key="label"
           :label="label"
         >
-          <option
-v-for="type in types" :key="type.id"
-:value="type.id"
->
+          <option v-for="type in types" :key="type.id" :value="type.id">
             {{ type.name }}
           </option>
         </optgroup>
@@ -94,10 +91,7 @@ v-for="type in types" :key="type.id"
         :key="category"
         :label="category"
       >
-        <option
-v-for="type in types" :key="type.id"
-:value="type.id"
->
+        <option v-for="type in types" :key="type.id" :value="type.id">
           {{ type.name }}
         </option>
       </optgroup>

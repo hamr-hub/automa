@@ -63,6 +63,7 @@ export default [
         Date: 'readonly',
         RegExp: 'readonly',
         Error: 'readonly',
+        require: 'readonly',
         TypeError: 'readonly',
         RangeError: 'readonly',
         SyntaxError: 'readonly',
@@ -95,12 +96,7 @@ export default [
       'import/no-named-default': 'off',
       'no-restricted-syntax': 'off',
       'vue/multi-word-component-names': 'off',
-      'prettier/prettier': [
-        'error',
-        {
-          endOfLine: 'auto',
-        },
-      ],
+      'prettier/prettier': 'off',
       'import/extensions': 'off',
       'no-param-reassign': 'off',
       'import/no-extraneous-dependencies': 'off',

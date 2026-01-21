@@ -24,8 +24,9 @@
       </div>
 
       <!-- Login View -->
-      <div v-if="!isRegister"
-class="mt-8">
+      <div
+v-if="!isRegister" class="mt-8"
+>
         <!-- Login Tabs -->
         <div class="mb-6 flex border-b border-gray-200 dark:border-gray-700">
           <button
@@ -43,16 +44,19 @@ class="mt-8">
           </button>
         </div>
 
-        <form class="space-y-6"
-@submit.prevent="handleLogin">
+        <form
+class="space-y-6" @submit.prevent="handleLogin"
+>
           <!-- Password Login -->
-          <div v-if="activeTab === 'password'"
-class="space-y-4">
+          <div
+v-if="activeTab === 'password'" class="space-y-4"
+>
             <div>
-              <label for="email"
-class="sr-only">{{
-                t('auth.email', '邮箱')
-              }}</label>
+              <label
+for="email" class="sr-only"
+>{{
+                       t('auth.email', '邮箱')
+                     }}</label>
               <ui-input
                 id="email"
                 v-model="form.email"
@@ -64,10 +68,11 @@ class="sr-only">{{
               />
             </div>
             <div>
-              <label for="password"
-class="sr-only">{{
-                t('auth.password', '密码')
-              }}</label>
+              <label
+for="password" class="sr-only"
+>{{
+                       t('auth.password', '密码')
+                     }}</label>
               <ui-input
                 id="password"
                 v-model="form.password"
@@ -81,13 +86,15 @@ class="sr-only">{{
           </div>
 
           <!-- OTP Login -->
-          <div v-else
-class="space-y-4">
+          <div
+v-else class="space-y-4"
+>
             <div>
-              <label for="phone-email"
-class="sr-only">{{
-                t('auth.emailOrPhone', '邮箱或手机号')
-              }}</label>
+              <label
+for="phone-email" class="sr-only"
+>{{
+                       t('auth.emailOrPhone', '邮箱或手机号')
+                     }}</label>
               <ui-input
                 id="phone-email"
                 v-model="form.email"
@@ -123,11 +130,13 @@ class="sr-only">{{
           </div>
 
           <!-- Error Message -->
-          <div v-if="error"
-class="rounded-md bg-red-50 p-4 dark:bg-red-900/20">
+          <div
+v-if="error" class="rounded-md bg-red-50 p-4 dark:bg-red-900/20"
+>
             <div class="flex">
-              <v-remixicon name="riErrorWarningLine"
-class="text-red-400" />
+              <v-remixicon
+name="riErrorWarningLine" class="text-red-400"
+/>
               <div class="ml-3">
                 <p class="text-sm text-red-800 dark:text-red-200">
                   {{ error }}
@@ -143,8 +152,10 @@ class="text-red-400" />
             variant="accent"
             :disabled="loading || !captchaToken"
           >
-            <ui-spinner v-if="loading"
-size="20" class="mr-2" />
+            <ui-spinner
+v-if="loading" size="20"
+class="mr-2"
+/>
             {{
               loading
                 ? t('auth.signingIn', '登录中...')
@@ -156,8 +167,9 @@ size="20" class="mr-2" />
         </form>
 
         <!-- Passkey Login -->
-        <div v-if="isPasskeySupported"
-class="mt-4">
+        <div
+v-if="isPasskeySupported" class="mt-4"
+>
           <div class="relative">
             <div class="absolute inset-0 flex items-center">
               <div
@@ -178,10 +190,14 @@ class="mt-4">
             :disabled="passkeyLoading"
             @click="handlePasskeyLogin"
           >
-            <ui-spinner v-if="passkeyLoading"
-size="20" class="mr-2" />
-            <v-remixicon v-else
-name="riFingerprint2Line" class="mr-2" />
+            <ui-spinner
+v-if="passkeyLoading" size="20"
+class="mr-2"
+/>
+            <v-remixicon
+v-else name="riFingerprint2Line"
+class="mr-2"
+/>
             {{
               passkeyLoading
                 ? t('common.processing', '处理中...')
@@ -211,12 +227,15 @@ name="riFingerprint2Line" class="mr-2" />
       </div>
 
       <!-- Register View (Step-by-step) -->
-      <div v-else
-class="mt-8">
+      <div
+v-else class="mt-8"
+>
         <!-- Steps Indicator -->
         <div class="mb-6 flex items-center justify-between px-4">
-          <div v-for="step in 3"
-:key="step" class="flex items-center">
+          <div
+v-for="step in 3" :key="step"
+class="flex items-center"
+>
             <div
               class="flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold transition-colors"
               :class="[
@@ -241,8 +260,9 @@ class="mt-8">
 
         <form @submit.prevent="handleRegisterNext">
           <!-- Step 1: Basic Info -->
-          <div v-if="registerStep === 1"
-class="space-y-4">
+          <div
+v-if="registerStep === 1" class="space-y-4"
+>
             <ui-input
               v-model="registerForm.email"
               type="email"
@@ -269,8 +289,9 @@ class="space-y-4">
           </div>
 
           <!-- Step 2: Verification -->
-          <div v-else-if="registerStep === 2"
-class="space-y-6">
+          <div
+v-else-if="registerStep === 2" class="space-y-6"
+>
             <p class="text-center text-sm text-gray-600 dark:text-gray-400">
               {{
                 t('auth.securityCheck', '为了保障您的账号安全，请完成以下验证')
@@ -280,13 +301,15 @@ class="space-y-6">
           </div>
 
           <!-- Step 3: Success -->
-          <div v-else
-class="text-center space-y-4">
+          <div
+v-else class="text-center space-y-4"
+>
             <div
               class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30"
             >
-              <v-remixicon name="riCheckLine"
-class="h-8 w-8 text-green-500" />
+              <v-remixicon
+name="riCheckLine" class="h-8 w-8 text-green-500"
+/>
             </div>
             <h3 class="text-lg font-medium text-gray-900 dark:text-white">
               {{ t('auth.registerSuccess', '注册成功！') }}
@@ -324,8 +347,10 @@ class="h-8 w-8 text-green-500" />
                 registerLoading || (registerStep === 2 && !registerCaptchaToken)
               "
             >
-              <ui-spinner v-if="registerLoading"
-size="20" class="mr-2" />
+              <ui-spinner
+v-if="registerLoading" size="20"
+class="mr-2"
+/>
               {{
                 registerStep === 1
                   ? t('common.next', '下一步')

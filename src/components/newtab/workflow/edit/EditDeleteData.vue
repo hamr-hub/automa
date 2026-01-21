@@ -18,16 +18,11 @@
             :label="t('workflow.blocks.delete-data.from')"
             class="flex-1"
           >
-            <option
-v-for="type in types" :key="type.id"
-:value="type.id"
->
+            <option v-for="type in types" :key="type.id" :value="type.id">
               {{ type.name }}
             </option>
           </ui-select>
-          <ui-button
-icon @click="deleteList.splice(index, 1)"
->
+          <ui-button icon @click="deleteList.splice(index, 1)">
             <v-remixicon name="riDeleteBin7Line" />
           </ui-button>
         </div>
@@ -59,10 +54,7 @@ icon @click="deleteList.splice(index, 1)"
         </ui-select>
       </li>
     </ul>
-    <ui-button
-class="my-4" variant="accent"
-@click="addItem"
->
+    <ui-button class="my-4" variant="accent" @click="addItem">
       {{ t('common.add') }}
     </ui-button>
   </div>

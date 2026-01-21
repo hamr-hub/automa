@@ -20,24 +20,18 @@
       @change="emitData({ url: $event })"
     />
   </div>
-  <ui-tabs
-v-model="activeTab" class="mt-1"
->
+  <ui-tabs v-model="activeTab" class="mt-1">
     <ui-tab value="headers">
       {{ t('workflow.blocks.webhook.tabs.headers') }}
     </ui-tab>
-    <ui-tab
-v-if="data.method !== 'GET'" value="body"
->
+    <ui-tab v-if="data.method !== 'GET'" value="body">
       {{ t('workflow.blocks.webhook.tabs.body') }}
     </ui-tab>
   </ui-tabs>
   <ui-tab-panels v-model="activeTab">
     <ui-tab-panel value="headers">
       <div class="mt-4 grid grid-cols-7 justify-items-center gap-2">
-        <template
-v-for="(header, index) in data.headers" :key="index"
->
+        <template v-for="(header, index) in data.headers" :key="index">
           <ui-input
             v-model="header.name"
             :title="header.name"
@@ -59,9 +53,7 @@ v-for="(header, index) in data.headers" :key="index"
               })
             "
           >
-            <v-remixicon
-name="riCloseCircleLine" size="20"
-/>
+            <v-remixicon name="riCloseCircleLine" size="20" />
           </button>
         </template>
       </div>
@@ -74,9 +66,7 @@ name="riCloseCircleLine" size="20"
         <span> {{ t('workflow.blocks.webhook.buttons.header') }} </span>
       </ui-button>
     </ui-tab-panel>
-    <ui-tab-panel
-value="body" class="mt-4"
->
+    <ui-tab-panel value="body" class="mt-4">
       <shared-codemirror
         :model-value="data.body"
         lang="json"

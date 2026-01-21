@@ -39,7 +39,8 @@
         class="hover:bg-white/20 transition-all duration-200 rounded-lg p-1"
         @click="openAIGenerator"
       >
-        <v-remixicon name="riRobotLine" size="16" class="text-white" />
+        <v-remixicon name="riRobotLine"
+size="16" class="text-white" />
       </ui-button>
       <ui-button
         v-tooltip.group="t('home.record.title')"
@@ -47,7 +48,8 @@
         class="hover:bg-white/20 transition-all duration-200 rounded-lg p-1"
         @click="startRecording"
       >
-        <v-remixicon name="riRecordCircleLine" size="16" class="text-white" />
+        <v-remixicon name="riRecordCircleLine"
+size="16" class="text-white" />
       </ui-button>
       <ui-button
         v-tooltip.group="t('common.dashboard')"
@@ -56,7 +58,8 @@
         :title="t('common.dashboard')"
         @click="openDashboard('')"
       >
-        <v-remixicon name="riHome5Line" size="16" class="text-white" />
+        <v-remixicon name="riHome5Line"
+size="16" class="text-white" />
       </ui-button>
     </div>
   </div>
@@ -108,7 +111,8 @@
               class="text-gray-400"
             />
             <span class="flex-1 truncate">{{ suggestion.name }}</span>
-            <span v-if="suggestion.folder" class="text-xs text-gray-400">{{
+            <span v-if="suggestion.folder"
+class="text-xs text-gray-400">{{
               suggestion.folder
             }}</span>
           </button>
@@ -126,7 +130,8 @@
     <ui-tab value="local">
       {{ t(`home.workflow.type.local`) }}
     </ui-tab>
-    <ui-tab v-if="hostedWorkflowStore.toArray.length > 0" value="host">
+    <ui-tab v-if="hostedWorkflowStore.toArray.length > 0"
+value="host">
       {{ t(`home.workflow.type.host`) }}
     </ui-tab>
     <ui-tab
@@ -142,7 +147,8 @@ v-if="userStore.user?.teams?.length" value="team"> Teams </ui-tab>
     class="relative z-20 space-y-2 px-3 pb-2.5"
   >
     <!-- New User Welcome & Quick Actions -->
-    <div v-if="workflowStore.getWorkflows.length === 0" class="space-y-4">
+    <div v-if="workflowStore.getWorkflows.length === 0"
+class="space-y-4">
       <!-- Welcome Banner -->
       <div
         class="rounded-lg bg-gradient-to-r from-blue-500/10 to-purple-500/10 p-3 border border-blue-500/20"
@@ -151,7 +157,8 @@ v-if="userStore.user?.teams?.length" value="team"> Teams </ui-tab>
           <div
             class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-500"
           >
-            <v-remixicon name="riSparklingFill" size="18" class="text-white" />
+            <v-remixicon name="riSparklingFill"
+size="18" class="text-white" />
           </div>
           <div class="flex-1 min-w-0">
             <h3
@@ -177,7 +184,8 @@ v-if="userStore.user?.teams?.length" value="team"> Teams </ui-tab>
             <div
               class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-600 transition-colors group-hover:bg-red-500 dark:bg-red-500/10 dark:text-red-400"
             >
-              <v-remixicon name="riRecordCircleLine" size="18" />
+              <v-remixicon name="riRecordCircleLine"
+size="18" />
             </div>
             <div class="flex-1 min-w-0">
               <p class="text-sm font-medium text-gray-900 dark:text-gray-100">
@@ -204,7 +212,8 @@ v-if="userStore.user?.teams?.length" value="team"> Teams </ui-tab>
             <div
               class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 text-white transition-transform group-hover:scale-105"
             >
-              <v-remixicon name="riRobotLine" size="18" />
+              <v-remixicon name="riRobotLine"
+size="18" />
             </div>
             <div class="flex-1 min-w-0">
               <p class="text-sm font-medium text-gray-900 dark:text-gray-100">
@@ -231,7 +240,8 @@ v-if="userStore.user?.teams?.length" value="team"> Teams </ui-tab>
             <div
               class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gray-100 text-gray-600 transition-colors group-hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-400"
             >
-              <v-remixicon name="riAddLine" size="18" />
+              <v-remixicon name="riAddLine"
+size="18" />
             </div>
             <div class="flex-1 min-w-0">
               <p class="text-sm font-medium text-gray-900 dark:text-gray-100">
@@ -286,7 +296,8 @@ v-if="userStore.user?.teams?.length" value="team"> Teams </ui-tab>
     <div
       class="mb-1 flex items-center text-xs font-medium text-gray-600 dark:text-gray-400"
     >
-      <v-remixicon name="riPushpin2Fill" size="11" class="mr-1 text-blue-500" />
+      <v-remixicon name="riPushpin2Fill"
+size="11" class="mr-1 text-blue-500" />
       <span>Pinned Workflows</span>
     </div>
     <div class="space-y-1.5">
@@ -312,7 +323,8 @@ v-if="userStore.user?.teams?.length" value="team"> Teams </ui-tab>
     v-if="state.activeTab !== 'team'"
     class="flex items-center space-x-1 rounded-lg bg-gray-50 p-1 dark:bg-gray-800/50"
   >
-    <ui-select v-model="state.activeFolder" class="flex-1 text-xs h-6">
+    <ui-select v-model="state.activeFolder"
+class="flex-1 text-xs h-6">
       <option value="">All Folders</option>
       <option
         v-for="folder in folderStore.items"
@@ -325,12 +337,14 @@ v-if="userStore.user?.teams?.length" value="team"> Teams </ui-tab>
     <ui-popover>
       <template #trigger>
         <ui-button class="shrink-0 text-xs px-2 py-0.5 h-6">
-          <v-remixicon name="riSortDesc" class="mr-0.5 -ml-0.5" size="12" />
+          <v-remixicon name="riSortDesc"
+class="mr-0.5 -ml-0.5" size="12" />
           <span>Sort</span>
         </ui-button>
       </template>
       <div class="w-48 p-2">
-        <ui-select v-model="sortState.order" block placeholder="Sort order">
+        <ui-select v-model="sortState.order"
+block placeholder="Sort order">
           <option value="asc">Ascending</option>
           <option value="desc">Descending</option>
         </ui-select>
@@ -340,7 +354,8 @@ v-if="userStore.user?.teams?.length" value="team"> Teams </ui-tab>
           block
           class="mt-1.5 flex-1"
         >
-          <option v-for="sort in sorts" :key="sort" :value="sort">
+          <option v-for="sort in sorts"
+:key="sort" :value="sort">
             {{ t(`sort.${sort}`) }}
           </option>
         </ui-select>
@@ -348,7 +363,8 @@ v-if="userStore.user?.teams?.length" value="team"> Teams </ui-tab>
     </ui-popover>
   </div>
 
-  <div v-if="state.activeTab !== 'team'" class="space-y-1.5">
+  <div v-if="state.activeTab !== 'team'"
+class="space-y-1.5">
     <home-workflow-card
       v-for="workflow in workflows"
       :key="workflow.id"
@@ -404,7 +420,8 @@ v-if="userStore.user?.teams?.length" value="team"> Teams </ui-tab>
           class="text-xs h-6 px-2.5"
           @click="deleteBatchWorkflows"
         >
-          <v-remixicon name="riDeleteBin7Line" size="12" class="mr-0.5" />
+          <v-remixicon name="riDeleteBin7Line"
+size="12" class="mr-0.5" />
           {{ t('workflow.deleteSelected') }} ({{
             state.selectedForBatch.length
           }})

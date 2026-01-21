@@ -4,9 +4,7 @@
     padding="p-1"
     class="pointer-events-auto mr-4"
   >
-    <ui-popover
-v-tooltip="t('credential.use.title')" @show="checkCredentials"
->
+    <ui-popover v-tooltip="t('credential.use.title')" @show="checkCredentials">
       <template #trigger>
         <button class="hoverable rounded-lg p-2 transition">
           <v-remixicon name="riKey2Line" />
@@ -16,9 +14,7 @@ v-tooltip="t('credential.use.title')" @show="checkCredentials"
         <p class="leading-tight">
           {{ t('credential.use.description') }}
         </p>
-        <ui-list
-class="scroll mt-2 overflow-auto" style="max-height: 400px"
->
+        <ui-list class="scroll mt-2 overflow-auto" style="max-height: 400px">
           <ui-list-item
             v-for="item in credentials"
             :key="item.nodeId"
@@ -34,9 +30,7 @@ class="scroll mt-2 overflow-auto" style="max-height: 400px"
               >
                 {{ item.nodeName }}
               </p>
-              <ul
-v-for="name in item.items" :key="name"
->
+              <ul v-for="name in item.items" :key="name">
                 <li :title="`Credential name: ${name}`">
                   <p class="text-overflow">- {{ name }}</p>
                 </li>

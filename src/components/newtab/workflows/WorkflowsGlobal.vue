@@ -30,10 +30,7 @@
         </option>
       </ui-select>
 
-      <ui-select
-v-model="sortBy" class="w-40"
-@change="loadWorkflows"
->
+      <ui-select v-model="sortBy" class="w-40" @change="loadWorkflows">
         <option value="created_at">
           {{ t('workflow.global.newest') }}
         </option>
@@ -47,9 +44,7 @@ v-model="sortBy" class="w-40"
     </div>
 
     <!-- 加载状态 -->
-    <div
-v-if="loading" class="flex justify-center py-12"
->
+    <div v-if="loading" class="flex justify-center py-12">
       <ui-spinner />
     </div>
 
@@ -71,9 +66,7 @@ src="@/assets/svg/alien.svg" class="w-96" />
     </div>
 
     <!-- 工作流列表 -->
-    <div
-v-else class="workflows-container"
->
+    <div v-else class="workflows-container">
       <div
         v-for="workflow in workflows"
         :key="workflow.id"
@@ -96,9 +89,7 @@ v-else class="workflows-container"
               <h3 class="font-semibold truncate">
                 {{ workflow.name }}
               </h3>
-              <ui-badge
-v-if="workflow.isFeatured" variant="warning"
->
+              <ui-badge v-if="workflow.isFeatured" variant="warning">
                 {{ t('workflow.global.featured') }}
               </ui-badge>
             </div>
@@ -114,32 +105,22 @@ v-if="workflow.isFeatured" variant="warning"
               class="flex items-center gap-4 mt-3 text-sm text-gray-500 dark:text-gray-500"
             >
               <div class="flex items-center gap-1">
-                <v-remixicon
-name="riDownloadLine" size="14"
-/>
+                <v-remixicon name="riDownloadLine" size="14" />
                 <span>{{ workflow.downloadsCount || 0 }}</span>
               </div>
               <div class="flex items-center gap-1">
-                <v-remixicon
-name="riHeartLine" size="14"
-/>
+                <v-remixicon name="riHeartLine" size="14" />
                 <span>{{ workflow.likesCount || 0 }}</span>
               </div>
-              <div
-v-if="workflow.authorName" class="flex items-center gap-1"
->
-                <v-remixicon
-name="riUserLine" size="14"
-/>
+              <div v-if="workflow.authorName" class="flex items-center gap-1">
+                <v-remixicon name="riUserLine" size="14" />
                 <span>{{ workflow.authorName }}</span>
               </div>
               <div
                 v-if="workflow.tags && workflow.tags.length > 0"
                 class="flex items-center gap-1"
               >
-                <v-remixicon
-name="riPriceTag3Line" size="14"
-/>
+                <v-remixicon name="riPriceTag3Line" size="14" />
                 <span>{{ workflow.tags.slice(0, 2).join(', ') }}</span>
               </div>
             </div>
@@ -151,10 +132,7 @@ name="riPriceTag3Line" size="14"
               size="small"
               @click.stop="importWorkflow(workflow)"
             >
-              <v-remixicon
-name="riDownloadLine" size="16"
-class="mr-1"
-/>
+              <v-remixicon name="riDownloadLine" size="16" class="mr-1" />
               {{ t('workflow.global.import') }}
             </ui-button>
             <ui-button
@@ -163,9 +141,7 @@ class="mr-1"
               size="small"
               @click.stop="toggleLike(workflow)"
             >
-              <v-remixicon
-name="riHeartFill" size="16"
-/>
+              <v-remixicon name="riHeartFill" size="16" />
             </ui-button>
             <ui-button
               v-else
@@ -173,9 +149,7 @@ name="riHeartFill" size="16"
               size="small"
               @click.stop="toggleLike(workflow)"
             >
-              <v-remixicon
-name="riHeartLine" size="16"
-/>
+              <v-remixicon name="riHeartLine" size="16" />
             </ui-button>
           </div>
         </div>
@@ -183,12 +157,8 @@ name="riHeartLine" size="16"
     </div>
 
     <!-- 加载更多 -->
-    <div
-v-if="hasMore" class="mt-6 text-center"
->
-      <ui-button
-variant="secondary" @click="loadMore"
->
+    <div v-if="hasMore" class="mt-6 text-center">
+      <ui-button variant="secondary" @click="loadMore">
         {{ t('workflow.global.loadMore') }}
       </ui-button>
     </div>
@@ -199,9 +169,7 @@ variant="secondary" @click="loadMore"
       :title="selectedWorkflow?.name"
       width="600px"
     >
-      <div
-v-if="selectedWorkflow" class="space-y-4"
->
+      <div v-if="selectedWorkflow" class="space-y-4">
         <div class="flex items-center gap-4">
           <div
             class="w-16 h-16 rounded-lg bg-primary-100 dark:bg-primary-900 flex items-center justify-center"
@@ -237,25 +205,17 @@ v-if="selectedWorkflow" class="space-y-4"
           class="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400"
         >
           <span class="flex items-center gap-1">
-            <v-remixicon
-name="riDownloadLine" size="16"
-/>
+            <v-remixicon name="riDownloadLine" size="16" />
             {{ selectedWorkflow.downloadsCount || 0 }}
             {{ t('workflow.global.downloads') }}
           </span>
           <span class="flex items-center gap-1">
-            <v-remixicon
-name="riHeartLine" size="16"
-/>
+            <v-remixicon name="riHeartLine" size="16" />
             {{ selectedWorkflow.likesCount || 0 }}
             {{ t('workflow.global.likes') }}
           </span>
-          <span
-v-if="selectedWorkflow.version" class="flex items-center gap-1"
->
-            <v-remixicon
-name="riInformationLine" size="16"
-/>
+          <span v-if="selectedWorkflow.version" class="flex items-center gap-1">
+            <v-remixicon name="riInformationLine" size="16" />
             v{{ selectedWorkflow.version }}
           </span>
         </div>
@@ -277,13 +237,8 @@ name="riInformationLine" size="16"
           <ui-button @click="showDetails = false">
             {{ t('common.close') }}
           </ui-button>
-          <ui-button
-variant="accent" @click="importWorkflow(selectedWorkflow)"
->
-            <v-remixicon
-name="riDownloadLine" size="16"
-class="mr-1"
-/>
+          <ui-button variant="accent" @click="importWorkflow(selectedWorkflow)">
+            <v-remixicon name="riDownloadLine" size="16" class="mr-1" />
             {{ t('workflow.global.import') }}
           </ui-button>
         </div>

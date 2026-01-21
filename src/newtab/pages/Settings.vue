@@ -22,8 +22,9 @@
             tag="a"
             @click="navigate"
           >
-            <v-remixicon :name="menu.icon"
-class="mr-2 -ml-1" />
+            <v-remixicon
+:name="menu.icon" class="mr-2 -ml-1"
+/>
             {{ t(`settings.menu.${menu.id}`) }}
           </ui-list-item>
         </router-link>
@@ -34,8 +35,10 @@ class="mr-2 -ml-1" />
           class="mb-4 w-full md:hidden"
           @change="onSelectChanged"
         >
-          <option v-for="menu in menus"
-:key="menu.id" :value="menu.path">
+          <option
+v-for="menu in menus" :key="menu.id"
+:value="menu.path"
+>
             {{ t(`settings.menu.${menu.id}`) }}
           </option>
         </ui-select>

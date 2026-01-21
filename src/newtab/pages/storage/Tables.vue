@@ -1,7 +1,5 @@
 <template>
-  <div
-v-if="tableDetail && tableData" class="container py-8 pb-4"
->
+  <div v-if="tableDetail && tableData" class="container py-8 pb-4">
     <div class="mb-12 flex items-center">
       <h1 class="text-3xl font-semibold">
         {{ tableDetail.name }}
@@ -32,23 +30,15 @@ v-if="tableDetail && tableData" class="container py-8 pb-4"
         class="mb-4 w-full md:mb-0 md:w-auto"
       />
       <div class="grow" />
-      <ui-button
-class="md:ml-4" @click="editTable"
->
-        <v-remixicon
-name="riPencilLine" class="mr-2 -ml-1"
-/>
+      <ui-button class="md:ml-4" @click="editTable">
+        <v-remixicon name="riPencilLine" class="mr-2 -ml-1" />
         <span>Edit table</span>
       </ui-button>
-      <ui-popover
-trigger-width class="ml-4"
->
+      <ui-popover trigger-width class="ml-4">
         <template #trigger>
           <ui-button variant="accent">
             <span>{{ t('log.exportData.title') }}</span>
-            <v-remixicon
-name="riArrowDropDownLine" class="ml-2 -mr-1"
-/>
+            <v-remixicon name="riArrowDropDownLine" class="ml-2 -mr-1" />
           </ui-button>
         </template>
         <ui-list class="space-y-1">

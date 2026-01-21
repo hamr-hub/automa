@@ -1,18 +1,10 @@
 <template>
-  <ui-tabs
-v-model="state.activeTab" class="-mt-2"
->
-    <ui-tab
-v-for="tab in tabs" :key="tab.id"
-:value="tab.id"
->
+  <ui-tabs v-model="state.activeTab" class="-mt-2">
+    <ui-tab v-for="tab in tabs" :key="tab.id" :value="tab.id">
       {{ tab.name }}
     </ui-tab>
   </ui-tabs>
-  <ui-tab-panels
-v-if="state.retrieved" v-model="state.activeTab"
-class="mt-4"
->
+  <ui-tab-panels v-if="state.retrieved" v-model="state.activeTab" class="mt-4">
     <ui-tab-panel value="general">
       <block-setting-general
         v-model:data="state.settings"

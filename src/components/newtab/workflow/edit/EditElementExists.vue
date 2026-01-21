@@ -12,10 +12,7 @@
       class="mb-1 mt-4 w-full"
       @change="updateData({ findBy: $event })"
     >
-      <option
-v-for="type in selectorTypes" :key="type"
-:value="type"
->
+      <option v-for="type in selectorTypes" :key="type" :value="type">
         {{ t(`workflow.blocks.base.findElement.options.${type}`) }}
       </option>
     </ui-select>

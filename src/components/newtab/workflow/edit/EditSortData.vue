@@ -12,10 +12,7 @@
       class="mt-4 w-full"
       @change="updateData({ dataSource: $event })"
     >
-      <option
-v-for="source in dataSources" :key="source.id"
-:value="source.id"
->
+      <option v-for="source in dataSources" :key="source.id" :value="source.id">
         {{ source.name }}
       </option>
     </ui-select>
@@ -57,16 +54,11 @@ v-for="source in dataSources" :key="source.id"
             />
           </ui-autocomplete>
           <div class="mt-2 flex items-center">
-            <ui-select
-v-model="property.order" class="flex-1"
->
+            <ui-select v-model="property.order" class="flex-1">
               <option value="asc">Ascending</option>
               <option value="desc">Descending</option>
             </ui-select>
-            <ui-button
-class="ml-2" icon
-@click="properties.splice(index, 1)"
->
+            <ui-button class="ml-2" icon @click="properties.splice(index, 1)">
               <v-remixicon name="riDeleteBin7Line" />
             </ui-button>
           </div>
@@ -82,10 +74,7 @@ class="ml-2" icon
       </ui-button>
     </template>
     <div class="mt-6">
-      <insert-workflow-data
-:data="data" variables
-@update="updateData"
-/>
+      <insert-workflow-data :data="data" variables @update="updateData" />
     </div>
   </div>
 </template>

@@ -1,8 +1,6 @@
 <template>
   <label>
-    <span
-v-if="!editor" class="ml-1 text-sm text-gray-600 dark:text-gray-200"
->
+    <span v-if="!editor" class="ml-1 text-sm text-gray-600 dark:text-gray-200">
       {{ paramData.name }}
     </span>
     <ui-textarea

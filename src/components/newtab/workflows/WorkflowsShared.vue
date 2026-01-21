@@ -11,9 +11,7 @@ src="@/assets/svg/alien.svg" class="w-96" />
       </h1>
     </div>
   </div>
-  <div
-v-else class="workflows-container"
->
+  <div v-else class="workflows-container">
     <shared-card
       v-for="workflow in workflows"
       :key="workflow.id"
