@@ -77,7 +77,7 @@
             <v-remixicon name="riDownloadLine" size="36" />
           </span>
         </div>
-        <ui-checkbox v-model="state.encrypt" class="mt-12 mb-4">
+        <ui-checkbox v-model="state.encrypt" class="mt-6 mb-4">
           {{ t('settings.backupWorkflows.backup.encrypt') }}
         </ui-checkbox>
         <div class="flex items-center gap-2">

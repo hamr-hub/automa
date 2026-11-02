@@ -2,6 +2,10 @@ import { IS_FIREFOX } from '@/common/utils/constant';
 import BrowserAPIEventHandler from '@/service/browser-api/BrowserAPIEventHandler';
 import BrowserAPIService from '@/service/browser-api/BrowserAPIService';
 import { useUserStore } from '@/stores/user';
+import {
+  executeCallbacksInData,
+  isCallbackBridge,
+} from '@/utils/callbackBridge';
 import getFile, { readFileAsBase64 } from '@/utils/getFile';
 import { sleep } from '@/utils/helper';
 import { MessageListener } from '@/utils/message';
@@ -57,7 +61,10 @@ if (browser.notifications && browser.notifications.onClicked) {
 const message = new MessageListener('background');
 
 message.on('browser-api', (payload) => {
-  return BrowserAPIService.runtimeMessageHandler(payload);
+  return BrowserAPIService.runtimeMessageHandler.call(
+    BrowserAPIService,
+    payload
+  );
 });
 message.on(BrowserAPIEventHandler.RuntimeEvents.TOGGLE, (data) =>
   BrowserAPIEventHandler.instance.onToggleBrowserEventListener(data)
@@ -224,8 +231,8 @@ message.on(
             const escapePolicy = (script) => {
               if (window?.trustedTypes?.createPolicy) {
                 try {
-                  // 尝试使用可能在CSP白名单中的名称
-                  const policyNames = [
+                  // 生成基于白名单的唯一策略名称，避免与现有策略冲突
+                  const baseNames = [
                     'default',
                     'dompurify',
                     'jSecure',
@@ -233,11 +240,14 @@ message.on(
                   ];
                   let escapeElPolicy = null;
 
-                  // 尝试创建策略，如果一个名称失败，尝试下一个
-                  for (const policyName of policyNames) {
+                  // 为每个基础名称尝试添加唯一后缀
+                  for (const baseName of baseNames) {
                     try {
+                      const uniqueName = `${baseName}-automa-${Date.now().toString(
+                        36
+                      )}`;
                       escapeElPolicy = window.trustedTypes.createPolicy(
-                        policyName,
+                        uniqueName,
                         {
                           createHTML: (to_escape) => to_escape,
                           createScript: (to_escape) => to_escape,
@@ -246,7 +256,25 @@ message.on(
                       // 如果成功创建，跳出循环
                       break;
                     } catch (e) {
-                      // 该名称失败，继续尝试下一个
+                      // 该名称失败（可能不在白名单中），继续尝试下一个
+                    }
+                  }
+
+                  // 如果基于白名单的策略都失败，尝试纯 automa 策略名
+                  if (!escapeElPolicy) {
+                    try {
+                      const automaName = `automa-policy-${Date.now().toString(
+                        36
+                      )}`;
+                      escapeElPolicy = window.trustedTypes.createPolicy(
+                        automaName,
+                        {
+                          createHTML: (to_escape) => to_escape,
+                          createScript: (to_escape) => to_escape,
+                        }
+                      );
+                    } catch (e) {
+                      // 最后的尝试也失败了
                     }
                   }
 
@@ -255,11 +283,9 @@ message.on(
                     return escapeElPolicy.createScript(script);
                   }
                   // 如果所有策略名称都失败，返回原始脚本
-
                   return script;
                 } catch (e) {
                   // 捕获任何其他错误并降级
-
                   return script;
                 }
               }
@@ -990,19 +1016,34 @@ message.on('downloads:watch-created', async (data) => {
   // save pending download requests
   downloadListeners.pendingRequests = downloadListeners.pendingRequests || [];
 
-  // safe callback
+  // Handle callback bridge or regular function
   let safeCallback = null;
-  if (typeof data.onComplete === 'function') {
-    safeCallback = (response) => {
-      try {
-        data.onComplete(response);
-      } catch (callbackError) {
-        console.error(
-          '❌ failed to call download complete callback:',
-          callbackError
-        );
-      }
-    };
+  if (data.onComplete) {
+    if (isCallbackBridge(data.onComplete)) {
+      // Use callback bridge for cross-context communication
+      safeCallback = async (response) => {
+        try {
+          await executeCallbacksInData(data.onComplete, response);
+        } catch (callbackError) {
+          console.error(
+            '❌ failed to call download complete callback:',
+            callbackError
+          );
+        }
+      };
+    } else if (typeof data.onComplete === 'function') {
+      // Fallback for regular functions (should not happen in fixed version)
+      safeCallback = (response) => {
+        try {
+          data.onComplete(response);
+        } catch (callbackError) {
+          console.error(
+            '❌ failed to call download complete callback:',
+            callbackError
+          );
+        }
+      };
+    }
   }
 
   downloadListeners.pendingRequests.push({
@@ -1017,20 +1058,38 @@ message.on('downloads:watch-created', async (data) => {
 message.on('downloads:watch-changed', async ({ downloadId, onComplete }) => {
   await registerBackgroundDownloadListeners();
 
-  if (downloadId && typeof onComplete === 'function') {
-    // 安全地包装回调函数
-    const safeCallback = (response) => {
-      try {
-        onComplete(response);
-      } catch (callbackError) {
-        console.error(
-          '❌ failed to call download changed callback:',
-          callbackError
-        );
-      }
-    };
+  if (downloadId && onComplete) {
+    let safeCallback = null;
 
-    downloadListeners.changedCallbacks.set(downloadId, safeCallback);
+    if (isCallbackBridge(onComplete)) {
+      // Use callback bridge for cross-context communication
+      safeCallback = async (response) => {
+        try {
+          await executeCallbacksInData(onComplete, response);
+        } catch (callbackError) {
+          console.error(
+            '❌ failed to call download changed callback:',
+            callbackError
+          );
+        }
+      };
+    } else if (typeof onComplete === 'function') {
+      // Fallback for regular functions (should not happen in fixed version)
+      safeCallback = (response) => {
+        try {
+          onComplete(response);
+        } catch (callbackError) {
+          console.error(
+            '❌ failed to call download changed callback:',
+            callbackError
+          );
+        }
+      };
+    }
+
+    if (safeCallback) {
+      downloadListeners.changedCallbacks.set(downloadId, safeCallback);
+    }
   }
 
   return true;

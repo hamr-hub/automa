@@ -1,8 +1,11 @@
 import dbStorage from '@/db/storage';
-import BrowserAPIService from '@/service/browser-api/BrowserAPIService';
+import BrowserAPIService, {
+  IS_BROWSER_API_AVAILABLE,
+} from '@/service/browser-api/BrowserAPIService';
 import { fetchApi } from '@/utils/api';
 import { getBlocks } from '@/utils/getSharedData';
 import { clearCache, isObject, parseJSON, sleep } from '@/utils/helper';
+import { MessageListener } from '@/utils/message';
 import cloneDeep from 'lodash.clonedeep';
 import { nanoid } from 'nanoid';
 import WorkflowWorker from './WorkflowWorker';
@@ -127,8 +130,6 @@ class WorkflowEngine {
         return;
       }
 
-      console.log('before execute', this.state, '\n', this.workflow);
-
       const { nodes, edges } = this.workflow.drawflow;
       if (!nodes || nodes.length === 0) {
         console.error(`${this.workflow.name} doesn't have blocks`);
@@ -180,7 +181,29 @@ class WorkflowEngine {
         }
 
         const paramUrl = BrowserAPIService.runtime.getURL('params.html');
-        const tabs = await BrowserAPIService.tabs.query({});
+
+        let tabs;
+        if (!IS_BROWSER_API_AVAILABLE) {
+          tabs = await BrowserAPIService.tabs.query({});
+        } else {
+          try {
+            tabs = await BrowserAPIService.tabs.query({});
+            if (!tabs || !Array.isArray(tabs)) {
+              tabs = await MessageListener.sendMessage(
+                'browser-api',
+                { name: 'tabs.query', args: [{}] },
+                'background'
+              );
+            }
+          } catch (e) {
+            tabs = await MessageListener.sendMessage(
+              'browser-api',
+              { name: 'tabs.query', args: [{}] },
+              'background'
+            );
+          }
+        }
+
         const paramTab = tabs.find((tab) => tab.url?.includes(paramUrl));
 
         if (paramTab) {
@@ -315,6 +338,7 @@ class WorkflowEngine {
         parentState: this.parentWorkflow,
         teamId: this.workflow.teamId || null,
       });
+
       this.addWorker({ blockId: triggerBlock.id });
     } catch (error) {
       console.error('WorkflowEngine init error:', error);
@@ -404,7 +428,7 @@ class WorkflowEngine {
 
     workflowQueue.splice(queueIndex, 1);
 
-    await BrowserAPIService.storage.localSet({ workflowQueue });
+    await BrowserAPIService.storage.local.set({ workflowQueue });
   }
 
   async destroyWorker(workerId) {
@@ -525,7 +549,7 @@ class WorkflowEngine {
           },
         };
 
-        BrowserAPIService.storage.localSet(workflowState);
+        BrowserAPIService.storage.local.set(workflowState);
       } else if (status === 'success') {
         clearCache(this.workflow);
       }
